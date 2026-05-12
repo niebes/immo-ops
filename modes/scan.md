@@ -47,7 +47,15 @@ For each portal with `scan_method: playwright` and `enabled: true`:
 **Bot detection mitigation:**
 - Respect `rate_limit` (seconds between requests)
 - Don't navigate more than 5 pages per portal per scan
-- If captcha detected: skip portal, note in scan summary
+- If CAPTCHA detected: ask user to solve it manually in the browser tab, then resume. If user is unavailable, skip portal and note in scan summary.
+- Portals with `captcha_risk: high` (e.g., ImmoScout24) should be scanned last — if they block, we still have results from other portals.
+
+**Tauschwohnung pre-filter:**
+German portals (especially ImmoScout24, Immowelt) are flooded with swap listings from tauschwohnung.com. These are NOT real rentals. Filter them early:
+- Check title for: "Tauschwohnung", "Wohnungstausch", "Tausche", "gegen Wohnung"
+- Check Anbieter for: "Tauschwohnung GmbH"
+- Register filtered swaps in scan-history.tsv with status `skipped_title`
+- Do NOT add them to pipeline
 
 ### Level 2 — WebSearch (DISCOVERY)
 
@@ -82,15 +90,20 @@ For each portal with `scan_method: websearch` and `enabled: true`:
    - If `positive` list is non-empty: at least 1 keyword must appear (case-insensitive)
    - 0 keywords from `negative` may appear
    
-6. **Filter by criteria** from profile.yml:
-   - Price within range (if extractable from search results)
-   - Room count meets minimum
-   - Area not in excluded list
+6. **Filter by criteria** (HARD GATE — reject before pipeline ingestion):
+   Using `scan_defaults` from portals.yml AND `searches` from profile.yml:
+   - Rooms: REJECT if rooms < `rooms_min` (default: 3). Non-negotiable.
+   - Size: REJECT if m² < `size_min` (default: 60). Non-negotiable.
+   - Price: REJECT if price > `price_max` (default: max_kaltmiete from profile). Non-negotiable.
+   - Area: REJECT if location matches an excluded area.
+   - If a field could not be extracted from the search result snippet, log a warning but still add to pipeline (better to over-include than silently drop).
+   - Price sanity check: if price is >30% below typical area Mietspiegel, flag as suspicious — likely Tauschwohnung or scam. Still add to pipeline but prepend "⚠ LOW PRICE" to the title.
 
-7. **Deduplicate** against 3 sources:
-   - `data/scan-history.tsv` → URL already seen
+7. **Deduplicate** against 3 sources (URL-level, exact match):
+   - `data/scan-history.tsv` → URL already seen. Check BEFORE appending — never write duplicate rows.
    - `data/listings.md` → URL already evaluated
    - `data/pipeline.md` → URL already in pending or processed
+   A URL that already exists in ANY of these sources is a duplicate, regardless of which scan run or date it was first seen. Skip it entirely — do not re-append to scan-history.tsv.
 
 8. **For each new listing that passes filters**:
    a. Add to `data/pipeline.md` under "Pending": `- [ ] {url} | {portal} | {title}`
@@ -127,5 +140,5 @@ New added to pipeline: {N}
   + {portal} | {title} | {location} | {price} EUR
   ...
 
-→ Run /immo-ops pipeline to evaluate the new listings.
+→ Run /immo-find pipeline to evaluate the new listings.
 ```

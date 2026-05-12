@@ -8,11 +8,17 @@
     "merge": "node scripts/merge-tracker.mjs",
     "score": "node scripts/score-listing.mjs",
     "dedup": "node scripts/dedup-listings.mjs",
-    "expiry": "node scripts/listing-expiry-check.mjs"
+    "dedup:fix": "node scripts/dedup-listings.mjs --fix",
+    "expiry": "node scripts/listing-expiry-check.mjs",
+    "scan": "node scripts/scan.mjs",
+    "scan:dry": "node scripts/scan.mjs --dry-run",
+    "scan:headed": "node scripts/scan.mjs --headed",
+    "login:immoscout": "node scripts/login-immoscout.mjs",
+    "process-scan": "node scripts/process-scan.mjs"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.1.0",
+    "playwright": "^1.60.0"
   },
-  "devDependencies": {},
   "private": true
 }

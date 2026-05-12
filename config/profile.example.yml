@@ -5,6 +5,7 @@ searcher:
   full_name: "Your Name"
   email: "your@email.com"
   phone: "+49-..."
+  notification_email: "your@email.com"  # Where scan alerts go (can differ from contact email)
 
 # Multiple search types supported. Each gets its own portal filters and scoring weights.
 searches:

@@ -29,11 +29,16 @@ One of:
    - Landlord/Hausverwaltung/Makler name
    - Number of photos, floor plan available
    - Provision/Maklergebühr
-4. **Run scam detection** (from `_shared.md`)
-5. **Score all 8 blocks** (A–H) using rules from `_shared.md` and weight overrides from `_profile.md`
-6. **Calculate global score** (weighted average with hard blocker caps)
-7. **Generate report** in the format below
-8. **Register in tracker**: write TSV to `batch/tracker-additions/{NNN}-{location-slug}.tsv`
+4. **Detect Tauschwohnung**: Check title, description, and Anbieter for swap indicators:
+   - Title contains "Tauschwohnung", "Wohnungstausch", "Tausche", "gegen Wohnung"
+   - Description mentions looking for a swap partner or references tauschwohnung.com
+   - Listed by "Tauschwohnung GmbH" or similar swap platforms
+   - If detected: **stop evaluation**, mark as `Discarded` with note "Tauschwohnung — not a rental", register in tracker, and inform user.
+5. **Run scam detection** (from `_shared.md`)
+6. **Score all 8 blocks** (A–H) using rules from `_shared.md` and weight overrides from `_profile.md`
+7. **Calculate global score** (weighted average with hard blocker caps)
+8. **Generate report** in the format below
+9. **Register in tracker**: write TSV to `batch/tracker-additions/{NNN}-{location-slug}.tsv`
 
 ## Report Format
 

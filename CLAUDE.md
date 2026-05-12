@@ -4,13 +4,15 @@ Evaluate listings, score neighborhoods, scan portals, detect scams, generate doc
 
 ## Architecture
 
-Three skills with distinct responsibilities:
+Five skills mapped to the apartment hunting journey:
 
-| Skill | Purpose |
-|-------|---------|
-| `/immo-ops` | Main router — evaluate, compare, track, contact, viewings, market analysis, scam check, documents, Selbstauskunft |
-| `/immo-scan` | Portal scanning, filtering, dedup, ingestion into pipeline |
-| `/immo-research` | Deep area/landlord/building research |
+| Skill | Phase | Modes |
+|-------|-------|-------|
+| `/immo-find` | **Discover** | scan, pipeline, batch |
+| `/immo-assess` | **Analyze** | evaluate, compare, scam-check, market, auto-pipeline |
+| `/immo-apply` | **Act** | contact, selbstauskunft, documents |
+| `/immo-track` | **Manage** | tracker, viewing |
+| `/immo-research` | **Deep-dive** | research (subagent) |
 
 ## Sources of Truth
 
@@ -108,11 +110,14 @@ Red flags — any of these should trigger a warning:
 |------|-----|
 | WebSearch | Market data, Mietspiegel, landlord reputation, area info |
 | WebFetch | Extract listing details from static pages |
-| Playwright | Scan portals (browser_navigate + browser_snapshot). Cookie consent first. Rate limit. **NEVER 2+ agents with Playwright in parallel.** |
+| Playwright | Headless scan via `npm run scan`. **NEVER 2+ Playwright agents in parallel.** |
+| CiC (Claude-in-Chrome) | Interactive scan for bot-protected portals (ImmoScout24). Uses real Chrome. |
 | Read | profile.yml, _profile.md, portals.yml, listings.md |
 | Write | Reports, tracker additions, research |
 | Edit | Update tracker status |
 | Bash | `node scripts/*.mjs` |
+
+**CiC tab rule:** ALWAYS create a dedicated tab via `tabs_create_mcp` before CiC operations. Never reuse tabs from other agents/skills. When done, close only the tab(s) you created via `tabs_close_mcp` — never close tabs you didn't create.
 
 ## Listing Statuses
 
@@ -123,10 +128,42 @@ Canonical statuses (see `templates/states.yml`):
 
 Reports go to `reports/{NNN}-{location}-{rooms}r-{date}.md` with blocks A–H plus summary and next steps. See `modes/evaluate.md` for full format.
 
+## Tauschwohnung Detection
+
+German portals (especially ImmoScout24, Immowelt) are flooded with apartment swap listings from tauschwohnung.com. These are NOT real rentals — they require you to offer your own apartment in exchange.
+
+**Detection signals:**
+- Title contains: "Tauschwohnung", "Wohnungstausch", "Tausche", "gegen Wohnung"
+- Anbieter is "Tauschwohnung GmbH"
+- Description references tauschwohnung.com or swap mechanics
+- Listed as "Wohnungstausch:" prefix
+
+**Action:** Skip during scan (title_filter catches most). During evaluation, detect early and register as `Discarded` without scoring.
+
+## Portal-Specific Notes
+
+Two scan methods: `playwright` (headless, `npm run scan`) and `cic` (Claude-in-Chrome, interactive).
+
+| Portal | Method | Notes |
+|--------|--------|-------|
+| ImmoScout24 | **cic** | Blocks Playwright entirely. Use CiC with user's real Chrome. CAPTCHA may need manual solve. |
+| Immowelt | playwright | Works headlessly. Redirect-heavy URLs — use canonical form. |
+| Kleinanzeigen | playwright | Works headlessly. Location codes are city-specific (find via WebSearch). |
+| Vonovia | playwright | SPA with dynamic loading. |
+
+Portals are configured in `portals.yml` (user layer, gitignored). The template at `templates/portals.example.yml` has a starter set.
+
+When a CiC portal shows a CAPTCHA:
+1. Inform the user which portal is blocked
+2. Ask user to solve CAPTCHA in the open browser tab
+3. After user confirms, resume extraction
+4. If user is unavailable, skip portal and note it in the scan summary
+
 ## First Run
 
 On first invocation, check for `config/profile.yml`. If missing:
 1. Copy `config/profile.example.yml` to `config/profile.yml`
 2. Copy `modes/_profile.template.md` to `modes/_profile.md`
 3. Copy `templates/portals.example.yml` to `portals.yml`
-4. Guide user through filling in their search criteria
+4. Copy `templates/data/*.md` to `data/`
+5. Guide user through filling in their search criteria and portal URLs

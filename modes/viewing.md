@@ -26,7 +26,7 @@ Read the listing's evaluation report and generate a checklist tailored to the sp
 **Before arriving:**
 - [ ] Confirm address and access instructions
 - [ ] Bring: Personalausweis, Selbstauskunft, Gehaltsnachweise, SCHUFA
-- [ ] Check current documents status via `/immo-ops documents`
+- [ ] Check current documents status via `/immo-apply documents`
 - [ ] Note questions for landlord/Makler
 
 **Outside the building:**

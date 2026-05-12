@@ -1,6 +1,6 @@
 # Mode: auto-pipeline — Full Evaluation Pipeline
 
-Automatic pipeline triggered when a listing URL or text is pasted directly into `/immo-ops`. Runs the full evaluation flow: extract → score → scam check → report → tracker.
+Automatic pipeline triggered when a listing URL or text is pasted directly into `/immo-assess`. Runs the full evaluation flow: extract → score → scam check → report → tracker.
 
 ## Workflow
 
@@ -13,13 +13,15 @@ Automatic pipeline triggered when a listing URL or text is pasted directly into 
    - Search `data/scan-history.tsv` for URL
    - If found: show existing evaluation, ask user if they want to re-evaluate
 
-3. **Execute evaluate mode**: Follow the full `evaluate.md` workflow (blocks A–H)
+3. **Early Tauschwohnung detection**: After extracting the page, check for swap indicators before scoring. If detected, skip evaluation and register as Discarded (see `evaluate.md` step 4).
 
-4. **Register in tracker**: Write TSV to `batch/tracker-additions/`
+4. **Execute evaluate mode**: Follow the full `evaluate.md` workflow (blocks A–H)
 
-5. **Run merge**: `node scripts/merge-tracker.mjs` to add to `data/listings.md`
+5. **Register in tracker**: Write TSV to `batch/tracker-additions/`
 
-6. **Show summary**:
+6. **Run merge**: `node scripts/merge-tracker.mjs` to add to `data/listings.md`
+
+7. **Show summary**:
    ```
    Evaluation Complete
    ━━━━━━━━━━━━━━━━━━
@@ -29,9 +31,9 @@ Automatic pipeline triggered when a listing URL or text is pasted directly into 
    Status: Evaluated
    Report: reports/{filename}
 
-   → /immo-ops contact {NNN}     to draft a message
+   → /immo-apply contact {NNN}    to draft a message
    → /immo-research {NNN}        for deep area research
-   → /immo-ops viewing {NNN}     to prepare for viewing
+   → /immo-track viewing {NNN}   to prepare for viewing
    ```
 
 ## URL Detection
@@ -41,11 +43,11 @@ Supported portal URL patterns:
 - `immowelt.de/expose/`
 - `kleinanzeigen.de/s-anzeige/`
 - `wg-gesucht.de/`
-- `immosuche.degewo.de/`
-- `howoge.de/`
-- `gesobau.de/`
 - `vonovia.de/`
 - `deutsche-wohnen.com/`
 - `sparkassen-immobilien.de/`
+- `immosuche.degewo.de/`
+- `howoge.de/`
+- `gesobau.de/`
 
 Any URL containing these domains triggers auto-pipeline.

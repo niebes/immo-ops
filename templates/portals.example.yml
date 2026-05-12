@@ -15,7 +15,8 @@ portals:
     scan_method: playwright
     search_url: "https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mieten?price=-1500.0&livingspace=60.0-&numberofrooms=2.0-&pricetype=calculatedtotalrent"
     rate_limit: 3
-    notes: "Largest German portal. React SPA. Cookie consent required. Captcha possible."
+    captcha_risk: high
+    notes: "Largest German portal. React SPA. CAPTCHA frequent — may need manual solve. Flooded with Tauschwohnungen."
 
   - name: Immowelt
     enabled: true
@@ -93,7 +94,12 @@ title_filter:
     - WBS
     - Zwischenmiete
     - befristet
-    - Tausch
+    - Tauschwohnung
+    - Wohnungstausch
+    - Wohnungsswap
+    - Tausche
+    - "gegen Wohnung"
+    - Untermiete
     - Gewerbe
     - "Büro"
     - Stellplatz    # Standalone parking listings
