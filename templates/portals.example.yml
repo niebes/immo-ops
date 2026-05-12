@@ -1,0 +1,100 @@
+# immo-ops Portal Configuration
+# Copy to portals.yml and customize.
+
+scan_defaults:
+  search_type: miete
+  property_type: wohnung
+  city: Berlin
+  price_max: 1500
+  rooms_min: 2
+  size_min: 60
+
+portals:
+  - name: ImmoScout24
+    enabled: true
+    scan_method: playwright
+    search_url: "https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mieten?price=-1500.0&livingspace=60.0-&numberofrooms=2.0-&pricetype=calculatedtotalrent"
+    rate_limit: 3
+    notes: "Largest German portal. React SPA. Cookie consent required. Captcha possible."
+
+  - name: Immowelt
+    enabled: true
+    scan_method: playwright
+    search_url: "https://www.immowelt.de/liste/berlin/wohnungen/mieten?ami=60&pma=1500&rmi=2&sort=relevanz"
+    rate_limit: 3
+    notes: "Second largest. SPA with dynamic loading."
+
+  - name: Kleinanzeigen
+    enabled: true
+    scan_method: playwright
+    search_url: "https://www.kleinanzeigen.de/s-wohnung-mieten/berlin/c203l3331"
+    rate_limit: 5
+    notes: "Private listings. Simpler HTML. High scam risk — flag suspicious."
+
+  - name: WG-Gesucht
+    enabled: false
+    scan_method: playwright
+    search_url: "https://www.wg-gesucht.de/wohnungen-in-Berlin.8.2.1.0.html"
+    rate_limit: 5
+    notes: "Primarily shared flats. Enable if searching for WG or full apartments."
+
+  - name: Degewo
+    enabled: true
+    scan_method: playwright
+    search_url: "https://immosuche.degewo.de/de/search"
+    rate_limit: 3
+    notes: "Largest Berlin municipal housing. Very competitive."
+
+  - name: Howoge
+    enabled: true
+    scan_method: playwright
+    search_url: "https://www.howoge.de/wohnungen-gewerbe/wohnungssuche.html"
+    rate_limit: 3
+    notes: "Municipal housing Berlin."
+
+  - name: Gesobau
+    enabled: true
+    scan_method: playwright
+    search_url: "https://www.gesobau.de/mieten/wohnungssuche/"
+    rate_limit: 3
+    notes: "Municipal housing company Berlin."
+
+  - name: Vonovia
+    enabled: true
+    scan_method: playwright
+    search_url: "https://www.vonovia.de/de-de/immobiliensuche?city=Berlin&type=rent"
+    rate_limit: 3
+    notes: "Large landlord. Mixed reputation — note in Block H."
+
+  - name: Deutsche Wohnen
+    enabled: true
+    scan_method: playwright
+    search_url: "https://www.deutsche-wohnen.com/immobilienangebote"
+    rate_limit: 3
+    notes: "Large Berlin housing company (merged with Vonovia)."
+
+  - name: Sparkasse Immobilien
+    enabled: true
+    scan_method: websearch
+    search_query: "site:sparkassen-immobilien.de Berlin Mietwohnung"
+    rate_limit: 5
+    notes: "Regional bank listings. Simpler pages, well-indexed."
+
+  - name: Neubau-Kompass
+    enabled: false
+    scan_method: websearch
+    search_query: "site:neubaukompass.de Berlin Mietwohnung Neubau"
+    rate_limit: 5
+    notes: "New construction focus. Enable for Neubau search."
+
+title_filter:
+  positive: []  # Empty = no positive filter (accept all titles)
+  negative:
+    - WBS
+    - Zwischenmiete
+    - befristet
+    - Tausch
+    - Gewerbe
+    - "Büro"
+    - Stellplatz    # Standalone parking listings
+    - Garage

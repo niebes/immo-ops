@@ -1,0 +1,9 @@
+node_modules/
+output/
+batch/logs/
+.claude/settings.local.json
+config/profile.yml
+modes/_profile.md
+*.log
+.DS_Store
+.idea/
