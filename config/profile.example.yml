@@ -1,0 +1,94 @@
+# immo-ops Profile Configuration
+# Copy to config/profile.yml and fill in your details.
+
+searcher:
+  full_name: "Your Name"
+  email: "your@email.com"
+  phone: "+49-..."
+
+# Multiple search types supported. Each gets its own portal filters and scoring weights.
+searches:
+  - name: "Berlin flat rental"
+    type: miete          # miete | kauf
+    property: wohnung    # wohnung | haus | grundstueck
+    location:
+      city: Berlin
+      preferred_areas:
+        - Kreuzberg
+        - Friedrichshain
+        - Neukölln
+      acceptable_areas:
+        - Charlottenburg
+        - Schöneberg
+        - Tempelhof
+      excluded_areas:
+        - Marzahn
+        - Spandau
+    price:
+      max_kaltmiete: 1500
+      max_warmmiete: 1800
+      max_price_per_m2: 18
+    size:
+      min_m2: 60
+      max_m2: 120
+      min_rooms: 2.5
+      max_rooms: 4
+    must_haves:
+      - balkon_or_terrasse
+      - einbaukueche
+      - haustiere_erlaubt
+    nice_to_haves:
+      - garten
+      - keller
+      - stellplatz
+      - aufzug
+      - badewanne
+      - waschmaschine_anschluss
+    deal_breakers:
+      - no_wbs_required
+      - no_zwischenmiete
+      - min_energieeffizienz: "D"
+    availability:
+      earliest_move_in: "2026-07-01"
+      latest_move_in: "2026-09-01"
+
+  # Uncomment for a second search:
+  # - name: "Brandenburg land"
+  #   type: kauf
+  #   property: grundstueck
+  #   location:
+  #     city: Brandenburg
+  #     preferred_areas: []
+  #     acceptable_areas: []
+  #     excluded_areas: []
+  #   price:
+  #     max_kaufpreis: 100000
+  #     max_price_per_m2: 80
+  #   size:
+  #     min_m2: 500
+
+commute:
+  destinations:
+    - address: "Alexanderplatz, Berlin"
+      label: "Office"
+      mode: transit     # transit | bike | car
+      max_minutes: 40
+
+# Renter documents (for Selbstauskunft generation)
+documents:
+  monthly_net_income: 3500
+  employment_type: unbefristet    # unbefristet | befristet | selbststaendig
+  employer: "Company GmbH"
+  schufa_available: true
+  previous_landlord_reference: true
+  number_of_persons: 2
+  pets:
+    - type: Katze
+      count: 1
+  smoker: false
+
+# Buyer documents (for purchase mode)
+# buyer:
+#   financing_confirmed: false
+#   equity_available: 50000
+#   notary_preference: ""

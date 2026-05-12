@@ -1,0 +1,30 @@
+# Canonical listing statuses
+# Used by tracker mode and verify-pipeline.mjs
+
+statuses:
+  - name: New
+    description: Discovered, not yet evaluated
+  - name: Evaluated
+    description: Scored, pending decision
+  - name: Interested
+    description: User wants to pursue
+  - name: Contacted
+    description: Contacted landlord/agency
+  - name: Viewing
+    description: Viewing scheduled
+  - name: Viewed
+    description: Viewing completed
+  - name: Applied
+    description: Selbstauskunft/application submitted
+  - name: Accepted
+    description: Offer accepted by landlord
+    terminal: true
+  - name: Rejected
+    description: Rejected by landlord
+    terminal: true
+  - name: Discarded
+    description: Discarded by user
+    terminal: true
+  - name: Expired
+    description: Listing removed from portal
+    terminal: true

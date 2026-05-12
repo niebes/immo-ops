@@ -1,0 +1,31 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -n \"$(git status --porcelain)\" ]; then git add -A && MSG=$(git diff --cached --stat --no-color | tail -1 | sed 's/^ *//' | sed 's/,//g'); FILES=$(git diff --cached --name-only | head -5 | sed 's|.*/||' | paste -sd ', ' -); git commit -m \"update ${FILES}\" -m \"${MSG}\"; fi; git pull --rebase 2>/dev/null; git push 2>/dev/null",
+            "timeout": 30,
+            "statusMessage": "Auto-committing and pushing changes..."
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(node *)",
+      "Write(reports/**)",
+      "Write(research/**)",
+      "Write(batch/**)",
+      "Write(data/**)",
+      "Write(output/**)",
+      "Edit(reports/**)",
+      "Edit(research/**)",
+      "Edit(batch/**)",
+      "Edit(data/**)",
+      "Edit(portals.yml)"
+    ]
+  }
+}
