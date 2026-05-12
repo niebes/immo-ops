@@ -1,9 +1,25 @@
 node_modules/
-output/
-batch/logs/
-.claude/settings.local.json
-config/profile.yml
-modes/_profile.md
 *.log
 .DS_Store
 .idea/
+
+# User layer — personal data, never committed
+config/profile.yml
+config/cookies-*.json
+modes/_profile.md
+portals.yml
+
+# Generated content — all user-specific
+data/listings.md
+data/pipeline.md
+data/scan-history.tsv
+data/viewings.md
+data/documents.md
+reports/
+research/
+output/
+batch/tracker-additions/
+batch/logs/
+
+# Claude Code local settings
+.claude/settings.local.json

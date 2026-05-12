@@ -66,7 +66,7 @@ Documents to Prepare
 ✓ Personalausweis: valid until 2028-03-15
 
 For Listing #003 (Kreuzberg):
-  Missing: Selbstauskunft — run /immo-ops selbstauskunft 3
+  Missing: Selbstauskunft — run /immo-apply selbstauskunft 3
   Missing: Vormieterbescheinigung — contact current landlord
 ```
 

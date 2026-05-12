@@ -45,5 +45,5 @@ Processed: {N} listings
 
 Top pick: #{NNN} ({location}, {score}/5)
 
-→ /immo-ops compare {top-picks} to compare the best ones.
+→ /immo-assess compare {top-picks} to compare the best ones.
 ```

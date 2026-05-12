@@ -16,16 +16,23 @@
   "permissions": {
     "allow": [
       "Bash(node *)",
+      "Bash(npm *)",
       "Write(reports/**)",
       "Write(research/**)",
       "Write(batch/**)",
       "Write(data/**)",
       "Write(output/**)",
+      "Write(scripts/**)",
       "Edit(reports/**)",
       "Edit(research/**)",
       "Edit(batch/**)",
       "Edit(data/**)",
-      "Edit(portals.yml)"
+      "Edit(scripts/**)",
+      "Edit(portals.yml)",
+      "Edit(modes/**)",
+      "mcp__claude_ai_Gmail__*",
+      "mcp__claude_ai_Google_Calendar__*",
+      "mcp__claude_ai_Google_Drive__*"
     ]
   }
 }
