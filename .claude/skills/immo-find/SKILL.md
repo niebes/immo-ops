@@ -202,7 +202,7 @@ Under 200 chars. Lead with count and top pick.
 - Key con: first concern after "However:" or "Main concerns:" or "Key concern:"
 Include these as a second row under each listing in the table (smaller font, gray text).
 
-**Email format:** HTML with `htmlBody` parameter. Use a table with columns: Score, Listing (linked to portal URL), Price, Size, Rooms. Color-code rows:
+**Email format:** HTML with `htmlBody` parameter. Use a table with columns: #, Score, Listing (linked to portal URL), Price, Size, Rooms. The # column shows the listing number from the tracker (e.g., #002, #004) so the recipient can reference specific listings in replies ("I like #002 and #009"). Color-code rows:
 - Green background (`#e8f5e9`): score 3.5+ (worth pursuing)
 - Yellow background (`#fff8e1`): score 3.0–3.4 (compromises)
 - Red background (`#ffebee`): score below 3.0 (not recommended)
