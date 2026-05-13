@@ -153,10 +153,42 @@ async function scanPortal(browser, portal) {
       return [];
     }
 
-    const extractFn = getExtractor(portal.name);
-    const listings = await extractFn(page);
-    console.log(`  ✓ ${listings.length} listings extracted`);
-    return listings;
+    const { extract: extractFn, nextPage: nextPageFn } = getExtractor(portal.name);
+    const MAX_LISTINGS = 100;
+    const allListings = [];
+    const seenUrls = loadSeenUrls();
+    let pageNum = 1;
+
+    while (allListings.length < MAX_LISTINGS) {
+      const pageListings = await extractFn(page);
+      if (pageListings.length === 0) break;
+
+      // Check for early exit: if most listings on this page are already seen, stop
+      let seenOnPage = 0;
+      for (const l of pageListings) {
+        if (seenUrls.has(l.url)) seenOnPage++;
+        allListings.push(l);
+      }
+      console.log(`  page ${pageNum}: ${pageListings.length} listings (${seenOnPage} already seen)`);
+
+      if (allListings.length >= MAX_LISTINGS) break;
+      if (seenOnPage >= pageListings.length * 0.8) {
+        console.log(`  → stopping: ≥80% already seen on page ${pageNum}`);
+        break;
+      }
+
+      // Try next page
+      const hasNext = await nextPageFn(page).catch(() => false);
+      if (!hasNext) break;
+      pageNum++;
+
+      if (portal.rate_limit) {
+        await new Promise(r => setTimeout(r, portal.rate_limit * 1000));
+      }
+    }
+
+    console.log(`  ✓ ${allListings.length} listings total (${pageNum} page${pageNum > 1 ? 's' : ''})`);
+    return allListings.slice(0, MAX_LISTINGS);
   } catch (err) {
     console.log(`  ✗ Error: ${err.message}`);
     return [];

@@ -61,19 +61,20 @@ ALWAYS create a dedicated tab for CiC scanning via `tabs_create_mcp`. Never reus
 1. Read `portals.yml` for all portals with `scan_method: cic` and `enabled: true`
 2. **Create a new CiC tab** via `mcp__claude-in-chrome__tabs_create_mcp` — note the tabId
 3. For each CiC portal:
-   a. Navigate to `search_url` via `mcp__claude-in-chrome__navigate`
+   a. Navigate to `search_url` via `mcp__claude-in-chrome__navigate` (URL should include `&sorting=2` for newest first)
    b. If CAPTCHA appears, ask user to solve it, then continue
-   c. Read the extraction snippet from `scripts/portals/{portal}-cic.js`
-   d. Run the snippet via `mcp__claude-in-chrome__javascript_tool` — returns JSON array
-   e. Pipe the JSON to `node scripts/process-scan.mjs` which handles filtering, dedup, and writing:
-      ```
-      echo '<JSON from step d>' | node scripts/process-scan.mjs
-      ```
+   c. **Pagination loop** (up to 100 listings total):
+      - Read the extraction snippet from `scripts/portals/{portal}-cic.js`
+      - Run the snippet via `mcp__claude-in-chrome__javascript_tool` — returns `{count, total, hasNextPage, listings}`
+      - Pipe the listings JSON to `node scripts/process-scan.mjs`
+      - Check process-scan output: if most listings are duplicates (≥80% already seen), stop paginating
+      - If `hasNextPage` is true and under 100 total: click "Nächste Seite" via `mcp__claude-in-chrome__find` or navigate to `search_url&pagenumber={N}`
+      - Repeat
 4. **Close the tab** you created via `mcp__claude-in-chrome__tabs_close_mcp` (only your tab)
 5. Show scan summary
 
 **Available CiC extraction snippets:**
-- `scripts/portals/immoscout24-cic.js` — ImmoScout24 (`.listing-card` containers)
+- `scripts/portals/immoscout24-cic.js` — ImmoScout24 (`.listing-card` containers, returns pagination info)
 
 **Combined scan order:**
 1. First: run `node scripts/scan.mjs` for Playwright portals (can be backgrounded)
