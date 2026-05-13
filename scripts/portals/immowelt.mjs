@@ -32,18 +32,17 @@ export async function extract(page) {
 }
 
 export async function nextPage(page) {
-  const nextBtn = page.locator('[data-testid="serp-core-paging-testid"] a[aria-label="Nächste Seite"], [data-testid="paging-next"]').first();
-  if (await nextBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
-    await nextBtn.click();
-    await page.waitForTimeout(3000);
-    return true;
-  }
-  // Fallback: look for any "next" link in pagination
-  const fallback = page.locator('a[rel="next"], [aria-label="next page"]').first();
-  if (await fallback.isVisible({ timeout: 1000 }).catch(() => false)) {
-    await fallback.click();
-    await page.waitForTimeout(3000);
-    return true;
-  }
-  return false;
+  // Immowelt SPA button click breaks in headless. Use URL-based pagination.
+  const currentUrl = new URL(page.url());
+  const currentPage = parseInt(currentUrl.searchParams.get('page') || '1');
+  currentUrl.searchParams.set('page', String(currentPage + 1));
+  const nextUrl = currentUrl.toString();
+
+  await page.goto(nextUrl, { waitUntil: 'networkidle', timeout: 45000 }).catch(async () => {
+    await page.goto(nextUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  });
+  await page.waitForTimeout(3000);
+
+  const cards = await page.locator('[data-testid^="classified-card-mfe-"]').count();
+  return cards > 0;
 }
