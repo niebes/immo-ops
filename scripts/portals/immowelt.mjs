@@ -30,3 +30,20 @@ export async function extract(page) {
   }
   return listings;
 }
+
+export async function nextPage(page) {
+  const nextBtn = page.locator('[data-testid="serp-core-paging-testid"] a[aria-label="Nächste Seite"], [data-testid="paging-next"]').first();
+  if (await nextBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await nextBtn.click();
+    await page.waitForTimeout(3000);
+    return true;
+  }
+  // Fallback: look for any "next" link in pagination
+  const fallback = page.locator('a[rel="next"], [aria-label="next page"]').first();
+  if (await fallback.isVisible({ timeout: 1000 }).catch(() => false)) {
+    await fallback.click();
+    await page.waitForTimeout(3000);
+    return true;
+  }
+  return false;
+}

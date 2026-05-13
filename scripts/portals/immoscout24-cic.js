@@ -1,6 +1,15 @@
 // CiC extraction snippet for ImmoScout24
 // Run via mcp__claude-in-chrome__javascript_tool on the search results page.
-// Returns JSON array of listings.
+// Returns JSON array of listings from the CURRENT page only.
+//
+// For pagination: after processing results, check if there's a next page:
+//   1. Run this snippet → get listings JSON
+//   2. Pipe to process-scan.mjs
+//   3. Use CiC to click the "Nächste Seite" button (or navigate to URL with &pagenumber=N)
+//   4. Run this snippet again on the new page
+//   5. Repeat until no more pages or 100 total listings or ≥80% already seen
+//
+// Sort by newest: add &sorting=2 to the search URL
 
 const cards = document.querySelectorAll('.listing-card');
 const seen = new Set();
@@ -20,7 +29,6 @@ cards.forEach(card => {
   const priceMatch = text.match(/([\d.]+)\s*€/);
   const m2Match = text.match(/([\d.,]+)\s*m²/);
   const roomsMatch = text.match(/(\d+)\s*Zi\./);
-  // Address lines typically end with a city name and contain a comma
   const addrLine = lines.find(l => l.includes(',') && /\d{5}|\b[A-Z][a-zäöü]+(?:stadt|burg|berg|heim|dorf|feld)\b/.test(l)) || '';
 
   listings.push({
@@ -34,4 +42,9 @@ cards.forEach(card => {
   });
 });
 
-JSON.stringify(listings);
+// Also return pagination info
+const totalText = document.querySelector('[data-testid="serp-title-variant-a-testid"], h1')?.textContent || '';
+const totalMatch = totalText.match(/(\d+)\s*Mietwohnung/);
+const hasNextPage = !!document.querySelector('[aria-label="Nächste Seite"], [data-nav="next"]');
+
+JSON.stringify({ count: listings.length, total: totalMatch ? parseInt(totalMatch[1]) : null, hasNextPage, listings });

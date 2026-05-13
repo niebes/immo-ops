@@ -65,3 +65,13 @@ export async function extract(page, portalName) {
 
   return listings;
 }
+
+export async function nextPage(page) {
+  const nextBtn = page.locator('a[rel="next"], [aria-label*="ächste"], [aria-label="next"]').first();
+  if (await nextBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await nextBtn.click();
+    await page.waitForTimeout(3000);
+    return true;
+  }
+  return false;
+}

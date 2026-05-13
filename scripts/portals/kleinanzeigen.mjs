@@ -29,3 +29,13 @@ export async function extract(page) {
   }
   return listings;
 }
+
+export async function nextPage(page) {
+  const nextBtn = page.locator('a.pagination-page[aria-label*="ächste"], a[rel="next"]').first();
+  if (await nextBtn.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await nextBtn.click();
+    await page.waitForTimeout(3000);
+    return true;
+  }
+  return false;
+}
