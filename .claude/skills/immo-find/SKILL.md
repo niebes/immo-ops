@@ -117,18 +117,44 @@ Read `data/pipeline.md`. For each pending `- [ ]` entry, check metadata against 
 Update `data/pipeline.md` in place.
 
 **Step 4 — Pipeline evaluation (ALL pending listings):**
-For EVERY remaining pending `- [ ]` entry in `data/pipeline.md`:
-1. Create a CiC tab (one tab, reuse across listings)
-2. Navigate to the listing URL
-3. Extract all details (price, m², rooms, amenities, Energieausweis, etc.)
-4. Detect Tauschwohnung → discard without scoring
-5. Score blocks A–H using `modes/_shared.md` rules
-6. Write report to `reports/`
-7. Write tracker TSV to `batch/tracker-additions/`
-8. Mark as processed in pipeline: `- [x] #{NNN} | {url} | {portal} | {summary} | {score}/5`
-9. Close your CiC tab when done
 
-After all listings are evaluated: `node scripts/merge-tracker.mjs`
+First, check which pending URLs already have reports (cross-reference `data/pipeline.md` URLs against `reports/*.md`). Skip those — mark as processed with the existing score.
+
+For EVERY remaining pending URL that has NO report yet, launch a dedicated Agent:
+
+```
+Agent(
+  subagent_type="general-purpose",
+  prompt="You are evaluating a real estate listing for immo-ops.
+
+LISTING URL: {url}
+
+Read these files for context:
+- config/profile.yml — search criteria (max Kaltmiete 1500, min 60m², min 3 rooms, must-haves: balkon_or_terrasse + keller)
+- modes/_shared.md — scoring system (8 blocks A-H, weighted average)
+- modes/evaluate.md — full evaluation workflow and report format
+
+STEPS:
+1. Create a CiC tab via mcp__claude-in-chrome__tabs_create_mcp
+2. Navigate to the listing URL
+3. If CAPTCHA: report it and stop. If 'Angebot nicht gefunden': mark as EXPIRED and stop.
+4. Extract ALL details via javascript_tool (use the extraction snippet pattern from the codebase)
+5. Detect Tauschwohnung → if yes, mark as DISCARDED and stop
+6. Score all 8 blocks (A-H) with numeric scores and one-line justification per block
+7. Write report to reports/{NNN}-{location-slug}-{rooms}r-{date}.md
+8. Write tracker TSV to batch/tracker-additions/{NNN}-{slug}.tsv
+9. Close your CiC tab (only the tab you created)
+10. Report back: {URL} | {score}/5 | {one-line summary}
+
+Next listing number: {NNN}
+",
+  description="immo-assess {expose_id}"
+)
+```
+
+Launch agents **one at a time** (CiC tabs can't run in parallel — each agent needs exclusive browser access). Wait for each agent to complete before launching the next.
+
+After all agents complete: `node scripts/merge-tracker.mjs`
 
 **Step 5 — Verification (MUST pass before notify):**
 Before sending any notification, verify:
