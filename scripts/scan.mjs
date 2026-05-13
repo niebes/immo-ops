@@ -178,8 +178,14 @@ async function scanPortal(browser, portal) {
       }
 
       // Try next page
-      const hasNext = await nextPageFn(page).catch(() => false);
-      if (!hasNext) break;
+      const hasNext = await nextPageFn(page).catch(err => {
+        console.log(`  ⚠ nextPage error: ${err.message}`);
+        return false;
+      });
+      if (!hasNext) {
+        console.log(`  → no more pages`);
+        break;
+      }
       pageNum++;
 
       if (portal.rate_limit) {
