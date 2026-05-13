@@ -90,7 +90,7 @@ Read `modes/_shared.md` + `modes/batch.md`.
 Delegates individual evaluations to /immo-assess.
 
 ### Auto mode (for `/loop` usage):
-Full automated cycle designed for `loop 1h /immo-find auto`. Runs all steps sequentially:
+Full automated cycle designed for `loop 1h /immo-find auto`. The purpose is to deliver scored, actionable recommendations — not raw links. Every step must complete before notifying.
 
 **Step 1 — Playwright scan:**
 ```
@@ -102,25 +102,49 @@ Capture stdout. Note how many new listings were added.
 1. Read `portals.yml` for CiC portals
 2. If any CiC portals enabled:
    a. Create a new CiC tab (note the tabId)
-   b. For each CiC portal: navigate → extract via JS snippet → pipe to `process-scan.mjs`
+   b. For each CiC portal: navigate → extract via JS snippet → pipe to `process-scan.mjs` (paginate all pages, up to 100)
    c. Close your tab
 3. Note how many new listings were added
 
-**Step 3 — Pipeline triage:**
+**Step 3 — Pipeline triage (metadata-only discard):**
 Read `data/pipeline.md`. For each pending `- [ ]` entry, check metadata against profile criteria:
 - Rooms < min_rooms → mark as `DISCARDED`
 - m² < min_m2 → mark as `DISCARDED`
 - Price > max_kaltmiete × 1.2 → mark as `DISCARDED`
 - Title contains Tauschwohnung keywords → mark as `DISCARDED`
+- Location is wrong city → mark as `DISCARDED`
+- Price suspiciously low (likely extraction error) → mark as `DISCARDED`
 Update `data/pipeline.md` in place.
 
-**Step 4 — Notify:**
-If new actionable listings were found (passed triage):
-1. **Push notification** via `PushNotification` — short summary (under 200 chars):
-   `immo-ops: {N} new in {city} (top: #{id} {location} {score}/5, {price}€, {m²}m²)`
-2. **Email draft** via Gmail MCP — full HTML table with all listings, pro/con, color-coded.
+**Step 4 — Pipeline evaluation (ALL pending listings):**
+For EVERY remaining pending `- [ ]` entry in `data/pipeline.md`:
+1. Create a CiC tab (one tab, reuse across listings)
+2. Navigate to the listing URL
+3. Extract all details (price, m², rooms, amenities, Energieausweis, etc.)
+4. Detect Tauschwohnung → discard without scoring
+5. Score blocks A–H using `modes/_shared.md` rules
+6. Write report to `reports/`
+7. Write tracker TSV to `batch/tracker-additions/`
+8. Mark as processed in pipeline: `- [x] #{NNN} | {url} | {portal} | {summary} | {score}/5`
+9. Close your CiC tab when done
 
-If nothing new, skip both silently.
+After all listings are evaluated: `node scripts/merge-tracker.mjs`
+
+**Step 5 — Verification (MUST pass before notify):**
+Before sending any notification, verify:
+- [ ] All enabled portals have been scanned (no portal skipped without reason)
+- [ ] Pipeline has 0 pending `- [ ]` entries (all evaluated or discarded)
+- [ ] `node scripts/verify-pipeline.mjs` passes
+
+If verification fails, DO NOT notify. Instead report the failure and stop.
+
+**Step 6 — Notify:**
+Only after verification passes:
+1. **Push notification** via `PushNotification` — short summary (under 200 chars):
+   `immo-ops: {N} scored in {city} (top: #{id} {location} {score}/5, {price}€)`
+2. **Email draft** via Gmail MCP — full HTML table with all SCORED listings, pro/con, color-coded.
+
+If no new listings were found in this cycle, skip both silently.
 
 See **Notify mode** below for email format.
 
