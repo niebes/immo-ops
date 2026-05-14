@@ -53,8 +53,28 @@ searches:
       earliest_move_in: "2026-07-01"
       latest_move_in: "2026-09-01"
 
-  # Uncomment for a second search:
-  # - name: "Brandenburg land"
+  # Additional search examples — uncomment and customize:
+  #
+  # - name: "House purchase"
+  #   type: kauf
+  #   property: haus
+  #   location:
+  #     city: Berlin
+  #     preferred_areas: []
+  #     acceptable_areas: []
+  #     excluded_areas: []
+  #   price:
+  #     max_kaufpreis: 500000
+  #     max_price_per_m2: 4000
+  #   size:
+  #     min_m2: 80
+  #     max_m2: 150
+  #     min_rooms: 4
+  #     max_rooms: 5
+  #   must_haves:
+  #     - garten
+  #
+  # - name: "Plot purchase"
   #   type: kauf
   #   property: grundstueck
   #   location:
@@ -63,8 +83,8 @@ searches:
   #     acceptable_areas: []
   #     excluded_areas: []
   #   price:
-  #     max_kaufpreis: 100000
-  #     max_price_per_m2: 80
+  #     max_kaufpreis: 200000
+  #     max_price_per_m2: 200
   #   size:
   #     min_m2: 500
 

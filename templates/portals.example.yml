@@ -1,106 +1,123 @@
 # immo-ops Portal Configuration
 # Copy to portals.yml and customize.
+#
+# Structure: search_groups — one group per search target from config/profile.yml.
+# The `name` field must match the corresponding `searches[].name` in profile.yml.
 
-scan_defaults:
-  search_type: miete
-  property_type: wohnung
-  city: Berlin
-  price_max: 1500
-  rooms_min: 2
-  size_min: 60
+search_groups:
 
-portals:
-  - name: ImmoScout24
-    enabled: true
-    scan_method: playwright
-    search_url: "https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mieten?price=-1500.0&livingspace=60.0-&numberofrooms=2.0-&pricetype=calculatedtotalrent"
-    rate_limit: 3
-    captcha_risk: high
-    notes: "Largest German portal. React SPA. CAPTCHA frequent — may need manual solve. Flooded with Tauschwohnungen."
+  # ═══════════════════════════════════════════════════════════
+  # Example: Flat rental
+  # ═══════════════════════════════════════════════════════════
+  - name: "Berlin flat rental"
+    scan_defaults:
+      search_type: miete
+      property_type: wohnung
+      city: Berlin
+      price_max: 1500
+      rooms_min: 2
+      size_min: 60
 
-  - name: Immowelt
-    enabled: true
-    scan_method: playwright
-    search_url: "https://www.immowelt.de/liste/berlin/wohnungen/mieten?ami=60&pma=1500&rmi=2&sort=relevanz"
-    rate_limit: 3
-    notes: "Second largest. SPA with dynamic loading."
+    portals:
+      - name: ImmoScout24
+        enabled: true
+        scan_method: cic
+        search_url: "https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mieten?price=-1500.0&livingspace=60.0-&numberofrooms=2.0-&pricetype=calculatedtotalrent"
+        captcha_risk: high
+        notes: "Largest German portal. Blocks Playwright — use CiC. CAPTCHA may need manual solve."
 
-  - name: Kleinanzeigen
-    enabled: true
-    scan_method: playwright
-    search_url: "https://www.kleinanzeigen.de/s-wohnung-mieten/berlin/c203l3331"
-    rate_limit: 5
-    notes: "Private listings. Simpler HTML. High scam risk — flag suspicious."
+      - name: Immowelt
+        enabled: true
+        scan_method: playwright
+        search_url: "https://www.immowelt.de/liste/berlin/wohnungen/mieten?ami=60&pma=1500&rmi=2&sort=relevanz"
+        rate_limit: 3
 
-  - name: WG-Gesucht
-    enabled: false
-    scan_method: playwright
-    search_url: "https://www.wg-gesucht.de/wohnungen-in-Berlin.8.2.1.0.html"
-    rate_limit: 5
-    notes: "Primarily shared flats. Enable if searching for WG or full apartments."
+      - name: Kleinanzeigen
+        enabled: true
+        scan_method: playwright
+        search_url: "https://www.kleinanzeigen.de/s-wohnung-mieten/berlin/c203l3331"
+        rate_limit: 5
+        notes: "Private listings. High scam risk on cheap offers."
 
-  - name: Degewo
-    enabled: true
-    scan_method: playwright
-    search_url: "https://immosuche.degewo.de/de/search"
-    rate_limit: 3
-    notes: "Largest Berlin municipal housing. Very competitive."
+      - name: Degewo
+        enabled: true
+        scan_method: playwright
+        search_url: "https://immosuche.degewo.de/de/search"
+        rate_limit: 3
+        notes: "Largest Berlin municipal housing."
 
-  - name: Howoge
-    enabled: true
-    scan_method: playwright
-    search_url: "https://www.howoge.de/wohnungen-gewerbe/wohnungssuche.html"
-    rate_limit: 3
-    notes: "Municipal housing Berlin."
+      - name: Sparkasse Immobilien
+        enabled: true
+        scan_method: websearch
+        search_query: "site:sparkassen-immobilien.de Berlin Mietwohnung"
+        rate_limit: 5
 
-  - name: Gesobau
-    enabled: true
-    scan_method: playwright
-    search_url: "https://www.gesobau.de/mieten/wohnungssuche/"
-    rate_limit: 3
-    notes: "Municipal housing company Berlin."
+    title_filter:
+      positive: []
+      negative:
+        - WBS
+        - Zwischenmiete
+        - befristet
+        - Tauschwohnung
+        - Wohnungstausch
+        - Tausche
+        - "gegen Wohnung"
+        - Untermiete
+        - Gewerbe
+        - "Büro"
+        - Stellplatz
+        - Garage
 
-  - name: Vonovia
-    enabled: true
-    scan_method: playwright
-    search_url: "https://www.vonovia.de/de-de/immobiliensuche?city=Berlin&type=rent"
-    rate_limit: 3
-    notes: "Large landlord. Mixed reputation — note in Block H."
+  # ═══════════════════════════════════════════════════════════
+  # Example: House purchase
+  # ═══════════════════════════════════════════════════════════
+  # - name: "Berlin house purchase"
+  #   scan_defaults:
+  #     search_type: kauf
+  #     property_type: haus
+  #     city: Berlin
+  #     price_max: 500000
+  #     rooms_min: 4
+  #     size_min: 80
+  #
+  #   portals:
+  #     - name: ImmoScout24
+  #       enabled: true
+  #       scan_method: cic
+  #       search_url: "https://www.immobilienscout24.de/Suche/de/berlin/berlin/haus-kaufen?numberofrooms=4.0-&livingspace=80.0-&price=-500000.0&sorting=2"
+  #
+  #     - name: Immowelt
+  #       enabled: true
+  #       scan_method: playwright
+  #       search_url: "https://www.immowelt.de/suche/berlin/haeuser/kaufen?rmi=4&ami=80&pma=500000&sort=createdate"
+  #       rate_limit: 3
+  #
+  #   title_filter:
+  #     positive: []
+  #     negative:
+  #       - Zwangsversteigerung
+  #       - Gewerbe
 
-  - name: Deutsche Wohnen
-    enabled: true
-    scan_method: playwright
-    search_url: "https://www.deutsche-wohnen.com/immobilienangebote"
-    rate_limit: 3
-    notes: "Large Berlin housing company (merged with Vonovia)."
-
-  - name: Sparkasse Immobilien
-    enabled: true
-    scan_method: websearch
-    search_query: "site:sparkassen-immobilien.de Berlin Mietwohnung"
-    rate_limit: 5
-    notes: "Regional bank listings. Simpler pages, well-indexed."
-
-  - name: Neubau-Kompass
-    enabled: false
-    scan_method: websearch
-    search_query: "site:neubaukompass.de Berlin Mietwohnung Neubau"
-    rate_limit: 5
-    notes: "New construction focus. Enable for Neubau search."
-
-title_filter:
-  positive: []  # Empty = no positive filter (accept all titles)
-  negative:
-    - WBS
-    - Zwischenmiete
-    - befristet
-    - Tauschwohnung
-    - Wohnungstausch
-    - Wohnungsswap
-    - Tausche
-    - "gegen Wohnung"
-    - Untermiete
-    - Gewerbe
-    - "Büro"
-    - Stellplatz    # Standalone parking listings
-    - Garage
+  # ═══════════════════════════════════════════════════════════
+  # Example: Plot purchase
+  # ═══════════════════════════════════════════════════════════
+  # - name: "Brandenburg land"
+  #   scan_defaults:
+  #     search_type: kauf
+  #     property_type: grundstueck
+  #     city: Brandenburg
+  #     price_max: 100000
+  #     size_min: 500
+  #
+  #   portals:
+  #     - name: ImmoScout24
+  #       enabled: true
+  #       scan_method: cic
+  #       search_url: "https://www.immobilienscout24.de/Suche/de/brandenburg/brandenburg/grundstueck-kaufen?price=-100000.0&livingspace=500.0-&sorting=2"
+  #
+  #   title_filter:
+  #     positive: []
+  #     negative:
+  #       - Gewerbe
+  #       - Pacht
+  #       - Kleingarten
