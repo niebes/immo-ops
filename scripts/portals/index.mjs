@@ -6,6 +6,10 @@ import { extract as kleinanzeigen, nextPage as kleinanzeigenNext } from './klein
 import { extract as ohneMakler, nextPage as ohneMaklerNext } from './ohne-makler.mjs';
 import { extract as ivd24, nextPage as ivd24Next } from './ivd24.mjs';
 import { extract as zvg, nextPage as zvgNext } from './zwangsversteigerung.mjs';
+import { extract as engelVoelkers, nextPage as engelVoelkersNext } from './engel-voelkers.mjs';
+import { extract as dga, nextPage as dgaNext } from './dga.mjs';
+import { extract as bvbi, nextPage as bvbiNext } from './bvbi.mjs';
+import { extract as propotsdam, nextPage as propotsdamNext } from './propotsdam.mjs';
 import { extract as generic, nextPage as genericNext } from './generic.mjs';
 
 const PORTAL_MAP = [
@@ -15,6 +19,10 @@ const PORTAL_MAP = [
   { pattern: 'ohne-makler', extract: ohneMakler, nextPage: ohneMaklerNext },
   { pattern: 'ivd24', extract: ivd24, nextPage: ivd24Next },
   { pattern: 'zwangsversteigerung', extract: zvg, nextPage: zvgNext },
+  { pattern: 'engel', extract: engelVoelkers, nextPage: engelVoelkersNext },
+  { pattern: 'dga', extract: dga, nextPage: dgaNext },
+  { pattern: 'bvbi', extract: bvbi, nextPage: bvbiNext },
+  { pattern: 'propotsdam', extract: propotsdam, nextPage: propotsdamNext },
 ];
 
 export function getExtractor(portalName) {
