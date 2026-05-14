@@ -17,12 +17,15 @@ Agent(
 
 ## Configuration
 
-Read `portals.yml` which contains:
-- `scan_defaults`: Default search parameters (city, price, rooms, size)
+Read `portals.yml` which contains `search_groups` — one group per search target:
+- Each group has a `name` matching a `searches[].name` in `config/profile.yml`
+- `scan_defaults`: Default search parameters (city, price, rooms, size) for that target
 - `portals`: List of portals with scan method, URL, rate limits
-- `title_filter`: Positive/negative keyword filters
+- `title_filter`: Positive/negative keyword filters specific to that target
 
 Read `config/profile.yml` for active searches (used to match scan results against criteria).
+
+**Multi-target scanning:** When scanning, either scan all groups or a specific one (user can specify). Each group's results are tagged with the search name and filtered independently using that group's defaults and title_filter.
 
 ## Scan Strategy (2 levels)
 
@@ -72,7 +75,11 @@ For each portal with `scan_method: websearch` and `enabled: true`:
 1. **Read configuration**: `portals.yml`, `config/profile.yml`
 2. **Read dedup sources**: `data/scan-history.tsv`, `data/listings.md`, `data/pipeline.md`
 
-3. **Level 1 — Playwright scan** (sequential, one portal at a time):
+3. **Select search groups**: Scan all `search_groups` from portals.yml, or a specific one if the user requests it. Process each group sequentially.
+
+4. **For each search group**, run Level 1 then Level 2:
+
+   **Level 1 — Playwright scan** (sequential, one portal at a time):
    For each enabled portal with `scan_method: playwright`:
    a. Navigate to search URL
    b. Handle cookie consent
@@ -106,7 +113,7 @@ For each portal with `scan_method: websearch` and `enabled: true`:
    A URL that already exists in ANY of these sources is a duplicate, regardless of which scan run or date it was first seen. Skip it entirely — do not re-append to scan-history.tsv.
 
 8. **For each new listing that passes filters**:
-   a. Add to `data/pipeline.md` under "Pending": `- [ ] {url} | {portal} | {title}`
+   a. Add to `data/pipeline.md` under "Pending": `- [ ] {url} | {portal} | {search_group_name} | {title}`
    b. Register in `data/scan-history.tsv`: `{url}\t{date}\t{portal}\t{title}\t{location}\t{price}\t{m2}\t{rooms}\tadded`
 
 9. **Filtered listings**: register in scan-history.tsv with status:
