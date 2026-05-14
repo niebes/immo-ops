@@ -167,8 +167,8 @@ If verification fails, DO NOT notify. Instead report the failure and stop.
 **Step 6 — Notify:**
 Only after verification passes:
 1. **Push notification** via `PushNotification` — short summary (under 200 chars):
-   `immo-ops: {N} scored in {city} (top: #{id} {location} {score}/5, {price}€)`
-2. **Email draft** via Gmail MCP — full HTML table with all SCORED listings, pro/con, color-coded.
+   `immo-ops: {N} new — {counts per target} (top: #{id} {score}/5)`
+2. **Email draft** via Gmail MCP — HTML with sections per search target, tables with scored listings, pro/con, color-coded.
 
 If no new listings were found in this cycle, skip both silently.
 
@@ -177,7 +177,7 @@ See **Notify mode** below for email format.
 ### Notify mode:
 Two channels: push notification (instant, short) + email draft (detailed, for review).
 
-**Config:** Read `searcher.notification_email` and `searches[0].location.city` from `config/profile.yml`.
+**Config:** Read `searcher.notification_email` and all `searches[]` entries from `config/profile.yml`.
 
 **When to send:**
 - In auto mode: only if new listings were found in this scan cycle
@@ -186,15 +186,15 @@ Two channels: push notification (instant, short) + email draft (detailed, for re
 **1. Push notification** (always, when there are results):
 ```
 PushNotification({
-  message: "immo-ops: {N} new in {city} (top: #{id} {location} {score}/5, {price}€, {m²}m²)",
+  message: "immo-ops: {N} new — {counts per target, e.g. '3 Miete, 2 Haus, 1 Grundstück'} (top: #{id} {score}/5)",
   status: "proactive"
 })
 ```
-Under 200 chars. Lead with count and top pick.
+Under 200 chars. Lead with total count, break down by target, mention top pick.
 
 **2. Email draft** (detailed):
 
-**What to include:** All scored listings from `data/pipeline.md` (max 50). Exclude DISCARDED and DUPE entries. Sort by score descending.
+**What to include:** All scored listings from `data/pipeline.md` (max 50). Exclude DISCARDED and DUPE entries. Sort by score descending within each section.
 
 **Enrichment from reports:** For each listing with a report in `reports/`, read the `## Summary` section and extract:
 - The bold assessment phrase (e.g., "Strong candidate, worth pursuing")
@@ -202,11 +202,29 @@ Under 200 chars. Lead with count and top pick.
 - Key con: first concern after "However:" or "Main concerns:" or "Key concern:"
 Include these as a second row under each listing in the table (smaller font, gray text).
 
-**Email format:** HTML with `htmlBody` parameter. Use a table with columns: #, Score, Listing (linked to portal URL), Price, Size, Rooms. The # column shows the listing number from the tracker (e.g., #002, #004) so the recipient can reference specific listings in replies ("I like #002 and #009"). Color-code rows:
+**Email structure — grouped by search target:**
+
+The email body is organized into sections, one per active search target from `config/profile.yml`. Each section has a header and its own table.
+
+**Section header:** `<h2>` with the search name and a type badge:
+- `🏠 Potsdam/Brandenburg house purchase` (Kauf/Haus)
+- `🏢 Berlin flat rental` (Miete/Wohnung)
+- `🌳 Potsdam/Brandenburg plot purchase` (Kauf/Grundstück)
+
+If a section has zero scored listings, show the header with "(no listings yet)" and skip the table.
+
+**Matching listings to sections:** Use the search group tag from the pipeline entry (added during scan). For older pipeline entries without a tag, infer from listing type (miete/kauf) and property type (wohnung/haus/grundstück) based on the report or URL.
+
+**Table format per section:** HTML with `htmlBody` parameter. Columns: #, Score, Listing (linked to portal URL), Price, Size, Rooms. The # column shows the listing number from the tracker. Color-code rows:
 - Green background (`#e8f5e9`): score 3.5+ (worth pursuing)
 - Yellow background (`#fff8e1`): score 3.0–3.4 (compromises)
 - Red background (`#ffebee`): score below 3.0 (not recommended)
 - White: no score yet
+
+**Price column adapts to type:**
+- Miete: show Kaltmiete (+ Warmmiete)
+- Kauf/Haus: show Kaufpreis
+- Kauf/Grundstück: show Kaufpreis + price/m²
 
 Below each listing row, add a detail row (same background, smaller gray text):
 ```
@@ -214,17 +232,17 @@ Below each listing row, add a detail row (same background, smaller gray text):
 ```
 Only include the detail row if a report exists for that listing.
 
-Subject: `immo-ops: {N} listing(s) in {city} — {current date and time from system clock, NEVER guessed}`
+Subject: `immo-ops: {N} listing(s) — {summary, e.g. '5 Miete, 2 Haus, 1 Grundstück'} — {current date and time from system clock, NEVER guessed}`
 
 **RULE: Always get the current timestamp from the system (e.g., `new Date().toISOString()` or `date` command) before composing the email. Never hardcode or guess the time.**
 
-Footer: count of discarded/duped listings, link to immo-ops repo.
+Footer: count of discarded/duped listings per section, link to immo-ops repo.
 
 **Implementation:**
 ```
 mcp__claude_ai_Gmail__create_draft({
   to: ["{notification_email}"],
-  subject: "immo-ops: {N} listing(s) evaluated in {city}",
-  htmlBody: "{HTML table with all scored listings}"
+  subject: "immo-ops: {N} listing(s) — {type breakdown} — {timestamp}",
+  htmlBody: "{HTML with one section + table per search target}"
 })
 ```
