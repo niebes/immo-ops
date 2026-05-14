@@ -4,7 +4,7 @@ Evaluate listings, score neighborhoods, scan portals, detect scams, generate doc
 
 ## Architecture
 
-Five skills mapped to the apartment hunting journey:
+Six skills mapped to the apartment hunting journey:
 
 | Skill | Phase | Modes |
 |-------|-------|-------|
@@ -13,6 +13,7 @@ Five skills mapped to the apartment hunting journey:
 | `/immo-apply` | **Act** | contact, selbstauskunft, documents |
 | `/immo-track` | **Manage** | tracker, viewing |
 | `/immo-research` | **Deep-dive** | research (subagent) |
+| `/immo-portal` | **Configure** | discover URL, build extractor, register, verify |
 
 ## Sources of Truth
 
