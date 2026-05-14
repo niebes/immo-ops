@@ -27,6 +27,8 @@ Read `config/profile.yml` for active searches (used to match scan results agains
 
 **Multi-target scanning:** When scanning, either scan all groups or a specific one (user can specify). Each group's results are tagged with the search name and filtered independently using that group's defaults and title_filter.
 
+**Enabled flag:** Both search groups (in portals.yml) and searches (in profile.yml) support `enabled: false` to skip them during scans. Default is `true` if omitted.
+
 ## Scan Strategy (2 levels)
 
 ### Level 1 — Playwright (PRIMARY)
