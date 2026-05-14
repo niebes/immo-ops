@@ -21,5 +21,8 @@ output/
 batch/tracker-additions/
 batch/logs/
 
+# Temporary verification / working files
+tmp/
+
 # Claude Code local settings
 .claude/settings.local.json
