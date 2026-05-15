@@ -62,7 +62,7 @@ ALWAYS create a dedicated tab for CiC scanning via `tabs_create_mcp`. Never reus
 2. **Create a new CiC tab** via `mcp__claude-in-chrome__tabs_create_mcp` — note the tabId
 3. For each CiC portal:
    a. Navigate to `search_url` via `mcp__claude-in-chrome__navigate` (URL should include `&sorting=2` for newest first)
-   b. If CAPTCHA appears, ask user to solve it, then continue
+   b. If CAPTCHA appears ("Ich bin kein Roboter"): wait 5-10 seconds, then re-check — most CAPTCHAs auto-solve. Only ask user if still blocked after waiting.
    c. **Pagination loop** (up to 100 listings total):
       - Read the extraction snippet from `scripts/portals/{portal}-cic.js`
       - Run the snippet via `mcp__claude-in-chrome__javascript_tool` — returns `{count, total, hasNextPage, listings}`

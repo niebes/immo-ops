@@ -39,12 +39,23 @@ function loadYaml(path) {
 
 const portalsConfig = loadYaml(PORTALS_PATH) || {};
 const profile = loadYaml(PROFILE_PATH);
-const titleFilter = portalsConfig.title_filter || {};
-const negativeKeywords = (titleFilter.negative || []).map(k => k.toLowerCase());
+
+// Collect negative keywords from ALL search groups' title_filters
+const negativeKeywords = [];
+if (portalsConfig.search_groups) {
+  for (const group of portalsConfig.search_groups) {
+    for (const kw of (group.title_filter?.negative || [])) {
+      const lower = kw.toLowerCase();
+      if (!negativeKeywords.includes(lower)) negativeKeywords.push(lower);
+    }
+  }
+} else if (portalsConfig.title_filter) {
+  negativeKeywords.push(...(portalsConfig.title_filter.negative || []).map(k => k.toLowerCase()));
+}
 
 // ── Criteria ───────────────────────────────────────────────────────
 
-const search = profile?.searches?.[0];
+const search = profile?.searches?.find(s => s.enabled !== false);
 const criteria = search ? {
   minRooms: search.size?.min_rooms || null,
   minM2: search.size?.min_m2 || null,
