@@ -88,11 +88,18 @@ function loadCriteria(groupName) {
   const search = profile.searches.find(s => s.name === groupName && s.enabled !== false)
     || profile.searches.find(s => s.enabled !== false);
   if (!search) return null;
+  const loc = search.location || {};
+  const allowedAreas = [
+    ...(loc.preferred_areas || []),
+    ...(loc.acceptable_areas || []),
+    ...(loc.city ? [loc.city] : []),
+  ].map(a => a.toLowerCase());
   return {
     minRooms: search.size?.min_rooms || null,
     minM2: search.size?.min_m2 || null,
     maxPrice: search.price?.max_kaltmiete || search.price?.max_kaufpreis || null,
-    excludedAreas: (search.location?.excluded_areas || []).map(a => a.toLowerCase()),
+    excludedAreas: (loc.excluded_areas || []).map(a => a.toLowerCase()),
+    allowedAreas,
   };
 }
 
@@ -127,6 +134,10 @@ function filterCriteria(listing, criteria) {
   if (criteria.excludedAreas.length > 0 && listing.location) {
     const loc = listing.location.toLowerCase();
     if (criteria.excludedAreas.some(a => loc.includes(a))) return 'skipped_criteria';
+  }
+  if (criteria.allowedAreas.length > 0 && listing.location) {
+    const loc = listing.location.toLowerCase();
+    if (!criteria.allowedAreas.some(a => loc.includes(a))) return 'skipped_criteria';
   }
   return null;
 }
