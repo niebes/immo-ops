@@ -10,13 +10,14 @@ export async function extract(page) {
       const text = article.textContent || '';
       const priceMatch = text.match(/Kaufpreisvorstellung:\s*([\d.,]+)\s*EUR/i);
       const m2Match = text.match(/([\d.,]+)\s*m²/);
+      const locMatch = title.match(/in\s+(.+?)$/);
       return {
         title: title.substring(0, 120),
         url: link.href.startsWith('http') ? link.href : new URL(link.href, window.location.origin).href,
         price: priceMatch ? parseFloat(priceMatch[1].replace(/\./g, '').replace(',', '.')) : null,
         m2: m2Match ? parseFloat(m2Match[1].replace(/\./g, '').replace(',', '.')) : null,
         rooms: null,
-        location: '',
+        location: locMatch ? locMatch[1] : '',
         portal: 'BLB Brandenburg',
       };
     }).filter(Boolean);

@@ -13,8 +13,8 @@ export async function extract(page) {
       const text = card.textContent || '';
       const priceMatch = priceText.match(/([\d.]+)\s*€/);
       const m2Match = text.match(/([\d.,]+)\s*m²/);
-      const locEl = card.querySelector('.text-slate-500, .text-sm');
-      const loc = locEl?.textContent?.trim() || '';
+      const locEl = card.querySelector('.text-slate-800');
+      const loc = locEl?.textContent?.replace(/\s+/g, ' ').trim() || '';
       return {
         title: title.substring(0, 120),
         url,
