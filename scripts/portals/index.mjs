@@ -11,6 +11,7 @@ import { extract as dga, nextPage as dgaNext } from './dga.mjs';
 import { extract as bvbi, nextPage as bvbiNext } from './bvbi.mjs';
 import { extract as bvvg, nextPage as bvvgNext } from './bvvg.mjs';
 import { extract as blb, nextPage as blbNext } from './blb.mjs';
+import { extract as bbg, nextPage as bbgNext } from './bbg.mjs';
 import { extract as stadtPotsdam, nextPage as stadtPotsdamNext } from './stadt-potsdam.mjs';
 import { extract as propotsdam, nextPage as propotsdamNext } from './propotsdam.mjs';
 import { extract as generic, nextPage as genericNext } from './generic.mjs';
@@ -27,6 +28,7 @@ const PORTAL_MAP = [
   { pattern: 'bvbi', extract: bvbi, nextPage: bvbiNext },
   { pattern: 'bvvg', extract: bvvg, nextPage: bvvgNext },
   { pattern: 'blb', extract: blb, nextPage: blbNext },
+  { pattern: 'bbg', extract: bbg, nextPage: bbgNext },
   { pattern: 'stadt potsdam', extract: stadtPotsdam, nextPage: stadtPotsdamNext },
   { pattern: 'propotsdam', extract: propotsdam, nextPage: propotsdamNext },
 ];
