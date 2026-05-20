@@ -11,6 +11,7 @@
  *
  * Usage:
  *   echo '[...]' | node scripts/process-scan.mjs
+ *   node scripts/process-scan.mjs --file /tmp/listings.json
  *   node scripts/process-scan.mjs --dry-run < listings.json
  *   node scripts/process-scan.mjs --portal ImmoScout24 < listings.json
  */
@@ -29,6 +30,8 @@ mkdirSync(`${ROOT}/data`, { recursive: true });
 
 const args = process.argv.slice(2);
 const DRY_RUN = args.includes('--dry-run');
+const fileIdx = args.indexOf('--file');
+const INPUT_FILE = fileIdx !== -1 ? args[fileIdx + 1] : null;
 
 // ── Config ─────────────────────────────────────────────────────────
 
@@ -97,7 +100,7 @@ function filterCriteria(listing) {
 
 // ── Main ───────────────────────────────────────────────────────────
 
-const input = readFileSync(0, 'utf8');
+const input = INPUT_FILE ? readFileSync(INPUT_FILE, 'utf8') : readFileSync(0, 'utf8');
 let listings;
 try {
   listings = JSON.parse(input);
