@@ -194,7 +194,7 @@ Under 200 chars. Lead with total count, break down by target, mention top pick.
 
 **2. Email draft** (detailed):
 
-**What to include:** All scored listings from `data/pipeline.md` (max 50). Exclude DISCARDED and DUPE entries. Sort by score descending within each section.
+**What to include:** Scored listings from `data/pipeline.md` with score ≥ 3.0 (max 50). Exclude DISCARDED, DUPE, and sub-3.0 entries — these are not actionable and waste the reader's attention. Sort by score descending within each section. Mention the count of excluded sub-3.0 listings in the footer.
 
 **Enrichment from reports:** For each listing with a report in `reports/`, read the `## Summary` section and extract:
 - The bold assessment phrase (e.g., "Strong candidate, worth pursuing")
