@@ -62,7 +62,10 @@ if (listings) {
   ];
 
   for (const line of lines) {
-    const cols = line.split('|').map(c => c.trim()).filter(Boolean);
+    // Parse as a markdown table row: strip the outer delimiters, then split.
+    // Do NOT filter empty cells — interior blanks (e.g. Rooms for a Grundstück)
+    // are valid columns and dropping them shifts Status/Report onto wrong fields.
+    const cols = line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim());
     if (cols.length < 11) {
       check(false, `Listing row has ${cols.length} columns, expected 11+: ${line.substring(0, 80)}`);
       continue;
