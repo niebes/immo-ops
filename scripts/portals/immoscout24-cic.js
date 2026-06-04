@@ -26,7 +26,7 @@ cards.forEach(card => {
   const lines = (card.innerText || '').split('\n').map(l => l.trim()).filter(l => l.length > 3);
   const skip = ['Neu', 'Gesponsert', 'Guter Preis', 'Sehr guter Preis', 'Ausgezeichneter Preis', 'Noch', 'Sortieren'];
   const title = lines.find(l => l.length > 10 && !skip.some(s => l.startsWith(s))) || '';
-  const priceMatch = text.match(/([\d.]+)\s*€/);
+  const priceMatch = text.match(/([\d.]+(?:,\d+)?)\s*€/);
   const m2Match = text.match(/([\d.,]+)\s*m²/);
   const roomsMatch = text.match(/(\d+)\s*Zi\./);
   const addrLine = lines.find(l => l.includes(',') && /\d{5}|\b[A-Z][a-zäöü]+(?:stadt|burg|berg|heim|dorf|feld)\b/.test(l)) || '';
@@ -34,7 +34,7 @@ cards.forEach(card => {
   listings.push({
     url: 'https://www.immobilienscout24.de/expose/' + m[1],
     title,
-    price: priceMatch ? parseInt(priceMatch[1].replace(/\./g, '')) : null,
+    price: priceMatch ? parseInt(priceMatch[1].replace(/\./g, '').replace(',', '.')) : null,
     m2: m2Match ? parseFloat(m2Match[1].replace(',', '.')) : null,
     rooms: roomsMatch ? parseInt(roomsMatch[1]) : null,
     location: addrLine,

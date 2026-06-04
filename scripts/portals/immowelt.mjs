@@ -20,7 +20,7 @@ export async function extract(page) {
       listings.push({
         title: (title || '').trim().substring(0, 120),
         url,
-        price: parseNumber(extractPattern(priceText, /(\d[\d.]*)\s*€/)),
+        price: parseNumber(extractPattern(priceText, /(\d[\d.,]*)\s*€/)),
         m2: parseNumber(extractPattern(factsText, /(\d[\d,]*)\s*m²/)),
         rooms: parseNumber(extractPattern(factsText, /(\d+)\s*Zimmer|(\d+)\s*Zi/)),
         location: (addressText || '').trim(),
