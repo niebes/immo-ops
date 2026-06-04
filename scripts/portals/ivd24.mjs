@@ -5,12 +5,12 @@ export async function extract(page) {
       const title = card.querySelector('h2')?.textContent?.trim() || '';
       const loc = card.querySelector('h5')?.textContent?.trim().replace(/\s+/g, ' ') || '';
       const barText = card.querySelector('.result-bar .float-right')?.textContent?.trim() || '';
-      const priceMatch = barText.match(/([\d.]+)\s*€/);
+      const priceMatch = barText.match(/([\d.,]+)\s*€/);
       const m2Match = barText.match(/([\d.]+)\s*m²/);
       return {
         title: title.substring(0, 120),
         url: card.href,
-        price: priceMatch ? parseFloat(priceMatch[1].replace(/\./g, '')) : null,
+        price: priceMatch ? parseFloat(priceMatch[1].replace(/\./g, '').replace(',', '.')) : null,
         m2: m2Match ? parseFloat(m2Match[1]) : null,
         rooms: null,
         location: loc,

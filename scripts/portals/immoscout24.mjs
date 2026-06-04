@@ -17,7 +17,7 @@ export async function extract(page) {
         if (!href) continue;
         const url = (href.startsWith('http') ? href : `https://www.immobilienscout24.de${href}`).split('#')[0].split('?')[0];
         const text = await card.textContent().catch(() => '');
-        const priceMatch = text.match(/([\d.]+)\s*€/);
+        const priceMatch = text.match(/([\d.,]+)\s*€/);
         const m2Match = text.match(/([\d.,]+)\s*m²/);
         const roomsMatch = text.match(/(\d+)\s*Zi\./);
         const title = text.replace(/\s+/g, ' ').trim().substring(0, 120);
