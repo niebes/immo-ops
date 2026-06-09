@@ -32,6 +32,8 @@ const args = process.argv.slice(2);
 const DRY_RUN = args.includes('--dry-run');
 const fileIdx = args.indexOf('--file');
 const INPUT_FILE = fileIdx !== -1 ? args[fileIdx + 1] : null;
+const groupIdx = args.indexOf('--group');
+const GROUP_NAME = groupIdx !== -1 ? args[groupIdx + 1] : null;
 
 // ── Config ─────────────────────────────────────────────────────────
 
@@ -58,7 +60,9 @@ if (portalsConfig.search_groups) {
 
 // ── Criteria ───────────────────────────────────────────────────────
 
-const search = profile?.searches?.find(s => s.enabled !== false);
+const search = GROUP_NAME
+  ? profile?.searches?.find(s => s.name === GROUP_NAME)
+  : profile?.searches?.find(s => s.enabled !== false);
 const criteria = search ? {
   minRooms: search.size?.min_rooms || null,
   minM2: search.size?.min_m2 || null,
