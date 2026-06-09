@@ -45,10 +45,13 @@ function loadYaml(path) {
 const portalsConfig = loadYaml(PORTALS_PATH) || {};
 const profile = loadYaml(PROFILE_PATH);
 
-// Collect negative keywords from ALL search groups' title_filters
+// Collect negative keywords scoped to --group if provided, otherwise all groups
 const negativeKeywords = [];
 if (portalsConfig.search_groups) {
-  for (const group of portalsConfig.search_groups) {
+  const groups = GROUP_NAME
+    ? portalsConfig.search_groups.filter(g => g.name === GROUP_NAME)
+    : portalsConfig.search_groups;
+  for (const group of groups) {
     for (const kw of (group.title_filter?.negative || [])) {
       const lower = kw.toLowerCase();
       if (!negativeKeywords.includes(lower)) negativeKeywords.push(lower);
