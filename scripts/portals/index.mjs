@@ -14,6 +14,9 @@ import { extract as blb, nextPage as blbNext } from './blb.mjs';
 import { extract as bbg, nextPage as bbgNext } from './bbg.mjs';
 import { extract as stadtPotsdam, nextPage as stadtPotsdamNext } from './stadt-potsdam.mjs';
 import { extract as propotsdam, nextPage as propotsdamNext } from './propotsdam.mjs';
+import { extract as dibag, nextPage as dibagNext } from './dibag.mjs';
+import { extract as semmelhaack, nextPage as semmelhaackNext } from './semmelhaack.mjs';
+import { extract as wgKarlMarx, nextPage as wgKarlMarxNext } from './wg-karl-marx.mjs';
 import { extract as generic, nextPage as genericNext } from './generic.mjs';
 
 const PORTAL_MAP = [
@@ -31,6 +34,10 @@ const PORTAL_MAP = [
   { pattern: 'bbg', extract: bbg, nextPage: bbgNext },
   { pattern: 'stadt potsdam', extract: stadtPotsdam, nextPage: stadtPotsdamNext },
   { pattern: 'propotsdam', extract: propotsdam, nextPage: propotsdamNext },
+  { pattern: 'dibag', extract: dibag, nextPage: dibagNext },
+  { pattern: 'semmelhaack', extract: semmelhaack, nextPage: semmelhaackNext },
+  { pattern: 'karl marx', extract: wgKarlMarx, nextPage: wgKarlMarxNext },
+  { pattern: 'wgkarlmarx', extract: wgKarlMarx, nextPage: wgKarlMarxNext },
 ];
 
 export function getExtractor(portalName) {
