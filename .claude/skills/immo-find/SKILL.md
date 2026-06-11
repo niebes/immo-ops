@@ -204,29 +204,51 @@ Include these as a second row under each listing in the table (smaller font, gra
 
 **Email structure — grouped by search target:**
 
-The email body is organized into sections, one per active search target from `config/profile.yml`. Each section has a header and its own table.
+Header block (before the sections):
+- `<h1 style="border-bottom:2px solid #1a73e8;padding-bottom:8px">immo-ops scan results</h1>`
+- Subtitle `<p style="color:#666">`: `{timestamp} • {N} new listings evaluated • {M} scoring 3.0+`
+- Scan note `<p style="color:#888;font-size:12px">`: which portals were scanned (Playwright vs browser), which search groups are disabled, anything skipped (CAPTCHA etc.)
 
-**Section header:** `<h2>` with the search name and a type badge:
-- `🏠 Potsdam/Brandenburg house purchase` (Kauf/Haus)
-- `🏢 Berlin flat rental` (Miete/Wohnung)
-- `🌳 Potsdam/Brandenburg plot purchase` (Kauf/Grundstück)
+The email body is organized into sections, one per search target from `config/profile.yml`. Each section has a header and its own table.
 
-If a section has zero scored listings, show the header with "(no listings yet)" and skip the table.
+**Section header:** `<h2 style="font-size:16px;border-bottom:2px solid #2e7d32;padding-bottom:4px">` with emoji, search name, and a gray count badge:
+```html
+<h2 ...>🏢 Berlin flat rental <span style="font-size:12px;color:#777;font-weight:normal">(Miete / Wohnung · {N} listings)</span></h2>
+```
+- `🏠` house purchase (Kauf/Haus), `🏢` flat rental (Miete/Wohnung), `🌳` plot purchase (Kauf/Grundstück)
+- Active section with zero scored listings: show header with "(no listings yet)", skip the table
+- **Disabled search groups: still show the header**, grayed out — border `#bbb`, `color:#888`, badge text `(disabled)` — so the reader sees the full search scope at a glance
 
 **Matching listings to sections:** Use the search group tag from the pipeline entry (added during scan). For older pipeline entries without a tag, infer from listing type (miete/kauf) and property type (wohnung/haus/grundstück) based on the report or URL.
 
-**Table format per section:** HTML with `htmlBody` parameter. Columns: #, Score, Listing (linked to portal URL), Price, Size, Rooms. The # column shows the listing number from the tracker. Color-code rows:
+**Table format per section:** HTML with `htmlBody` parameter. Columns: #, Score, Listing (linked to portal URL), Price, Size, Rooms. The # column shows the listing number from the tracker. Score is `<b>{score}</b>` without "/5" (e.g. `<b>4.6</b>`). Header row: `#f0f0f0` background, all cells `border:1px solid #ddd`.
+
+**Listing cell:** linked short descriptive title, portal name inline after the link in gray:
+```html
+<a href="{url}" target="_blank">{short title — area}</a> <span style="color:#777">({Portal})</span>
+```
+
+Color-code rows:
 - Green background (`#e8f5e9`): score 3.5+ (worth pursuing)
 - Yellow background (`#fff8e1`): score 3.0–3.4 (compromises)
 - Red background (`#ffebee`): score below 3.0 (not recommended)
 - White: no score yet
 
+**CRITICAL — Gmail strips row-level styles in the draft composer.** Set the background on EVERY cell, not just the row, and use both the legacy attribute and inline style. The `bgcolor` attribute survives every email sanitizer:
+```html
+<tr bgcolor="#e8f5e9" style="background-color:#e8f5e9">
+  <td bgcolor="#e8f5e9" style="padding:6px;border:1px solid #ddd;background-color:#e8f5e9">...</td>
+  ...
+</tr>
+```
+All styles inline on the elements — do not rely on a `<style>` block alone (stripped by Gmail).
+
 **Price column adapts to type:**
-- Miete: show Kaltmiete (+ Warmmiete)
+- Miete: Kaltmiete and Warmmiete on two lines — `{KM} KM<br><span style="color:#777">~{WM} WM</span>`. If WM is estimated or a range, say so (`~1.830 WM est.`). Use German number format with `€` or bare numbers + KM/WM, never "EUR".
 - Kauf/Haus: show Kaufpreis
 - Kauf/Grundstück: show Kaufpreis + price/m²
 
-Below each listing row, add a detail row (same background, smaller gray text):
+Below each listing row, add a detail row (same `bgcolor`/background on the cell, `font-size:11px;color:#555`):
 ```
 ✓ {key pro}  ✗ {key con}
 ```
@@ -236,7 +258,7 @@ Subject: `immo-ops: {N} listing(s) — {summary, e.g. '5 Miete, 2 Haus, 1 Grunds
 
 **RULE: Always get the current timestamp from the system (e.g., `new Date().toISOString()` or `date` command) before composing the email. Never hardcode or guess the time.**
 
-Footer: count of discarded/duped listings per section, link to immo-ops repo.
+Footer (`<p style="margin-top:18px;font-size:12px;color:#777">`): excluded sub-3.0 listings with ID, score, and one-line reason (e.g. `#117 (2.5/5 — stale Bestandsmiete price fiction)`); discarded/duped counts per section; reports path (e.g. `reports/113–121-*.md`); link to immo-ops repo.
 
 **Implementation:**
 ```
