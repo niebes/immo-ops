@@ -78,11 +78,12 @@ Energieausweis adjustment:
 - F: -0.5
 - G, H: -1.0
 
-Photo-evidence adjustment (condition can't be verified without photos):
-- No photos at all: **cap Block D at 3.0** — do not award Saniert/Neubau ratings on the listing's word alone; note "condition unverified, no photos" in the report.
-- Only stock or AI-generated photos: treat as no photos (cap D at 3.0) AND raise the scam-check "stock/AI photos" medium flag.
-- Very few / low-quality photos that don't show key rooms: -0.25.
-- This is a Block D penalty only — do not also penalize E or H for the same missing photos (avoid double-counting); H/scam-check handle stock-photo *fraud* signals separately.
+Photo-evidence adjustment (condition can't be verified without real photos).
+Detect via what's actually observable — do NOT attempt pixel-level "is this AI?" forensics:
+- **No real photos** (count gallery images, excluding Grundriss/Lageplan = 0): **cap Block D at 3.0** for an *existing* flat — don't award Saniert/Renoviert on the listing's word alone; note "condition unverified, no photos."
+- **Listing text labels the images as non-real** — keyword-scan the description for: Visualisierung, computergeneriert, gerendert, 3D, Symbolbild/Symbolfoto, Beispielbild, Musterwohnung, KI-/AI-generiert, "So könnte es aussehen", "ähnliche Wohnung". For an *existing* flat, treat these as no real photos (cap D at 3.0). Optionally note the "stock/example photos" scam medium-flag if combined with other red flags.
+- **Neubau / Erstbezug exception:** renders/Visualisierungen are normal and expected pre-completion — do NOT penalize D; the rating comes from the new-build status itself, not the image.
+- Block D penalty only — don't also dock E or H for the same gap (scam-check handles photo *fraud* separately).
 
 ### Block E — Amenities (Default weight: 10%)
 
