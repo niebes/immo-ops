@@ -128,17 +128,11 @@ function loadCriteria(groupName) {
     || profile.searches.find(s => s.enabled !== false);
   if (!search) return null;
   const loc = search.location || {};
-  const allowedAreas = [
-    ...(loc.preferred_areas || []),
-    ...(loc.acceptable_areas || []),
-    ...(loc.city ? [loc.city] : []),
-  ].map(a => a.toLowerCase());
   return {
     minRooms: search.size?.min_rooms || null,
     minM2: search.size?.min_m2 || null,
     maxPrice: search.price?.max_kaltmiete || search.price?.max_kaufpreis || null,
     excludedAreas: (loc.excluded_areas || []).map(a => a.toLowerCase()),
-    allowedAreas,
   };
 }
 
@@ -174,10 +168,12 @@ function filterCriteria(listing, criteria) {
     const loc = listing.location.toLowerCase();
     if (criteria.excludedAreas.some(a => loc.includes(a))) return 'skipped_criteria';
   }
-  if (criteria.allowedAreas.length > 0 && listing.location) {
-    const loc = listing.location.toLowerCase();
-    if (!criteria.allowedAreas.some(a => loc.includes(a))) return 'skipped_criteria';
-  }
+  // NO positive area filter: location formats vary per portal (e.g. Immowelt's
+  // "Golm, P (14476)" abbreviates Potsdam, so a literal "potsdam"/"golm (bei potsdam)"
+  // match silently dropped real Golm listings — the user's home area). Active groups
+  // are already URL-scoped to the target region; out-of-area outliers are caught in
+  // triage. If a genuinely-nationwide portal is enabled later (DGA/BImA/etc.), scope
+  // it at the search URL or add postcode filtering for THAT portal — not globally.
   return null;
 }
 
