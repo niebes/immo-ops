@@ -71,14 +71,6 @@ const criteria = search ? {
   minM2: search.size?.min_m2 || null,
   maxPrice: search.price?.max_kaltmiete || search.price?.max_kaufpreis || null,
   excludedAreas: (search.location?.excluded_areas || []).map(a => a.toLowerCase()),
-  // Positive area filter — mirror scan.mjs so nationwide portals (e.g. Semmelhaack)
-  // don't flood the pipeline with out-of-area listings. Only applied when a
-  // listing HAS a location string (empty location = can't tell, let it through).
-  allowedAreas: [
-    ...(search.location?.preferred_areas || []),
-    ...(search.location?.acceptable_areas || []),
-    ...(search.location?.city ? [search.location.city] : []),
-  ].map(a => a.toLowerCase()),
 } : null;
 
 // ── Dedup ──────────────────────────────────────────────────────────
@@ -110,10 +102,10 @@ function filterCriteria(listing) {
     const loc = listing.location.toLowerCase();
     if (criteria.excludedAreas.some(a => loc.includes(a))) return 'skipped_criteria';
   }
-  if (criteria.allowedAreas.length > 0 && listing.location) {
-    const loc = listing.location.toLowerCase();
-    if (!criteria.allowedAreas.some(a => loc.includes(a))) return 'skipped_criteria';
-  }
+  // NOTE: deliberately NO positive area filter here. Location data is inconsistent
+  // across portals (many empty; literal keyword matching drops valid addresses like
+  // "14476 Golm"). With few listings, false negatives cost more than letting a few
+  // out-of-area listings through — those are caught in triage. See git history.
   return null;
 }
 
