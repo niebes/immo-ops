@@ -78,6 +78,12 @@ Energieausweis adjustment:
 - F: -0.5
 - G, H: -1.0
 
+Photo-evidence adjustment (condition can't be verified without photos):
+- No photos at all: **cap Block D at 3.0** — do not award Saniert/Neubau ratings on the listing's word alone; note "condition unverified, no photos" in the report.
+- Only stock or AI-generated photos: treat as no photos (cap D at 3.0) AND raise the scam-check "stock/AI photos" medium flag.
+- Very few / low-quality photos that don't show key rooms: -0.25.
+- This is a Block D penalty only — do not also penalize E or H for the same missing photos (avoid double-counting); H/scam-check handle stock-photo *fraud* signals separately.
+
 ### Block E — Amenities (Default weight: 10%)
 
 - All must-haves + 3+ nice-to-haves: 5.0
