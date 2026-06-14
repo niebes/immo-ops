@@ -76,6 +76,7 @@ ALWAYS create a dedicated tab for CiC scanning via `tabs_create_mcp`. Never reus
 **Available CiC extraction snippets:**
 - `scripts/portals/immoscout24-cic.js` — ImmoScout24 (`.listing-card` containers, returns pagination info)
 - `scripts/portals/ebay-cic.js` — eBay.de Grundstücke (`.s-card` containers; skips the "Shop on eBay" placeholder ad; single-page for the Brandenburg search). Returns pagination info.
+- `scripts/portals/semmelhaack-cic.js` — Semmelhaack (`.objekt-single-data` cards, `.label`/`.value` rows; single-page, ~53 nationwide listings). CiC fallback for when Playwright hits the CAPTCHA.
 
 **Combined scan order:**
 1. First: run `node scripts/scan.mjs` for Playwright portals (can be backgrounded)
