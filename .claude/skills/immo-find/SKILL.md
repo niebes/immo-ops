@@ -164,6 +164,13 @@ Before sending any notification, verify:
 
 If verification fails, DO NOT notify. Instead report the failure and stop.
 
+**RULE — Coverage report (ALWAYS, every scan/auto run):**
+Walk EVERY portal entry across ALL search groups in `portals.yml` and account for each one. The chat summary and the email scan-note MUST explicitly list every configured-but-not-processed entry and the exact blocker. Never silently omit a portal. Disposition categories:
+- ✅ **scanned** (with new/seen count)
+- ⛔ **not processed** — an *enabled* portal that did not get scanned. ALWAYS state the blocker: CAPTCHA, missing extractor snippet, 403/bot-block, timeout, navigation error, redirect failure, no `--group` match, etc.
+- ⚪ **disabled** — `enabled: false`; state the reason from its `notes`.
+Present the full account as a per-group coverage table (Portal · Method · Status · What stopped it). The ⛔ rows are the priority — surface them prominently; an enabled portal that yielded nothing because it was blocked is NOT the same as one that yielded nothing legitimately.
+
 **Step 6 — Notify:**
 Only after verification passes:
 1. **Push notification** via `PushNotification` — short summary (under 200 chars):
@@ -207,7 +214,7 @@ Include these as a second row under each listing in the table (smaller font, gra
 Header block (before the sections):
 - `<h1 style="border-bottom:2px solid #1a73e8;padding-bottom:8px">immo-ops scan results</h1>`
 - Subtitle `<p style="color:#666">`: `{timestamp} • {N} new listings evaluated • {M} scoring 3.0+`
-- Scan note `<p style="color:#888;font-size:12px">`: which portals were scanned (Playwright vs browser), which search groups are disabled, anything skipped (CAPTCHA etc.)
+- Scan note `<p style="color:#888;font-size:12px">`: which portals were scanned (Playwright vs browser), which search groups are disabled, anything skipped (CAPTCHA etc.). MUST name EVERY enabled portal that was not processed and its exact blocker (see the Coverage report RULE in Step 5) — never let a blocked portal go unmentioned.
 
 The email body is organized into sections, one per search target from `config/profile.yml`. Each section has a header and its own table.
 
