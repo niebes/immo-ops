@@ -79,8 +79,9 @@ ALWAYS create a dedicated tab for CiC scanning via `tabs_create_mcp`. Never reus
 
 **Combined scan order:**
 1. First: run `node scripts/scan.mjs` for Playwright portals (can be backgrounded)
-2. Then: scan CiC portals interactively
-3. Show combined summary
+2. Read `data/scan-failures.json` — route Playwright failures: `fallback: "cic"` portals join the CiC pass below (if a snippet exists); everything else becomes a ⛔ coverage item (see the Coverage report RULE).
+3. Then: scan CiC portals interactively (registered CiC portals + bot-defense fallbacks from step 2)
+4. Show combined summary, including the coverage report of any portal not processed and what blocked it
 
 ### Pipeline mode:
 Read `modes/_shared.md` + `modes/pipeline.md`.
@@ -99,13 +100,19 @@ node scripts/scan.mjs
 ```
 Capture stdout. Note how many new listings were added.
 
-**Step 2 — CiC scan (ImmoScout24 and other `scan_method: cic` portals):**
-1. Read `portals.yml` for CiC portals
+**Step 1b — Read the failure-routing signal (`data/scan-failures.json`):**
+`scan.mjs` writes this file every run (empty `failures: []` on a clean run). It is the source of truth for what Playwright could NOT process and what to do about it. For each entry:
+- `fallback: "cic"` (e.g. CAPTCHA, 403, bot-block) → the site is reachable but blocks headless. **Add this portal to the CiC fallback list for Step 2** IF a CiC extractor snippet exists for it. If `action` says no snippet exists → it is a ⛔ coverage item: report it and recommend building one via `/immo-portal`. Do NOT silently drop it.
+- `fallback: "reconfigure"` (e.g. no search_url, login wall) → not transient. Surface as ⛔ and recommend `/immo-portal`; do not retry blindly.
+- `fallback: "retry"` (transient timeout) → note it; it should clear next cycle.
+
+**Step 2 — CiC scan (ImmoScout24, other `scan_method: cic` portals, AND Playwright bot-defense fallbacks from Step 1b):**
+1. Read `portals.yml` for CiC portals; add any `fallback: "cic"` portals from Step 1b that have a snippet.
 2. If any CiC portals enabled:
    a. Create a new CiC tab (note the tabId)
    b. For each CiC portal: navigate → extract via JS snippet → pipe to `process-scan.mjs` (paginate all pages, up to 100)
    c. Close your tab
-3. Note how many new listings were added
+3. Note how many new listings were added. Any `fallback: "cic"` portal WITHOUT a snippet remains a ⛔ coverage item.
 
 **Step 3 — Pipeline triage (metadata-only discard):**
 Read `data/pipeline.md`. For each pending `- [ ]` entry, check metadata against profile criteria:
@@ -160,6 +167,7 @@ After all agents complete: `node scripts/merge-tracker.mjs`
 **Step 5 — Verification (MUST pass before notify):**
 Before sending any notification, verify:
 - [ ] All enabled portals have been scanned (no portal skipped without reason)
+- [ ] `data/scan-failures.json` reviewed: every `fallback: "cic"` portal WITH a snippet was actually scanned via CiC in Step 2; every remaining failure (no snippet / reconfigure / retry) is accounted for in the coverage report
 - [ ] Pipeline has 0 pending `- [ ]` entries (all evaluated or discarded)
 - [ ] `node scripts/verify-pipeline.mjs` passes
 
