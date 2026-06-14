@@ -152,10 +152,19 @@ function loadSeenUrls() {
 
 // ── Filters ────────────────────────────────────────────────────────
 
+// Keyword must start at a word boundary (start-of-string or a non-letter) so we
+// don't match a keyword that is merely the SUFFIX of a longer word — e.g. the
+// keyword "befristet" must NOT match "unbefristet" (the opposite, desirable, meaning).
+// Suffix continuation IS allowed, so "tauschwohnung" still matches "Tauschwohnungen".
+function titleHasKeyword(lower, kw) {
+  const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp('(^|[^a-zäöüß])' + esc).test(lower);
+}
+
 function filterTitle(title, titleKw) {
   const lower = title.toLowerCase();
-  if (titleKw.negative.some(k => lower.includes(k))) return 'skipped_title';
-  if (titleKw.positive.length > 0 && !titleKw.positive.some(k => lower.includes(k))) return 'skipped_title';
+  if (titleKw.negative.some(k => titleHasKeyword(lower, k))) return 'skipped_title';
+  if (titleKw.positive.length > 0 && !titleKw.positive.some(k => titleHasKeyword(lower, k))) return 'skipped_title';
   return null;
 }
 
