@@ -270,6 +270,8 @@ Below each listing row, add a detail row (same `bgcolor`/background on the cell,
 ```
 Only include the detail row if a report exists for that listing.
 
+**MANDATORY — both features, every email.** Each listing MUST have BOTH (1) color-coded cells AND (2) its own `✓ pro / ✗ con` summary row beneath it. Do NOT compact the summary into the listing cell or drop it to save space/effort — the per-listing ✓/✗ row is the point of the email. Pull the pro from the report's first positive and the con from the first "However/concern" line. Reference gold-standard format: the 2026-05-20 scan-report email.
+
 Subject: `immo-ops: {N} listing(s) — {summary, e.g. '5 Miete, 2 Haus, 1 Grundstück'} — {current date and time from system clock, NEVER guessed}`
 
 **RULE: Always get the current timestamp from the system (e.g., `new Date().toISOString()` or `date` command) before composing the email. Never hardcode or guess the time.**
