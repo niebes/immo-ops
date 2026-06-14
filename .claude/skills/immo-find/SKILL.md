@@ -165,11 +165,10 @@ Before sending any notification, verify:
 If verification fails, DO NOT notify. Instead report the failure and stop.
 
 **RULE — Coverage report (ALWAYS, every scan/auto run):**
-Walk EVERY portal entry across ALL search groups in `portals.yml` and account for each one. The chat summary and the email scan-note MUST explicitly list every configured-but-not-processed entry and the exact blocker. Never silently omit a portal. Disposition categories:
+Walk EVERY *enabled* portal across ALL search groups in `portals.yml` and account for each one. The chat summary and the email scan-note MUST explicitly list every enabled-but-not-processed entry and the exact blocker. Never silently omit a blocked portal. Disposition categories (ignore `enabled: false` portals — do NOT list disabled rows):
 - ✅ **scanned** (with new/seen count)
-- ⛔ **not processed** — an *enabled* portal that did not get scanned. ALWAYS state the blocker: CAPTCHA, missing extractor snippet, 403/bot-block, timeout, navigation error, redirect failure, no `--group` match, etc.
-- ⚪ **disabled** — `enabled: false`; state the reason from its `notes`.
-Present the full account as a per-group coverage table (Portal · Method · Status · What stopped it). The ⛔ rows are the priority — surface them prominently; an enabled portal that yielded nothing because it was blocked is NOT the same as one that yielded nothing legitimately.
+- ⛔ **not processed** — an enabled portal that did not get scanned. ALWAYS state the blocker: CAPTCHA, missing extractor snippet, 403/bot-block, timeout, navigation error, redirect failure, no `--group` match, etc.
+Present the account as a per-group coverage table (Portal · Method · Status · What stopped it). The ⛔ rows are the priority — surface them prominently; an enabled portal that yielded nothing because it was blocked is NOT the same as one that yielded nothing legitimately.
 
 **Step 6 — Notify:**
 Only after verification passes:
