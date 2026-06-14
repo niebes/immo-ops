@@ -216,6 +216,7 @@ Under 200 chars. Lead with total count, break down by target, mention top pick.
 - The bold assessment phrase (e.g., "Strong candidate, worth pursuing")
 - Key pro: first positive point from the summary
 - Key con: first concern after "However:" or "Main concerns:" or "Key concern:"
+- If the listing has no real photos (or renders/example photos only — see Block D photo rule in `modes/_shared.md`), always include "no photos" in the ✗ con, even if other concerns rank higher.
 Include these as a second row under each listing in the table (smaller font, gray text).
 
 **Email structure — grouped by search target:**
