@@ -84,6 +84,7 @@ Detect via what's actually observable — do NOT attempt pixel-level "is this AI
 - **Listing text labels the images as non-real** — keyword-scan the description for: Visualisierung, computergeneriert, gerendert, 3D, Symbolbild/Symbolfoto, Beispielbild, Musterwohnung, KI-/AI-generiert, "So könnte es aussehen", "ähnliche Wohnung". For an *existing* flat, treat these as no real photos (cap D at 3.0). Optionally note the "stock/example photos" scam medium-flag if combined with other red flags.
 - **Neubau / Erstbezug exception:** renders/Visualisierungen are normal and expected pre-completion — do NOT penalize D; the rating comes from the new-build status itself, not the image.
 - Block D penalty only — don't also dock E or H for the same gap (scam-check handles photo *fraud* separately).
+- **Always surface it in the negative summary.** Whenever D is capped/penalized for this, add "no photos" (or "renders/example photos only") as an explicit ✗ con in the report Summary AND the email ✗ con line — never leave it implicit, since it both lowers the score and tells the user the listing is unverifiable.
 
 ### Block E — Amenities (Default weight: 10%)
 
