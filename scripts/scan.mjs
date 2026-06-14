@@ -29,8 +29,47 @@ const PIPELINE_PATH = `${ROOT}/data/pipeline.md`;
 const LISTINGS_PATH = `${ROOT}/data/listings.md`;
 const PROFILE_PATH = `${ROOT}/config/profile.yml`;
 const IMMOSCOUT_COOKIES_PATH = `${ROOT}/config/cookies-immoscout24.json`;
+const SCAN_FAILURES_PATH = `${ROOT}/data/scan-failures.json`;
 
 mkdirSync(`${ROOT}/data`, { recursive: true });
+
+// ── Failure tracking ───────────────────────────────────────────────
+// When a Playwright portal fails, we classify and record it so the scan/auto
+// workflow can ROUTE it (CiC fallback or reconfigure) instead of silently
+// dropping it. scanPortal() pushes here; main() writes data/scan-failures.json.
+const scanFailures = [];
+
+// Does a CiC extractor snippet exist for this portal? (scripts/portals/{slug}-cic.js)
+function cicSnippetSlug(portalName) {
+  return portalName.toLowerCase()
+    .replace(/[äöü]/g, m => ({ ä: 'ae', ö: 'oe', ü: 'ue' }[m]))
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+function hasCicSnippet(portalName) {
+  const slug = cicSnippetSlug(portalName);
+  // try a couple of common slug forms
+  return ['', '24'].some(suffix =>
+    existsSync(`${ROOT}/scripts/portals/${slug}${suffix}-cic.js`)) ||
+    existsSync(`${ROOT}/scripts/portals/${slug.split('-')[0]}-cic.js`);
+}
+
+// Classify a failure and record it with a recommended action.
+function recordFailure(portal, groupName, reason, classification) {
+  let fallback, action;
+  if (classification === 'bot_defense') {
+    fallback = 'cic';
+    action = hasCicSnippet(portal.name)
+      ? `Retry via CiC (real browser) — extractor exists. Auto mode will pick it up.`
+      : `Retry via CiC, but NO extractor snippet exists — build one with /immo-portal (scripts/portals/{slug}-cic.js).`;
+  } else if (classification === 'config') {
+    fallback = 'reconfigure';
+    action = `Not a transient failure — fix the portal config or rebuild the extractor via /immo-portal.`;
+  } else {
+    fallback = 'retry';
+    action = `Transient error — retry next cycle; if it persists, consider CiC or /immo-portal.`;
+  }
+  scanFailures.push({ portal: portal.name, group: groupName, reason, classification, fallback, action });
+}
 
 // ── CLI args ───────────────────────────────────────────────────────
 
@@ -144,9 +183,10 @@ function filterCriteria(listing, criteria) {
 
 // ── Portal scanning ────────────────────────────────────────────────
 
-async function scanPortal(browser, portal) {
+async function scanPortal(browser, portal, groupName) {
   if (!portal.search_url) {
     console.log(`  ⚠ ${portal.name}: no search_url, skipping`);
+    recordFailure(portal, groupName, 'no_search_url', 'config');
     return [];
   }
 
@@ -182,12 +222,13 @@ async function scanPortal(browser, portal) {
     const bodyText = await page.textContent('body').catch(() => '');
     if (isCaptcha(bodyText)) {
       const hasCookies = portal.name.toLowerCase().includes('immoscout') && existsSync(IMMOSCOUT_COOKIES_PATH);
-      console.log(`  ✗ CAPTCHA detected, skipping`);
+      console.log(`  ✗ CAPTCHA detected, skipping → flagged for CiC fallback`);
       if (portal.name.toLowerCase().includes('immoscout')) {
         console.log(hasCookies
           ? `    Cookies loaded but expired — re-run: node scripts/login-immoscout.mjs`
           : `    Run: node scripts/login-immoscout.mjs to save session cookies`);
       }
+      recordFailure(portal, groupName, 'captcha', 'bot_defense');
       return [];
     }
 
@@ -235,6 +276,13 @@ async function scanPortal(browser, portal) {
     return allListings.slice(0, MAX_LISTINGS);
   } catch (err) {
     console.log(`  ✗ Error: ${err.message}`);
+    // Reachable-but-blocked / nav failures look like bot defense → CiC fallback.
+    // Genuine timeouts are transient → retry. Anything else is a generic error.
+    const m = err.message || '';
+    const classification = /403|forbidden|net::ERR|blocked|ERR_HTTP2|access denied/i.test(m)
+      ? 'bot_defense'
+      : (/timeout|timed out|navigation/i.test(m) ? 'transient' : 'error');
+    recordFailure(portal, groupName, m.slice(0, 120), classification);
     return [];
   } finally {
     await context.close();
@@ -312,7 +360,7 @@ async function main() {
 
     for (const portal of portals) {
       console.log(`\n[${portal.name}]`);
-      const listings = await scanPortal(browser, portal);
+      const listings = await scanPortal(browser, portal, group.name);
       totalStats.portals++;
       totalStats.found += listings.length;
 
@@ -382,6 +430,29 @@ async function main() {
       const output = execSync('node scripts/dedup-listings.mjs --fix', { encoding: 'utf8', cwd: ROOT });
       console.log(output.trim());
     } catch { /* dedup is best-effort */ }
+  }
+
+  // ── Failure report + routing signal ──────────────────────────────
+  // Always (re)write the failures file so a clean run clears a stale one.
+  if (!DRY_RUN) {
+    writeFileSync(SCAN_FAILURES_PATH, JSON.stringify({
+      timestamp: new Date().toISOString(),
+      failures: scanFailures,
+    }, null, 2));
+  }
+
+  if (scanFailures.length > 0) {
+    console.log(`\n${'⚠'.repeat(20)}`);
+    console.log(`PORTALS NOT PROCESSED (${scanFailures.length}) — require follow-up:`);
+    for (const f of scanFailures) {
+      const tag = f.fallback === 'cic' ? '→ CiC fallback'
+        : f.fallback === 'reconfigure' ? '→ reconfigure'
+        : '→ retry';
+      console.log(`  ⛔ ${f.portal} [${f.group}] — ${f.reason} (${f.classification}) ${tag}`);
+      console.log(`     ${f.action}`);
+    }
+    console.log(`\n  → CiC-fallback portals must be scanned via Claude-in-Chrome before notifying.`);
+    console.log(`     Details written to ${SCAN_FAILURES_PATH.replace(ROOT + '/', '')}`);
   }
 
   if (totalStats.added > 0) {

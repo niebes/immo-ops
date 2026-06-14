@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-06-14T09:20:52.980Z",
+  "failures": [
+    {
+      "portal": "Semmelhaack",
+      "group": "Berlin flat rental",
+      "reason": "captcha",
+      "classification": "bot_defense",
+      "fallback": "cic",
+      "action": "Retry via CiC, but NO extractor snippet exists — build one with /immo-portal (scripts/portals/{slug}-cic.js)."
+    }
+  ]
+}
