@@ -1,23 +1,25 @@
 import { parseNumber } from './base.mjs';
 
 // Semmelhaack — JS-rendered listing cards (needs Playwright).
-// Structure: div.poi__container → h4.poi__container-content-header (title)
+// Structure (2026): div.objekt-single-data → h2/h3/h4 (title)
 //   → div.row > span.label + span.value (Adresse, Nutzfläche, Räume, Kaltmiete)
 //   → a.zur-objektbeschreibung (detail link to /vermietung/wohnobjekte/details-wohnobjekt/{id}/)
-// ~43 listings nationwide. Wait for JS render.
+// ~53 listings nationwide. Wait for JS render.
+// NOTE: site intermittently CAPTCHA-blocks headless — when that happens scan.mjs
+// flags it for the CiC fallback (scripts/portals/semmelhaack-cic.js).
 
 export async function extract(page) {
-  await page.waitForSelector('.poi__container', { timeout: 10000 }).catch(() => {});
+  await page.waitForSelector('div.objekt-single-data', { timeout: 10000 }).catch(() => {});
   const listings = [];
   const seen = new Set();
 
-  const containers = page.locator('.poi__container');
+  const containers = page.locator('div.objekt-single-data');
   const count = await containers.count();
 
   for (let i = 0; i < count; i++) {
     try {
       const container = containers.nth(i);
-      const title = await container.locator('h4').first().textContent().catch(() => '');
+      const title = await container.locator('h1,h2,h3,h4,h5').first().textContent().catch(() => '');
       if (!title || title.length < 5) continue;
 
       const link = container.locator('a.zur-objektbeschreibung').first();
