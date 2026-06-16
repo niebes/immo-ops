@@ -9,11 +9,22 @@ One of:
 - Pasted listing text
 - A listing # from the tracker (re-evaluate)
 
+## Browser & portal quirks (doctrine)
+
+General policies for opening listing pages. Stable, applies to every evaluation. (Concrete per-portal steps/selectors — which change more often — live in the `immo-evaluator` agent's memory at `.claude/agent-memory/immo-evaluator/`, and the portal's `notes:` in `portals.yml`.)
+
+- **Aggregators (Süddeutsche Immobilienmarkt, Regionalimmobilien24).** Their detail page is a thin re-list that links out to the real source (Immowelt / ImmoScout24 / OhneMakler / E&V). Open the source and extract there. Aggregator caches go **stale**: if the source is deleted / "Anzeige gelöscht" / "nicht gefunden", mark **EXPIRED** — never score the cached numbers.
+- **CAPTCHA** ("Ich bin kein Roboter", ImmoScout24 especially): wait ~8 s and re-check — most auto-solve. Only report blocked if still stuck after waiting; do not ask the user prematurely.
+- **Cookie/consent dialogs**: choose the privacy-preserving option ("Ablehnen" / decline non-essential). Content usually renders behind it; some portals also lazy-load cards on scroll (scroll to the bottom and wait before extracting).
+- **Number format in reports is always German** (see Report Format): `1.443,87 EUR`, `80,5 m²`, `3,5 Zimmer`.
+- **Furnished / "auf Zeit" / Zwischenmiete / Mietkauf** are not standard long-term rentals: apply the hard-blocker cap per `_shared.md` (Zwischenmiete) or discard (Mietkauf is a sale), and say so.
+- **CiC truncates returned strings at ~1100 chars** — extract field-by-field, not in one giant blob.
+
 ## Workflow
 
 1. **Read profile**: `config/profile.yml` for search criteria, `modes/_profile.md` for overrides
 2. **Get listing data**:
-   - If URL: navigate with Playwright (`browser_navigate` + `browser_snapshot`) to extract all listing details
+   - If URL: open it in the browser (CiC for bot-protected portals) and extract all listing details — applying the Browser & portal quirks above
    - If text: parse the pasted content
    - If listing #: read existing report from `reports/`, re-evaluate with current criteria
 3. **Extract structured data**:

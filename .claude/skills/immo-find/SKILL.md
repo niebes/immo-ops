@@ -132,37 +132,22 @@ Update `data/pipeline.md` in place.
 
 First, check which pending URLs already have reports (cross-reference `data/pipeline.md` URLs against `reports/*.md`). Skip those — mark as processed with the existing score.
 
-For EVERY remaining pending URL that has NO report yet, launch a dedicated Agent:
+For EVERY remaining pending URL that has NO report yet, launch the dedicated **`immo-evaluator`** subagent. It is the specialist: it carries the full evaluation procedure, the report format, and — via its own memory (`.claude/agent-memory/immo-evaluator/`) — the per-portal page quirks, so it does NOT need to be re-taught them. Keep the prompt THIN — pass only the per-listing variables:
 
 ```
 Agent(
-  subagent_type="general-purpose",
-  prompt="You are evaluating a real estate listing for immo-ops.
+  subagent_type="immo-evaluator",
+  description="immo-assess {expose_id}",
+  prompt="LISTING URL: {url}
+Portal: {portal}
+Next report number: {NNN}
+Search-result metadata: {title, price, m², rooms from the pipeline entry}
 
-LISTING URL: {url}
-
-Read these files for context:
-- config/profile.yml — search criteria (max Kaltmiete 1500, min 60m², min 3 rooms, must-haves: balkon_or_terrasse + keller)
-- modes/_shared.md — scoring system (8 blocks A-H, weighted average)
-- modes/evaluate.md — full evaluation workflow and report format
-
-STEPS:
-1. Create a CiC tab via mcp__claude-in-chrome__tabs_create_mcp
-2. Navigate to the listing URL
-3. If CAPTCHA: report it and stop. If 'Angebot nicht gefunden': mark as EXPIRED and stop.
-4. Extract ALL details via javascript_tool (use the extraction snippet pattern from the codebase)
-5. Detect Tauschwohnung → if yes, mark as DISCARDED and stop
-6. Score all 8 blocks (A-H) with numeric scores and one-line justification per block
-7. Write report to reports/{NNN}-{location-slug}-{rooms}r-{date}.md
-8. Write tracker TSV to batch/tracker-additions/{NNN}-{slug}.tsv
-9. Close your CiC tab (only the tab you created)
-10. Report back: {URL} | {score}/5 | {one-line summary}
-
-Next listing number: {NNN}
-",
-  description="immo-assess {expose_id}"
+Evaluate per your standing instructions; write report #{NNN}, tracker TSV, and the pipeline update; return the one-line result."
 )
 ```
+
+Do NOT restate the steps, file paths, scoring rules, number format, or portal quirks in the prompt — they live in the agent definition, `modes/evaluate.md`, and the agent's memory. (If `immo-evaluator` is unavailable, fall back to `general-purpose` and inline the `modes/evaluate.md` Browser & portal quirks + workflow.)
 
 Launch agents **one at a time** (CiC tabs can't run in parallel — each agent needs exclusive browser access). Wait for each agent to complete before launching the next.
 
