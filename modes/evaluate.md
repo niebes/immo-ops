@@ -42,6 +42,14 @@ One of:
 
 ## Report Format
 
+**Number format — ALWAYS German.** Write every numeric value the German way, matching
+the source listings: thousands separator is `.` (period) and the decimal separator is
+`,` (comma). So `1.443,87 EUR`, `80,5 m²`, `3,5 Zimmer`, `1.250–1.382 EUR` for ranges.
+Never use the English convention (`1,443.87`, `80.5`, `3.5`). This keeps reports
+consistent with the source sites and lets `scripts/reconcile-from-reports.mjs` parse
+them reliably. (The data files `scan-history.tsv` / `pipeline.md` stay machine-normalized
+US-style — that is produced by the parser, not by you; only your prose is German.)
+
 Write to `reports/{NNN}-{location}-{rooms}r-{date}.md`:
 
 ```markdown
