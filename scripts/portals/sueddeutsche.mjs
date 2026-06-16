@@ -33,14 +33,27 @@ export async function extract(page) {
       if (seen.has(url)) return null;
       seen.add(url);
 
-      const title = (card.querySelector('h1,h2,h3,h4,h5')?.textContent
-        || link.textContent || '').replace(/\s+/g, ' ').trim().substring(0, 120);
-
       const text = (card.textContent || '').replace(/\s+/g, ' ');
       // prefer the price with cents ("2.390,00 €"), else a plain "1.200 €"
       const priceMatch = text.match(/([\d.]+,\d{2})\s*€/) || text.match(/([\d.]+)\s*€/);
       const m2Match = text.match(/([\d.,]+)\s*m[2²]/i);
       const roomsMatch = text.match(/([\d,]+)\s*Zi\.?/);
+
+      // Title source chain. "Top Premium" teaser cards carry NO title in the SERP
+      // (empty h2/title-link, no img alt, ID-only URL), so as a last resort synthesize
+      // one from the attributes — the evaluation step fetches the real title from the
+      // detail page. Never drop a card that has a URL + price/size just for a blank title.
+      let title = (card.querySelector('h1,h2,h3,h4,h5')?.textContent
+        || card.querySelector('a.js-item-title-link, [class*="title" i]')?.textContent
+        || link.textContent
+        || card.querySelector('img')?.getAttribute('alt')
+        || '').replace(/\s+/g, ' ').trim();
+      if (!title) {
+        const bits = [roomsMatch && `${roomsMatch[1].replace(',', '.')} Zi.`, m2Match && `${m2Match[1]} m²`]
+          .filter(Boolean).join(', ');
+        title = `Wohnung (Premium-Anzeige)${bits ? ` — ${bits}` : ''}`;
+      }
+      title = title.substring(0, 120);
 
       // location: the line carrying a 5-digit PLZ
       const loc = ((card.innerText || '').split('\n').map((l) => l.trim())
@@ -55,7 +68,7 @@ export async function extract(page) {
         location: loc,
         portal: 'Süddeutsche Immobilienmarkt',
       };
-    }).filter((l) => l && l.url && l.title);
+    }).filter((l) => l && l.url && (l.price != null || l.m2 != null));
   });
 }
 
