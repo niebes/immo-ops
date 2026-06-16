@@ -217,3 +217,21 @@ Check `scripts/portals/` for examples of every pattern:
 - **Form submission required**: `bvvg.mjs`
 - **Multi-link dedup**: `bvbi.mjs` (3 links per card, filter by text content)
 - **Custom price format**: `ivd24.mjs` (dot as decimal in m²)
+
+CiC snippets (for `scan_method: cic` portals — a `{portal-slug}-cic.js` returning `{count, hasNextPage, listings}`, NOT registered in `index.mjs`; the scan workflow derives the path from the portal name):
+- **Structured per-card via data-testid**: `immoscout24-cic.js` (gallery-slide id cross-check guards URL↔metadata desync)
+- **Label/value card rows**: `semmelhaack-cic.js`
+- **`.s-card` marketplace**: `ebay-cic.js`
+- **Consent + lazy-load + share-link URL**: `regionalimmobilien24-cic.js`
+
+## CiC extractor-building gotchas (hard-won)
+
+Read these before analyzing a CiC portal's DOM — they cost real time to rediscover:
+
+- **The CiC tool truncates returned strings at ~1100 chars** and **blocks** any return value containing a query string, base64, or the words cookie/consent. So: during DOM analysis return only small, sanitized values (URL *pathnames*, counts, short samples) — never dump full hrefs-with-query or big blobs. To extract a full result set, stash it on `window.__scan` and pull it in batches of ~4, or compute IDs in-page and diff against `scan-history.tsv` before processing.
+- **Pair every field with the URL from the SAME card-scoped element**, and cross-check the listing id from an unambiguous per-card token (e.g. a gallery-slide `data-testid`, an `article[id]`, a `.shariff[data-url]`). Regexing the whole card's `innerText` for price/m² while taking the URL from the first anchor causes the **URL↔metadata desync bug** (see `immoscout24-cic.js` header). Skip/flag cards where the two ids disagree.
+- **Number format is per-site and sometimes per-field.** German (`1.443,87` / `80,5`) vs US (`1,443.87` / `80.5`), and a single card can mix them (Regionalimmobilien24: price German, rooms dot-decimal `3.5 Räume`). Parse locale-robustly; for room counts treat dot OR comma as decimal (never thousands).
+- **Consent + lazy-load.** Many SPA portals render nothing until the TCF consent dialog is dismissed (click "Ablehnen" — privacy-preserving) AND the page is scrolled (cards lazy-load). In the real browser the consent choice is remembered across runs. Document both in the snippet header and `portals.yml notes:`.
+- **Aggregators** (Süddeutsche, Regionalimmobilien24) carry the canonical source URL in a share element (`.shariff[data-url]`) or a slug link; the listing id is usually in an `article[id^="oid-"]`. The evaluator follows these to the source — extract the cleanest detail URL the page exposes.
+- **Verifying a non-plot portal.** `tmp/verify-single-source.mjs` is hardcoded to the plot-purchase group. For a rental/other group, write a ~15-line throwaway harness that mirrors `scan.mjs`: `import { getExtractor }`, `import { handleCookieConsent }`, launch chromium, goto, consent, `extract(page)`, print; then delete it.
+- **"Premium"/promoted cards** may have no title in the SERP (empty heading, id-only URL). Don't drop a card that has a URL + price/size for a blank title — synthesize a placeholder title; the evaluator gets the real one from the detail page.
