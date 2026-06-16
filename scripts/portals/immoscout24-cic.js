@@ -10,41 +10,93 @@
 //   5. Repeat until no more pages or 100 total listings or ≥80% already seen
 //
 // Sort by newest: add &sorting=2 to the search URL
+//
+// ── Why this reads structured per-card fields (data-testid), not regex over
+//    card.innerText ──
+// Earlier versions took the URL from the first `a[href*="/expose/"]` in a card
+// but pulled title/price/m²/rooms by regexing the WHOLE card's innerText. When a
+// card's blended text contained a stray figure or a neighbouring listing's line,
+// the URL and the metadata desynced — an /expose/<id> got paired with another
+// flat's price/size. That bad pairing was written to scan-history.tsv and
+// pipeline.md; evaluation agents then opened the real URL, found different
+// numbers, and logged "Pipeline data was incorrect" (see reports/017-waldstadt-ii).
+//
+// Fix: every field is read from its OWN card-scoped element:
+//   [data-testid="headline"]          → title
+//   [data-testid="attributes"]        → "1.400 €99 m²3 Zi. B" (price/m²/rooms[+energy])
+//   [data-testid="hybridViewAddress"] → location
+// and the card's TRUE expose id comes from its gallery slide
+//   [data-testid="<id>-slide-0"]      → the hero-image listing = what the card advertises
+// The gallery id is preferred over the anchor href; if they disagree we trust the
+// gallery (the photos shown ARE the listing) and count it as a corrected card.
+// Field text therefore can never bleed across listings.
 
-const cards = document.querySelectorAll('.listing-card');
-const seen = new Set();
-const listings = [];
+(function () {
+  const cards = [...document.querySelectorAll('.listing-card')];
+  const seen = new Set();
+  const listings = [];
+  let corrected = 0; // cards where anchor id != gallery id (desync caught & fixed)
 
-cards.forEach(card => {
-  const link = card.querySelector('a[href*="/expose/"]');
-  if (!link) return;
-  const m = link.getAttribute('href').match(/\/expose\/(\d+)/);
-  if (!m || seen.has(m[1])) return;
-  seen.add(m[1]);
+  // German number → float: "1.400" → 1400, "983,99" → 983.99, "61,1" → 61.1
+  const deNum = (s) => {
+    if (!s) return null;
+    const m = String(s).match(/[\d.]+(?:,\d+)?/);
+    if (!m) return null;
+    const v = parseFloat(m[0].replace(/\./g, '').replace(',', '.'));
+    return isNaN(v) ? null : v;
+  };
+  const txt = (el) => (el ? (el.innerText || '').replace(/\s+/g, ' ').trim() : '');
 
-  const text = (card.innerText || '').replace(/\s+/g, ' ').trim();
-  const lines = (card.innerText || '').split('\n').map(l => l.trim()).filter(l => l.length > 3);
-  const skip = ['Neu', 'Gesponsert', 'Guter Preis', 'Sehr guter Preis', 'Ausgezeichneter Preis', 'Noch', 'Sortieren'];
-  const title = lines.find(l => l.length > 10 && !skip.some(s => l.startsWith(s))) || '';
-  const priceMatch = text.match(/([\d.]+(?:,\d+)?)\s*€/);
-  const m2Match = text.match(/([\d.,]+)\s*m²/);
-  const roomsMatch = text.match(/(\d+)\s*Zi\./);
-  const addrLine = lines.find(l => l.includes(',') && /\d{5}|\b[A-Z][a-zäöü]+(?:stadt|burg|berg|heim|dorf|feld)\b/.test(l)) || '';
+  cards.forEach((card) => {
+    if (/ad-card/.test(card.className)) return; // sponsored placeholder, no listing
 
-  listings.push({
-    url: 'https://www.immobilienscout24.de/expose/' + m[1],
-    title,
-    price: priceMatch ? parseInt(priceMatch[1].replace(/\./g, '').replace(',', '.')) : null,
-    m2: m2Match ? parseFloat(m2Match[1].replace(',', '.')) : null,
-    rooms: roomsMatch ? parseInt(roomsMatch[1]) : null,
-    location: addrLine,
-    portal: 'ImmoScout24',
+    const anchor = card.querySelector('a[href*="/expose/"]');
+    const linkId = (anchor?.getAttribute('href') || '').match(/\/expose\/(\d+)/)?.[1] || null;
+    const slideEl = card.querySelector('[data-testid$="-slide-0"]');
+    const slideId = slideEl ? (slideEl.getAttribute('data-testid').match(/(\d+)-slide-0/)?.[1] || null) : null;
+
+    // The gallery (hero photos) is the listing the card advertises — trust it over
+    // the anchor when they disagree. Fall back to the anchor only if no gallery.
+    const id = slideId || linkId;
+    if (!id || seen.has(id)) return;
+    if (linkId && slideId && linkId !== slideId) corrected++;
+    seen.add(id);
+
+    // All field text is scoped to THIS card's structured elements.
+    const title = txt(card.querySelector('[data-testid="headline"]'));
+    const location = txt(card.querySelector('[data-testid="hybridViewAddress"]'));
+    // attributes string e.g. "1.400 €99 m²3 Zi. B" — split on the unit markers so a
+    // figure can't be mistaken for another field.
+    let attrs = txt(card.querySelector('[data-testid="attributes"]'));
+    // Resilience: if the structured attributes element is gone (layout change),
+    // fall back to the card's own innerText — still card-scoped, never cross-card.
+    if (!attrs) attrs = txt(card);
+
+    const price = deNum((attrs.match(/([\d.]+(?:,\d+)?)\s*€/) || [])[1]);
+    const m2 = deNum((attrs.match(/€\s*([\d.]+(?:,\d+)?)\s*m²/) || [])[1]);
+    const rooms = deNum((attrs.match(/m²\s*([\d.]+(?:,\d+)?)\s*Zi\./) || [])[1]);
+
+    listings.push({
+      url: 'https://www.immobilienscout24.de/expose/' + id,
+      title,
+      price,
+      m2,
+      rooms,
+      location,
+      portal: 'ImmoScout24',
+    });
   });
-});
 
-// Also return pagination info
-const totalText = document.querySelector('[data-testid="serp-title-variant-a-testid"], h1')?.textContent || '';
-const totalMatch = totalText.match(/(\d+)\s*Mietwohnung/);
-const hasNextPage = !!document.querySelector('[aria-label="Nächste Seite"], [data-nav="next"]');
+  // Pagination info
+  const totalText = document.querySelector('[data-testid="serp-title-variant-a-testid"], h1')?.textContent || '';
+  const totalMatch = totalText.match(/(\d+)\s*(?:Mietwohnung|Wohnung|Haus|Häuser|Immobilie)/);
+  const hasNextPage = !!document.querySelector('[aria-label="Nächste Seite"], [data-nav="next"]');
 
-JSON.stringify({ count: listings.length, total: totalMatch ? parseInt(totalMatch[1]) : null, hasNextPage, listings });
+  return JSON.stringify({
+    count: listings.length,
+    corrected, // # cards where the desync guard repaired the URL↔metadata pairing
+    total: totalMatch ? parseInt(totalMatch[1]) : null,
+    hasNextPage,
+    listings,
+  });
+})();
