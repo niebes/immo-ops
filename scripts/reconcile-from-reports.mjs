@@ -26,15 +26,32 @@ const PIPELINE = `${ROOT}/data/pipeline.md`;
 const APPLY = process.argv.includes('--apply');
 
 // ── number helpers ────────────────────────────────────────────────
-// All three files use US/English convention: comma = thousands separator,
-// dot = decimal. Reports: "1,129 EUR", "79.2 m²", "3.5". scan-history/pipeline:
-// "1129", "79.2", "1129 EUR" (no thousands separator at all). So: strip commas,
-// keep the dot as the decimal point.
+// Reports are authored as prose and may use EITHER German ("1.443,87", "80,5",
+// "3,5") or US ("1,443.87", "80.5", "3.5") convention; the data files are plain
+// US ("1443.87", "80.5"). This parser is locale-robust:
+//   • both '.' and ',' present → the LAST one is the decimal separator
+//   • only one separator present → exactly 3 trailing digits ⇒ thousands separator
+//     (strip it); 1–2 trailing digits ⇒ decimal separator
+// Handles every form in our domain (rents <10k, sizes, room counts).
 const toNum = (s) => {
   if (s == null) return null;
-  const m = String(s).replace(/,/g, '').match(/\d+(?:\.\d+)?/);
-  if (!m) return null;
-  const v = parseFloat(m[0]);
+  const tok = (String(s).match(/\d[\d.,]*\d|\d/) || [])[0];
+  if (tok == null) return null;
+  const hasDot = tok.includes('.');
+  const hasComma = tok.includes(',');
+  let normalized;
+  if (hasDot && hasComma) {
+    const decimal = tok.lastIndexOf('.') > tok.lastIndexOf(',') ? '.' : ',';
+    const thousands = decimal === '.' ? ',' : '.';
+    normalized = tok.split(thousands).join('').replace(decimal, '.');
+  } else if (hasDot || hasComma) {
+    const sep = hasDot ? '.' : ',';
+    const after = tok.slice(tok.lastIndexOf(sep) + 1);
+    normalized = after.length === 3 ? tok.split(sep).join('') : tok.replace(sep, '.');
+  } else {
+    normalized = tok;
+  }
+  const v = parseFloat(normalized);
   return isNaN(v) ? null : v;
 };
 // For a range like "498–552" or "498-552", return the upper bound (the SERP/headline
