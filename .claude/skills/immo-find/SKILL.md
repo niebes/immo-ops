@@ -95,6 +95,8 @@ Delegates individual evaluations to /immo-assess.
 ### Auto mode (for `/loop` usage):
 Full automated cycle designed for `loop 1h /immo-find auto`. The purpose is to deliver scored, actionable recommendations — not raw links. Every step must complete before notifying.
 
+**RULE — `scan auto` ALWAYS runs the FULL scan (Playwright Step 1 AND the CiC pass Step 2), every time, unless the user explicitly scopes it down in their request.** The CiC pass — every enabled `scan_method: cic` portal in `portals.yml`, plus any `fallback: "cic"` portals from Step 1b — is NOT optional and NOT deferrable. "I'll flag the CiC portals and run them next time" is a FAILURE, not an acceptable outcome — a coverage gap is something you CLOSE by doing the run, not something you merely report. The only acceptable reasons to skip the CiC pass are: (a) the user explicitly asked for Playwright-only / a named subset, or (b) session-mode is remote and CiC is disabled (then surface it as ⛔ and stop before notifying). Mid-cycle interruptions (config edits, adding a portal, answering a question) do NOT cancel the remaining steps — resume and finish the full run before notifying.
+
 **Step 1 — Playwright scan:**
 ```
 node scripts/scan.mjs
@@ -107,7 +109,8 @@ Capture stdout. Note how many new listings were added.
 - `fallback: "reconfigure"` (e.g. no search_url, login wall) → not transient. Surface as ⛔ and recommend `/immo-portal`; do not retry blindly.
 - `fallback: "retry"` (transient timeout) → note it; it should clear next cycle.
 
-**Step 2 — CiC scan (ImmoScout24, other `scan_method: cic` portals, AND Playwright bot-defense fallbacks from Step 1b):**
+**Step 2 — CiC scan (MANDATORY — every enabled `scan_method: cic` portal, plus Playwright bot-defense fallbacks from Step 1b):**
+This step always runs when any CiC portal is enabled. Do not skip, defer, or substitute "flag for next time" (see the FULL-scan RULE above).
 1. Read `portals.yml` for CiC portals; add any `fallback: "cic"` portals from Step 1b that have a snippet.
 2. If any CiC portals enabled:
    a. Create a new CiC tab (note the tabId)
@@ -167,12 +170,12 @@ After all agents complete: `node scripts/merge-tracker.mjs`
 
 **Step 5 — Verification (MUST pass before notify):**
 Before sending any notification, verify:
-- [ ] All enabled portals have been scanned (no portal skipped without reason)
+- [ ] **Every enabled portal — Playwright AND CiC — was actually scanned this cycle.** An enabled CiC portal that was not run is a verification FAILURE, not a reportable gap. Do NOT proceed to notify by "flagging it for next time" — go back and run Step 2. The only pass-through exceptions are a portal genuinely blocked this run (CAPTCHA after retry, login wall, remote session-mode disabling CiC) — those, and only those, become ⛔ coverage items.
 - [ ] `data/scan-failures.json` reviewed: every `fallback: "cic"` portal WITH a snippet was actually scanned via CiC in Step 2; every remaining failure (no snippet / reconfigure / retry) is accounted for in the coverage report
 - [ ] Pipeline has 0 pending `- [ ]` entries (all evaluated or discarded)
 - [ ] `node scripts/verify-pipeline.mjs` passes
 
-If verification fails, DO NOT notify. Instead report the failure and stop.
+If verification fails, DO NOT notify. Complete the missing work (e.g. run the CiC pass) and re-verify; only stop-and-report if something is genuinely blocked and cannot be completed this run.
 
 **RULE — Coverage report (ALWAYS, every scan/auto run):**
 Walk EVERY *enabled* portal across ALL search groups in `portals.yml` and account for each one. The chat summary and the email scan-note MUST explicitly list every enabled-but-not-processed entry and the exact blocker. Never silently omit a blocked portal. Disposition categories (ignore `enabled: false` portals — do NOT list disabled rows):
