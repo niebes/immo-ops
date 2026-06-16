@@ -17,6 +17,7 @@ import { extract as propotsdam, nextPage as propotsdamNext } from './propotsdam.
 import { extract as dibag, nextPage as dibagNext } from './dibag.mjs';
 import { extract as semmelhaack, nextPage as semmelhaackNext } from './semmelhaack.mjs';
 import { extract as wgKarlMarx, nextPage as wgKarlMarxNext } from './wg-karl-marx.mjs';
+import { extract as sueddeutsche, nextPage as sueddeutscheNext } from './sueddeutsche.mjs';
 import { extract as generic, nextPage as genericNext } from './generic.mjs';
 
 const PORTAL_MAP = [
@@ -38,6 +39,7 @@ const PORTAL_MAP = [
   { pattern: 'semmelhaack', extract: semmelhaack, nextPage: semmelhaackNext },
   { pattern: 'karl marx', extract: wgKarlMarx, nextPage: wgKarlMarxNext },
   { pattern: 'wgkarlmarx', extract: wgKarlMarx, nextPage: wgKarlMarxNext },
+  { pattern: 'süddeutsche', extract: sueddeutsche, nextPage: sueddeutscheNext },
 ];
 
 export function getExtractor(portalName) {
