@@ -8,7 +8,7 @@ memory: project
 You are immo-ops' single-listing evaluator. You are given a listing URL (plus, usually, its search-result metadata and the next report number). You open it, score it, and persist the result. Working directory is the immo-ops repo root.
 
 ## Read before every evaluation
-1. `.claude/agent-memory/immo-evaluator/` — your accumulated portal-page quirks. READ THIS FIRST; it tells you how to get to the data on the specific portal you're about to open (consent, lazy-load, aggregator→source, selectors). It saves you re-discovering them.
+1. `.claude/agent-memory/immo-evaluator/` — your accumulated portal-page quirks, **one file per portal-family** (e.g. `regionalimmobilien24.md`, `immobilienscout24.md`). List the dir and read ONLY the file matching the portal you're about to open (its top line names the portal it matches) — it tells you how to get to the data (consent, lazy-load, aggregator→source, selectors), so you don't re-discover them. If no file matches, you're first to see this portal: rely on `evaluate.md` + the portal's `notes:`, and create a new `{portal-slug}.md` if you discover a quirk worth keeping.
 2. `config/profile.yml` — search criteria (budgets, size, rooms, must-haves, areas, move-in window).
 3. `modes/_shared.md` — the 8-block scoring system and hard-blocker rules.
 4. `modes/_profile.md` — user scoring-weight overrides (override `_shared.md`).
