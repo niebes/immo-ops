@@ -18,6 +18,8 @@ import { extract as dibag, nextPage as dibagNext } from './dibag.mjs';
 import { extract as semmelhaack, nextPage as semmelhaackNext } from './semmelhaack.mjs';
 import { extract as wgKarlMarx, nextPage as wgKarlMarxNext } from './wg-karl-marx.mjs';
 import { extract as sueddeutsche, nextPage as sueddeutscheNext } from './sueddeutsche.mjs';
+import { extract as schoba, nextPage as schobaNext } from './schoba.mjs';
+import { extract as abInsZuhause, nextPage as abInsZuhauseNext } from './ab-ins-zuhause.mjs';
 import { extract as generic, nextPage as genericNext } from './generic.mjs';
 
 const PORTAL_MAP = [
@@ -40,6 +42,9 @@ const PORTAL_MAP = [
   { pattern: 'karl marx', extract: wgKarlMarx, nextPage: wgKarlMarxNext },
   { pattern: 'wgkarlmarx', extract: wgKarlMarx, nextPage: wgKarlMarxNext },
   { pattern: 'süddeutsche', extract: sueddeutsche, nextPage: sueddeutscheNext },
+  { pattern: 'schoba', extract: schoba, nextPage: schobaNext },
+  { pattern: 'ab ins zuhause', extract: abInsZuhause, nextPage: abInsZuhauseNext },
+  { pattern: 'ab-ins-zuhause', extract: abInsZuhause, nextPage: abInsZuhauseNext },
 ];
 
 export function getExtractor(portalName) {
