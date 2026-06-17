@@ -80,6 +80,30 @@ const portalIdx = args.indexOf('--portal');
 const SINGLE_PORTAL = portalIdx !== -1 ? args[portalIdx + 1] : null;
 const groupIdx = args.indexOf('--group');
 const GROUP_FILTER = groupIdx !== -1 ? args[groupIdx + 1] : null;
+// Bounded concurrency for the per-portal FETCH phase. Different portals are
+// independent domains, so parallelizing across them does NOT raise any single
+// site's request rate (bot-defense is per-site); the real limiter is local
+// RAM/CPU — each portal drives its own headless browser context (~200–300 MB).
+// Default cap 4; override with --concurrency N. The dedup/write REDUCE phase
+// stays strictly sequential (see main()) so scan-history/pipeline never race.
+const concIdx = args.indexOf('--concurrency');
+const SCAN_CONCURRENCY = Math.max(1, concIdx !== -1 ? parseInt(args[concIdx + 1], 10) || 4 : 4);
+
+// Run `worker` over `items` with at most `limit` in flight; results are returned
+// in INPUT order (not completion order) so the downstream reduce is deterministic.
+async function runPool(items, limit, worker) {
+  const results = new Array(items.length);
+  let next = 0;
+  async function runner() {
+    while (true) {
+      const i = next++;
+      if (i >= items.length) return;
+      results[i] = await worker(items[i], i);
+    }
+  }
+  await Promise.all(Array.from({ length: Math.min(limit, items.length) }, runner));
+  return results;
+}
 
 // ── Config ─────────────────────────────────────────────────────────
 
@@ -189,10 +213,16 @@ function filterCriteria(listing, criteria) {
 // ── Portal scanning ────────────────────────────────────────────────
 
 async function scanPortal(browser, portal, groupName) {
+  // Buffer all per-portal output so parallel scans print as atomic blocks
+  // (interleaved live logs would be unreadable). Returned to the caller, which
+  // flushes the block when this portal completes.
+  const logs = [];
+  const log = (s) => logs.push(s);
+
   if (!portal.search_url) {
-    console.log(`  ⚠ ${portal.name}: no search_url, skipping`);
+    log(`  ⚠ ${portal.name}: no search_url, skipping`);
     recordFailure(portal, groupName, 'no_search_url', 'config');
-    return [];
+    return { listings: [], logs };
   }
 
   const context = await browser.newContext({
@@ -206,16 +236,16 @@ async function scanPortal(browser, portal, groupName) {
     try {
       const cookies = JSON.parse(readFileSync(IMMOSCOUT_COOKIES_PATH, 'utf8'));
       await context.addCookies(cookies);
-      console.log(`  🔑 Loaded ${cookies.length} saved cookies`);
+      log(`  🔑 Loaded ${cookies.length} saved cookies`);
     } catch (err) {
-      console.log(`  ⚠ Failed to load cookies: ${err.message}`);
+      log(`  ⚠ Failed to load cookies: ${err.message}`);
     }
   }
 
   const page = await context.newPage();
 
   try {
-    console.log(`  → Navigating...`);
+    log(`  → Navigating...`);
     await page.goto(portal.search_url, { waitUntil: 'networkidle', timeout: 45000 }).catch(async () => {
       await page.goto(portal.search_url, { waitUntil: 'domcontentloaded', timeout: 30000 });
     });
@@ -227,14 +257,14 @@ async function scanPortal(browser, portal, groupName) {
     const bodyText = await page.textContent('body').catch(() => '');
     if (isCaptcha(bodyText)) {
       const hasCookies = portal.name.toLowerCase().includes('immoscout') && existsSync(IMMOSCOUT_COOKIES_PATH);
-      console.log(`  ✗ CAPTCHA detected, skipping → flagged for CiC fallback`);
+      log(`  ✗ CAPTCHA detected, skipping → flagged for CiC fallback`);
       if (portal.name.toLowerCase().includes('immoscout')) {
-        console.log(hasCookies
+        log(hasCookies
           ? `    Cookies loaded but expired — re-run: node scripts/login-immoscout.mjs`
           : `    Run: node scripts/login-immoscout.mjs to save session cookies`);
       }
       recordFailure(portal, groupName, 'captcha', 'bot_defense');
-      return [];
+      return { listings: [], logs };
     }
 
     const { extract: extractFn, nextPage: nextPageFn } = getExtractor(portal.name);
@@ -253,21 +283,21 @@ async function scanPortal(browser, portal, groupName) {
         if (seenUrls.has(l.url)) seenOnPage++;
         allListings.push(l);
       }
-      console.log(`  page ${pageNum}: ${pageListings.length} listings (${seenOnPage} already seen)`);
+      log(`  page ${pageNum}: ${pageListings.length} listings (${seenOnPage} already seen)`);
 
       if (allListings.length >= MAX_LISTINGS) break;
       if (seenOnPage >= pageListings.length * 0.8) {
-        console.log(`  → stopping: ≥80% already seen on page ${pageNum}`);
+        log(`  → stopping: ≥80% already seen on page ${pageNum}`);
         break;
       }
 
       // Try next page
       const hasNext = await nextPageFn(page).catch(err => {
-        console.log(`  ⚠ nextPage error: ${err.message}`);
+        log(`  ⚠ nextPage error: ${err.message}`);
         return false;
       });
       if (!hasNext) {
-        console.log(`  → no more pages`);
+        log(`  → no more pages`);
         break;
       }
       pageNum++;
@@ -277,10 +307,10 @@ async function scanPortal(browser, portal, groupName) {
       }
     }
 
-    console.log(`  ✓ ${allListings.length} listings total (${pageNum} page${pageNum > 1 ? 's' : ''})`);
-    return allListings.slice(0, MAX_LISTINGS);
+    log(`  ✓ ${allListings.length} listings total (${pageNum} page${pageNum > 1 ? 's' : ''})`);
+    return { listings: allListings.slice(0, MAX_LISTINGS), logs };
   } catch (err) {
-    console.log(`  ✗ Error: ${err.message}`);
+    log(`  ✗ Error: ${err.message}`);
     // Reachable-but-blocked / nav failures look like bot defense → CiC fallback.
     // Genuine timeouts are transient → retry. Anything else is a generic error.
     const m = err.message || '';
@@ -288,7 +318,7 @@ async function scanPortal(browser, portal, groupName) {
       ? 'bot_defense'
       : (/timeout|timed out|navigation/i.test(m) ? 'transient' : 'error');
     recordFailure(portal, groupName, m.slice(0, 120), classification);
-    return [];
+    return { listings: [], logs };
   } finally {
     await context.close();
   }
@@ -363,9 +393,22 @@ async function main() {
 
     const groupNewListings = [];
 
-    for (const portal of portals) {
-      console.log(`\n[${portal.name}]`);
-      const listings = await scanPortal(browser, portal, group.name);
+    // ── FETCH phase: portals run in parallel (bounded), pagination stays
+    // sequential inside each scanPortal. Each portal's log block flushes when
+    // it completes (completion order); results come back in portal order.
+    if (SCAN_CONCURRENCY > 1 && portals.length > 1) {
+      console.log(`  (scanning ${portals.length} portals, up to ${SCAN_CONCURRENCY} in parallel)`);
+    }
+    const portalResults = await runPool(portals, SCAN_CONCURRENCY, async (portal) => {
+      const { listings, logs } = await scanPortal(browser, portal, group.name);
+      console.log(`\n[${portal.name}]\n${logs.join('\n')}`);
+      return listings;
+    });
+
+    // ── REDUCE phase: strictly sequential, in portal order, so dedup against
+    // the shared seenUrls set and the history/pipeline writes are deterministic.
+    portals.forEach((portal, idx) => {
+      const listings = portalResults[idx] || [];
       totalStats.portals++;
       totalStats.found += listings.length;
 
@@ -394,11 +437,7 @@ async function main() {
         groupNewListings.push(listing);
         allHistoryLines.push(toHistoryLine(listing, 'added'));
       }
-
-      if (portal.rate_limit) {
-        await new Promise(r => setTimeout(r, portal.rate_limit * 1000));
-      }
-    }
+    });
 
     if (!DRY_RUN && groupNewListings.length > 0) {
       writePipeline(groupNewListings, group.name);

@@ -4,3 +4,13 @@ Portal match: "ImmoScout24" / "ImmoScout24 Haus" · immobilienscout24.de
 CAPTCHA ("Ich bin kein Roboter") on navigation — wait ~8 s and re-check; most auto-solve. Only report blocked if still stuck after waiting; never ask the user to solve it prematurely. Listing detail pages render fully in the real browser. The same flat is often cross-listed via the aggregators (Süddeutsche, Regionalimmobilien24) and Immowelt — watch for it being a duplicate of an already-scored entry.
 
 **Why:** asking the user to solve a CAPTCHA that would have auto-solved wastes their attention (see [[feedback-captcha-wait]]).
+
+## Mieternetzwerk / Nachvermietung listings (tenant-posted)
+Body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese Wohnung wurde von der:dem aktuell Mietenden eingestellt" / "Interesse bekunden" (not "Kontaktieren"). These are NORMAL permanent rentals (NOT Tauschwohnung — do not discard; see [[project-nachvermietung-not-filtered]]), but:
+- **Kaltmiete is a RANGE** (e.g. "498–552 €") and the title price is provisional — the listing states "Die Miete wird sich eventuell anpassen". Score price with a caveat, don't treat the low number as final.
+- **Möbelübernahme**: tenant often wants to discuss taking over furniture = possible extra cost. Flag it.
+- **Sparse data**: usually NO Energieausweis, NO Baujahr, NO floor, NO amenity table, and **0 real photos** (gallery imgs are all SVG icons/maps). Cap Block D at 3.0 (no photos) and treat must-haves (Balkon/Keller) as unconfirmed → Block E penalty. There is no `<dl>` criteria table — `dt/dd` extraction returns empty; read fields out of `document.body.innerText` instead.
+- You're only *proposed* to the landlord, not directly accepted → extra friction, Block H ~3.0.
+- Below-Mietspiegel price here is the existing tenant's old contract, NOT a scam signal on its own.
+
+**Why:** these tenant-network exposés (seen on #169/#170/#171/#172) lack the standard structured fields and have a provisional price; scoring the headline number as final or expecting a criteria `<dl>` both mislead. Stable pattern — candidate for promotion to evaluate.md if it keeps recurring.
