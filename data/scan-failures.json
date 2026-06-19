@@ -1,13 +1,4 @@
 {
-  "timestamp": "2026-06-18T17:43:28.139Z",
-  "failures": [
-    {
-      "portal": "Semmelhaack",
-      "group": "Berlin flat rental",
-      "reason": "captcha",
-      "classification": "bot_defense",
-      "fallback": "cic",
-      "action": "Retry via CiC (real browser) — extractor exists. Auto mode will pick it up."
-    }
-  ]
+  "timestamp": "2026-06-19T21:42:10.288Z",
+  "failures": []
 }
