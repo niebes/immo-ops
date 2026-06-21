@@ -50,8 +50,13 @@ searches:
       - no_zwischenmiete
       - min_energieeffizienz: "D"
     availability:
-      earliest_move_in: "2026-07-01"
-      latest_move_in: "2026-09-01"
+      # Use "flexible" (or leave empty) when you have no fixed move-in date —
+      # listings are then not scored against a window or flagged as early/late.
+      # Or set real ISO dates to score by alignment, e.g.:
+      #   earliest_move_in: "2026-07-01"
+      #   latest_move_in: "2026-09-01"
+      earliest_move_in: flexible
+      latest_move_in: flexible
 
   # Additional search examples — uncomment and customize:
   #
