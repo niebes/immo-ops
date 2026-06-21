@@ -96,11 +96,19 @@ Detect via what's actually observable — do NOT attempt pixel-level "is this AI
 
 ### Block F — Availability (Default weight: 10%)
 
+**If the user's move-in window is set** (earliest–latest are real dates):
 - Available within user's move-in window: 5.0
 - Available 1 month before/after window: 4.0
 - Available 2+ months off: 2.0
 - Sofort (immediate) when user can't move yet: 1.5 (risk of losing it)
 - No date given: 3.0 (ask in contact)
+
+**If the user's move-in window is flexible/unset** (`earliest_move_in`/`latest_move_in` is `flexible`, empty, or absent — the user has no fixed date):
+- Any future availability date: 4.5 (no window constraint — timing is open)
+- Sofort (immediate) availability: 3.5 (usable, but mild double-rent overlap if the user is still holding another flat)
+- No date given on listing: 4.0 (ask in contact)
+
+Do NOT flag a listing as "early"/"late" or penalize it for being "just past the move-in window" when the window is flexible — there is no window to miss.
 
 ### Block G — Rules (Default weight: 10%)
 

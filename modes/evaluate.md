@@ -118,8 +118,8 @@ Nice-to-haves:
 
 ## F) Availability (Score: {X.X}/5, Weight: {W}%)
 - Available from: {date or "sofort"}
-- User move-in window: {earliest} – {latest}
-- Alignment: {fits / early / late}
+- User move-in window: {earliest} – {latest}, or "flexible (no fixed date)" if unset
+- Alignment: {fits / early / late, or "n/a — flexible window"}
 
 ## G) Rules (Score: {X.X}/5, Weight: {W}%)
 - WBS required: {yes/no}
