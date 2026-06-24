@@ -19,6 +19,7 @@ import { chromium } from 'playwright';
 import yaml from 'js-yaml';
 import { getExtractor } from './portals/index.mjs';
 import { handleCookieConsent, isCaptcha } from './portals/base.mjs';
+import { resolveSearchUrl, findProfileSearch } from './lib/search-url.mjs';
 
 // ── Paths ──────────────────────────────────────────────────────────
 
@@ -225,6 +226,16 @@ async function scanPortal(browser, portal, groupName) {
     return { listings: [], logs };
   }
 
+  // Derive the query from the profile: resolve {price_max} etc. placeholders so
+  // the search ceiling tracks config/profile.yml instead of a hardcoded literal.
+  const { url: searchUrl, unresolved } = resolveSearchUrl(
+    portal.search_url,
+    findProfileSearch(profile, groupName),
+  );
+  if (unresolved.length) {
+    log(`  ⚠ ${portal.name}: unresolved URL placeholder(s) {${unresolved.join('}, {')}} — no profile value; left literal`);
+  }
+
   const context = await browser.newContext({
     userAgent: 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
     viewport: { width: 1920, height: 1080 },
@@ -246,8 +257,8 @@ async function scanPortal(browser, portal, groupName) {
 
   try {
     log(`  → Navigating...`);
-    await page.goto(portal.search_url, { waitUntil: 'networkidle', timeout: 45000 }).catch(async () => {
-      await page.goto(portal.search_url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.goto(searchUrl, { waitUntil: 'networkidle', timeout: 45000 }).catch(async () => {
+      await page.goto(searchUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
     });
     await page.waitForTimeout(3000);
 
