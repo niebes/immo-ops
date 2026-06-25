@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-24T06:02:29.964Z",
+  "timestamp": "2026-06-25T06:02:35.767Z",
   "failures": [
     {
       "portal": "Semmelhaack",
@@ -8,6 +8,14 @@
       "classification": "bot_defense",
       "fallback": "cic",
       "action": "Retry via CiC (real browser) — extractor exists. Auto mode will pick it up."
+    },
+    {
+      "portal": "WBG Daheim eG",
+      "group": "Berlin flat rental",
+      "reason": "page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"https://www.wbgdaheim.de/angebote/\", waiting until",
+      "classification": "transient",
+      "fallback": "retry",
+      "action": "Transient error — retry next cycle; if it persists, consider CiC or /immo-portal."
     }
   ]
 }
