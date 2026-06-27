@@ -13,6 +13,7 @@ portals.yml
 data/listings.md
 data/pipeline.md
 data/scan-history.tsv
+data/scan-failures.json
 data/viewings.md
 data/documents.md
 reports/
