@@ -59,12 +59,15 @@ When a viewing is scheduled/confirmed, do ALL of the following for that listing:
 1. **`data/viewings.md`** — add/update the row (date, time, address, contact, status).
 2. **`correspondence/{NNN}-{slug}.md`** — log the appointment (see `correspondence/README.md`); set the file's Status.
 3. **`data/listings.md`** — update the tracker status (`Contacted` → `Viewing`).
-4. **Google Calendar** — create the event via `mcp__claude_ai_Google_Calendar__create_event` on the primary calendar, `timeZone: Europe/Berlin`, with 1-day + 2-hour popup reminders, no attendees (don't send invites).
+4. **Google Calendar** — create the event. **Follow [`google-calendar-mcp.md`](google-calendar-mcp.md)** for the full procedure and tool gotchas.
 
-### Calendar event fields — REQUIRED
-- **`location` = the full street address.** A calendar invite has a dedicated address field; the address ALWAYS goes there (not only in the description) so the user can navigate from the event. If the address is not yet known, **leave `location` empty** (never put placeholder text like "address pending" in it) and set it as soon as the address is known.
-- `summary`: `🏠 Viewing #{NNN} — {short title} ({score}/5)` + a `⚠` flag if the landlord has a caution in `modes/_profile.md` Landlord Notes.
-- `description`: all listing links (every portal/agent URL), contact (name · email · phone · agency), flat details (rooms · m² · Kalt/Warm · must-haves), watch-outs / landlord cautions, and the apply process. Mirror the report + correspondence log.
+### Calendar essentials (full details in `google-calendar-mcp.md`)
+- Primary calendar · `timeZone: Europe/Berlin` · 1-day + 2-hour popup reminders · **no attendees** (never email the landlord).
+- **`location` = the full street address** (the dedicated field the user navigates from), or empty if unknown — never placeholder text.
+- ⚠ **`create_event` silently drops `location`** — set it via a follow-up `update_event`, then `get_event` to confirm it saved. Don't assume it persisted.
+- Don't hand-label weekdays — derive from the date (29.06.2026 is a Monday, not Sunday).
+- `summary`: `🏠 Viewing #{NNN} — {short title} ({score}/5)` + `⚠` if the landlord is flagged in `modes/_profile.md` Landlord Notes.
+- `description`: all links, contact, flat facts, watch-outs, and a `FRAGEN` checklist mirroring `correspondence/{NNN}`.
 
 ---
 
