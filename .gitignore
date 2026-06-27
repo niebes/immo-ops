@@ -17,6 +17,8 @@ data/viewings.md
 data/documents.md
 reports/
 research/
+correspondence/
+!correspondence/README.md
 output/
 batch/tracker-additions/
 batch/logs/
