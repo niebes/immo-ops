@@ -44,3 +44,23 @@ immo-apply — Act on Listings
 All modes read `config/profile.yml` for personal data.
 
 **RULE: NEVER send messages or submit documents automatically. Always show draft to user.**
+
+---
+
+## Logging to the correspondence log
+
+Tracking lives in `/immo-track` (`correspondence/{NNN}-{slug}.md`). `immo-apply`
+feeds it:
+
+- **contact** — a *draft* is not logged (nothing was sent yet). Once the user
+  confirms they have sent it, append a `→ sent` block to the listing's
+  correspondence log (create it from `templates/correspondence.example.md` if it
+  doesn't exist): date · channel · `→ sent` · one-line summary · `**Next:**`.
+- **selbstauskunft / documents** — when the user confirms documents were sent to a
+  landlord/agent, append a `→ sent` block listing exactly which documents went, via
+  which channel/format, to whom. Tick off any matching `**Requested docs:**` items
+  recorded earlier in that log.
+
+Keep the log's header **Status** and `data/listings.md` in sync when an action
+advances the lifecycle (e.g. Applied). Do NOT duplicate the conversation log here —
+`immo-apply` writes entries; `/immo-track log` is how you read/manage them.
