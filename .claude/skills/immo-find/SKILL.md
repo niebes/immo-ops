@@ -147,6 +147,8 @@ Evaluate per your standing instructions; write report #{NNN}, tracker TSV, and t
 )
 ```
 
+Pass the search-result metadata as an unverified **hint only** — it can be stale (listers edit titles). Do NOT assert a consequential label (e.g. "Untermiete", "möbliert", "Zwischenmiete", "sublet") in the prompt as fact; let the evaluator read the live page and decide. (A stale "Untermiete" title once produced a bogus sublet report — see `modes/evaluate.md` "Trust the LIVE listing".)
+
 Do NOT restate the steps, file paths, scoring rules, number format, or portal quirks in the prompt — they live in the agent definition, `modes/evaluate.md`, and the agent's memory. (If `immo-evaluator` is unavailable, fall back to `general-purpose` and inline the `modes/evaluate.md` Browser & portal quirks + workflow.)
 
 Launch agents **one at a time** (CiC tabs can't run in parallel — each agent needs exclusive browser access). Wait for each agent to complete before launching the next.
