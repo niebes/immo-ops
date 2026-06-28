@@ -15,8 +15,10 @@ claim.
 - `summary`: `🏠 Viewing #{NNN} — {short title} ({score}/5)` + `⚠` if the landlord
   has a caution in `modes/_profile.md` Landlord Notes.
 - `description`: all listing links, contact (name·email·phone·agency), flat facts
-  (rooms·m²·Kalt/Warm·must-haves), watch-outs, and a `── FRAGEN (am Termin) ──`
-  checklist mirroring the listing's `correspondence/{NNN}` log.
+  (rooms·m²·Kalt/Warm·must-haves), watch-outs, a `── FRAGEN (am Termin) ──`
+  checklist mirroring the listing's `correspondence/{NNN}` log, AND a
+  `── DUPLIKATE / auch gelistet als ──` block from `node scripts/duplicates.mjs {NNN}`
+  (portal · price · URL; label "verify"). If none, omit the block or write "keine".
 
 ## GOTCHAS (verified 2026-06-27)
 

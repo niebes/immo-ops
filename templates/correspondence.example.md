@@ -4,6 +4,7 @@
 **Listing:** [#{NNN}](../reports/{NNN}-{slug}.md) · {area} · {rooms}r · {KM} kalt
 **Contact:** {name / agency} · {email} · {phone}
 **Status:** {tracker status — keep in sync with data/listings.md}
+**Duplicates / also listed as:** {from `node scripts/duplicates.mjs {NNN}` — portal · price · URL per cross-portal twin; "none found" if none. Likely-match, verify.}
 
 <!--
 One block per message/call/visit, appended in CHRONOLOGICAL order (oldest first,
