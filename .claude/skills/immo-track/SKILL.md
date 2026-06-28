@@ -61,8 +61,13 @@ re-contact the same flat elsewhere).
 
 Get them with: **`node scripts/duplicates.mjs {NNN}`** (signature match — same
 rooms + m² ±0.5 + identical title or near-exact price; output is "likely — verify").
-Include the result as a **Duplicates / also listed as** block (portal · price · URL),
+Include the result as a **Duplicates / also listed as** block (price · **full URL**),
 labelled *verify* since price-matches can over-include. If none, write "none found".
+
+**ALWAYS write the full clickable URL — never a bare expose ID** ("168453075" is
+useless to a human; `https://www.immobilienscout24.de/expose/168453075` is clickable).
+This applies everywhere a listing is referenced for a human (logs, calendar invites,
+emails), not just the duplicates block.
 
 ## Viewing mode — scheduling a viewing
 

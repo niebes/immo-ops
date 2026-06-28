@@ -18,7 +18,9 @@ claim.
   (rooms·m²·Kalt/Warm·must-haves), watch-outs, a `── FRAGEN (am Termin) ──`
   checklist mirroring the listing's `correspondence/{NNN}` log, AND a
   `── DUPLIKATE / auch gelistet als ──` block from `node scripts/duplicates.mjs {NNN}`
-  (portal · price · URL; label "verify"). If none, omit the block or write "keine".
+  (price · **full URL**; label "verify"). If none, omit the block or write "keine".
+- **Always write full clickable URLs, never bare expose IDs** — anywhere a listing
+  is referenced in the event (links, duplicates). A bare ID is useless in calendar.
 
 ## GOTCHAS (verified 2026-06-27)
 
