@@ -52,12 +52,24 @@ Lightweight — no `_shared.md` needed.
 
 ---
 
+## Duplicates — ALWAYS surface them
+
+A flat usually appears under several expose IDs / portals. Every downstream
+artifact for a listing — correspondence log AND calendar invite — MUST list its
+known cross-portal duplicates, so the full footprint is visible (and you don't
+re-contact the same flat elsewhere).
+
+Get them with: **`node scripts/duplicates.mjs {NNN}`** (signature match — same
+rooms + m² ±0.5 + identical title or near-exact price; output is "likely — verify").
+Include the result as a **Duplicates / also listed as** block (portal · price · URL),
+labelled *verify* since price-matches can over-include. If none, write "none found".
+
 ## Viewing mode — scheduling a viewing
 
 When a viewing is scheduled/confirmed, do ALL of the following for that listing:
 
 1. **`data/viewings.md`** — add/update the row (date, time, address, contact, status).
-2. **`correspondence/{NNN}-{slug}.md`** — log the appointment (see `correspondence/README.md`); set the file's Status.
+2. **`correspondence/{NNN}-{slug}.md`** — log the appointment (see `correspondence/README.md`); set the file's Status; include the **Duplicates** block (above).
 3. **`data/listings.md`** — update the tracker status (`Contacted` → `Viewing`).
 4. **Google Calendar** — create the event. **Follow [`google-calendar-mcp.md`](google-calendar-mcp.md)** for the full procedure and tool gotchas.
 
@@ -67,7 +79,7 @@ When a viewing is scheduled/confirmed, do ALL of the following for that listing:
 - ⚠ **`create_event` silently drops `location`** — set it via a follow-up `update_event`, then `get_event` to confirm it saved. Don't assume it persisted.
 - Don't hand-label weekdays — derive from the date (29.06.2026 is a Monday, not Sunday).
 - `summary`: `🏠 Viewing #{NNN} — {short title} ({score}/5)` + `⚠` if the landlord is flagged in `modes/_profile.md` Landlord Notes.
-- `description`: all links, contact, flat facts, watch-outs, and a `FRAGEN` checklist mirroring `correspondence/{NNN}`.
+- `description`: all links, contact, flat facts, watch-outs, a `FRAGEN` checklist mirroring `correspondence/{NNN}`, AND a **Duplicates / also listed as** block (from `scripts/duplicates.mjs {NNN}`).
 
 ---
 
@@ -87,7 +99,8 @@ back-and-forth with a landlord/agent — never auto-overwritten.
 **Next:** {open action · owner · due}
 ```
 - If no file exists yet, create it from the template, filling the header (URL/links,
-  address, contact, status).
+  address, contact, status) AND the **Duplicates / also listed as** block from
+  `node scripts/duplicates.mjs {NNN}` (see "Duplicates — ALWAYS surface them").
 - Keep the header **Status** in sync with `data/listings.md` when the conversation
   advances the lifecycle (Contacted → Viewing → Applied …).
 
