@@ -15,8 +15,14 @@ The `imXXXXXXX/` detail page only carries title, location, Kaltmiete, m², rooms
 - Gallery photo `<img>` src also reveals the source host (e.g. `immobilien.de/srv/obs/.../estate_attachments/{id}/...`).
 - **Do NOT guess source URLs** (e.g. `/expose/{id}`) — a wrong navigate triggers a permission-denied prompt. Read the `data-href` first.
 
-## Env caveat (2026-06): immobilien.de domain access-blocked
-In the immo-ops Chrome env, navigation to `immobilien.de` succeeded but ALL subsequent tool reads (`javascript_tool`, `read_page`) on that domain returned "Permission denied by user" — could not extract from the source. When this happens, score from the aggregator's thin data, cap Block D at 3.0 (1 photo / condition unverified), mark missing fields "unverified, ask at contact", and note Warmmiete/Energieausweis/must-haves unverified. Not a scam signal — just a data gap.
+## Source pool varies: immobilien.de OR wohnung-jetzt.de
+The `data-href` source host is not always immobilien.de. Seen `https://www.wohnung-jetzt.de/exposee/{id}/` (id = the `wjXXXXXXXX`/`imXXXXXXX` number). Read the `data-href`; don't assume immobilien.de.
+
+## Env caveat (2026-06): immobilien.de AND wohnung-jetzt.de domain access-blocked
+In the immo-ops Chrome env, navigating to `immobilien.de` succeeded but ALL subsequent tool reads returned "Permission denied by user"; `wohnung-jetzt.de` is worse — the `navigate` call itself returns "Permission denied by user". Either way you cannot extract from the source → score from the aggregator's thin data, mark missing fields (Nebenkosten/Warmmiete/Kaution/Energieausweis/Baujahr/Anbieter/floor) "unverified, ask at contact". Not a scam signal — just a data gap.
+
+## Photo gallery IS on the aggregator (don't blindly cap Block D)
+The aggregator detail page embeds the FULL source gallery inline as `<img>` (e.g. wohnung-jetzt id wj73270451 showed all 20 real photos as `images.wohnung-jetzt.de/media/client-XXXX/...jpg`, plus a "Bild N / 20" counter in the body text). Count `[...document.querySelectorAll('img')].filter(s=>s.includes('/media/')||s.includes('/import/'))`. When real photos are present, condition is verifiable → do NOT apply the no-photo Block D cap even though the source page is blocked. The older "cap D at 3.0 (1 photo)" advice only applies when the gallery genuinely has ≤0 real photos.
 - A bare query-string-touching JS filter (`a.href` containing `?`) also tripped a `[BLOCKED: Cookie/query string data]` guard — strip `?` with `.split('?')[0]` before returning hrefs.
 
 **Why:** without consent+scroll the page returns 0 listings; the mixed number format breaks a single-locale parser; the detail page is too thin to score without the source, and the source resolves only via the hidden `data-href`.
