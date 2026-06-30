@@ -14,7 +14,7 @@ Body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese Wohnung wurde vo
 - Below-Mietspiegel price here is the existing tenant's old contract, NOT a scam signal on its own.
 
 ## CiC sanitizer false-flags DD.MM.YYYY as "[BLOCKED: JWT token]"
-The "Bezugsfrei ab" dd value (a plain date like `01.08.2026`) comes back as `[BLOCKED: JWT token]` from `read_page`/`javascript_tool` — CiC's secret-redactor misclassifies the dotted date as a token. Don't treat it as missing/empty. Recover it inside the page: read the dd's `textContent`, test `/^\d{2}\.\d{2}\.\d{4}$/`, and return only the split parts (`day/month/year`) or the `isSofort/isVereinbarung` booleans — never the raw 10-char string, which just gets re-redacted. Seen on #219 (expose 168891742).
+The "Bezugsfrei ab" dd value (a plain date like `01.08.2026`) comes back as `[BLOCKED: JWT token]` from `read_page`/`javascript_tool` — CiC's secret-redactor misclassifies the dotted date as a token. Don't treat it as missing/empty. Recover it inside the page: read the dd's `textContent`, then split on `.` and return only the parts (`day/month/year`) or the `isSofort/isVereinbarung` booleans — never the raw string, which just gets re-redacted. Seen on #219 (expose 168891742, `DD.MM.YYYY`) and #227 (expose 168942585, Vonovia, **`DD.MM.YY` 2-digit year = 8 chars**). So don't anchor the test on `/^\d{2}\.\d{2}\.\d{4}$/` — that 4-digit-year regex FAILS the 8-char Vonovia form; use a loose `/(\d{2})\.(\d{2})\.(\d{2,4})/` match instead (and prefix `20` if the year is 2 digits).
 
 **Why:** without this the move-in date (Block F) reads as unknown and you'd score F at the no-date default instead of the real future date.
 
