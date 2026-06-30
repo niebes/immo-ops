@@ -87,20 +87,54 @@ function levenshteinRatio(a, b) {
   return 1 - matrix[a.length][b.length] / maxLen;
 }
 
+// Neighbourhood/locality token, ignoring the shared city + PLZ. Comparing the whole
+// "Neighbourhood, City (PLZ)" string with Levenshtein is unsafe: the common ", Potsdam"
+// suffix alone pushes two DIFFERENT Ortsteile (e.g. "Babelsberg Nord" vs "Nauener
+// Vorstadt", ratio 0.56) toward the match threshold. A bare city name carries no
+// neighbourhood signal → unknown ('').
+const CITY = /^(potsdam|berlin|brandenburg|werder|teltow|kleinmachnow|stahnsdorf|nuthetal|michendorf|falkensee|nauen|caputh|ketzin|beelitz|schwielowsee)$/;
+function hood(loc) {
+  const fields = (loc || '').toLowerCase()
+    .split(',')
+    .map((f) => f.replace(/\b\d{4,5}\b/g, ' ').replace(/[^a-zäöüß ]+/g, ' ').replace(/\s+/g, ' ').trim())
+    .filter((f) => f && !CITY.test(f));
+  return fields.length ? fields[fields.length - 1] : '';
+}
+// Tokens that DISTINGUISH otherwise-similar Ortsteil names — "Waldstadt I" vs
+// "Waldstadt II", "Babelsberg Nord" vs "Babelsberg Süd". A naive substring test
+// ("waldstadt i" ⊂ "waldstadt ii") would wrongly merge these.
+const DISCRIMINATOR = /^(i{1,3}|iv|v|nord|n[öo]rdliche|süd|sued|s[üu]dliche|ost|[öo]stliche|west|westliche|mitte)$/;
+// true = same neighbourhood, false = clearly different, null = at least one unknown.
+function locAgree(a, b) {
+  const A = hood(a), B = hood(b);
+  if (!A || !B) return null;
+  if (A === B) return true;
+  const ta = A.split(' ').filter(Boolean), tb = B.split(' ').filter(Boolean);
+  const setA = new Set(ta), setB = new Set(tb);
+  if (!ta.some((t) => setB.has(t))) return false;              // no shared token → different area
+  const extraA = ta.filter((t) => !setB.has(t));
+  const extraB = tb.filter((t) => !setA.has(t));
+  if (extraA.some((t) => DISCRIMINATOR.test(t)) ||
+      extraB.some((t) => DISCRIMINATOR.test(t))) return false; // conflicting Ortsteil qualifier
+  if (extraA.length === 0 || extraB.length === 0) return true; // one is a more-detailed form of the other
+  return null;                                                 // both add unique tokens → ambiguous
+}
+
 function isSimilar(a, b) {
   if (a.url && b.url && a.url === b.url) return false; // same URL = same entry, not a cross-portal dupe
   if (a.portal === b.portal) return false; // same portal = not a cross-portal dupe
 
-  const locMatch = a.location && b.location && (
-    a.location.includes(b.location) || b.location.includes(a.location) ||
-    levenshteinRatio(a.location, b.location) > 0.6
-  );
+  const loc = locAgree(a.location, b.location); // true | false | null
+  if (loc === false) return false; // KNOWN-different neighbourhoods → never the same flat (hard veto)
+
   const priceMatch = a.price > 0 && b.price > 0 &&
     Math.abs(a.price - b.price) / Math.max(a.price, b.price) < 0.05;
   const sizeMatch = a.m2 > 0 && b.m2 > 0 &&
     Math.abs(a.m2 - b.m2) <= 3;
 
-  return locMatch && priceMatch && sizeMatch;
+  // Require a CONFIRMED same neighbourhood — price+size coincidences across distinct
+  // Ortsteile (or with unknown locations) are not enough to auto-collapse into a DUPE.
+  return loc === true && priceMatch && sizeMatch;
 }
 
 // ── Main ───────────────────────────────────────────────────────────

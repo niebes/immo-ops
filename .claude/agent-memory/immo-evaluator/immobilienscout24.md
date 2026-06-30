@@ -18,6 +18,8 @@ The "Bezugsfrei ab" dd value (a plain date like `01.08.2026`) comes back as `[BL
 
 **Why:** without this the move-in date (Block F) reads as unknown and you'd score F at the no-date default instead of the real future date.
 
+**Single-digit day/month dates evade the redactor AND the loose regex.** Seen on #230 (expose 125780388): bezugsfrei textContent was a plain `1.9.2026` — NOT redacted to `[BLOCKED]` (the sanitizer only false-flags the zero-padded `DD.MM.YYYY`/`DD.MM.YY` forms). But `/(\d{2})\.(\d{2})\.(\d{2,4})/` then FAILS to match `1.9.2026` (single-digit d/m). Read `bf.textContent` directly and use `/(\d{1,2})\.(\d{1,2})\.(\d{2,4})/` so 1-digit day/month parse too. So: try the textContent match first (covers unredacted single-digit dates), only fall back to the in-page split-recovery when it comes back `[BLOCKED]`.
+
 ## ohne-makler cross-posts: map geo-tag can be wrong
 For listings fed in via the ohne-makler (OM) platform (footer says "ohne-makler (OM) ist weder Anbieter noch Vermittler"), the IS24 **map-address / page title can be a mismatched geo-tag that contradicts the body**. Seen on #214: title + Lage section say "Begehrtes Eichwalde" (LDS, ~40 km SE of Golm) but IS24 geo-tagged it "Groß Glienicke, 14476 Potsdam" (in-area). The body `.is24qa-lage` is authoritative — always read it to resolve location before scoring Block B; do NOT trust the map-address/title alone. This is a cross-posting artefact, not a scam signal.
 
