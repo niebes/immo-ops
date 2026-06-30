@@ -9,11 +9,14 @@
  * a scan-history row R is a duplicate of target T iff
  *   - rooms equal (when both known), AND
  *   - |m²(R) − m²(T)| ≤ 0.5, AND
- *   - ( normalized-title(R) == normalized-title(T)   // same ad text across portals
- *       OR  |price(R) − price(T)| / price(T) ≤ 0.02 )// or near-exact same rent
+ *   - neighbourhoods do NOT clearly disagree (a known-different Ortsteil is a veto), AND
+ *   - ( normalized-title(R) == normalized-title(T)        // same ad text across portals
+ *       OR ( |price(R) − price(T)| / price(T) ≤ 0.02       // near-exact same rent
+ *            AND neighbourhood(R) == neighbourhood(T) ) )  // AND confirmed same Ortsteil
  *   - and R is not a Tausch/Wohnungstausch swap ad.
  * Plain m²+price-band matching is NOT enough (many distinct flats share ~73 m²/
- * 3 Zi/~1.100 €). Output is "likely duplicates — verify"; treat as a hint.
+ * 3 Zi/~1.100 €) — price-near-match only counts when the neighbourhood matches too.
+ * Output is "likely duplicates — verify"; treat as a hint.
  *
  * Data source: data/scan-history.tsv (url, first_seen, portal, title, location, price, m2, rooms, status).
  *
@@ -35,6 +38,40 @@ const rows = readFileSync(`${ROOT}/data/scan-history.tsv`, 'utf8')
 
 const norm = (t) => (t || '').toLowerCase().replace(/[^a-zäöüß0-9]+/g, '').trim();
 const isSwap = (t) => /tausch|wohnungstausch/i.test(t || '');
+
+// Neighbourhood/locality token from a "Street, Neighbourhood, City (PLZ)" string:
+// drop the PLZ and keep the part BEFORE the city so "Babelsberg Nord, Potsdam" and
+// "Nauener Vorstadt, Potsdam" don't look alike just because they share ", Potsdam".
+// A bare city name carries no neighbourhood signal → treated as unknown ('').
+const CITY = /^(potsdam|berlin|brandenburg|werder|teltow|kleinmachnow|stahnsdorf|nuthetal|michendorf|falkensee|nauen|caputh|ketzin|beelitz|schwielowsee)$/;
+const hood = (loc) => {
+  // Split into comma fields, strip PLZ + punctuation, drop bare city/region fields,
+  // and take the most specific remaining field (the one before the city).
+  const fields = (loc || '').toLowerCase()
+    .split(',')
+    .map((f) => f.replace(/\b\d{4,5}\b/g, ' ').replace(/[^a-zäöüß ]+/g, ' ').replace(/\s+/g, ' ').trim())
+    .filter((f) => f && !CITY.test(f));
+  return fields.length ? fields[fields.length - 1] : '';
+};
+// Tokens that DISTINGUISH otherwise-similar Ortsteil names — "Waldstadt I" vs
+// "Waldstadt II", "Babelsberg Nord" vs "Babelsberg Süd". A naive substring test
+// ("waldstadt i" ⊂ "waldstadt ii") would wrongly merge these.
+const DISCRIMINATOR = /^(i{1,3}|iv|v|nord|n[öo]rdliche|süd|sued|s[üu]dliche|ost|[öo]stliche|west|westliche|mitte)$/;
+// true = same neighbourhood, false = clearly different, null = at least one unknown.
+const locAgree = (a, b) => {
+  const A = hood(a), B = hood(b);
+  if (!A || !B) return null;
+  if (A === B) return true;
+  const ta = A.split(' ').filter(Boolean), tb = B.split(' ').filter(Boolean);
+  const setA = new Set(ta), setB = new Set(tb);
+  if (!ta.some((t) => setB.has(t))) return false;              // no shared token → different area
+  const extraA = ta.filter((t) => !setB.has(t));
+  const extraB = tb.filter((t) => !setA.has(t));
+  if (extraA.some((t) => DISCRIMINATOR.test(t)) ||
+      extraB.some((t) => DISCRIMINATOR.test(t))) return false; // conflicting Ortsteil qualifier
+  if (extraA.length === 0 || extraB.length === 0) return true; // one is a more-detailed form of the other
+  return null;                                                 // both add unique tokens → ambiguous
+};
 
 // Resolve canonical url → target row.
 let canonUrl = null;
@@ -61,9 +98,17 @@ for (const r of rows) {
   if (r.m2 == null || Math.abs(r.m2 - target.m2) > 0.5) continue;
   if (target.rooms != null && r.rooms != null && r.rooms !== target.rooms) continue;
   if (isSwap(r.title)) continue;
+  // Location veto: two listings in KNOWN-different neighbourhoods are never the same
+  // physical flat, no matter how close price+m² are. (A 1.600/80/3 "Stadtvilla" in
+  // Babelsberg Nord is NOT the 1.615/80/3 "Villen-Quartier" in Nauener Vorstadt.)
+  const loc = locAgree(target.location, r.location); // true | false | null
+  if (loc === false) continue;
   const sameTitle = tNorm.length > 8 && norm(r.title) === tNorm;
   const samePrice = target.price && r.price && Math.abs(r.price - target.price) / target.price <= 0.02;
-  if (!sameTitle && !samePrice) continue;
+  // Price-near-match alone is NOT enough (many distinct flats share ~80 m²/3 Zi/~1.600 €):
+  // it only confirms a dupe when the neighbourhood is also confirmed equal. A byte-identical
+  // ad title across portals stands on its own (same listing reposted).
+  if (!sameTitle && !(samePrice && loc === true)) continue;
   seen.add(r.url);
   dups.push({ ...r, sameTitle });
 }
