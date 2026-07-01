@@ -137,14 +137,6 @@ if (searchGroups.length === 0) {
   process.exit(1);
 }
 
-function loadTitleFilter(group) {
-  const tf = group.title_filter || {};
-  return {
-    negative: (tf.negative || []).map(k => k.toLowerCase()),
-    positive: (tf.positive || []).map(k => k.toLowerCase()),
-  };
-}
-
 // ── Profile criteria (for post-extraction filtering) ───────────────
 
 function loadCriteria(groupName) {
@@ -176,22 +168,8 @@ function loadSeenUrls() {
 }
 
 // ── Filters ────────────────────────────────────────────────────────
-
-// Keyword must start at a word boundary (start-of-string or a non-letter) so we
-// don't match a keyword that is merely the SUFFIX of a longer word — e.g. the
-// keyword "befristet" must NOT match "unbefristet" (the opposite, desirable, meaning).
-// Suffix continuation IS allowed, so "tauschwohnung" still matches "Tauschwohnungen".
-function titleHasKeyword(lower, kw) {
-  const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp('(^|[^a-zäöüß])' + esc).test(lower);
-}
-
-function filterTitle(title, titleKw) {
-  const lower = title.toLowerCase();
-  if (titleKw.negative.some(k => titleHasKeyword(lower, k))) return 'skipped_title';
-  if (titleKw.positive.length > 0 && !titleKw.positive.some(k => titleHasKeyword(lower, k))) return 'skipped_title';
-  return null;
-}
+// Only objective numeric criteria + dedup gate here. Title relevance is judged by
+// the AI triage step (see modes/scan.md), never by keyword matching.
 
 function filterCriteria(listing, criteria) {
   if (!criteria) return null;
@@ -373,7 +351,7 @@ async function main() {
   console.log(`Dedup: ${seenUrls.size} URLs known\n`);
 
   const browser = await chromium.launch({ headless: !HEADED });
-  const totalStats = { found: 0, added: 0, skipped_title: 0, skipped_criteria: 0, skipped_dup: 0, portals: 0 };
+  const totalStats = { found: 0, added: 0, skipped_criteria: 0, skipped_dup: 0, portals: 0 };
   const allNewListings = [];
   const allHistoryLines = [];
 
@@ -382,7 +360,6 @@ async function main() {
     console.log(`Group: ${group.name}`);
     console.log(`${'═'.repeat(50)}`);
 
-    const titleKw = loadTitleFilter(group);
     const criteria = loadCriteria(group.name);
     if (criteria) {
       console.log(`Criteria: ≥${criteria.minRooms || '?'} rooms, ≥${criteria.minM2 || '?'} m², ≤${criteria.maxPrice || '?'} EUR`);
@@ -424,13 +401,12 @@ async function main() {
       totalStats.found += listings.length;
 
       for (const listing of listings) {
-        const titleResult = filterTitle(listing.title, titleKw);
-        if (titleResult) {
-          totalStats.skipped_title++;
-          allHistoryLines.push(toHistoryLine(listing, titleResult));
-          continue;
-        }
-
+        // NO mechanical title filtering. Relevance judgements that depend on reading
+        // the title (apartment swaps, garages/parking, commercial, WBS, sublets, …)
+        // are made by the AI triage step, not by keyword matching — a keyword in a
+        // title is ambiguous (e.g. "DHH mit … Garage" is a house that HAS a garage,
+        // not a garage). Only the objective numeric criteria + dedup gate here; the
+        // AI reads every survivor's title downstream. See modes/scan.md "AI triage".
         const criteriaResult = filterCriteria(listing, criteria);
         if (criteriaResult) {
           totalStats.skipped_criteria++;
@@ -465,7 +441,6 @@ async function main() {
   console.log(`\n${'━'.repeat(40)}`);
   console.log(`Portals scanned:   ${totalStats.portals}`);
   console.log(`Listings found:    ${totalStats.found}`);
-  console.log(`Filtered (title):  ${totalStats.skipped_title}`);
   console.log(`Filtered (criteria): ${totalStats.skipped_criteria}`);
   console.log(`Duplicates:        ${totalStats.skipped_dup}`);
   console.log(`New in pipeline:   ${totalStats.added}`);

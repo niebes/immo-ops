@@ -45,37 +45,12 @@ function loadYaml(path) {
 const portalsConfig = loadYaml(PORTALS_PATH) || {};
 const profile = loadYaml(PROFILE_PATH);
 
-// Collect negative keywords scoped to --group if provided, otherwise all groups.
-// Two classes:
-//   negative                 — disqualify wherever the word appears in the title
-//                              (swap/status words: Tauschwohnung, WBS, befristet, …).
-//   negative_unless_dwelling — object-TYPE words (Garage, Stellplatz, Büro, …) that
-//                              disqualify ONLY when the title is not about a dwelling.
-//                              A parking space FOR RENT leads with "Garage/Stellplatz"
-//                              and names no dwelling; a real home merely HAS a garage
-//                              ("DHH mit … Garage") and always names the dwelling. So
-//                              we filter these words only when no dwelling term is
-//                              present — otherwise the word is an amenity, not the object.
-const negativeKeywords = [];
-const negativeUnlessDwelling = [];
-function collectKeywords(dst, list) {
-  for (const kw of (list || [])) {
-    const lower = kw.toLowerCase();
-    if (!dst.includes(lower)) dst.push(lower);
-  }
-}
-if (portalsConfig.search_groups) {
-  const groups = GROUP_NAME
-    ? portalsConfig.search_groups.filter(g => g.name === GROUP_NAME)
-    : portalsConfig.search_groups;
-  for (const group of groups) {
-    collectKeywords(negativeKeywords, group.title_filter?.negative);
-    collectKeywords(negativeUnlessDwelling, group.title_filter?.negative_unless_dwelling);
-  }
-} else if (portalsConfig.title_filter) {
-  collectKeywords(negativeKeywords, portalsConfig.title_filter.negative);
-  collectKeywords(negativeUnlessDwelling, portalsConfig.title_filter.negative_unless_dwelling);
-}
+// NOTE: title relevance (apartment swaps, garages/parking, commercial, WBS, sublets)
+// is NOT keyword-filtered here — it is judged by the AI triage step. A keyword in a
+// free-text title is ambiguous ("DHH mit … Garage" is a house that HAS a garage, not
+// a garage). This script only applies the objective numeric criteria + dedup; the AI
+// reads every survivor's title downstream. The title_filter lists in portals.yml are
+// kept only as advisory hints for that AI triage.
 
 // ── Criteria ───────────────────────────────────────────────────────
 
@@ -104,38 +79,8 @@ function loadSeenUrls() {
 
 // ── Filters ────────────────────────────────────────────────────────
 
-// Keyword must start at a word boundary (start-of-string or a non-letter) so we
-// don't match a keyword that is merely the SUFFIX of a longer word — e.g. "befristet"
-// must NOT match "unbefristet". Suffix continuation IS allowed ("tauschwohnungen").
-function titleHasKeyword(lower, kw) {
-  const esc = kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp('(^|[^a-zäöüß])' + esc).test(lower);
-}
-
-// German real-estate dwelling vocabulary. If a title contains any of these, it is
-// advertising a place to LIVE, so an object-type word like "Garage" in it is an
-// amenity, not the object. Standard domain terms (not portal-specific), so they
-// live in code alongside the German number parsing rather than in user config.
-const DWELLING_TERMS = [
-  'wohnung', 'whg', 'wohnen', 'zimmer', 'zi.', 'haus', 'häuser', 'dhh',
-  'doppelhaus', 'reihenhaus', 'reihenendhaus', 'einfamilienhaus', 'efh',
-  'mehrfamilienhaus', 'maisonette', 'apartment', 'appartement', 'penthouse',
-  'loft', 'bungalow', 'villa', 'etagenwohnung', 'dachgeschoss', 'erdgeschoss',
-  'souterrain', 'studio', 'wg-zimmer',
-];
-function titleIsDwelling(lower) {
-  return DWELLING_TERMS.some(t => titleHasKeyword(lower, t));
-}
-
-function filterTitle(title) {
-  const lower = (title || '').toLowerCase();
-  if (negativeKeywords.some(k => titleHasKeyword(lower, k))) return 'skipped_title';
-  // Object-type words only disqualify when the title is not about a dwelling.
-  if (!titleIsDwelling(lower) && negativeUnlessDwelling.some(k => titleHasKeyword(lower, k))) {
-    return 'skipped_title';
-  }
-  return null;
-}
+// Only objective numeric criteria + dedup gate here. Title relevance is judged by the
+// AI triage step, never by keyword matching.
 
 function filterCriteria(listing) {
   if (!criteria) return null;
@@ -171,18 +116,11 @@ if (!Array.isArray(listings) || listings.length === 0) {
 
 const today = new Date().toISOString().slice(0, 10);
 const seenUrls = loadSeenUrls();
-const stats = { found: listings.length, skipped_title: 0, skipped_criteria: 0, skipped_dup: 0, added: 0 };
+const stats = { found: listings.length, skipped_criteria: 0, skipped_dup: 0, added: 0 };
 const newListings = [];
 const historyLines = [];
 
 for (const l of listings) {
-  const titleResult = filterTitle(l.title);
-  if (titleResult) {
-    stats.skipped_title++;
-    historyLines.push([l.url, today, l.portal || '', l.title, l.location || '', l.price || '', l.m2 || '', l.rooms || '', titleResult].join('\t'));
-    continue;
-  }
-
   const criteriaResult = filterCriteria(l);
   if (criteriaResult) {
     stats.skipped_criteria++;
@@ -219,7 +157,6 @@ if (!DRY_RUN) {
 }
 
 console.log(`Processed: ${stats.found} listings`);
-console.log(`  Filtered (title):    ${stats.skipped_title}`);
 console.log(`  Filtered (criteria): ${stats.skipped_criteria}`);
 console.log(`  Duplicates:          ${stats.skipped_dup}`);
 console.log(`  New in pipeline:     ${stats.added}`);

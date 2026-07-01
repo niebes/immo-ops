@@ -139,7 +139,7 @@ German portals (especially ImmoScout24, Immowelt) are flooded with apartment swa
 - Description references tauschwohnung.com or swap mechanics
 - Listed as "Wohnungstausch:" prefix
 
-**Action:** Skip during scan (title_filter catches most). During evaluation, detect early and register as `Discarded` without scoring.
+**Action:** The scan scripts do NOT keyword-filter titles — swaps are caught by the **AI title triage** step (see `modes/scan.md` / immo-find auto Step 3), which reads the title and discards swaps with a reason. During evaluation, detect early and register as `Discarded` without scoring.
 
 ## Portal-Specific Notes
 
