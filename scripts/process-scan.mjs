@@ -45,20 +45,36 @@ function loadYaml(path) {
 const portalsConfig = loadYaml(PORTALS_PATH) || {};
 const profile = loadYaml(PROFILE_PATH);
 
-// Collect negative keywords scoped to --group if provided, otherwise all groups
+// Collect negative keywords scoped to --group if provided, otherwise all groups.
+// Two classes:
+//   negative                 — disqualify wherever the word appears in the title
+//                              (swap/status words: Tauschwohnung, WBS, befristet, …).
+//   negative_unless_dwelling — object-TYPE words (Garage, Stellplatz, Büro, …) that
+//                              disqualify ONLY when the title is not about a dwelling.
+//                              A parking space FOR RENT leads with "Garage/Stellplatz"
+//                              and names no dwelling; a real home merely HAS a garage
+//                              ("DHH mit … Garage") and always names the dwelling. So
+//                              we filter these words only when no dwelling term is
+//                              present — otherwise the word is an amenity, not the object.
 const negativeKeywords = [];
+const negativeUnlessDwelling = [];
+function collectKeywords(dst, list) {
+  for (const kw of (list || [])) {
+    const lower = kw.toLowerCase();
+    if (!dst.includes(lower)) dst.push(lower);
+  }
+}
 if (portalsConfig.search_groups) {
   const groups = GROUP_NAME
     ? portalsConfig.search_groups.filter(g => g.name === GROUP_NAME)
     : portalsConfig.search_groups;
   for (const group of groups) {
-    for (const kw of (group.title_filter?.negative || [])) {
-      const lower = kw.toLowerCase();
-      if (!negativeKeywords.includes(lower)) negativeKeywords.push(lower);
-    }
+    collectKeywords(negativeKeywords, group.title_filter?.negative);
+    collectKeywords(negativeUnlessDwelling, group.title_filter?.negative_unless_dwelling);
   }
 } else if (portalsConfig.title_filter) {
-  negativeKeywords.push(...(portalsConfig.title_filter.negative || []).map(k => k.toLowerCase()));
+  collectKeywords(negativeKeywords, portalsConfig.title_filter.negative);
+  collectKeywords(negativeUnlessDwelling, portalsConfig.title_filter.negative_unless_dwelling);
 }
 
 // ── Criteria ───────────────────────────────────────────────────────
@@ -96,9 +112,29 @@ function titleHasKeyword(lower, kw) {
   return new RegExp('(^|[^a-zäöüß])' + esc).test(lower);
 }
 
+// German real-estate dwelling vocabulary. If a title contains any of these, it is
+// advertising a place to LIVE, so an object-type word like "Garage" in it is an
+// amenity, not the object. Standard domain terms (not portal-specific), so they
+// live in code alongside the German number parsing rather than in user config.
+const DWELLING_TERMS = [
+  'wohnung', 'whg', 'wohnen', 'zimmer', 'zi.', 'haus', 'häuser', 'dhh',
+  'doppelhaus', 'reihenhaus', 'reihenendhaus', 'einfamilienhaus', 'efh',
+  'mehrfamilienhaus', 'maisonette', 'apartment', 'appartement', 'penthouse',
+  'loft', 'bungalow', 'villa', 'etagenwohnung', 'dachgeschoss', 'erdgeschoss',
+  'souterrain', 'studio', 'wg-zimmer',
+];
+function titleIsDwelling(lower) {
+  return DWELLING_TERMS.some(t => titleHasKeyword(lower, t));
+}
+
 function filterTitle(title) {
   const lower = (title || '').toLowerCase();
-  return negativeKeywords.some(k => titleHasKeyword(lower, k)) ? 'skipped_title' : null;
+  if (negativeKeywords.some(k => titleHasKeyword(lower, k))) return 'skipped_title';
+  // Object-type words only disqualify when the title is not about a dwelling.
+  if (!titleIsDwelling(lower) && negativeUnlessDwelling.some(k => titleHasKeyword(lower, k))) {
+    return 'skipped_title';
+  }
+  return null;
 }
 
 function filterCriteria(listing) {
