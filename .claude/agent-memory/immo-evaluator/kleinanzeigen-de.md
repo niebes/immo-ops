@@ -11,7 +11,14 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   - Spec `list` items: Wohnfläche, Etage, Wohnungstyp (Erdgeschosswohnung…), "Verfügbar ab",
     "Online-Besichtigung", and **"Tauschangebot" → "Kein Tausch"** (use this to confirm a genuine
     rental vs a swap — even when the title says "Nachmieter").
-  - Second `list`: Nebenkosten + Warmmiete. (Kaltmiete = the top price heading.)
+  - Second `list`: Nebenkosten + Warmmiete. (Kaltmiete = the top price heading — BUT for
+    Genossenschafts/Nachmieter ads the top heading is often the **Warmmiete**, and the true
+    Kaltmiete/Heizkosten/Betriebskosten split only appears in the free-text description. Always
+    read the description to split warm vs cold; the search-snippet number is frequently the Kaltmiete
+    while the page heading is the Warmmiete.)
+  - Kaution field may read **"Kaution / Genoss.-Anteile"** → for a Genossenschaftswohnung this is
+    refundable cooperative shares, NOT a deposit and NOT an advance-fee scam signal; the low rent is
+    the coop structure, not too-good-to-be-true. *Why:* otherwise you'd wrongly flag scam + illegal Kaution.
   - Feature `list`: Terrasse/Balkon, Einbauküche, Badewanne, Keller, Aufzug, Haustiere erlaubt, etc.
   - Anbieter block: name + "Privater Nutzer" + "Aktiv seit {date}" (account age = scam signal).
   - Photo count: gallery shows "/13" style counter.
