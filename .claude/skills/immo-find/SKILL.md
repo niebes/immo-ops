@@ -118,14 +118,23 @@ This step always runs when any CiC portal is enabled. Do not skip, defer, or sub
    c. Close your tab
 3. Note how many new listings were added. Any `fallback: "cic"` portal WITHOUT a snippet remains a ⛔ coverage item.
 
-**Step 3 — Pipeline triage (metadata-only discard):**
-Read `data/pipeline.md`. For each pending `- [ ]` entry, check metadata against profile criteria:
-- Rooms < min_rooms → mark as `DISCARDED`
-- m² < min_m2 → mark as `DISCARDED`
-- Price > max_kaltmiete × 1.2 → mark as `DISCARDED`
-- Title contains Tauschwohnung keywords → mark as `DISCARDED`
-- Location is wrong city → mark as `DISCARDED`
-- Price suspiciously low (likely extraction error) → mark as `DISCARDED`
+**Step 3 — Pipeline triage (AI judgement, not keyword matching):**
+The scan scripts apply ONLY objective numeric gates + dedup — they never drop by title.
+So this triage is where title relevance is decided, by reading each entry. Read
+`data/pipeline.md`; for each pending `- [ ]` entry, judge title + metadata and mark
+`DISCARDED` (with a one-line reason) when it is clearly not a real, on-target rental:
+- Rooms < min_rooms, or m² < min_m2, or Price > max_kaltmiete × 1.2 (objective)
+- Apartment **swap** — "Tauschwohnung / Wohnungstausch / Tausche / gegen Wohnung" (a
+  different transaction, never a rental)
+- **Time-limited** sublet — "Zwischenmiete / befristet / auf Zeit" (open-ended Untermiete
+  is fine)
+- **WBS-required** without the user holding a WBS
+- A **garage/parking space or commercial unit** that is the object itself — judge from the
+  title, do NOT discard a home that merely HAS a garage/Stellplatz ("DHH mit … Garage" is
+  a house). This is exactly the ambiguity keyword filters got wrong (expose 168836565).
+- Wrong city, or price so low it's an extraction error
+When unsure, KEEP it — evaluation catches what triage misses (favour recall). The
+`title_filter` lists in portals.yml are an advisory checklist for this step, not a gate.
 Update `data/pipeline.md` in place.
 
 **Step 4 — Pipeline evaluation (ALL pending listings):**

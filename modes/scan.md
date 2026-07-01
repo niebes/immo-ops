@@ -95,18 +95,27 @@ For each portal with `scan_method: websearch` and `enabled: true`:
    b. Extract listing candidates
    c. For each new candidate from WebSearch, verify with Playwright that listing is still active
 
-5. **Filter by title** using `title_filter` from portals.yml:
-   - If `positive` list is non-empty: at least 1 keyword must appear (case-insensitive)
-   - 0 keywords from `negative` may appear
-   
-6. **Filter by criteria** (HARD GATE — reject before pipeline ingestion):
+5. **AI title triage** (NOT a keyword filter):
+   Title relevance is a judgement call — an apartment swap, a garage/parking space, a
+   commercial unit, a WBS-required or time-limited sublet — and the AI reads each title
+   to make it. Do **not** mechanically drop on keywords: a word like "Garage" is
+   ambiguous (a house that HAS a garage vs. a garage for rent), so substring matching
+   throws false negatives (e.g. expose 168836565, a real DHH, was wrongly dropped for
+   the word "Garage"). The `title_filter` lists in portals.yml are an **advisory
+   checklist** of things to look out for, not a gate. For each candidate, judge from the
+   title (+ metadata) whether it is a real, on-target rental; discard the clear non-fits
+   with a one-line reason and keep the rest. When unsure, keep it — later evaluation
+   catches what triage misses (favour recall over precision, same as the area rule).
+
+6. **Filter by criteria** (HARD GATE — objective numbers only, reject before pipeline ingestion):
    Using `scan_defaults` from portals.yml AND `searches` from profile.yml:
    - Rooms: REJECT if rooms < `rooms_min` (default: 3). Non-negotiable.
    - Size: REJECT if m² < `size_min` (default: 60). Non-negotiable.
    - Price: REJECT if price > `price_max` (default: max_kaltmiete from profile). Non-negotiable.
    - Area: REJECT if location matches an excluded area.
    - If a field could not be extracted from the search result snippet, log a warning but still add to pipeline (better to over-include than silently drop).
-   - Price sanity check: if price is >30% below typical area Mietspiegel, flag as suspicious — likely Tauschwohnung or scam. Still add to pipeline but prepend "⚠ LOW PRICE" to the title.
+   - Price sanity check: if price is >30% below typical area Mietspiegel, flag as suspicious — likely a coop rent, extraction error, or scam. Still add to pipeline but prepend "⚠ LOW PRICE" to the title.
+   - NOTE: the scripts (`scan.mjs`, `process-scan.mjs`) apply ONLY these numeric gates + dedup — never a title keyword filter. Title relevance is the AI triage step above.
 
 7. **Deduplicate** against 3 sources (URL-level, exact match):
    - `data/scan-history.tsv` → URL already seen. Check BEFORE appending — never write duplicate rows.
@@ -119,10 +128,12 @@ For each portal with `scan_method: websearch` and `enabled: true`:
    b. Register in `data/scan-history.tsv`: `{url}\t{date}\t{portal}\t{title}\t{location}\t{price}\t{m2}\t{rooms}\tadded`
 
 9. **Filtered listings**: register in scan-history.tsv with status:
-   - `skipped_title` — failed title filter
-   - `skipped_criteria` — failed price/size/area criteria
+   - `skipped_criteria` — failed the objective price/size/area gate
    - `skipped_dup` — duplicate
    - `skipped_expired` — listing no longer active (WebSearch results)
+   - `discarded_triage` — AI title triage judged it a non-fit (swap, garage, commercial,
+     WBS, sublet, wrong city …); record the one-line reason in the row's title/status
+   (There is no `skipped_title` status anymore — nothing is dropped by keyword.)
 
 ## Scan History
 
