@@ -13,7 +13,7 @@ Detail page: `/angebot/{uuid}`. Listings platform that re-lists from source port
 - Kosten block: `Kaltmiete`, `Heizkosten`, `Nebenkosten`, `Gesamtmiete` (= Warmmiete), `Kaution {N} Kaltmieten`. NOTE: Heizkosten and Nebenkosten are listed separately — Warmmiete already given as Gesamtmiete.
 - Sections: Objektbeschreibung, Lage, Sonstiges, Stichworte (e.g. "Anzahl Badezimmer: 2, ... modernisiert"), Gebäude/Wohnungsumfang, Energie & Bauzustand (Baujahr, Heizungsart, Energieausweisart, Endenergieverbrauch kWh/(m²a), Ausstellungsdatum, Gültig bis).
 - Amenity chips near top: Einbauküche / Balkon / "Bad mit Dusche, Wanne".
-- Anbieter shown only as `Gewerblicher Anbieter` or similar — **no company/Makler name in the exposé**; treat Block H as Unknown (3.5) and note it.
+- Anbieter field shown only as `Gewerblicher Anbieter` or similar — no name there. BUT the actual landlord/company is often buried in the Objektbeschreibung/Sonstiges/Datenschutz text (e.g. #236 named "BUWOG-Immobilien Treuhand" in the Sonstiges block). Keyword-scan the description before defaulting Block H to Unknown (3.5) — a named corporate landlord raises H.
 
 ## Photos
 - Gallery images are `cdnihddipa.cloudimg.io/.../{uuid}.jpg`. Count distinct cloudimg URLs (exclude `/build/images/...` logo/seal). Got 10 real photos for report #174. Grundriss usually NOT included.
