@@ -82,5 +82,17 @@
   });
 
   const hasNextPage = !!document.querySelector('a[rel="next"], .pagination a.next, a[href*="seite-"]');
-  return JSON.stringify({ count: listings.length, hasNextPage, listings });
+
+  // Compact transport (see immoscout24-cic.js): positional rows, portal dropped (via
+  // --portal). This portal's detail URLs are NOT derivable from a bare id (varied
+  // region segment + slug), so field 0 carries the FULL URL and there is NO
+  // --url-prefix — process-scan uses field 0 verbatim when it starts with http.
+  //   node scripts/process-scan.mjs --portal "Regionalimmobilien24"
+  const L = listings.map((l) => [
+    l.url,
+    l.price, l.m2, l.rooms,
+    (l.title || '').slice(0, 60),
+    (l.location || '').slice(0, 40),
+  ]);
+  return JSON.stringify({ c: listings.length, n: hasNextPage, L });
 })();

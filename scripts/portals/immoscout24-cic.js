@@ -92,11 +92,25 @@
   const totalMatch = totalText.match(/(\d+)\s*(?:Mietwohnung|Wohnung|Haus|Häuser|Immobilie)/);
   const hasNextPage = !!document.querySelector('[aria-label="Nächste Seite"], [data-nav="next"]');
 
+  // Compact transport: the javascript_tool return channel truncates ~1 KB, so ship
+  // positional rows [id, price, m2, rooms, title, location] with the constant URL
+  // prefix stripped (rebuilt by process-scan via --url-prefix) and the portal dropped
+  // (supplied via --portal). Cuts a 20-listing page ~3× → 1–2 calls instead of ~6.
+  // Same snippet serves ImmoScout24 and ImmoScout24 Haus — pass the matching --portal.
+  //   node scripts/process-scan.mjs --portal "ImmoScout24" --url-prefix "https://www.immobilienscout24.de/expose/"
+  const P = 'https://www.immobilienscout24.de/expose/';
+  const L = listings.map((l) => [
+    l.url.startsWith(P) ? l.url.slice(P.length) : l.url,
+    l.price, l.m2, l.rooms,
+    (l.title || '').slice(0, 60),
+    (l.location || '').slice(0, 40),
+  ]);
   return JSON.stringify({
-    count: listings.length,
-    corrected, // # cards where the desync guard repaired the URL↔metadata pairing
+    c: listings.length, // count
+    n: hasNextPage, // hasNextPage — for the pagination decision
     total: totalMatch ? parseInt(totalMatch[1]) : null,
-    hasNextPage,
-    listings,
+    corrected, // # cards where the desync guard repaired the URL↔metadata pairing
+    p: P, // url-prefix to pass as --url-prefix
+    L, // compact rows
   });
 })();

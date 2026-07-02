@@ -69,5 +69,15 @@
   const nextBtn = document.querySelector('a.pagination__next, a[aria-label="Weiter"], a[type="next"]');
   const hasNextPage = !!(nextBtn && nextBtn.getAttribute('aria-disabled') !== 'true');
 
-  return JSON.stringify({ count: listings.length, hasNextPage, listings });
+  // Compact transport (see immoscout24-cic.js): positional rows with the itm/ URL
+  // prefix stripped (rebuilt via --url-prefix) and portal dropped (via --portal).
+  //   node scripts/process-scan.mjs --portal "eBay.de Grundstücke" --url-prefix "https://www.ebay.de/itm/"
+  const P = 'https://www.ebay.de/itm/';
+  const L = listings.map((l) => [
+    l.url.startsWith(P) ? l.url.slice(P.length) : l.url,
+    l.price, l.m2, l.rooms,
+    (l.title || '').slice(0, 60),
+    (l.location || '').slice(0, 40),
+  ]);
+  return JSON.stringify({ c: listings.length, n: hasNextPage, p: P, L });
 })();

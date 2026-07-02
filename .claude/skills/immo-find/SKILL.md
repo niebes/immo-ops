@@ -65,10 +65,14 @@ ALWAYS create a dedicated tab for CiC scanning via `tabs_create_mcp`. Never reus
    b. If CAPTCHA appears ("Ich bin kein Roboter"): wait 5-10 seconds, then re-check — most CAPTCHAs auto-solve. Only ask user if still blocked after waiting.
    c. **Pagination loop** (up to 100 listings total):
       - Read the extraction snippet from `scripts/portals/{portal}-cic.js`
-      - Run the snippet via `mcp__claude-in-chrome__javascript_tool` — returns `{count, total, hasNextPage, listings}`
-      - Pipe the listings JSON to `node scripts/process-scan.mjs`
+      - Run the snippet via `mcp__claude-in-chrome__javascript_tool`. It returns a **compact wrapper** `{c, n, [total,] [p,] L}` — `c`=count, `n`=hasNextPage, `p`=url-prefix (present when field-0 is a bare id), `L`=positional rows `[idOrUrl, price, m2, rooms, title, location]`.
+      - Pipe that same string to process-scan with the portal + prefix flags (process-scan unwraps `L` and rebuilds each URL from `p`):
+        - IS24 / IS24 Haus: `node scripts/process-scan.mjs --portal "ImmoScout24" --url-prefix "https://www.immobilienscout24.de/expose/"` (use `--portal "ImmoScout24 Haus"` for houses — same snippet)
+        - eBay: `--portal "eBay.de Grundstücke" --url-prefix "https://www.ebay.de/itm/"`
+        - Regionalimmobilien24: `--portal "Regionalimmobilien24"` (no `--url-prefix` — field 0 is the full URL)
+      - **Transport**: the compact form exists because the `javascript_tool` return display truncates ~1 KB; it cuts a 20-listing page ~2× so it crosses in 1–2 slices. If a page still overflows, pull `window.__J` in ≤900-char `.slice(a,b)` windows and reassemble (single-line JSON → index-exact concat; verify total length). Do NOT rely on Blob `<a download>`: Chrome drops every automatic download after the FIRST per browser session (allow-listing the origin did NOT fix it — see `[[reference-cic-download-block]]`). base64 output from `javascript_tool` is hard-blocked.
       - Check process-scan output: if most listings are duplicates (≥80% already seen), stop paginating
-      - If `hasNextPage` is true and under 100 total: click "Nächste Seite" via `mcp__claude-in-chrome__find` or navigate to `search_url&pagenumber={N}`
+      - If `hasNextPage` (`n`) is true and under 100 total: click "Nächste Seite" via `mcp__claude-in-chrome__find` or navigate to `search_url&pagenumber={N}`
       - Repeat
 4. **Close the tab** you created via `mcp__claude-in-chrome__tabs_close_mcp` (only your tab)
 5. Show scan summary
