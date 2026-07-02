@@ -109,6 +109,47 @@ try {
   process.exit(1);
 }
 
+// Unwrap the extractor's return wrapper so the SAME string a CiC extractor returns
+// (which also carries count/hasNextPage for the pagination decision) can be piped
+// straight in: {..., L:[[...]]} (compact rows) or {..., listings:[{...}]} (objects).
+if (listings && !Array.isArray(listings) && typeof listings === 'object') {
+  listings = Array.isArray(listings.L) ? listings.L
+    : Array.isArray(listings.listings) ? listings.listings
+    : listings;
+}
+
+// ── Compact transport (array-of-arrays) ────────────────────────────
+// A CiC scan moves each search page's listings out of the browser through the
+// javascript_tool return channel, whose display is capped at ~1 KB. The verbose object
+// form ({"url":…,"title":…,"portal":…} × 20) repeats every key + URL prefix + portal
+// per listing, so a page overflows the channel ~5× and must be pulled in many slices.
+// The compact form drops that repetition — each listing is a positional array
+//   [idOrUrl, price, m2, rooms, title, location]
+// and the portal (constant per page) + URL prefix (constant per portal) are supplied
+// once via flags. This shrinks a 20-listing page enough to cross in 1–2 calls.
+//   node process-scan.mjs --portal "ImmoScout24" --url-prefix "https://www.immobilienscout24.de/expose/" < compact.json
+// Field 0 may be a bare id (reconstructed as url-prefix + id) OR a full http(s) URL
+// (used as-is) — so portals whose URLs are not derivable from an id (e.g.
+// Regionalimmobilien24) just emit the full URL in field 0 and skip --url-prefix.
+if (Array.isArray(listings) && listings.length > 0 && Array.isArray(listings[0])) {
+  const portalIdx = args.indexOf('--portal');
+  const COMPACT_PORTAL = portalIdx !== -1 ? args[portalIdx + 1] : '';
+  const prefixIdx = args.indexOf('--url-prefix');
+  const URL_PREFIX = prefixIdx !== -1 ? args[prefixIdx + 1] : '';
+  listings = listings.map((r) => {
+    const first = r[0] == null ? '' : String(r[0]);
+    return {
+      url: /^https?:\/\//.test(first) ? first : URL_PREFIX + first,
+      price: r[1] == null ? null : r[1],
+      m2: r[2] == null ? null : r[2],
+      rooms: r[3] == null ? null : r[3],
+      title: r[4] == null ? '' : String(r[4]),
+      location: r[5] == null ? '' : String(r[5]),
+      portal: COMPACT_PORTAL,
+    };
+  });
+}
+
 if (!Array.isArray(listings) || listings.length === 0) {
   console.log('No listings to process.');
   process.exit(0);
