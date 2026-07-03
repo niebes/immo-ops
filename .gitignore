@@ -26,6 +26,7 @@ batch/logs/
 
 # Temporary verification / working files
 tmp/
+inbox/
 
 # Claude Code local settings
 .claude/settings.local.json
