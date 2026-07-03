@@ -19,7 +19,7 @@
     "process-scan": "node scripts/process-scan.mjs"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.2.0",
     "playwright": "^1.60.0"
   },
   "private": true
