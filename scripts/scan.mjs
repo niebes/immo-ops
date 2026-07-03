@@ -90,6 +90,18 @@ const GROUP_FILTER = groupIdx !== -1 ? args[groupIdx + 1] : null;
 const concIdx = args.indexOf('--concurrency');
 const SCAN_CONCURRENCY = Math.max(1, concIdx !== -1 ? parseInt(args[concIdx + 1], 10) || 4 : 4);
 
+// ── CiC-over-CDP mode (`--cic`) ────────────────────────────────────
+// Instead of launching a fresh headless Chrome (which the bot-protected portals
+// CAPTCHA-block), connect over the DevTools protocol to a persistent, LOGGED-IN
+// Chrome — the dedicated debug profile started by scripts/immo-chrome.sh. That
+// browser is trusted (cookies + fingerprint history), so IS24 etc. wave it through,
+// and the CiC extractor snippets run via page.evaluate() → JSON straight to disk,
+// no ~1 KB channel, no chunking. Scans scan_method: cic portals (not playwright).
+const CIC_MODE = args.includes('--cic');
+const cdpIdx = args.indexOf('--cdp');
+const CDP_ENDPOINT = cdpIdx !== -1 ? args[cdpIdx + 1]
+  : `http://127.0.0.1:${process.env.IMMO_CDP_PORT || '9222'}`;
+
 // Run `worker` over `items` with at most `limit` in flight; results are returned
 // in INPUT order (not completion order) so the downstream reduce is deterministic.
 async function runPool(items, limit, worker) {
@@ -343,7 +355,139 @@ function writePipeline(listings, groupName) {
 
 // ── Main ───────────────────────────────────────────────────────────
 
+// Resolve a portal's CiC extractor snippet file (scripts/portals/{slug}-cic.js).
+function cicSnippetFile(portalName) {
+  const slug = cicSnippetSlug(portalName);
+  const cands = [`${slug}-cic.js`, `${slug.split('-')[0]}-cic.js`, `${slug}24-cic.js`];
+  for (const c of cands) {
+    const p = `${ROOT}/scripts/portals/${c}`;
+    if (existsSync(p)) return p;
+  }
+  return null;
+}
+
+// IS24-style pagination: set/replace &pagenumber=N. Single-page portals return
+// hasNextPage=false and never reach here.
+function withPageParam(url, n) {
+  if (/[?&]pagenumber=\d+/.test(url)) return url.replace(/([?&]pagenumber=)\d+/, `$1${n}`);
+  return url + (url.includes('?') ? '&' : '?') + `pagenumber=${n}`;
+}
+
+// ── CiC scan over CDP ──────────────────────────────────────────────
+// Connects to the persistent, LOGGED-IN debug Chrome (scripts/immo-chrome.sh),
+// runs each scan_method: cic portal's extractor snippet via page.evaluate()
+// (a string → CDP Runtime.evaluate, which is NOT subject to page CSP), and pipes
+// the compact {c,n,p,L} straight to process-scan.mjs. No ~1 KB channel, no chunking.
+async function runCicScan() {
+  const { execFileSync } = await import('node:child_process');
+  const os = await import('node:os');
+  console.log(`\nimmo-ops CiC scan over CDP (${CDP_ENDPOINT})${DRY_RUN ? ' (DRY RUN)' : ''}\n`);
+
+  let browser;
+  try {
+    browser = await chromium.connectOverCDP(CDP_ENDPOINT);
+  } catch (err) {
+    console.error(`✗ Cannot connect to Chrome over CDP at ${CDP_ENDPOINT}.`);
+    console.error(`  Start the dedicated debug browser first:  scripts/immo-chrome.sh`);
+    console.error(`  (${err.message})`);
+    process.exit(2);
+  }
+  const context = browser.contexts()[0] || await browser.newContext();
+
+  let totalNew = 0, portalsDone = 0;
+  for (const group of searchGroups) {
+    if (GROUP_FILTER && group.name !== GROUP_FILTER) continue;
+    const portals = (group.portals || [])
+      .filter(p => p.enabled !== false && p.scan_method === 'cic')
+      .filter(p => !SINGLE_PORTAL || p.name === SINGLE_PORTAL);
+    if (portals.length === 0) continue;
+    console.log(`\n${'═'.repeat(50)}\nGroup: ${group.name}\n${'═'.repeat(50)}`);
+
+    for (const portal of portals) {
+      console.log(`\n[${portal.name}]`);
+      const snippetFile = cicSnippetFile(portal.name);
+      if (!snippetFile) { console.log(`  ⛔ no CiC snippet — skipping`); recordFailure(portal, group.name, 'no CiC extractor snippet', 'config'); continue; }
+      if (!portal.search_url) { console.log(`  ⛔ no search_url`); recordFailure(portal, group.name, 'no_search_url', 'config'); continue; }
+
+      const { url: baseUrl } = resolveSearchUrl(portal.search_url, findProfileSearch(profile, group.name));
+      const snippetSrc = readFileSync(snippetFile, 'utf8').trim().replace(/;\s*$/, '');
+      const page = await context.newPage();
+      try {
+        let pageNum = 1, total = 0;
+        while (total < 100) {
+          const url = pageNum === 1 ? baseUrl : withPageParam(baseUrl, pageNum);
+          console.log(`  → page ${pageNum}`);
+          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
+          await page.waitForTimeout(2500);
+          await handleCookieConsent(page).catch(() => {});
+
+          // Trust model: the persistent logged-in profile usually clears the CAPTCHA
+          // after a short wait (a FRESH browser never would — that's why we reuse this one).
+          let blocked = isCaptcha(await page.textContent('body').catch(() => ''));
+          for (let t = 0; blocked && t < 3; t++) {
+            console.log(`  … CAPTCHA — waiting 8s (trusted profile usually clears)`);
+            await page.waitForTimeout(8000);
+            await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
+            blocked = isCaptcha(await page.textContent('body').catch(() => ''));
+          }
+          if (blocked) { console.log(`  ⛔ still CAPTCHA-blocked — skipping`); recordFailure(portal, group.name, 'captcha (CiC/CDP)', 'bot_defense'); break; }
+
+          // Lazy-load nudge (some portals render cards on scroll).
+          await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
+          await page.waitForTimeout(1500);
+
+          let resultStr = await page.evaluate(snippetSrc).catch(e => { console.log(`  ⚠ evaluate error: ${e.message}`); return null; });
+          // Lazy-load portals can return 0 on the first pass — retry once after a wait.
+          if (resultStr) { try { if ((JSON.parse(resultStr).c || 0) === 0 && pageNum === 1) { await page.waitForTimeout(3000); resultStr = await page.evaluate(snippetSrc).catch(() => resultStr); } } catch { /* keep */ } }
+          if (!resultStr) break;
+          let parsed;
+          try { parsed = JSON.parse(resultStr); } catch { console.log(`  ⚠ snippet did not return JSON`); break; }
+          total += parsed.c || (parsed.L ? parsed.L.length : 0);
+
+          const tmp = `${os.tmpdir()}/immo-cic-${cicSnippetSlug(portal.name)}-${pageNum}.json`;
+          writeFileSync(tmp, resultStr);
+          const psArgs = ['scripts/process-scan.mjs', '--file', tmp, '--portal', portal.name, '--group', group.name];
+          if (DRY_RUN) psArgs.push('--dry-run');
+          let out = '';
+          try { out = execFileSync('node', psArgs, { cwd: ROOT, encoding: 'utf8' }); }
+          catch (e) { out = (e.stdout || '') + (e.stderr || ''); }
+          process.stdout.write(out.split('\n').filter(Boolean).map(l => '    ' + l).join('\n') + '\n');
+
+          const processed = parseInt((out.match(/Processed:\s*(\d+)/) || [])[1] || '0', 10);
+          const dups = parseInt((out.match(/Duplicates:\s*(\d+)/) || [])[1] || '0', 10);
+          totalNew += parseInt((out.match(/New in pipeline:\s*(\d+)/) || [])[1] || '0', 10);
+
+          if (!parsed.n) { console.log(`  → single page / no next`); break; }
+          if (processed > 0 && dups >= processed * 0.8) { console.log(`  → ≥80% already seen — stopping`); break; }
+          pageNum++;
+          if (portal.rate_limit) await page.waitForTimeout(portal.rate_limit * 1000);
+        }
+        console.log(`  ✓ done (${total} listings seen)`);
+        portalsDone++;
+      } catch (err) {
+        console.log(`  ✗ error: ${err.message}`);
+        recordFailure(portal, group.name, (err.message || '').slice(0, 120), 'error');
+      } finally {
+        await page.close().catch(() => {});
+      }
+    }
+  }
+
+  await browser.close().catch(() => {}); // CDP: disconnects Playwright, leaves Chrome running
+  console.log(`\n${'━'.repeat(40)}`);
+  console.log(`CiC portals processed: ${portalsDone}`);
+  console.log(`New in pipeline:       ${totalNew}`);
+  if (!DRY_RUN) {
+    writeFileSync(SCAN_FAILURES_PATH, JSON.stringify({ timestamp: new Date().toISOString(), failures: scanFailures }, null, 2));
+  }
+  if (scanFailures.length) {
+    console.log(`\n⛔ Not processed:`);
+    for (const f of scanFailures) console.log(`  - ${f.portal} [${f.group}] — ${f.reason}`);
+  }
+}
+
 async function main() {
+  if (CIC_MODE) { await runCicScan(); return; }
   console.log(`\nimmo-ops scan — ${today()}${DRY_RUN ? ' (DRY RUN)' : ''}\n`);
   console.log(`Search groups: ${searchGroups.map(g => g.name).join(', ')}`);
 
