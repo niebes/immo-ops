@@ -29,5 +29,10 @@ batch/logs/
 tmp/
 inbox/
 
+# Personal documents (SCHUFA, IDs, payslips, …) — contents never committed,
+# but keep the folder in the public repo via the placeholder.
+/documents/*
+!/documents/.gitkeep
+
 # Claude Code local settings
 .claude/settings.local.json
