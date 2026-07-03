@@ -112,7 +112,12 @@ try {
 // Unwrap the extractor's return wrapper so the SAME string a CiC extractor returns
 // (which also carries count/hasNextPage for the pagination decision) can be piped
 // straight in: {..., L:[[...]]} (compact rows) or {..., listings:[{...}]} (objects).
+let wrapperPrefix = null;
 if (listings && !Array.isArray(listings) && typeof listings === 'object') {
+  // The wrapper self-describes its URL prefix in `p` (present for id-based portals
+  // like IS24/eBay), so the caller need not repeat --url-prefix — the `scan.mjs --cic`
+  // path just pipes the raw {c,n,p,L} through.
+  if (typeof listings.p === 'string') wrapperPrefix = listings.p;
   listings = Array.isArray(listings.L) ? listings.L
     : Array.isArray(listings.listings) ? listings.listings
     : listings;
@@ -135,7 +140,7 @@ if (Array.isArray(listings) && listings.length > 0 && Array.isArray(listings[0])
   const portalIdx = args.indexOf('--portal');
   const COMPACT_PORTAL = portalIdx !== -1 ? args[portalIdx + 1] : '';
   const prefixIdx = args.indexOf('--url-prefix');
-  const URL_PREFIX = prefixIdx !== -1 ? args[prefixIdx + 1] : '';
+  const URL_PREFIX = (prefixIdx !== -1 ? args[prefixIdx + 1] : '') || wrapperPrefix || '';
   listings = listings.map((r) => {
     const first = r[0] == null ? '' : String(r[0]);
     return {

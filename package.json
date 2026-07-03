@@ -13,6 +13,8 @@
     "scan": "node scripts/scan.mjs",
     "scan:dry": "node scripts/scan.mjs --dry-run",
     "scan:headed": "node scripts/scan.mjs --headed",
+    "scan:cic": "node scripts/scan.mjs --cic",
+    "chrome:immo": "scripts/immo-chrome.sh",
     "login:immoscout": "node scripts/login-immoscout.mjs",
     "process-scan": "node scripts/process-scan.mjs"
   },
