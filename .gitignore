@@ -10,6 +10,7 @@ modes/_profile.md
 portals.yml
 
 # Generated content — all user-specific
+/applications/
 data/listings.md
 data/pipeline.md
 data/scan-history.tsv
