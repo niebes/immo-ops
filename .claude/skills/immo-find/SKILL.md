@@ -51,10 +51,27 @@ Run headlessly via script: `node scripts/scan.mjs`
 Can run in background, unattended. Handles Immowelt, Kleinanzeigen, Vonovia, etc.
 
 #### 2. CiC portals (`scan_method: cic`)
-Scanned interactively via Claude-in-Chrome using the user's real browser.
-Required for portals with aggressive bot detection (ImmoScout24).
+Portals with aggressive bot detection (ImmoScout24, Regionalimmobilien24, eBay) block any
+FRESH/headless browser, so they must be scanned through a **persistent, logged-in, trusted**
+Chrome. Two ways to do that — **prefer Method A when it's available:**
 
-**CiC tab management:**
+**Method A — automated over CDP (`scan.mjs --cic`), preferred.** Drives a dedicated,
+logged-in debug Chrome via the DevTools protocol; runs the same snippets and writes JSON
+straight to disk — no interactive browser, no ~1 KB chunking, fully scriptable. Full flow +
+security notes: `docs/cic-cdp-scan.md`.
+```
+npm run chrome:immo          # start the dedicated debug Chrome (idempotent); first time, log into IS24 once
+node scripts/scan.mjs --cic  # scan all enabled scan_method: cic portals → process-scan
+```
+Use A when `scripts/immo-chrome.sh --status` reports the debug browser up (or you can start
+it). If `--cic` can't connect or a portal stays CAPTCHA-blocked, it records a ⛔ failure and
+you fall back to Method B. (Trust is per-profile — the dedicated profile must be logged into
+IS24 once; see `[[feedback-captcha-wait]]` / `[[reference-cic-cdp-scan]]`.)
+
+**Method B — interactive via Claude-in-Chrome (fallback).** The manual real-browser pass
+below. Use it when the CDP browser isn't set up/reachable, or for a one-off.
+
+**CiC tab management (Method B):**
 ALWAYS create a dedicated tab for CiC scanning via `tabs_create_mcp`. Never reuse existing tabs. When done, close only the tab(s) you created via `tabs_close_mcp` — never close tabs you didn't create.
 
 **CiC scan workflow:**
@@ -85,7 +102,7 @@ ALWAYS create a dedicated tab for CiC scanning via `tabs_create_mcp`. Never reus
 **Combined scan order:**
 1. First: run `node scripts/scan.mjs` for Playwright portals (can be backgrounded)
 2. Read `data/scan-failures.json` — route Playwright failures: `fallback: "cic"` portals join the CiC pass below (if a snippet exists); everything else becomes a ⛔ coverage item (see the Coverage report RULE).
-3. Then: scan CiC portals interactively (registered CiC portals + bot-defense fallbacks from step 2)
+3. Then: scan CiC portals (registered CiC portals + bot-defense fallbacks from step 2). **Prefer Method A** (`node scripts/scan.mjs --cic`) if the dedicated debug Chrome is reachable (`scripts/immo-chrome.sh --status`); otherwise **Method B** (interactive Claude-in-Chrome).
 4. Show combined summary, including the coverage report of any portal not processed and what blocked it
 
 ### Pipeline mode:
@@ -116,11 +133,12 @@ Capture stdout. Note how many new listings were added.
 **Step 2 — CiC scan (MANDATORY — every enabled `scan_method: cic` portal, plus Playwright bot-defense fallbacks from Step 1b):**
 This step always runs when any CiC portal is enabled. Do not skip, defer, or substitute "flag for next time" (see the FULL-scan RULE above).
 1. Read `portals.yml` for CiC portals; add any `fallback: "cic"` portals from Step 1b that have a snippet.
-2. If any CiC portals enabled:
+2. **Method A first (automated).** If the dedicated debug Chrome is reachable (`scripts/immo-chrome.sh --status`, or start it with `npm run chrome:immo`), run `node scripts/scan.mjs --cic` — it scans every enabled `scan_method: cic` portal over CDP and pipes to `process-scan.mjs` itself. Done. (See the CiC portals section "Method A" and `docs/cic-cdp-scan.md`.)
+3. **Method B fallback (interactive).** Only if A is unavailable (debug Chrome not set up / can't connect) or a portal stays CAPTCHA-blocked under A:
    a. Create a new CiC tab (note the tabId)
-   b. For each CiC portal: navigate → extract via JS snippet → pipe to `process-scan.mjs` (paginate all pages, up to 100)
+   b. For each remaining CiC portal: navigate → extract via JS snippet → pipe to `process-scan.mjs` (paginate all pages, up to 100)
    c. Close your tab
-3. Note how many new listings were added. Any `fallback: "cic"` portal WITHOUT a snippet remains a ⛔ coverage item.
+4. Note how many new listings were added. Any `fallback: "cic"` portal WITHOUT a snippet remains a ⛔ coverage item.
 
 **Step 3 — Pipeline triage (AI judgement, not keyword matching):**
 The scan scripts apply ONLY objective numeric gates + dedup — they never drop by title.

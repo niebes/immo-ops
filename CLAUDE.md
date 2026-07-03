@@ -113,6 +113,7 @@ Red flags — any of these should trigger a warning:
 | WebFetch | Extract listing details from static pages |
 | Playwright | Headless scan via `npm run scan`. **NEVER 2+ Playwright agents in parallel.** |
 | CiC (Claude-in-Chrome) | Interactive scan for bot-protected portals (ImmoScout24). Uses real Chrome. |
+| CiC-over-CDP | **Automated** alternative to interactive CiC: `npm run chrome:immo` (dedicated logged-in debug Chrome) + `node scripts/scan.mjs --cic`. Preferred when the debug browser is up. See `docs/cic-cdp-scan.md`. |
 | Read | profile.yml, _profile.md, portals.yml, listings.md |
 | Write | Reports, tracker additions, research |
 | Edit | Update tracker status |
@@ -143,7 +144,7 @@ German portals (especially ImmoScout24, Immowelt) are flooded with apartment swa
 
 ## Portal-Specific Notes
 
-Two scan methods: `playwright` (headless, `npm run scan`) and `cic` (Claude-in-Chrome, interactive).
+Scan methods: `playwright` (headless, `npm run scan`) and `cic` (bot-protected portals). A `cic` portal can be scanned two ways — **automated over CDP** (`npm run chrome:immo` + `node scripts/scan.mjs --cic`, preferred; see `docs/cic-cdp-scan.md`) or **interactive** via Claude-in-Chrome (fallback). Both require a *trusted, logged-in* Chrome — a fresh/headless browser is CAPTCHA-blocked.
 
 | Portal | Method | Notes |
 |--------|--------|-------|
