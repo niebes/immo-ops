@@ -113,6 +113,46 @@ documents:
       count: 1
   smoker: false
 
+# ── Applicants (Mieter) — full per-person profiles for the Mieterselbstauskunft ──
+# One entry per applicant (a two-person household has two). Use `null` for anything you
+# have not verified — the Selbstauskunft is a legally binding truthful declaration, so
+# never guess a value. Fill these in your gitignored config/profile.yml, NOT here.
+applicants:
+  - role: mieter_1
+    vorname_name: "Vorname Nachname"
+    geburtsdatum: "YYYY-MM-DD"
+    staatsangehoerigkeit: "deutsch"
+    familienstand: "ledig"            # ledig | verheiratet | ...
+    anschrift: "Straße Nr., PLZ Ort"
+    telefon_privat: null
+    mobil: "+49 ..."
+    email: "name@example.com"
+    telefon_geschaeftlich: null
+    bisheriger_vermieter:
+      name: null
+      anschrift: null
+      telefon: null
+    arbeitgeber:
+      name: "Company GmbH"
+      anschrift: null
+      telefon: null
+    beschaeftigt_seit: "YYYY-MM-DD"
+    employment_type: unbefristet      # unbefristet | befristet | selbststaendig
+    befristet_bis: null
+    beruf: null
+    netto_einkommen: 3500
+    schufa_vorhanden: true
+    schufa_datum: null                # §34-BDSG Datenübersicht, must be < 3 months old
+  # - role: mieter_2
+  #     ... (same fields for a second applicant)
+
+household:
+  number_of_persons: 2
+  relationship: null                  # e.g. "Paar / Partner"
+  haustiere: null                     # "keine" or type/count
+  musikinstrumente: null              # "keine" or list
+  raucher: false
+
 # Buyer documents (for purchase mode)
 # buyer:
 #   financing_confirmed: false
