@@ -191,7 +191,7 @@ Run on EVERY evaluation. Score is separate from the 1–5 global score.
 - **Indexmiete**: Rent tied to consumer price index — annual increases guaranteed. Flag in Block A as financial risk.
 - **Staffelmiete**: Pre-agreed stepped rent increases. Flag schedule and total increase over lease term.
 - **Mindestlaufzeit**: Minimum lease duration (e.g., 2 years). Locks tenant in — note in Block G.
-- **Tauschwohnung**: Apartment swap listings are NOT real rentals. Detect and discard early (see evaluate.md step 4).
+- **Tauschwohnung**: Apartment swap listings. Handling is config-driven — discarded when swaps are off, or run through a two-sided swap match when `include_swaps: true` + a `swap_offer:` block exist (see evaluate.md step 4).
 - **Eigenbedarf**: Private landlords can terminate for personal use. Note risk in Block H.
 - **Staffelmiete / Indexmiete**: Pre-agreed rent increases. Note in price evaluation.
 

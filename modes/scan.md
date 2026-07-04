@@ -55,12 +55,18 @@ For each portal with `scan_method: playwright` and `enabled: true`:
 - If CAPTCHA detected: ask user to solve it manually in the browser tab, then resume. If user is unavailable, skip portal and note in scan summary.
 - Portals with `captcha_risk: high` (e.g., ImmoScout24) should be scanned last — if they block, we still have results from other portals.
 
-**Tauschwohnung pre-filter:**
-German portals (especially ImmoScout24, Immowelt) are flooded with swap listings from tauschwohnung.com. These are NOT real rentals. Filter them early:
-- Check title for: "Tauschwohnung", "Wohnungstausch", "Tausche", "gegen Wohnung"
-- Check Anbieter for: "Tauschwohnung GmbH"
-- Register filtered swaps in scan-history.tsv with status `skipped_title`
-- Do NOT add them to pipeline
+**Tauschwohnung handling (config-driven):**
+German portals (especially ImmoScout24, Immowelt) carry many swap listings from
+tauschwohnung.com. Whether these are relevant depends on the profile:
+- If **no** enabled search sets `include_swaps: true` → swaps are non-fits. The AI title
+  triage (step 5) discards them as `discarded_triage` with reason "swap".
+- If a search sets `include_swaps: true` **and** a `swap_offer:` block exists → swaps are
+  **kept**. Triage does NOT drop them; they flow into the pipeline like any candidate and
+  the two-sided swap match runs at evaluation (see `modes/evaluate.md` step 4). Do the
+  numeric hard gate (step 6) on THEIR flat as usual.
+- Swap indicators to recognise: title contains "Tauschwohnung", "Wohnungstausch",
+  "Tausche", "gegen Wohnung"; Anbieter "Tauschwohnung GmbH"; description references a
+  swap partner / tauschwohnung.com.
 
 ### Level 2 — WebSearch (DISCOVERY)
 
@@ -106,6 +112,9 @@ For each portal with `scan_method: websearch` and `enabled: true`:
    title (+ metadata) whether it is a real, on-target rental; discard the clear non-fits
    with a one-line reason and keep the rest. When unsure, keep it — later evaluation
    catches what triage misses (favour recall over precision, same as the area rule).
+   **Swaps:** discard a Tauschwohnung here ONLY if no enabled search sets
+   `include_swaps: true`. When swaps are enabled, keep them — the two-sided swap match
+   at evaluation decides fit, not triage.
 
 6. **Filter by criteria** (HARD GATE — objective numbers only, reject before pipeline ingestion):
    Using `scan_defaults` from portals.yml AND `searches` from profile.yml:
@@ -131,8 +140,9 @@ For each portal with `scan_method: websearch` and `enabled: true`:
    - `skipped_criteria` — failed the objective price/size/area gate
    - `skipped_dup` — duplicate
    - `skipped_expired` — listing no longer active (WebSearch results)
-   - `discarded_triage` — AI title triage judged it a non-fit (swap, garage, commercial,
-     WBS, sublet, wrong city …); record the one-line reason in the row's title/status
+   - `discarded_triage` — AI title triage judged it a non-fit (garage, commercial,
+     WBS, sublet, wrong city, or a swap when `include_swaps` is off …); record the
+     one-line reason in the row's title/status
    (There is no `skipped_title` status anymore — nothing is dropped by keyword.)
 
 ## Scan History

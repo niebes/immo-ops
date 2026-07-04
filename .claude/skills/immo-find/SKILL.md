@@ -272,6 +272,12 @@ Color-code rows:
 - Red background (`#ffebee`): score below 3.0 (not recommended)
 - White: no score yet
 
+**Swap candidates (Tauschwohnung, `Swap-candidate` status):** color-code by THEIR-flat score
+as above, and prefix the listing title with **🔄 SWAP**. The `✓/✗` detail row must state the
+two-sided verdict (e.g. `✓ their flat 4.1 for us  ✗ swap: their Suche wants Prenzlauer Berg,
+we offer Golm — verify`) plus the consent caveat. Do not list `Discarded` swap-mismatches in
+the email (same as sub-3.0 exclusion — don't waste attention).
+
 **CRITICAL — Gmail strips row-level styles in the draft composer.** Set the background on EVERY cell, not just the row, and use both the legacy attribute and inline style. The `bgcolor` attribute survives every email sanitizer:
 ```html
 <tr bgcolor="#e8f5e9" style="background-color:#e8f5e9">

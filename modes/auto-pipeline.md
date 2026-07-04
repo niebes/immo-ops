@@ -13,7 +13,7 @@ Automatic pipeline triggered when a listing URL or text is pasted directly into 
    - Search `data/scan-history.tsv` for URL
    - If found: show existing evaluation, ask user if they want to re-evaluate
 
-3. **Early Tauschwohnung detection**: After extracting the page, check for swap indicators before scoring. If detected, skip evaluation and register as Discarded (see `evaluate.md` step 4).
+3. **Tauschwohnung detection**: After extracting the page, check for swap indicators. Handling is config-driven (see `evaluate.md` step 4): if swaps are OFF, register as Discarded; if `include_swaps: true` + a `swap_offer:` block exist, run the two-sided swap match (→ `Swap-candidate` or `Discarded` "swap-mismatch").
 
 4. **Execute evaluate mode**: Follow the full `evaluate.md` workflow (blocks A–H)
 

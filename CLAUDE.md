@@ -130,9 +130,9 @@ Canonical statuses (see `templates/states.yml`):
 
 Reports go to `reports/{NNN}-{location}-{rooms}r-{date}.md` with blocks A–H plus summary and next steps. See `modes/evaluate.md` for full format.
 
-## Tauschwohnung Detection
+## Tauschwohnung Detection & Two-Sided Matching
 
-German portals (especially ImmoScout24, Immowelt) are flooded with apartment swap listings from tauschwohnung.com. These are NOT real rentals — they require you to offer your own apartment in exchange.
+German portals (especially ImmoScout24, Immowelt) are full of apartment swap listings from tauschwohnung.com. A swap requires offering your own apartment in exchange, so it is only relevant if you HAVE a flat to put up.
 
 **Detection signals:**
 - Title contains: "Tauschwohnung", "Wohnungstausch", "Tausche", "gegen Wohnung"
@@ -140,7 +140,11 @@ German portals (especially ImmoScout24, Immowelt) are flooded with apartment swa
 - Description references tauschwohnung.com or swap mechanics
 - Listed as "Wohnungstausch:" prefix
 
-**Action:** The scan scripts do NOT keyword-filter titles — swaps are caught by the **AI title triage** step (see `modes/scan.md` / immo-find auto Step 3), which reads the title and discards swaps with a reason. During evaluation, detect early and register as `Discarded` without scoring.
+**Behaviour is config-driven** by `config/profile.yml`:
+- **Swaps OFF** (no enabled search sets `include_swaps: true`, or no `swap_offer:` block): legacy behaviour — AI title triage discards swaps as `discarded_triage`; evaluation registers them `Discarded` without scoring.
+- **Swaps ON** (`include_swaps: true` + a `swap_offer:` block): swaps are KEPT and evaluated with a **two-sided match**. A `Swap-candidate` requires BOTH: (1) THEIR flat scores ≥3.5 for us via blocks A–H, AND (2) one of OUR `swap_offer` flats plausibly satisfies THEIR *Suche/Gesuchte Wohnung*. Matching side 2 is **lenient / recall-favoring** (surface near-misses, surface our Potsdam-Golm offer even for "Berlin"-seekers, surface when their Suche is unknown). Fails side 1 or clearly fails side 2 → `Discarded` ("swap-mismatch: {reason}"). See `modes/evaluate.md` step 4 and `modes/scan.md`.
+
+We currently offer the **Golm flat** (In der Feldmark 29) only; Königsallee is excluded (already gekündigt). A swap ultimately needs the **Vermieter's consent** to a Mieterwechsel (`swap_offer.landlord_consent`) — treat candidates as speculative until confirmed.
 
 ## Portal-Specific Notes
 

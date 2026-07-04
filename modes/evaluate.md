@@ -41,11 +41,39 @@ General policies for opening listing pages. Stable, applies to every evaluation.
    - Landlord/Hausverwaltung/Makler name
    - Number of photos, floor plan available
    - Provision/Maklergebühr
-4. **Detect Tauschwohnung**: Check title, description, and Anbieter for swap indicators:
-   - Title contains "Tauschwohnung", "Wohnungstausch", "Tausche", "gegen Wohnung"
-   - Description mentions looking for a swap partner or references tauschwohnung.com
-   - Listed by "Tauschwohnung GmbH" or similar swap platforms
-   - If detected: **stop evaluation**, mark as `Discarded` with note "Tauschwohnung — not a rental", register in tracker, and inform user.
+4. **Detect Tauschwohnung + two-sided swap match**: Check title, description, and Anbieter
+   for swap indicators (title contains "Tauschwohnung", "Wohnungstausch", "Tausche",
+   "gegen Wohnung"; description mentions a swap partner / tauschwohnung.com; Anbieter
+   "Tauschwohnung GmbH"). If it IS a swap:
+   - **If no enabled search has `include_swaps: true` (or no `swap_offer:` block exists):**
+     legacy behaviour — **stop**, mark `Discarded` with note "Tauschwohnung — swaps not
+     enabled", register in tracker, inform user.
+   - **If swaps are enabled:** run the **two-sided match**. A swap is a `Swap-candidate`
+     only if BOTH sides pass:
+     - **Side 1 — their flat fits us:** score their flat with the normal blocks A–H
+       (steps 5–7 below). Gate: global score **≥ 3.5**. Below that → `Discarded`
+       (note "swap — their flat scores {x}, below 3.5").
+     - **Side 2 — our offer fits their Suche:** extract the partner's *Suche / Gesuchte
+       Wohnung* from the listing (target Stadt/Bezirk, m² range, rooms, max Kaltmiete,
+       must-haves) and test it against each `swap_offer:` flat. Matching is **LENIENT /
+       recall-favoring**:
+       - **Area:** surface even if they say "Berlin" and our offer is Potsdam-Golm
+         (commuter belt) — treat as a soft match, note the gap. Only a Suche that
+         *explicitly excludes* our area fails.
+       - **Size / rooms / rent:** "close enough" passes; surface near-misses with the
+         delta noted. A hard fail only on a large, clearly-stated gap (e.g. they need
+         ≥4 rooms and we offer 2, or their max rent is far below our Kaltmiete).
+       - **Must-haves we lack** (see `swap_offer.lacks` — e.g. Balkon, Keller,
+         Stellplatz): if their Suche *requires* one, note it as a con but do not hard-fail
+         unless they state it as a deal-breaker.
+       - **Suche missing / too vague:** surface anyway as `Swap-candidate`, flagged
+         "Suche unknown — verify on contact". Never discard for an unreadable Suche.
+     - If Side 1 passes and Side 2 does not clearly fail → **`Swap-candidate`**. Add a
+       **🔄 SWAP** prefix to the report title and a dedicated **Swap Match** section
+       covering: which offer flat (Golm), their Suche as extracted, the two-sided verdict,
+       the Vermieter-consent caveat (`landlord_consent`), and the `swap_offer.caveats`
+       (Indexmiete, Gartenpflege dispute) the partner must be told.
+     - If Side 2 clearly fails → `Discarded` with note "swap-mismatch: {reason}".
 5. **Run scam detection** (from `_shared.md`)
 6. **Score all 8 blocks** (A–H) using rules from `_shared.md` and weight overrides from `_profile.md`
 7. **Calculate global score** (weighted average with hard blocker caps)

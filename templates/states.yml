@@ -8,6 +8,12 @@ statuses:
     description: Scored, pending decision
   - name: Interested
     description: User wants to pursue
+  - name: Swap-candidate
+    description: >-
+      Tauschwohnung that passed two-sided matching — their flat fits us (blocks A–H)
+      AND our swap_offer (Golm) plausibly satisfies their Suche. Pending contact +
+      Vermieter consent. A swap that fails the two-sided gate is Discarded with note
+      "swap-mismatch".
   - name: Contacted
     description: Contacted landlord/agency
   - name: Viewing
