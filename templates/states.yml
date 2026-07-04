@@ -11,7 +11,7 @@ statuses:
   - name: Swap-candidate
     description: >-
       Tauschwohnung that passed two-sided matching — their flat fits us (blocks A–H)
-      AND our swap_offer (Golm) plausibly satisfies their Suche. Pending contact +
+      AND one of our swap_offer flats plausibly satisfies their Suche. Pending contact +
       Vermieter consent. A swap that fails the two-sided gate is Discarded with note
       "swap-mismatch".
   - name: Contacted

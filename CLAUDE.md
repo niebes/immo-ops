@@ -142,9 +142,9 @@ German portals (especially ImmoScout24, Immowelt) are full of apartment swap lis
 
 **Behaviour is config-driven** by `config/profile.yml`:
 - **Swaps OFF** (no enabled search sets `include_swaps: true`, or no `swap_offer:` block): legacy behaviour — AI title triage discards swaps as `discarded_triage`; evaluation registers them `Discarded` without scoring.
-- **Swaps ON** (`include_swaps: true` + a `swap_offer:` block): swaps are KEPT and evaluated with a **two-sided match**. A `Swap-candidate` requires BOTH: (1) THEIR flat scores ≥3.5 for us via blocks A–H, AND (2) one of OUR `swap_offer` flats plausibly satisfies THEIR *Suche/Gesuchte Wohnung*. Matching side 2 is **lenient / recall-favoring** (surface near-misses, surface our Potsdam-Golm offer even for "Berlin"-seekers, surface when their Suche is unknown). Fails side 1 or clearly fails side 2 → `Discarded` ("swap-mismatch: {reason}"). See `modes/evaluate.md` step 4 and `modes/scan.md`.
+- **Swaps ON** (`include_swaps: true` + a `swap_offer:` block): swaps are KEPT and evaluated with a **two-sided match**. A `Swap-candidate` requires BOTH: (1) THEIR flat scores ≥3.5 for us via blocks A–H, AND (2) one of OUR `swap_offer` flats plausibly satisfies THEIR *Suche/Gesuchte Wohnung*. Matching side 2 is **lenient / recall-favoring** (surface near-misses, surface an offer that sits just outside a narrowly-stated target area, surface when their Suche is unknown). Fails side 1 or clearly fails side 2 → `Discarded` ("swap-mismatch: {reason}"). See `modes/evaluate.md` step 4 and `modes/scan.md`.
 
-We currently offer the **Golm flat** (In der Feldmark 29) only; Königsallee is excluded (already gekündigt). A swap ultimately needs the **Vermieter's consent** to a Mieterwechsel (`swap_offer.landlord_consent`) — treat candidates as speculative until confirmed.
+The offered flat(s) come entirely from the `swap_offer:` block in `config/profile.yml` (user layer). A swap ultimately needs the **Vermieter's consent** to a Mieterwechsel (`swap_offer.landlord_consent`) — treat candidates as speculative until confirmed.
 
 ## Portal-Specific Notes
 

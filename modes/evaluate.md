@@ -57,9 +57,10 @@ General policies for opening listing pages. Stable, applies to every evaluation.
        Wohnung* from the listing (target Stadt/Bezirk, m² range, rooms, max Kaltmiete,
        must-haves) and test it against each `swap_offer:` flat. Matching is **LENIENT /
        recall-favoring**:
-       - **Area:** surface even if they say "Berlin" and our offer is Potsdam-Golm
-         (commuter belt) — treat as a soft match, note the gap. Only a Suche that
-         *explicitly excludes* our area fails.
+       - **Area:** surface even when their target area is narrower than where the offer
+         sits (e.g. they name a city and the offer is in its commuter belt) — treat as a
+         soft match, note the gap. Only a Suche that *explicitly excludes* the offer's
+         area fails.
        - **Size / rooms / rent:** "close enough" passes; surface near-misses with the
          delta noted. A hard fail only on a large, clearly-stated gap (e.g. they need
          ≥4 rooms and we offer 2, or their max rent is far below our Kaltmiete).
@@ -70,7 +71,7 @@ General policies for opening listing pages. Stable, applies to every evaluation.
          "Suche unknown — verify on contact". Never discard for an unreadable Suche.
      - If Side 1 passes and Side 2 does not clearly fail → **`Swap-candidate`**. Add a
        **🔄 SWAP** prefix to the report title and a dedicated **Swap Match** section
-       covering: which offer flat (Golm), their Suche as extracted, the two-sided verdict,
+       covering: which `swap_offer` flat matched, their Suche as extracted, the two-sided verdict,
        the Vermieter-consent caveat (`landlord_consent`), and the `swap_offer.caveats`
        (Indexmiete, Gartenpflege dispute) the partner must be told.
      - If Side 2 clearly fails → `Discarded` with note "swap-mismatch: {reason}".
