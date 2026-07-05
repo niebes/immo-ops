@@ -20,6 +20,10 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   flag "no photos" in summary. *Why:* naive `img` count returns ~5–6 and looks like photos exist when none do.
 - No on-page "N Fotos" counter to rely on.
 
+## Tauschwohnung (swap) listings
+- Title `h1` shows "… • Tauschwohnung"; Anbieter is a private person via **Tauschwohnung.com** (a tauschwohnung.com disclaimer paragraph sits right after the description).
+- **The partner's Suche is free-text in the description body**, not a structured field — e.g. "Wir suchen eine 4 Zimmer Wohnung ab 95 m². Unsere Wohnung zum Tausch ist im {Adresse}." Read the description prose for rooms/m²/area of what they want AND the real address/Vermieter of their flat (often a municipal landlord like Gesobau — swap needs that landlord's approval).
+
 ## Notes
 - Availability: usually no explicit date on page (only an "Einzugsdatum" field in the contact form) → Block F = 3.0, ask in contact.
 - Private listings show no Anbieter name and often no phone → contact via portal only; minor scam-caution signal.
