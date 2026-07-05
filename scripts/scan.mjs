@@ -281,7 +281,18 @@ async function scanPortal(browser, portal, groupName) {
 
     while (allListings.length < MAX_LISTINGS) {
       const pageListings = await extractFn(page);
-      if (pageListings.length === 0) break;
+      if (pageListings.length === 0) {
+        // A page that loaded and passed the CAPTCHA check but yields ZERO cards on the
+        // first page is almost never a genuine "no results" — it's a soft bot-block (empty
+        // shell page with no CAPTCHA text) or selector drift. Returning [] silently hides a
+        // broken portal (this is exactly how Kleinanzeigen went unnoticed). Flag it so the
+        // coverage report surfaces it and CiC fallback can pick it up.
+        if (pageNum === 1) {
+          log(`  ✗ 0 listings extracted on page 1 — probable bot-block or selector drift → flagging`);
+          recordFailure(portal, groupName, 'no listings extracted (bot-block or selector drift)', 'bot_defense');
+        }
+        break;
+      }
 
       // Check for early exit: if most listings on this page are already seen, stop
       let seenOnPage = 0;
