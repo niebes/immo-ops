@@ -98,6 +98,11 @@ const SCAN_CONCURRENCY = Math.max(1, concIdx !== -1 ? parseInt(args[concIdx + 1]
 // and the CiC extractor snippets run via page.evaluate() → JSON straight to disk,
 // no ~1 KB channel, no chunking. Scans scan_method: cic portals (not playwright).
 const CIC_MODE = args.includes('--cic');
+// --deep: paginate through ALL pages, disabling the "≥80% already seen" early-stop and
+// raising the per-portal listing cap. Use when scan-history has been pruned (e.g. swap
+// records deleted) so still-live listings buried on later pages get re-surfaced even
+// though earlier pages are dominated by already-seen non-target listings.
+const DEEP = args.includes('--deep');
 const cdpIdx = args.indexOf('--cdp');
 const CDP_ENDPOINT = cdpIdx !== -1 ? args[cdpIdx + 1]
   : `http://127.0.0.1:${process.env.IMMO_CDP_PORT || '9222'}`;
@@ -269,7 +274,7 @@ async function scanPortal(browser, portal, groupName) {
     }
 
     const { extract: extractFn, nextPage: nextPageFn } = getExtractor(portal.name);
-    const MAX_LISTINGS = 100;
+    const MAX_LISTINGS = DEEP ? 600 : 100;
     const allListings = [];
     const seenUrls = loadSeenUrls();
     let pageNum = 1;
@@ -287,7 +292,7 @@ async function scanPortal(browser, portal, groupName) {
       log(`  page ${pageNum}: ${pageListings.length} listings (${seenOnPage} already seen)`);
 
       if (allListings.length >= MAX_LISTINGS) break;
-      if (seenOnPage >= pageListings.length * 0.8) {
+      if (!DEEP && seenOnPage >= pageListings.length * 0.8) {
         log(`  → stopping: ≥80% already seen on page ${pageNum}`);
         break;
       }
@@ -414,7 +419,7 @@ async function runCicScan() {
       const page = await context.newPage();
       try {
         let pageNum = 1, total = 0;
-        while (total < 100) {
+        while (total < (DEEP ? 600 : 100)) {
           const url = pageNum === 1 ? baseUrl : withPageParam(baseUrl, pageNum);
           console.log(`  → page ${pageNum}`);
           await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
@@ -458,7 +463,7 @@ async function runCicScan() {
           totalNew += parseInt((out.match(/New in pipeline:\s*(\d+)/) || [])[1] || '0', 10);
 
           if (!parsed.n) { console.log(`  → single page / no next`); break; }
-          if (processed > 0 && dups >= processed * 0.8) { console.log(`  → ≥80% already seen — stopping`); break; }
+          if (!DEEP && processed > 0 && dups >= processed * 0.8) { console.log(`  → ≥80% already seen — stopping`); break; }
           pageNum++;
           if (portal.rate_limit) await page.waitForTimeout(portal.rate_limit * 1000);
         }
