@@ -56,7 +56,7 @@ if (listings) {
   console.log(`  Found ${lines.length} listing(s)`);
 
   const validStatuses = [
-    'New', 'Evaluated', 'Interested', 'Contacted',
+    'New', 'Evaluated', 'Interested', 'Swap-candidate', 'Contacted',
     'Viewing', 'Viewed', 'Applied',
     'Accepted', 'Rejected', 'Discarded', 'Expired',
   ];
