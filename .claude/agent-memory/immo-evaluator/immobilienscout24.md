@@ -5,6 +5,11 @@ CAPTCHA ("Ich bin kein Roboter") on navigation — wait ~8 s and re-check; most 
 
 **Why:** asking the user to solve a CAPTCHA that would have auto-solved wastes their attention (see [[feedback-captcha-wait]]).
 
+## Deactivated / expired expose signature → EXPIRED
+A pulled listing still serves a 200 page (h1 stub title + coarse address + m² survive), but ALL `.is24qa-*` criteria selectors return null and the body carries: **"Vor N Tagen deaktiviert" / "Angebot wurde deaktiviert" / "Dieses Angebot ist nicht mehr verfügbar."** Detect with `/deaktiviert|nicht mehr verf[üu]gbar/i` (add these to the not-found test — the generic "nicht gefunden" alone misses them). Mark EXPIRED, do NOT score the stub. Seen back-to-back on #259 (169062476, deaktiviert ~2d) and #260 (169028421, deaktiviert ~3d), both Potsdam.
+
+**Why:** the page returns 200 with a real-looking title/address, so without testing the deactivation phrases you'd try to score a listing that has no data left.
+
 ## Mieternetzwerk / Nachvermietung listings (tenant-posted)
 Body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese Wohnung wurde von der:dem aktuell Mietenden eingestellt" / "Interesse bekunden" (not "Kontaktieren"). These are NORMAL permanent rentals (NOT Tauschwohnung — do not discard; see [[project-nachvermietung-not-filtered]]), but:
 - **Kaltmiete is a RANGE** (e.g. "498–552 €") and the title price is provisional — the listing states "Die Miete wird sich eventuell anpassen". Score price with a caveat, don't treat the low number as final.
@@ -24,6 +29,19 @@ The "Bezugsfrei ab" dd value (a plain date like `01.08.2026`) comes back as `[BL
 `/Keller|Terrasse|Garten/.test(document.body.innerText)` returns **false positives** — IS24's page chrome/footer/related-search boilerplate contains these words even when the flat has none. Seen on #240 (expose 169006006): body test said keller/terrasse/garten = true, but scoping to `.is24qa-objektbeschreibung` + `.is24qa-ausstattung-beschreibung` (+ `.is24qa-lage`) showed only Balkon is real. Always run must-have/amenity keyword checks against the **description/criteria elements**, never the whole body. Also note `Gartenhaus` (rear/garden building) contains "Garten" but is NOT an own garden — use a `\bGarten(?!haus)` guard.
 
 **Why:** the body false-positive nearly awarded the Keller must-have (Block E 3.5 vs the correct 2.0), inflating the score.
+
+**WBS false-positive from the "Weitere Einheiten"/project sidebar.** Same trap for the WBS hard-blocker: on multi-unit project listings (e.g. degewo Neubau) the page lists *other* units in a "Weitere Einheiten / Projektübersicht" sidebar, and a cheaper sibling unit's "WBS 140 erforderlich!" text makes `/WBS|Wohnberechtigung/.test(document.body.innerText)` return true even though the unit you're scoring has no WBS. Seen on #264 (expose 168383398): body said WBS=true, but it belonged to a 56 m²/394 EUR sidebar unit; the scored 4-Zi at market 14 EUR/m² is freifinanziert. Scope WBS to the description/criteria elements (was false there) and read the sidebar context before firing the hard blocker. Heuristic: a unit priced at market €/m² is almost never WBS; the WBS/social units in the same project are the conspicuously cheap ones (~7 EUR/m²).
+
+**Why:** a spurious WBS=true would fire the Block G hard blocker and cap the whole score ≤2.0 on a listing that has no WBS requirement.
+
+**Same sidebar trap fires the möbliert / "auf Zeit" / Zwischenmiete hard-blocker.** On big multi-unit Neubau projects the "Weitere Einheiten" sidebar lists sibling units by their own titles, e.g. "möbliertes Studio-Apartment … | Fully furnished", so `/möbliert|auf Zeit|befristet/.test(body)` returns true even though the unit you're scoring is unfurnished/unbefristet. Seen on #265 (expose 166708720, MyTegel/Comood GmbH 3-Zi): body said möbliert=true & aufZeit=true, but those strings belonged to sibling Studio units; the scored flat's own title ("Kompakte 3-Zimmer … inkl. Loggia, EBK und Keller!") had no furnished/Zeit marker. Anchor the furnished/Zwischenmiete decision on THIS unit's h1 title + its own description/criteria, never document.body. The project description also says "sowohl möblierte als auch unmöblierte Wohnungen geplant" — verify the specific unit on contact.
+
+**Why:** a false möbliert/auf-Zeit read would wrongly cap the score ≤2.0 via the Zwischenmiete/furnished hard blocker on a standard long-term rental.
+
+## Preview / not-yet-published expose (still 200, scoreable but contact-blocked)
+Some exposés serve a live 200 page while flagged as **not yet published**: the address block reads "Die vollständige Adresse … wird erst nach Veröffentlichung des Inserats angezeigt", the contact card reads "Anbieter Informationen — Die Informationen sind erst nach Veröffentlichung des Inserats sichtbar", availability shows **"Bald verfügbar"**, and there are **0 photos**. This is NOT "deaktiviert"/EXPIRED — the `.is24qa-*` criteria table (Kaltmiete/Wohnfläche/Zimmer/Etage/Kaution/Objektzustand/Heizung/Preis-m²/Haustiere) IS populated, so score it — but cap D at 3.0 (no photos), treat must-haves as unconfirmed, and score H low (Anbieter unknown/hidden). Note contact isn't possible yet → Next steps = wait for publication. Seen on #277 (expose 168870342, Am Stern Potsdam). Beware a "Fotocasa" string in the page = foreign-portal syndication artefact, not a real gallery.
+
+**Why:** the hidden-Anbieter + 0-photos + "Bald verfügbar" combo looks like it could be a pulled listing, but it's a pre-publication draft with full criteria data — mislabelling it EXPIRED would drop a scoreable in-budget Potsdam flat.
 
 ## ohne-makler cross-posts: map geo-tag can be wrong
 For listings fed in via the ohne-makler (OM) platform (footer says "ohne-makler (OM) ist weder Anbieter noch Vermittler"), the IS24 **map-address / page title can be a mismatched geo-tag that contradicts the body**. Seen on #214: title + Lage section say "Begehrtes Eichwalde" (LDS, ~40 km SE of Golm) but IS24 geo-tagged it "Groß Glienicke, 14476 Potsdam" (in-area). The body `.is24qa-lage` is authoritative — always read it to resolve location before scoring Block B; do NOT trust the map-address/title alone. This is a cross-posting artefact, not a scam signal.

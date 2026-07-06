@@ -16,7 +16,9 @@ Detail page: `/angebot/{uuid}`. Listings platform that re-lists from source port
 - Anbieter field shown only as `Gewerblicher Anbieter` or similar — no name there. BUT the actual landlord/company is often buried in the Objektbeschreibung/Sonstiges/Datenschutz text (e.g. #236 named "BUWOG-Immobilien Treuhand" in the Sonstiges block). Keyword-scan the description before defaulting Block H to Unknown (3.5) — a named corporate landlord raises H.
 
 ## Photos
-- Gallery images are `cdnihddipa.cloudimg.io/.../{uuid}.jpg`. Count distinct cloudimg URLs (exclude `/build/images/...` logo/seal). Got 10 real photos for report #174. Grundriss usually NOT included.
+- Gallery images are `cdnihddipa.cloudimg.io/.../{uuid}.jpg`. Count DISTINCT cloudimg uuids (exclude `/build/images/...` logo/seal; the og:image uuid repeats across several meta tags, so dedupe). Grundriss usually NOT included.
+- **Static fetch DOES still contain the full gallery** (confirmed #258: 4 distinct uuids; #174: 10). Per-listing photo counts just vary — a low count = that listing genuinely has few photos, not a fetch limitation. (#257 the TAG Wohnen unit really had only 1 photo — do not read that as "gallery lazy-loads".) So curl remains sufficient to count real photos.
+- **Why:** briefly mis-diagnosed #257's single photo as JS-hydration; #258's 4 static photos disproved it — the curl HTML is complete, some listings are just photo-poor.
 
 ## Expiry / discard
 - Source is a re-list, so cache can go stale (like other aggregators) — if page shows "nicht gefunden"/sold, mark EXPIRED. Title `<title>` reflects the listing title when live.
