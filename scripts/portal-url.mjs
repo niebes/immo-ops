@@ -10,7 +10,7 @@
  *
  * Usage:
  *   node scripts/portal-url.mjs "ImmoScout24"                      # first match across groups
- *   node scripts/portal-url.mjs --group "Berlin flat rental" "ImmoScout24"
+ *   node scripts/portal-url.mjs --group "Potsdam flat rental" "ImmoScout24"
  *   node scripts/portal-url.mjs --all                              # every enabled portal, resolved
  */
 

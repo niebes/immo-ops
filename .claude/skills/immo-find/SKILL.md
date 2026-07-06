@@ -251,7 +251,7 @@ The email body is organized into sections, one per search target from `config/pr
 
 **Section header:** `<h2 style="font-size:16px;border-bottom:2px solid #2e7d32;padding-bottom:4px">` with emoji, search name, and a gray count badge:
 ```html
-<h2 ...>🏢 Berlin flat rental <span style="font-size:12px;color:#777;font-weight:normal">(Miete / Wohnung · {N} listings)</span></h2>
+<h2 ...>🏢 Potsdam flat rental <span style="font-size:12px;color:#777;font-weight:normal">(Miete / Wohnung · {N} listings)</span></h2>
 ```
 - `🏠` house purchase (Kauf/Haus), `🏢` flat rental (Miete/Wohnung), `🌳` plot purchase (Kauf/Grundstück)
 - Active section with zero scored listings: show header with "(no listings yet)", skip the table

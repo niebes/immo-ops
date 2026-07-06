@@ -8,7 +8,7 @@
  *
  * Usage:
  *   node scripts/scan.mjs                       # scan all enabled search groups
- *   node scripts/scan.mjs --group "Berlin flat rental"  # scan one search group
+ *   node scripts/scan.mjs --group "Potsdam flat rental"  # scan one search group
  *   node scripts/scan.mjs --dry-run             # preview without writing
  *   node scripts/scan.mjs --portal ImmoScout24  # scan single portal (within selected groups)
  *   node scripts/scan.mjs --headed              # visible browser (debug)
