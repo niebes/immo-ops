@@ -17,6 +17,10 @@ data/scan-history.tsv
 data/scan-failures.json
 data/viewings.md
 data/documents.md
+# Backups/snapshots carry the same personal data as the files above
+data/*.bak*
+data/*.prerescan
+*.bak
 reports/
 research/
 correspondence/
