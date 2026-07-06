@@ -26,6 +26,9 @@ import yaml from 'js-yaml';
 import { getExtractor } from './portals/index.mjs';
 import { handleCookieConsent, isCaptcha } from './portals/base.mjs';
 import { resolveSearchUrl, findProfileSearch } from './lib/search-url.mjs';
+import { toHistoryLine as tsvHistoryLine } from './lib/tsv.mjs';
+import { loadSeenUrls, canonicalizeUrl } from './lib/seen-urls.mjs';
+import { writeAtomic } from './lib/fsx.mjs';
 
 // ── Paths ──────────────────────────────────────────────────────────
 
@@ -33,7 +36,6 @@ const ROOT = process.cwd();
 const PORTALS_PATH = `${ROOT}/portals.yml`;
 const SCAN_HISTORY_PATH = `${ROOT}/data/scan-history.tsv`;
 const PIPELINE_PATH = `${ROOT}/data/pipeline.md`;
-const LISTINGS_PATH = `${ROOT}/data/listings.md`;
 const PROFILE_PATH = `${ROOT}/config/profile.yml`;
 const IMMOSCOUT_COOKIES_PATH = `${ROOT}/config/cookies-immoscout24.json`;
 const SCAN_FAILURES_PATH = `${ROOT}/data/scan-failures.json`;
@@ -60,7 +62,7 @@ function writeFailuresReport() {
   try { existing = JSON.parse(readFileSync(SCAN_FAILURES_PATH, 'utf8')).failures || []; } catch { /* absent or corrupt → start fresh */ }
   const carried = existing.filter(f => !attemptedPortals.has(portalKey(f.portal, f.group)));
   const failures = [...carried, ...scanFailures];
-  writeFileSync(SCAN_FAILURES_PATH, JSON.stringify({ timestamp: new Date().toISOString(), failures }, null, 2));
+  writeAtomic(SCAN_FAILURES_PATH, JSON.stringify({ timestamp: new Date().toISOString(), failures }, null, 2));
   return carried;
 }
 
@@ -200,18 +202,8 @@ function loadCriteria(groupName) {
 }
 
 // ── Dedup ──────────────────────────────────────────────────────────
-
-function loadSeenUrls() {
-  const seen = new Set();
-  for (const path of [SCAN_HISTORY_PATH, PIPELINE_PATH, LISTINGS_PATH]) {
-    if (!existsSync(path)) continue;
-    const content = readFileSync(path, 'utf8');
-    for (const match of content.matchAll(/https?:\/\/[^\s|)]+/g)) {
-      seen.add(match[0]);
-    }
-  }
-  return seen;
-}
+// loadSeenUrls/canonicalizeUrl come from lib/seen-urls.mjs: dedup keys are
+// canonicalized (query/hash stripped) on both sides; originals go to disk.
 
 // ── Filters ────────────────────────────────────────────────────────
 // Only objective numeric criteria + dedup gate here. Title relevance is judged by
@@ -305,7 +297,7 @@ async function scanPortal(browser, portal, groupName) {
     const { extract: extractFn, nextPage: nextPageFn } = getExtractor(portal.name);
     const MAX_LISTINGS = DEEP ? 600 : 100;
     const allListings = [];
-    const seenUrls = loadSeenUrls();
+    const seenUrls = loadSeenUrls(ROOT);
     let pageNum = 1;
 
     while (allListings.length < MAX_LISTINGS) {
@@ -326,7 +318,7 @@ async function scanPortal(browser, portal, groupName) {
       // Check for early exit: if most listings on this page are already seen, stop
       let seenOnPage = 0;
       for (const l of pageListings) {
-        if (seenUrls.has(l.url)) seenOnPage++;
+        if (seenUrls.has(canonicalizeUrl(l.url))) seenOnPage++;
         allListings.push(l);
       }
       log(`  page ${pageNum}: ${pageListings.length} listings (${seenOnPage} already seen)`);
@@ -377,8 +369,7 @@ function today() {
 }
 
 function toHistoryLine(listing, status) {
-  return [listing.url, today(), listing.portal, listing.title, listing.location,
-    listing.price || '', listing.m2 || '', listing.rooms || '', status].join('\t');
+  return tsvHistoryLine(listing, status, today());
 }
 
 function writeScanHistory(lines) {
@@ -398,7 +389,7 @@ function writePipeline(listings, groupName) {
   const entries = listings.map(l =>
     `- [ ] ${l.url} | ${l.portal} | ${groupName} | ${l.title}${l.price ? ` | ${l.price} EUR` : ''}${l.m2 ? ` | ${l.m2} m²` : ''}`
   ).join('\n') + '\n';
-  writeFileSync(PIPELINE_PATH, pipeline.slice(0, insertIdx) + entries + pipeline.slice(insertIdx));
+  writeAtomic(PIPELINE_PATH, pipeline.slice(0, insertIdx) + entries + pipeline.slice(insertIdx));
 }
 
 // ── Main ───────────────────────────────────────────────────────────
@@ -513,7 +504,7 @@ async function runCicScan() {
 
           const tmp = `${os.tmpdir()}/immo-cic-${cicSnippetSlug(portal.name)}-${pageNum}.json`;
           writeFileSync(tmp, resultStr);
-          const psArgs = ['scripts/process-scan.mjs', '--file', tmp, '--portal', portal.name, '--group', group.name];
+          const psArgs = ['scripts/process-scan.mjs', '--file', tmp, '--portal', portal.name, '--group', group.name, '--json'];
           if (DRY_RUN) psArgs.push('--dry-run');
           let out = '', childFailed = false;
           try { out = execFileSync('node', psArgs, { cwd: ROOT, encoding: 'utf8' }); }
@@ -525,9 +516,20 @@ async function runCicScan() {
             break;
           }
 
-          const processed = parseInt((out.match(/Processed:\s*(\d+)/) || [])[1] || '0', 10);
-          const dups = parseInt((out.match(/Duplicates:\s*(\d+)/) || [])[1] || '0', 10);
-          totalNew += parseInt((out.match(/New in pipeline:\s*(\d+)/) || [])[1] || '0', 10);
+          // Stats come from the child's machine-readable --json line (last stdout
+          // line); the human-output regexes remain only as a fallback.
+          let stats = null;
+          try {
+            const lastLine = out.trim().split('\n').filter(l => l.trim()).pop() || '';
+            const j = JSON.parse(lastLine.trim());
+            if (j && typeof j.found === 'number') stats = j;
+          } catch { /* fall back to regex scraping */ }
+          const processed = stats ? stats.found
+            : parseInt((out.match(/Processed:\s*(\d+)/) || [])[1] || '0', 10);
+          const dups = stats ? stats.dups
+            : parseInt((out.match(/Duplicates:\s*(\d+)/) || [])[1] || '0', 10);
+          totalNew += stats ? stats.added
+            : parseInt((out.match(/New in pipeline:\s*(\d+)/) || [])[1] || '0', 10);
 
           if (!parsed.n) { console.log(`  → single page / no next`); break; }
           if (!DEEP && processed > 0 && dups >= processed * 0.8) { console.log(`  → ≥80% already seen — stopping`); break; }
@@ -573,7 +575,7 @@ async function main() {
   console.log(`\nimmo-ops scan — ${today()}${DRY_RUN ? ' (DRY RUN)' : ''}\n`);
   console.log(`Search groups: ${searchGroups.map(g => g.name).join(', ')}`);
 
-  const seenUrls = loadSeenUrls();
+  const seenUrls = loadSeenUrls(ROOT);
   console.log(`Dedup: ${seenUrls.size} URLs known\n`);
 
   const browser = await chromium.launch({ headless: !HEADED });
@@ -641,12 +643,15 @@ async function main() {
           continue;
         }
 
-        if (seenUrls.has(listing.url)) {
+        // Dedup on the canonical (query/hash-stripped) URL; the original URL is
+        // what gets written to pipeline/history below.
+        const canonUrl = canonicalizeUrl(listing.url);
+        if (seenUrls.has(canonUrl)) {
           totalStats.skipped_dup++;
           continue;
         }
 
-        seenUrls.add(listing.url);
+        seenUrls.add(canonUrl);
         totalStats.added++;
         groupNewListings.push(listing);
         allHistoryLines.push(toHistoryLine(listing, 'added'));

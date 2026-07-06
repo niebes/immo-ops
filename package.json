@@ -4,6 +4,7 @@
   "description": "AI real estate search command center — evaluate listings, score neighborhoods, scan portals, track applications",
   "type": "module",
   "scripts": {
+    "test": "node --test \"scripts/test/*.test.mjs\"",
     "verify": "node scripts/verify-pipeline.mjs",
     "merge": "node scripts/merge-tracker.mjs",
     "score": "node scripts/score-listing.mjs",

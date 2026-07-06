@@ -99,10 +99,27 @@ function scoreAmenities(listing, criteria) {
   return 3.5;
 }
 
+// Parse an availability date: ISO (YYYY-MM-DD), German DD.MM.YYYY, or the
+// portal idioms "sofort"/"ab sofort" (= immediately available → today).
+// Returns a Date, or null when unparseable.
+function parseAvailableDate(s) {
+  if (s == null) return null;
+  const str = String(s).trim();
+  if (/^(ab\s+)?sofort\b/i.test(str)) return new Date();
+  const de = str.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+  const d = de
+    ? new Date(`${de[3]}-${de[2].padStart(2, '0')}-${de[1].padStart(2, '0')}`)
+    : new Date(str);
+  return isNaN(d.getTime()) ? null : d;
+}
+
 function scoreAvailability(listing, criteria) {
   if (!listing.available_date || !criteria.earliest_move_in) return 3.0;
-  const available = new Date(listing.available_date);
+  const available = parseAvailableDate(listing.available_date);
+  // Unparseable date = unknown availability → neutral, not the worst bucket.
+  if (!available) return 3.0;
   const earliest = new Date(criteria.earliest_move_in);
+  if (isNaN(earliest.getTime())) return 3.0;
   const latest = criteria.latest_move_in ? new Date(criteria.latest_move_in) : null;
 
   if (available >= earliest && (!latest || available <= latest)) return 5.0;
@@ -155,10 +172,17 @@ function calculateScore(listing, criteria, weights = DEFAULT_WEIGHTS) {
   return { scores, weights, global, hardBlockers };
 }
 
-const input = process.argv[2]
-  ? readFileSync(process.argv[2], 'utf8')
-  : readFileSync(0, 'utf8');
+export { calculateScore, scoreAvailability, parseAvailableDate };
 
-const { listing, criteria, weights } = JSON.parse(input);
-const result = calculateScore(listing, criteria, weights);
-console.log(JSON.stringify(result, null, 2));
+// CLI entry — only when executed directly, so tests can import the functions
+// without triggering the stdin read.
+import { pathToFileURL } from 'url';
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const input = process.argv[2]
+    ? readFileSync(process.argv[2], 'utf8')
+    : readFileSync(0, 'utf8');
+
+  const { listing, criteria, weights } = JSON.parse(input);
+  const result = calculateScore(listing, criteria, weights);
+  console.log(JSON.stringify(result, null, 2));
+}

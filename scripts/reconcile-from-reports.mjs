@@ -17,7 +17,8 @@
  * Safe by default (dry-run). --apply writes .bak copies first.
  */
 
-import { readFileSync, writeFileSync, readdirSync, copyFileSync, mkdirSync } from 'fs';
+import { readFileSync, readdirSync, copyFileSync, mkdirSync } from 'fs';
+import { writeAtomic } from './lib/fsx.mjs';
 
 const ROOT = process.cwd();
 const REPORTS_DIR = `${ROOT}/reports`;
@@ -208,7 +209,7 @@ for (const h of histMismatches) {
   }
   histLines[h.lineNo] = c.join('\t');
 }
-writeFileSync(HISTORY, histLines.join('\n'));
+writeAtomic(HISTORY, histLines.join('\n'));
 
 for (const p of pipeMismatches) {
   let line = p.line;
@@ -218,6 +219,6 @@ for (const p of pipeMismatches) {
   else if (p.r.score != null) line = line.replace(/\|\s*[\d.]+\/5/, `| ${p.r.score}/5`);
   pipeLines[p.lineNo] = line;
 }
-writeFileSync(PIPELINE, pipeLines.join('\n'));
+writeAtomic(PIPELINE, pipeLines.join('\n'));
 
 console.log(`\n✓ Applied. Backups in tmp/: scan-history.tsv.${stamp}.bak, pipeline.md.${stamp}.bak`);

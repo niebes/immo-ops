@@ -6,6 +6,7 @@
 
 import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
+import { parseListingRow } from './lib/listings-md.mjs';
 
 const ROOT = process.cwd();
 const LISTINGS_PATH = join(ROOT, 'data/listings.md');
@@ -24,7 +25,9 @@ const activeStatuses = new Set(['Evaluated', 'Interested', 'Contacted', 'Viewing
 const activeListing = [];
 
 for (const line of lines) {
-  const cols = line.split('|').map(c => c.trim()).filter(Boolean);
+  // Shared parser keeps empty interior cells — filter(Boolean) shifted columns
+  // whenever a cell (e.g. Rooms) was blank.
+  const cols = parseListingRow(line);
   const [num, date, , , location, , , , , status] = cols;
   if (!activeStatuses.has(status)) continue;
 
