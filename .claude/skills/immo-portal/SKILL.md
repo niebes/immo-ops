@@ -24,13 +24,13 @@ If the user provides a portal name without URL, search for it and find the listi
 
 **URL requirements:**
 - Must be a **search results page** showing listings, not a landing/marketing page
-- Must be filtered for the correct property type (Grundstück, Wohnung, Haus) and location (Potsdam/Brandenburg)
+- Must be filtered for the correct property type (Grundstück, Wohnung, Haus) and location — use the target search group's location from `portals.yml` (`scan_defaults`) / `config/profile.yml`
 - Must be **sorted by date (newest first)** — look for `sort=date`, `sortBy=createdAt`, `sorting=2` (newest), `sortingOptions[]=PUBLISHED_AT_DESC`, or equivalent URL parameter
 - If the portal has no sort-by-date URL parameter, note this in the portal config
 
 **How to find the URL:**
 1. Navigate to the portal's homepage via CiC
-2. Use the search/filter UI to set: location (Potsdam), property type (Grundstück/Haus/Wohnung), sort by newest
+2. Use the search/filter UI to set: location (the target search group's location), property type (Grundstück/Haus/Wohnung), sort by newest
 3. Copy the resulting URL from the address bar — this is the `search_url`
 
 ### Step 2 — Verify page loads
@@ -75,13 +75,13 @@ Use CiC `read_page` and `find` to identify:
 
 ### Step 4 — Try generic extractor first
 
-Before writing a custom extractor, test if the generic extractor works:
+Before writing a custom extractor, test if the generic extractor works. Add a provisional `portals.yml` entry (Step 7) first, then:
 
 ```bash
-node tmp/verify-single-source.mjs "Portal Name"
+node scripts/scan.mjs --portal "{Portal Name}" --group "{Search Group}" --dry-run
 ```
 
-If the generic extractor finds listings with correct titles, prices, and URLs — skip to Step 6. No custom extractor needed.
+`--dry-run` writes nothing; it prints per-page extraction counts and the new listings found (title, price, m², rooms). Limitation: the "New listings" list only shows URLs NOT already in `scan-history.tsv` — if everything on the page has been seen before, you only get counts ("page 1: N listings (N already seen)"), which still confirms the extractor finds cards but not field quality. If the generic extractor finds listings with correct titles, prices, and URLs — skip to Step 6. No custom extractor needed.
 
 ### Step 5 — Generate custom extractor
 
@@ -178,12 +178,13 @@ For `scan_method`:
 
 Run verification:
 ```bash
-node tmp/verify-single-source.mjs "{Portal Name}"
+node scripts/scan.mjs --portal "{Portal Name}" --group "{Search Group}" --dry-run
 ```
+(Writes nothing. See the Step 4 note: listings already in `scan-history.tsv` show up only as "already seen" counts, not as printed rows.)
 
 Check:
-- [ ] Status is `ok`
-- [ ] Listing count > 0
+- [ ] No ⛔ failure recorded for the portal (CAPTCHA / bot-block / extractor error)
+- [ ] Listing count > 0 (per-page log: "page 1: N listings")
 - [ ] Sample listing has: title (not empty, not "Details"), URL (absolute, to detail page), price (number or null if "auf Anfrage")
 - [ ] Pagination works (if portal has multiple pages)
 
@@ -233,5 +234,5 @@ Read these before analyzing a CiC portal's DOM — they cost real time to redisc
 - **Number format is per-site and sometimes per-field.** German (`1.443,87` / `80,5`) vs US (`1,443.87` / `80.5`), and a single card can mix them (Regionalimmobilien24: price German, rooms dot-decimal `3.5 Räume`). Parse locale-robustly; for room counts treat dot OR comma as decimal (never thousands).
 - **Consent + lazy-load.** Many SPA portals render nothing until the TCF consent dialog is dismissed (click "Ablehnen" — privacy-preserving) AND the page is scrolled (cards lazy-load). In the real browser the consent choice is remembered across runs. Document both in the snippet header and `portals.yml notes:`.
 - **Aggregators** (Süddeutsche, Regionalimmobilien24) carry the canonical source URL in a share element (`.shariff[data-url]`) or a slug link; the listing id is usually in an `article[id^="oid-"]`. The evaluator follows these to the source — extract the cleanest detail URL the page exposes.
-- **Verifying a non-plot portal.** `tmp/verify-single-source.mjs` is hardcoded to the plot-purchase group. For a rental/other group, write a ~15-line throwaway harness that mirrors `scan.mjs`: `import { getExtractor }`, `import { handleCookieConsent }`, launch chromium, goto, consent, `extract(page)`, print; then delete it.
+- **Verification harness.** `node scripts/scan.mjs --portal "{name}" --group "{group}" --dry-run` works for any group. If you need to inspect full field values for already-seen listings (dry-run only prints NEW ones), write a ~15-line throwaway harness that mirrors `scan.mjs`: `import { getExtractor }`, `import { handleCookieConsent }`, launch chromium, goto, consent, `extract(page)`, print; then delete it.
 - **"Premium"/promoted cards** may have no title in the SERP (empty heading, id-only URL). Don't drop a card that has a URL + price/size for a blank title — synthesize a placeholder title; the evaluator gets the real one from the detail page.
