@@ -17,7 +17,7 @@
  * Safe by default (dry-run). --apply writes .bak copies first.
  */
 
-import { readFileSync, writeFileSync, readdirSync, copyFileSync } from 'fs';
+import { readFileSync, writeFileSync, readdirSync, copyFileSync, mkdirSync } from 'fs';
 
 const ROOT = process.cwd();
 const REPORTS_DIR = `${ROOT}/reports`;
@@ -180,8 +180,12 @@ if (!APPLY) {
 }
 
 // ── apply ──────────────────────────────────────────────────────────
-copyFileSync(HISTORY, `${HISTORY}.bak`);
-copyFileSync(PIPELINE, `${PIPELINE}.bak`);
+// Backups go to tmp/ (gitignored): timestamped, and never at risk of the
+// auto-commit hook sweeping personal data into the public repo.
+const stamp = new Date().toISOString().replace(/[:T]/g, '-').slice(0, 19);
+mkdirSync('tmp', { recursive: true });
+copyFileSync(HISTORY, `tmp/scan-history.tsv.${stamp}.bak`);
+copyFileSync(PIPELINE, `tmp/pipeline.md.${stamp}.bak`);
 
 // True identity swap: the URL was paired with a DIFFERENT apartment entirely, so
 // price AND m² both differ — title/location are stale too and must be replaced.
@@ -216,4 +220,4 @@ for (const p of pipeMismatches) {
 }
 writeFileSync(PIPELINE, pipeLines.join('\n'));
 
-console.log(`\n✓ Applied. Backups: scan-history.tsv.bak, pipeline.md.bak`);
+console.log(`\n✓ Applied. Backups in tmp/: scan-history.tsv.${stamp}.bak, pipeline.md.${stamp}.bak`);

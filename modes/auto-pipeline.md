@@ -5,7 +5,7 @@ Automatic pipeline triggered when a listing URL or text is pasted directly into 
 ## Workflow
 
 1. **Detect input type**:
-   - URL → navigate with Playwright, extract listing data
+   - URL → open per the browser doctrine in `modes/evaluate.md` (CiC for bot-protected portals), extract listing data
    - Pasted text → parse structured data from text
 
 2. **Check for duplicates**:
@@ -38,16 +38,4 @@ Automatic pipeline triggered when a listing URL or text is pasted directly into 
 
 ## URL Detection
 
-Supported portal URL patterns:
-- `immobilienscout24.de/expose/`
-- `immowelt.de/expose/`
-- `kleinanzeigen.de/s-anzeige/`
-- `wg-gesucht.de/`
-- `vonovia.de/`
-- `deutsche-wohnen.com/`
-- `sparkassen-immobilien.de/`
-- `immosuche.degewo.de/`
-- `howoge.de/`
-- `gesobau.de/`
-
-Any URL containing these domains triggers auto-pipeline.
+Config-driven: any URL whose domain matches a portal configured in `portals.yml` triggers auto-pipeline, plus any URL that resolves to a real estate listing detail page (expose/detail/anzeige-style URL on an unconfigured portal). When in doubt, open the URL and judge from the page — do not maintain a hardcoded domain list.

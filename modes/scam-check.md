@@ -12,7 +12,7 @@ One of:
 ## Workflow
 
 1. **Get listing data**:
-   - If URL: navigate with Playwright, extract all visible details
+   - If URL: open per the browser doctrine in `modes/evaluate.md` (CiC for bot-protected portals), extract all visible details
    - If listing #: read report from `reports/`
    - If text: analyze the pasted content
 

@@ -3,6 +3,18 @@
 #
 # Structure: search_groups — one group per search target from config/profile.yml.
 # The `name` field must match the corresponding `searches[].name` in profile.yml.
+#
+# URL placeholders: a search_url may contain {placeholder} tokens that are resolved
+# from the matching profile search before navigation — by scan.mjs (Playwright path)
+# and by `node scripts/portal-url.mjs` (CiC path). Never navigate to a raw URL that
+# still contains {placeholders}. Supported tokens (see scripts/lib/search-url.mjs):
+#   {price_max}  → price.max_kaltmiete (miete) or price.max_kaufpreis (kauf)
+#   {price_min}  → price.min_kaltmiete or price.min_kaufpreis
+#   {rooms_min}  → size.min_rooms        {rooms_max} → size.max_rooms
+#   {size_min}   → size.min_m2           {size_max}  → size.max_m2
+# A token with no profile value is left literal and reported — breakage stays visible.
+# Prefer placeholders over hardcoded numbers so portal URLs can't drift out of sync
+# with the profile.
 
 search_groups:
 
@@ -10,6 +22,8 @@ search_groups:
   # Example: Flat rental
   # ═══════════════════════════════════════════════════════════
   - name: "Berlin flat rental"
+    enabled: true    # group-level toggle — set false to pause the whole search
+                     # target (all its portals) without deleting it
     scan_defaults:
       search_type: miete
       property_type: wohnung
@@ -22,7 +36,7 @@ search_groups:
       - name: ImmoScout24
         enabled: true
         scan_method: cic
-        search_url: "https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mieten?price=-1500.0&livingspace=60.0-&numberofrooms=2.0-&pricetype=calculatedtotalrent"
+        search_url: "https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mieten?price=-{price_max}.0&livingspace={size_min}.0-&numberofrooms={rooms_min}.0-&pricetype=calculatedtotalrent"
         captcha_risk: high
         notes: "Largest German portal. Blocks Playwright — use CiC. CAPTCHA may need manual solve."
 
@@ -51,7 +65,14 @@ search_groups:
         scan_method: websearch
         search_query: "site:sparkassen-immobilien.de Berlin Mietwohnung"
         rate_limit: 5
+        notes: "scan_method: websearch portals are executed by the AI during a scan run (WebSearch tool), NOT by scripts/scan.mjs. They are still counted in scan coverage reporting — a skipped websearch portal shows up as unprocessed."
 
+    # ADVISORY ONLY — these keywords are NOT applied as a mechanical filter by
+    # scan.mjs / process-scan.mjs (that auto-discard was deliberately removed).
+    # Title relevance is judged by the AI triage step, which reads each title in
+    # context; these lists are a checklist of things the AI should look out for.
+    # Substring matching can't make the call: a word like "Garage" is ambiguous
+    # (a flat that HAS a garage vs. a garage for rent). See modes/scan.md "AI triage".
     title_filter:
       positive: []
       negative:

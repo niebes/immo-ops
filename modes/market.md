@@ -62,8 +62,8 @@ One of:
 
 ## Data Sources
 
-Use WebSearch for:
-- Mietspiegel data (berliner-mietspiegel.de for Berlin)
-- Market reports (empirica, bulwiengesa, immobilienscout24 market reports)
-- City planning data (stadtentwicklung.berlin.de)
+Derive the city from the request or from `config/profile.yml` (the active search's location). Use WebSearch with pattern-based queries — never assume a hardcoded city:
+- Mietspiegel data: WebSearch `"{city} Mietspiegel {year}"` (most cities publish an official one; use the qualified Mietspiegel where available)
+- Market reports (empirica, bulwiengesa, immobilienscout24 market reports) for the target city/region
+- City planning data: WebSearch `"{city} Stadtentwicklung"` / the city's official planning portal
 - Price statistics (destatis.de for federal data)

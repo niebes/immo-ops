@@ -12,6 +12,12 @@
  *   node scripts/scan.mjs --dry-run             # preview without writing
  *   node scripts/scan.mjs --portal ImmoScout24  # scan single portal (within selected groups)
  *   node scripts/scan.mjs --headed              # visible browser (debug)
+ *
+ * Exit codes:
+ *   0  full coverage — every attempted portal processed
+ *   1  hard crash
+ *   2  --cic: cannot connect to the CDP debug Chrome
+ *   3  completed, but some portals were NOT processed (see data/scan-failures.json)
  */
 
 import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from 'fs';
@@ -39,6 +45,24 @@ mkdirSync(`${ROOT}/data`, { recursive: true });
 // workflow can ROUTE it (CiC fallback or reconfigure) instead of silently
 // dropping it. scanPortal() pushes here; main() writes data/scan-failures.json.
 const scanFailures = [];
+
+// Portals attempted in THIS run, as "portal|group" keys. The failures file is
+// merged, not clobbered: `scan auto` runs the Playwright pass and the CiC pass
+// as two separate processes, and each must preserve the other's entries (the
+// Playwright pass's bot_defense entries ARE the routing signal the CiC pass
+// exists to serve). An attempted portal's stale entry is superseded by this
+// run's outcome — including "no failure", which clears it.
+const attemptedPortals = new Set();
+const portalKey = (portalName, groupName) => `${portalName}|${groupName}`;
+
+function writeFailuresReport() {
+  let existing = [];
+  try { existing = JSON.parse(readFileSync(SCAN_FAILURES_PATH, 'utf8')).failures || []; } catch { /* absent or corrupt → start fresh */ }
+  const carried = existing.filter(f => !attemptedPortals.has(portalKey(f.portal, f.group)));
+  const failures = [...carried, ...scanFailures];
+  writeFileSync(SCAN_FAILURES_PATH, JSON.stringify({ timestamp: new Date().toISOString(), failures }, null, 2));
+  return carried;
+}
 
 // Does a CiC extractor snippet exist for this portal? (scripts/portals/{slug}-cic.js)
 function cicSnippetSlug(portalName) {
@@ -158,8 +182,13 @@ if (searchGroups.length === 0) {
 
 function loadCriteria(groupName) {
   if (!profile || !profile.searches || profile.searches.length === 0) return null;
-  const search = profile.searches.find(s => s.name === groupName && s.enabled !== false)
-    || profile.searches.find(s => s.enabled !== false);
+  let search = profile.searches.find(s => s.name === groupName && s.enabled !== false);
+  if (!search) {
+    search = profile.searches.find(s => s.enabled !== false);
+    // A silent fallback here once labeled 176 pipeline entries with the wrong
+    // group and bypassed criteria filtering — be loud about it.
+    console.warn(`⚠ No profile search named "${groupName}" in config/profile.yml — falling back to "${search?.name || 'none'}". portals.yml group names must exactly match searches[].name.`);
+  }
   if (!search) return null;
   const loc = search.location || {};
   return {
@@ -358,9 +387,12 @@ function writeScanHistory(lines) {
 }
 
 function writePipeline(listings, groupName) {
-  const pipeline = existsSync(PIPELINE_PATH)
+  let pipeline = existsSync(PIPELINE_PATH)
     ? readFileSync(PIPELINE_PATH, 'utf8')
     : '# Pipeline\n\n## Pending\n\n## Processed\n';
+  // Without this guard a missing header makes indexOf return -1 and the
+  // entries get spliced at byte 0's first newline — silent corruption.
+  if (!pipeline.includes('## Pending')) pipeline += '\n## Pending\n';
   const pendingIdx = pipeline.indexOf('## Pending');
   const insertIdx = pipeline.indexOf('\n', pendingIdx) + 1;
   const entries = listings.map(l =>
@@ -421,6 +453,7 @@ async function runCicScan() {
 
     for (const portal of portals) {
       console.log(`\n[${portal.name}]`);
+      attemptedPortals.add(portalKey(portal.name, group.name));
       const snippetFile = cicSnippetFile(portal.name);
       if (!snippetFile) { console.log(`  ⛔ no CiC snippet — skipping`); recordFailure(portal, group.name, 'no CiC extractor snippet', 'config'); continue; }
       if (!portal.search_url) { console.log(`  ⛔ no search_url`); recordFailure(portal, group.name, 'no_search_url', 'config'); continue; }
@@ -428,6 +461,7 @@ async function runCicScan() {
       const { url: baseUrl } = resolveSearchUrl(portal.search_url, findProfileSearch(profile, group.name));
       const snippetSrc = readFileSync(snippetFile, 'utf8').trim().replace(/;\s*$/, '');
       const page = await context.newPage();
+      let failed = false;
       try {
         let pageNum = 1, total = 0;
         while (total < (DEEP ? 600 : 100)) {
@@ -446,7 +480,7 @@ async function runCicScan() {
             await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
             blocked = isCaptcha(await page.textContent('body').catch(() => ''));
           }
-          if (blocked) { console.log(`  ⛔ still CAPTCHA-blocked — skipping`); recordFailure(portal, group.name, 'captcha (CiC/CDP)', 'bot_defense'); break; }
+          if (blocked) { console.log(`  ⛔ still CAPTCHA-blocked — skipping`); recordFailure(portal, group.name, 'captcha (CiC/CDP)', 'bot_defense'); failed = true; break; }
 
           // Lazy-load nudge (some portals render cards on scroll).
           await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
@@ -455,19 +489,41 @@ async function runCicScan() {
           let resultStr = await page.evaluate(snippetSrc).catch(e => { console.log(`  ⚠ evaluate error: ${e.message}`); return null; });
           // Lazy-load portals can return 0 on the first pass — retry once after a wait.
           if (resultStr) { try { if ((JSON.parse(resultStr).c || 0) === 0 && pageNum === 1) { await page.waitForTimeout(3000); resultStr = await page.evaluate(snippetSrc).catch(() => resultStr); } } catch { /* keep */ } }
-          if (!resultStr) break;
+          // A dead page 1 is a broken portal, not "no new listings" — flag it so the
+          // coverage report surfaces it (mirrors the Playwright path's page-1 rule;
+          // silently breaking here is exactly how portals go unnoticed for weeks).
+          if (!resultStr) {
+            if (pageNum === 1) { recordFailure(portal, group.name, 'CiC snippet evaluate failed on page 1', 'config'); failed = true; }
+            break;
+          }
           let parsed;
-          try { parsed = JSON.parse(resultStr); } catch { console.log(`  ⚠ snippet did not return JSON`); break; }
-          total += parsed.c || (parsed.L ? parsed.L.length : 0);
+          try { parsed = JSON.parse(resultStr); } catch {
+            console.log(`  ⚠ snippet did not return JSON`);
+            if (pageNum === 1) { recordFailure(portal, group.name, 'CiC snippet returned non-JSON on page 1', 'config'); failed = true; }
+            break;
+          }
+          const pageCount = parsed.c || (parsed.L ? parsed.L.length : 0);
+          if (pageCount === 0 && pageNum === 1) {
+            console.log(`  ✗ 0 listings on page 1 (after retry) — selector drift or empty shell → flagging`);
+            recordFailure(portal, group.name, 'CiC snippet returned 0 listings on page 1 (selector drift?)', 'config');
+            failed = true;
+            break;
+          }
+          total += pageCount;
 
           const tmp = `${os.tmpdir()}/immo-cic-${cicSnippetSlug(portal.name)}-${pageNum}.json`;
           writeFileSync(tmp, resultStr);
           const psArgs = ['scripts/process-scan.mjs', '--file', tmp, '--portal', portal.name, '--group', group.name];
           if (DRY_RUN) psArgs.push('--dry-run');
-          let out = '';
+          let out = '', childFailed = false;
           try { out = execFileSync('node', psArgs, { cwd: ROOT, encoding: 'utf8' }); }
-          catch (e) { out = (e.stdout || '') + (e.stderr || ''); }
+          catch (e) { out = (e.stdout || '') + (e.stderr || ''); childFailed = e.status !== 0; }
           process.stdout.write(out.split('\n').filter(Boolean).map(l => '    ' + l).join('\n') + '\n');
+          if (childFailed) {
+            recordFailure(portal, group.name, `process-scan.mjs failed: ${out.trim().split('\n')[0].slice(0, 100)}`, 'config');
+            failed = true;
+            break;
+          }
 
           const processed = parseInt((out.match(/Processed:\s*(\d+)/) || [])[1] || '0', 10);
           const dups = parseInt((out.match(/Duplicates:\s*(\d+)/) || [])[1] || '0', 10);
@@ -478,8 +534,12 @@ async function runCicScan() {
           pageNum++;
           if (portal.rate_limit) await page.waitForTimeout(portal.rate_limit * 1000);
         }
-        console.log(`  ✓ done (${total} listings seen)`);
-        portalsDone++;
+        if (failed) {
+          console.log(`  ⛔ not processed — see failure report`);
+        } else {
+          console.log(`  ✓ done (${total} listings seen)`);
+          portalsDone++;
+        }
       } catch (err) {
         console.log(`  ✗ error: ${err.message}`);
         recordFailure(portal, group.name, (err.message || '').slice(0, 120), 'error');
@@ -493,13 +553,19 @@ async function runCicScan() {
   console.log(`\n${'━'.repeat(40)}`);
   console.log(`CiC portals processed: ${portalsDone}`);
   console.log(`New in pipeline:       ${totalNew}`);
-  if (!DRY_RUN) {
-    writeFileSync(SCAN_FAILURES_PATH, JSON.stringify({ timestamp: new Date().toISOString(), failures: scanFailures }, null, 2));
-  }
+  let carried = [];
+  if (!DRY_RUN) carried = writeFailuresReport();
   if (scanFailures.length) {
-    console.log(`\n⛔ Not processed:`);
+    console.log(`\n⛔ Not processed this run:`);
     for (const f of scanFailures) console.log(`  - ${f.portal} [${f.group}] — ${f.reason}`);
   }
+  if (carried.length) {
+    console.log(`\n⚠ Still open from other passes (carried over in ${SCAN_FAILURES_PATH.replace(ROOT + '/', '')}):`);
+    for (const f of carried) console.log(`  - ${f.portal} [${f.group}] — ${f.reason} → ${f.fallback}`);
+  }
+  // Exit 3 = scan completed but with unprocessed portals; distinguishes a
+  // partial run from full coverage (0) and from a hard crash (1/2).
+  if (scanFailures.length) process.exitCode = 3;
 }
 
 async function main() {
@@ -548,6 +614,7 @@ async function main() {
       console.log(`  (scanning ${portals.length} portals, up to ${SCAN_CONCURRENCY} in parallel)`);
     }
     const portalResults = await runPool(portals, SCAN_CONCURRENCY, async (portal) => {
+      attemptedPortals.add(portalKey(portal.name, group.name));
       const { listings, logs } = await scanPortal(browser, portal, group.name);
       console.log(`\n[${portal.name}]\n${logs.join('\n')}`);
       return listings;
@@ -623,13 +690,11 @@ async function main() {
   }
 
   // ── Failure report + routing signal ──────────────────────────────
-  // Always (re)write the failures file so a clean run clears a stale one.
-  if (!DRY_RUN) {
-    writeFileSync(SCAN_FAILURES_PATH, JSON.stringify({
-      timestamp: new Date().toISOString(),
-      failures: scanFailures,
-    }, null, 2));
-  }
+  // Merged write: this run's outcome supersedes stale entries for the portals it
+  // attempted (a clean pass clears them); entries from portals NOT attempted here
+  // (e.g. the CiC pass's) are carried over, never clobbered.
+  let carried = [];
+  if (!DRY_RUN) carried = writeFailuresReport();
 
   if (scanFailures.length > 0) {
     console.log(`\n${'⚠'.repeat(20)}`);
@@ -645,9 +710,18 @@ async function main() {
     console.log(`     Details written to ${SCAN_FAILURES_PATH.replace(ROOT + '/', '')}`);
   }
 
+  if (carried.length > 0) {
+    console.log(`\n⚠ Still open from other passes (carried over in ${SCAN_FAILURES_PATH.replace(ROOT + '/', '')}):`);
+    for (const f of carried) console.log(`  - ${f.portal} [${f.group}] — ${f.reason} → ${f.fallback}`);
+  }
+
   if (totalStats.added > 0) {
     console.log(`\n→ Run /immo-find pipeline to evaluate them.`);
   }
+
+  // Exit 3 = scan completed but with unprocessed portals; distinguishes a
+  // partial run from full coverage (0) and from a hard crash (1).
+  if (scanFailures.length > 0) process.exitCode = 3;
 }
 
 main().catch(err => {

@@ -42,34 +42,23 @@ immo-find — Discover Listings
 ## Context Loading
 
 ### Scan mode:
-Read `modes/scan.md`. Load `portals.yml` + `config/profile.yml` + `data/scan-history.tsv`.
+Read `modes/scan.md` — the **single source of truth** for scan execution: methods, CAPTCHA doctrine (wait 5–10 s in the trusted browser before involving the user), pagination (≥80%-seen early-stop, no page cap), failure routing via `data/scan-failures.json`, and the mandatory coverage report. Load `portals.yml` + `config/profile.yml` + `data/scan-history.tsv`.
 
-**Two scan methods** (determined by `scan_method` in portals.yml):
+**Routing by `scan_method`** (details in `modes/scan.md`):
 
 #### 1. Playwright portals (`scan_method: playwright`)
-Run headlessly via script: `node scripts/scan.mjs`
-Can run in background, unattended. Handles Immowelt, Kleinanzeigen, Vonovia, etc.
+Run headlessly via script: `node scripts/scan.mjs`. Can run in background, unattended.
 
 #### 2. CiC portals (`scan_method: cic`)
-Portals with aggressive bot detection (ImmoScout24, Regionalimmobilien24, eBay) block any
-FRESH/headless browser, so they must be scanned through a **persistent, logged-in, trusted**
-Chrome. Two ways to do that — **prefer Method A when it's available:**
-
-**Method A — automated over CDP (`scan.mjs --cic`), preferred.** Drives a dedicated,
-logged-in debug Chrome via the DevTools protocol; runs the same snippets and writes JSON
-straight to disk — no interactive browser, no ~1 KB chunking, fully scriptable. Full flow +
-security notes: `docs/cic-cdp-scan.md`.
+Bot-protected portals need a **persistent, logged-in, trusted** Chrome. **Prefer Method A — automated over CDP:**
 ```
-npm run chrome:immo          # start the dedicated debug Chrome (idempotent); first time, log into IS24 once
+npm run chrome:immo          # start the dedicated debug Chrome (idempotent); first time, log in to the bot-protected portal once
 node scripts/scan.mjs --cic  # scan all enabled scan_method: cic portals → process-scan
 ```
-Use A when `scripts/immo-chrome.sh --status` reports the debug browser up (or you can start
-it). If `--cic` can't connect or a portal stays CAPTCHA-blocked, it records a ⛔ failure and
-you fall back to Method B. (Trust is per-profile — the dedicated profile must be logged into
-IS24 once; see `[[feedback-captcha-wait]]` / `[[reference-cic-cdp-scan]]`.)
+Use A when `scripts/immo-chrome.sh --status` reports the debug browser up (or you can start it). Full flow + security notes: `docs/cic-cdp-scan.md`. If `--cic` can't connect or a portal stays CAPTCHA-blocked, it records a ⛔ failure and you fall back to **Method B — interactive via Claude-in-Chrome** (the manual real-browser pass below; the transport/chunking deltas there are specific to the interactive tool).
 
-**Method B — interactive via Claude-in-Chrome (fallback).** The manual real-browser pass
-below. Use it when the CDP browser isn't set up/reachable, or for a one-off.
+#### 3. Websearch portals (`scan_method: websearch`)
+NOT implemented in `scan.mjs` — the agent runs these itself: WebSearch with the portal's `search_query`, verify candidates are still active, feed survivors through triage → `process-scan.mjs`. Procedure: `modes/scan.md` "websearch". Because no script accounts for them, they MUST appear in the coverage report every run.
 
 **CiC tab management (Method B):**
 ALWAYS create a dedicated tab for CiC scanning via `tabs_create_mcp`. Never reuse existing tabs. When done, close only the tab(s) you created via `tabs_close_mcp` — never close tabs you didn't create.
@@ -103,7 +92,8 @@ ALWAYS create a dedicated tab for CiC scanning via `tabs_create_mcp`. Never reus
 1. First: run `node scripts/scan.mjs` for Playwright portals (can be backgrounded)
 2. Read `data/scan-failures.json` — route Playwright failures: `fallback: "cic"` portals join the CiC pass below (if a snippet exists); everything else becomes a ⛔ coverage item (see the Coverage report RULE).
 3. Then: scan CiC portals (registered CiC portals + bot-defense fallbacks from step 2). **Prefer Method A** (`node scripts/scan.mjs --cic`) if the dedicated debug Chrome is reachable (`scripts/immo-chrome.sh --status`); otherwise **Method B** (interactive Claude-in-Chrome).
-4. Show combined summary, including the coverage report of any portal not processed and what blocked it
+4. Then: run the AI-executed pass for every enabled `scan_method: websearch` portal (see the routing section above / `modes/scan.md`).
+5. Show combined summary, including the coverage report accounting for EVERY enabled portal of ALL three methods — playwright, cic, and websearch — with the exact blocker for each ⛔ entry
 
 ### Pipeline mode:
 Read `modes/_shared.md` + `modes/pipeline.md`.
@@ -116,7 +106,7 @@ Delegates individual evaluations to /immo-assess.
 ### Auto mode (for `/loop` usage):
 Full automated cycle designed for `loop 1h /immo-find auto`. The purpose is to deliver scored, actionable recommendations — not raw links. Every step must complete before notifying.
 
-**RULE — `scan auto` ALWAYS runs the FULL scan (Playwright Step 1 AND the CiC pass Step 2), every time, unless the user explicitly scopes it down in their request.** The CiC pass — every enabled `scan_method: cic` portal in `portals.yml`, plus any `fallback: "cic"` portals from Step 1b — is NOT optional and NOT deferrable. "I'll flag the CiC portals and run them next time" is a FAILURE, not an acceptable outcome — a coverage gap is something you CLOSE by doing the run, not something you merely report. The only acceptable reasons to skip the CiC pass are: (a) the user explicitly asked for Playwright-only / a named subset, or (b) session-mode is remote and CiC is disabled (then surface it as ⛔ and stop before notifying). Mid-cycle interruptions (config edits, adding a portal, answering a question) do NOT cancel the remaining steps — resume and finish the full run before notifying.
+**RULE — `scan auto` ALWAYS runs the FULL scan (Playwright Step 1, the CiC pass Step 2, AND the websearch pass Step 2b), every time, unless the user explicitly scopes it down in their request.** The CiC pass — every enabled `scan_method: cic` portal in `portals.yml`, plus any `fallback: "cic"` portals from Step 1b — is NOT optional and NOT deferrable; the same goes for enabled `scan_method: websearch` portals. "I'll flag the CiC portals and run them next time" is a FAILURE, not an acceptable outcome — a coverage gap is something you CLOSE by doing the run, not something you merely report. The only acceptable reasons to skip the CiC pass are: (a) the user explicitly asked for Playwright-only / a named subset, or (b) session-mode is remote and CiC is disabled (then surface it as ⛔ and stop before notifying). Mid-cycle interruptions (config edits, adding a portal, answering a question) do NOT cancel the remaining steps — resume and finish the full run before notifying.
 
 **Step 1 — Playwright scan:**
 ```
@@ -133,12 +123,11 @@ Capture stdout. Note how many new listings were added.
 **Step 2 — CiC scan (MANDATORY — every enabled `scan_method: cic` portal, plus Playwright bot-defense fallbacks from Step 1b):**
 This step always runs when any CiC portal is enabled. Do not skip, defer, or substitute "flag for next time" (see the FULL-scan RULE above).
 1. Read `portals.yml` for CiC portals; add any `fallback: "cic"` portals from Step 1b that have a snippet.
-2. **Method A first (automated).** If the dedicated debug Chrome is reachable (`scripts/immo-chrome.sh --status`, or start it with `npm run chrome:immo`), run `node scripts/scan.mjs --cic` — it scans every enabled `scan_method: cic` portal over CDP and pipes to `process-scan.mjs` itself. Done. (See the CiC portals section "Method A" and `docs/cic-cdp-scan.md`.)
-3. **Method B fallback (interactive).** Only if A is unavailable (debug Chrome not set up / can't connect) or a portal stays CAPTCHA-blocked under A:
-   a. Create a new CiC tab (note the tabId)
-   b. For each remaining CiC portal: navigate → extract via JS snippet → pipe to `process-scan.mjs` (paginate all pages, up to 100)
-   c. Close your tab
-4. Note how many new listings were added. Any `fallback: "cic"` portal WITHOUT a snippet remains a ⛔ coverage item.
+2. Scan them per the **CiC portals section above** (Method A preferred, Method B interactive fallback — do not re-derive the selection here).
+3. Note how many new listings were added. Any `fallback: "cic"` portal WITHOUT a snippet remains a ⛔ coverage item.
+
+**Step 2b — Websearch portals (part of the FULL scan):**
+For every enabled `scan_method: websearch` portal, run the AI-executed pass (see routing section 3 above / `modes/scan.md`). These portals count toward coverage exactly like the scripted ones — an unrun websearch portal is a ⛔ coverage item, never a silent omission.
 
 **Step 3 — Pipeline triage (AI judgement, not keyword matching):**
 The scan scripts apply ONLY objective numeric gates + dedup — they never drop by title.
@@ -188,7 +177,7 @@ After all agents complete: `node scripts/merge-tracker.mjs`
 
 **Step 5 — Verification (MUST pass before notify):**
 Before sending any notification, verify:
-- [ ] **Every enabled portal — Playwright AND CiC — was actually scanned this cycle.** An enabled CiC portal that was not run is a verification FAILURE, not a reportable gap. Do NOT proceed to notify by "flagging it for next time" — go back and run Step 2. The only pass-through exceptions are a portal genuinely blocked this run (CAPTCHA after retry, login wall, remote session-mode disabling CiC) — those, and only those, become ⛔ coverage items.
+- [ ] **Every enabled portal — Playwright, CiC, AND websearch — was actually scanned this cycle.** An enabled CiC or websearch portal that was not run is a verification FAILURE, not a reportable gap. Do NOT proceed to notify by "flagging it for next time" — go back and run Step 2 / Step 2b. The only pass-through exceptions are a portal genuinely blocked this run (CAPTCHA after retry, login wall, remote session-mode disabling CiC) — those, and only those, become ⛔ coverage items.
 - [ ] `data/scan-failures.json` reviewed: every `fallback: "cic"` portal WITH a snippet was actually scanned via CiC in Step 2; every remaining failure (no snippet / reconfigure / retry) is accounted for in the coverage report
 - [ ] Pipeline has 0 pending `- [ ]` entries (all evaluated or discarded)
 - [ ] `node scripts/verify-pipeline.mjs` passes
@@ -196,7 +185,7 @@ Before sending any notification, verify:
 If verification fails, DO NOT notify. Complete the missing work (e.g. run the CiC pass) and re-verify; only stop-and-report if something is genuinely blocked and cannot be completed this run.
 
 **RULE — Coverage report (ALWAYS, every scan/auto run):**
-Walk EVERY *enabled* portal across ALL search groups in `portals.yml` and account for each one. The chat summary and the email scan-note MUST explicitly list every enabled-but-not-processed entry and the exact blocker. Never silently omit a blocked portal. Disposition categories (ignore `enabled: false` portals — do NOT list disabled rows):
+Walk EVERY *enabled* portal across ALL search groups in `portals.yml` — **all three methods: playwright, cic, and websearch** — and account for each one. Websearch portals are the easiest to silently skip (no script runs them), so they get explicit rows like everything else. The chat summary and the email scan-note MUST explicitly list every enabled-but-not-processed entry and the exact blocker. Never silently omit a blocked portal. Disposition categories (ignore `enabled: false` portals — do NOT list disabled rows):
 - ✅ **scanned** (with new/seen count)
 - ⛔ **not processed** — an enabled portal that did not get scanned. ALWAYS state the blocker: CAPTCHA, missing extractor snippet, 403/bot-block, timeout, navigation error, redirect failure, no `--group` match, etc.
 Present the account as a per-group coverage table (Portal · Method · Status · What stopped it). The ⛔ rows are the priority — surface them prominently; an enabled portal that yielded nothing because it was blocked is NOT the same as one that yielded nothing legitimately.
@@ -205,6 +194,7 @@ Present the account as a per-group coverage table (Portal · Method · Status ·
 Only after verification passes:
 1. **Push notification** via `PushNotification` — short summary (under 200 chars):
    `immo-ops: {N} new — {counts per target} (top: #{id} {score}/5)`
+   If the `PushNotification` tool is unavailable in the session, skip the push and rely on the email.
 2. **Email draft** via Gmail MCP — HTML with sections per search target, tables with scored listings, pro/con, color-coded.
 
 If no new listings were found in this cycle, skip both silently.
@@ -227,7 +217,7 @@ PushNotification({
   status: "proactive"
 })
 ```
-Under 200 chars. Lead with total count, break down by target, mention top pick.
+Under 200 chars. Lead with total count, break down by target, mention top pick. If the `PushNotification` tool is unavailable in the session, skip the push and rely on the email.
 
 **2. Email draft** (detailed):
 

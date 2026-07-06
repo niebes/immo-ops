@@ -8,10 +8,10 @@ Six skills mapped to the apartment hunting journey:
 
 | Skill | Phase | Modes |
 |-------|-------|-------|
-| `/immo-find` | **Discover** | scan, pipeline, batch |
+| `/immo-find` | **Discover** | scan, pipeline, batch, auto, notify |
 | `/immo-assess` | **Analyze** | evaluate, compare, scam-check, market, auto-pipeline |
 | `/immo-apply` | **Act** | contact, selbstauskunft, documents |
-| `/immo-track` | **Manage** | tracker, viewing |
+| `/immo-track` | **Manage** | tracker, viewing, log |
 | `/immo-research` | **Deep-dive** | research (subagent) |
 | `/immo-portal` | **Configure** | discover URL, build extractor, register, verify |
 
@@ -37,7 +37,7 @@ See `DATA_CONTRACT.md`. User-layer files are NEVER auto-updated. System-layer fi
 
 ## Scoring System
 
-8-block weighted scoring (details in `modes/_shared.md`):
+8-block weighted scoring. **Authoritative details — per-block scoring rules, exact weights, hard-blocker list, scam-signal reliability tiers — live in `modes/_shared.md` (the SSOT for scoring numbers); the tables here are orientation only.**
 
 | Block | Dimension | Default Weight |
 |-------|-----------|---------------|
@@ -52,7 +52,7 @@ See `DATA_CONTRACT.md`. User-layer files are NEVER auto-updated. System-layer fi
 
 Score interpretation: 4.5+ apply immediately, 4.0–4.4 strong, 3.5–3.9 decent, 3.0–3.4 issues, <3.0 not recommended.
 
-Hard blockers cap score at ≤2.0: excluded area, WBS required without WBS, no pets when user has pets, Zwischenmiete.
+Hard blockers cap score at ≤2.0: excluded area, WBS required without WBS, no pets when user has pets, Zwischenmiete, price 40%+ above target (full list: `modes/_shared.md`).
 
 ## German Real Estate Domain Rules
 
@@ -61,7 +61,7 @@ Hard blockers cap score at ≤2.0: excluded area, WBS required without WBS, no p
 - **Kaution**: Maximum 3 Nettokaltmieten. Flag anything above.
 - **Kaltmiete vs Warmmiete**: ALWAYS show both. Warmmiete = Kaltmiete + Nebenkosten + Heizkosten.
 - **WBS**: Wohnberechtigungsschein — social housing eligibility. Filter out by default unless user has one.
-- **Bestellerprinzip**: Tenant does NOT pay agent fees for rentals (since 2015). Flag violations.
+- **Bestellerprinzip**: Tenant does NOT pay agent fees for rentals (since June 2015). Flag violations.
 - **Eigenbedarf**: Landlord eviction for personal use — risk with private landlords. Note in Block H.
 - **Energieausweis**: Required by law. Classes A+ to H. Score in Block D.
 
@@ -73,7 +73,7 @@ Hard blockers cap score at ≤2.0: excluded area, WBS required without WBS, no p
 - **Hausgeld**: Monthly fee for apartment owners (Eigentümergemeinschaft). Show alongside mortgage.
 
 ### Scam Detection (ALWAYS run during evaluation)
-Red flags — any of these should trigger a warning:
+Red flags — any of these should trigger a warning (authoritative signal list with reliability tiers: `modes/_shared.md`):
 - Price >20% below Mietspiegel for the area
 - Landlord claims to be abroad / "send key by mail"
 - Advance payment / Kaution requested before viewing
@@ -126,6 +126,8 @@ Red flags — any of these should trigger a warning:
 Canonical statuses (see `templates/states.yml`):
 `New → Evaluated → Interested → Contacted → Viewing → Viewed → Applied → Accepted / Rejected / Discarded / Expired`
 
+Swap listings branch after Evaluated: `Evaluated → Swap-candidate` (two-sided match passed; speculative until Vermieter consent — see the Tauschwohnung section below).
+
 ## Report Format
 
 Reports go to `reports/{NNN}-{location}-{rooms}r-{date}.md` with blocks A–H plus summary and next steps. See `modes/evaluate.md` for full format.
@@ -160,10 +162,9 @@ Scan methods: `playwright` (headless, `npm run scan`) and `cic` (bot-protected p
 Portals are configured in `portals.yml` (user layer, gitignored). The template at `templates/portals.example.yml` has a starter set.
 
 When a CiC portal shows a CAPTCHA:
-1. Inform the user which portal is blocked
-2. Ask user to solve CAPTCHA in the open browser tab
-3. After user confirms, resume extraction
-4. If user is unavailable, skip portal and note it in the scan summary
+1. Wait 5–10 s and re-check — in the trusted, logged-in browser most CAPTCHAs auto-solve (a fresh/headless browser stays blocked; that's why CiC portals need the persistent profile)
+2. Only if still blocked after waiting: inform the user which portal is blocked and ask them to solve it in the open browser tab, then resume extraction
+3. If the user is unavailable, skip the portal and record it as a ⛔ coverage item in the scan summary
 
 ## First Run
 

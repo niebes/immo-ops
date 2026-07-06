@@ -22,7 +22,7 @@ If a landlord or Hausverwaltung name is known (from the listing or evaluation re
 
 ### 2. Neighborhood / Area Quality
 
-- **Safety**: Crime statistics for the PLZ/Bezirk (polizei.berlin.de or similar)
+- **Safety**: Crime statistics for the PLZ/Bezirk — WebSearch the official crime stats for the profile's city (the state police's Kriminalitätsatlas/statistics portal; city from `config/profile.yml` or the listing address)
 - **Noise**: Flight paths, train lines, nightlife areas, construction sites
 - **Demographics**: Age distribution, international mix, family-friendliness
 - **Green spaces**: Parks, playgrounds, lakes within walking distance
@@ -45,7 +45,7 @@ If a specific address is known:
 - **Previous listings at the same address**: High turnover = potential problem
 - **Building energy rating**: If Energieausweis details available
 - **Denkmalschutz** (heritage protection): May limit renovations
-- **Flood/environmental risks**: Check Umweltatlas Berlin for flood zones, contaminated sites
+- **Flood/environmental risks**: Check the city/state environmental atlas for flood zones and contaminated sites — WebSearch `"{city} Umweltatlas"` / `"{Bundesland} Hochwassergefahrenkarte"`
 
 ### 5. Risk Assessment
 

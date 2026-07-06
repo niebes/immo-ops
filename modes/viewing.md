@@ -12,10 +12,14 @@ Manages the viewing schedule and generates tailored checklists for property view
 
 ## Schedule Workflow
 
-1. Read listing # from `data/listings.md` and its report from `reports/`
-2. Add entry to `data/viewings.md`
+**Scheduling procedure: see `.claude/skills/immo-track/SKILL.md` "Viewing mode — scheduling a viewing" — ALL FOUR steps are mandatory** (including the calendar event; do not skip any because you loaded only this file):
+
+1. Read listing # from `data/listings.md` and its report from `reports/`; then add/update the row in `data/viewings.md` (date, time, address, contact, status)
+2. **`correspondence/{NNN}-{slug}.md`** — log the appointment (see `correspondence/README.md`); set the file's Status; include the **Duplicates / also listed as** block (`node scripts/duplicates.mjs {NNN}`, full clickable URLs)
 3. Update listing status to `Viewing` in `data/listings.md`
-4. Auto-generate checklist (see below)
+4. **Google Calendar** — create the event per `google-calendar-mcp.md` (Europe/Berlin, 1-day + 2-hour reminders, no attendees, `location` = full street address via follow-up `update_event`, description with links/facts/FRAGEN checklist + Duplicates block)
+
+Then auto-generate the checklist (see below).
 
 ## Checklist Generation
 

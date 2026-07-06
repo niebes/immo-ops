@@ -28,7 +28,9 @@ const args = process.argv.slice(2);
 const groupIdx = args.indexOf('--group');
 const groupFilter = groupIdx !== -1 ? args[groupIdx + 1] : null;
 const ALL = args.includes('--all');
-const portalName = args.filter((a, i) => a !== '--group' && i !== groupIdx + 1 && a !== '--all')[0];
+// Note: only exclude the --group VALUE when --group is present; with groupIdx=-1,
+// groupIdx+1 is 0 and would wrongly drop the first positional arg (the portal name).
+const portalName = args.filter((a, i) => a !== '--group' && (groupIdx === -1 || i !== groupIdx + 1) && a !== '--all')[0];
 
 const rows = [];
 for (const group of portals.search_groups || []) {

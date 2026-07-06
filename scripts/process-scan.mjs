@@ -57,6 +57,17 @@ const profile = loadYaml(PROFILE_PATH);
 const search = GROUP_NAME
   ? profile?.searches?.find(s => s.name === GROUP_NAME)
   : profile?.searches?.find(s => s.enabled !== false);
+// A --group that matches no profile search means criteria filtering would be
+// silently bypassed AND pipeline entries get a label no evaluator recognizes
+// (this happened: 176 entries labeled with a stale template group name).
+// Hard-fail so the caller (scan.mjs --cic records it as a portal failure) or
+// the operator fixes the name instead of ingesting unfiltered data.
+if (GROUP_NAME && !search && profile?.searches?.length) {
+  console.error(`✗ No search named "${GROUP_NAME}" in config/profile.yml.`);
+  console.error(`  Known searches: ${profile.searches.map(s => s.name).join(', ')}`);
+  console.error(`  portals.yml group names must exactly match searches[].name.`);
+  process.exit(4);
+}
 const criteria = search ? {
   minRooms: search.size?.min_rooms || null,
   minM2: search.size?.min_m2 || null,
@@ -192,11 +203,17 @@ if (!DRY_RUN) {
   }
 
   if (newListings.length > 0) {
-    const pipeline = existsSync(PIPELINE_PATH) ? readFileSync(PIPELINE_PATH, 'utf8') : '# Pipeline\n\n## Pending\n\n## Processed\n';
+    let pipeline = existsSync(PIPELINE_PATH) ? readFileSync(PIPELINE_PATH, 'utf8') : '# Pipeline\n\n## Pending\n\n## Processed\n';
+    // Without this guard a missing header makes indexOf return -1 and the
+    // entries get spliced at byte 0's first newline — silent corruption.
+    if (!pipeline.includes('## Pending')) pipeline += '\n## Pending\n';
     const pendingIdx = pipeline.indexOf('## Pending');
     const insertIdx = pipeline.indexOf('\n', pendingIdx) + 1;
+    // Same line format as scan.mjs writePipeline() — one format in pipeline.md,
+    // so the evaluator never has to guess which field is the group.
+    const groupLabel = GROUP_NAME || search?.name || '';
     const entries = newListings.map(l =>
-      `- [ ] ${l.url} | ${l.portal} | ${l.title}${l.price ? ` | ${l.price} EUR` : ''}${l.m2 ? ` | ${l.m2} m²` : ''}`
+      `- [ ] ${l.url} | ${l.portal} | ${groupLabel} | ${l.title}${l.price ? ` | ${l.price} EUR` : ''}${l.m2 ? ` | ${l.m2} m²` : ''}`
     ).join('\n') + '\n';
     writeFileSync(PIPELINE_PATH, pipeline.slice(0, insertIdx) + entries + pipeline.slice(insertIdx));
   }

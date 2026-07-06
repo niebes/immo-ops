@@ -1,107 +1,79 @@
 # Mode: scan — Portal Scanner
 
-Scans configured real estate portals, filters by search criteria and title keywords, deduplicates against history, and adds new listings to the pipeline for evaluation.
-
-## Recommended Execution
-
-Run as subagent to avoid consuming main context:
-
-```
-Agent(
-    subagent_type="general-purpose",
-    prompt="[content of this file + portals.yml + profile.yml + scan-history.tsv]",
-    description="immo-scan",
-    run_in_background=True
-)
-```
+Single source of truth for scan execution. Scans configured real estate portals, applies AI title triage and objective criteria gates, deduplicates against history, and adds new listings to the pipeline for evaluation.
 
 ## Configuration
 
-Read `portals.yml` which contains `search_groups` — one group per search target:
+Read `portals.yml`, which contains `search_groups` — one group per search target:
 - Each group has a `name` matching a `searches[].name` in `config/profile.yml`
 - `scan_defaults`: Default search parameters (city, price, rooms, size) for that target
-- `portals`: List of portals with scan method, URL, rate limits
-- `title_filter`: Positive/negative keyword filters specific to that target
+- `portals`: List of portals with `scan_method`, `search_url` (or `search_query`), rate limits
+- `title_filter`: Advisory keyword checklist for the AI triage (NOT a mechanical gate)
 
 Read `config/profile.yml` for active searches (used to match scan results against criteria).
 
-**Multi-target scanning:** When scanning, either scan all groups or a specific one (user can specify). Each group's results are tagged with the search name and filtered independently using that group's defaults and title_filter.
+**Multi-target scanning:** Scan all groups, or a specific one if the user requests it. Each group's results are tagged with the search name and filtered independently using that group's defaults.
 
 **Enabled flag:** Both search groups (in portals.yml) and searches (in profile.yml) support `enabled: false` to skip them during scans. Default is `true` if omitted.
 
-## Scan Strategy (2 levels)
+## Scan Methods
 
-### Level 1 — Playwright (PRIMARY)
+Each portal's `scan_method` in `portals.yml` determines how it is scanned:
 
-For each portal with `scan_method: playwright` and `enabled: true`:
+### `playwright` — headless script (primary)
 
-1. `browser_navigate` to the `search_url`
-2. Handle cookie consent: click "Akzeptieren" / "Alle akzeptieren" / "Alle Cookies akzeptieren" button
-3. Wait for results to load (some SPAs need 2–3 seconds)
-4. `browser_snapshot` to read all visible listings
-5. For each listing extract: `{title, url, price, m2, rooms, location}`
-6. If pagination exists, navigate additional pages (max 5 pages per portal)
-7. Respect `rate_limit` between page navigations
+```
+node scripts/scan.mjs                # all enabled groups (npm run scan)
+node scripts/scan.mjs --group "{group name}"
+node scripts/scan.mjs --portal "{portal name}"
+node scripts/scan.mjs --dry-run      # preview without writing
+node scripts/scan.mjs --deep         # disable the ≥80%-seen early-stop, raise listing cap
+```
 
-**Cookie consent patterns by portal:**
-- ImmoScout24: "Alle akzeptieren" button in consent overlay
-- Immowelt: "Alle akzeptieren" button
-- Kleinanzeigen: "Alle akzeptieren" button
-- Others: look for German consent text ("Akzeptieren", "Zustimmen", "Alle Cookies")
+The script handles navigation, cookie consent, extraction (via `scripts/portals/*.mjs` extractors), pagination, the numeric criteria gate, dedup, and pipeline/history writes. It can run unattended in the background.
 
-**Bot detection mitigation:**
-- Respect `rate_limit` (seconds between requests)
-- Don't navigate more than 5 pages per portal per scan
-- If CAPTCHA detected: ask user to solve it manually in the browser tab, then resume. If user is unavailable, skip portal and note in scan summary.
-- Portals with `captcha_risk: high` (e.g., ImmoScout24) should be scanned last — if they block, we still have results from other portals.
+### `cic` — bot-protected portals (trusted browser required)
 
-**Tauschwohnung handling (config-driven):**
-German portals (especially ImmoScout24, Immowelt) carry many swap listings from
-tauschwohnung.com. Whether these are relevant depends on the profile:
-- If **no** enabled search sets `include_swaps: true` → swaps are non-fits. The AI title
-  triage (step 5) discards them as `discarded_triage` with reason "swap".
-- If a search sets `include_swaps: true` **and** a `swap_offer:` block exists → swaps are
-  **kept**. Triage does NOT drop them; they flow into the pipeline like any candidate and
-  the two-sided swap match runs at evaluation (see `modes/evaluate.md` step 4). Do the
-  numeric hard gate (step 6) on THEIR flat as usual.
-- Swap indicators to recognise: title contains "Tauschwohnung", "Wohnungstausch",
-  "Tausche", "gegen Wohnung"; Anbieter "Tauschwohnung GmbH"; description references a
-  swap partner / tauschwohnung.com.
+Portals with aggressive bot detection block any fresh/headless browser; they must be scanned through a **persistent, logged-in, trusted** Chrome. Two ways — **prefer A**:
 
-### Level 2 — WebSearch (DISCOVERY)
+**A — Automated over CDP (preferred):**
+```
+npm run chrome:immo          # start the dedicated logged-in debug Chrome (idempotent)
+node scripts/scan.mjs --cic  # scan all enabled scan_method: cic portals
+```
+Fully scripted: navigate → consent → wait out CAPTCHA → run the portal's `scripts/portals/{slug}-cic.js` snippet → pipe to `process-scan.mjs`. Full flow + security notes: `docs/cic-cdp-scan.md`. Use A when `scripts/immo-chrome.sh --status` reports the debug browser up (or you can start it).
 
-For each portal with `scan_method: websearch` and `enabled: true`:
+**B — Interactive via Claude-in-Chrome (fallback):** manual pass in the user's real Chrome — navigate, run the `{slug}-cic.js` snippet via `javascript_tool`, pipe the compact `{c,n,p,L}` result to `process-scan.mjs`. Use only when the CDP browser isn't set up/reachable, or a portal stays blocked under A. Tab rule: create a dedicated tab (`tabs_create_mcp`), close only your own tab when done. Procedure details: the CiC scan workflow in `.claude/skills/immo-find/SKILL.md`.
 
-1. Execute WebSearch with the `search_query`
-2. Extract `{title, url, location}` from results
-3. Results may be stale — verify with Playwright before adding to pipeline
+**CAPTCHA doctrine (trusted browser):** in the trusted CiC/CDP browser most CAPTCHAs auto-solve — wait 5–10 s, then re-check (the script retries this automatically). Only involve the user if the portal is STILL blocked after waiting. If the user is unavailable, skip the portal and record it as a ⛔ coverage item. Never ask the user as the first step. (A fresh/headless browser has no trust and stays blocked — that is why CiC portals need the persistent profile, not user intervention.)
 
-**Priority:** Level 1 first, then Level 2. Results are merged and deduplicated.
+### `websearch` — AI-executed discovery
+
+`scan_method: websearch` portals are **not implemented in `scan.mjs`** — the agent runs them itself during the scan run:
+
+1. Execute WebSearch with the portal's `search_query`
+2. Extract `{title, url, location}` candidates from results
+3. Results may be stale — verify each new candidate is still active (WebFetch or browser) before adding to the pipeline
+4. Feed survivors through the same triage → criteria gate → dedup → pipeline steps below (pipe as JSON to `process-scan.mjs --portal "{name}" --group "{group}"` where practical)
+
+Because no script covers these portals, they are the easiest to silently skip — **they MUST appear in the coverage report** (✅ scanned or ⛔ with blocker), every run.
+
+## Failure Routing (`data/scan-failures.json`)
+
+`scan.mjs` writes this file every run (empty `failures: []` on a clean run). It is the source of truth for what could NOT be processed. For each entry:
+- `fallback: "cic"` (CAPTCHA, 403, bot-block, 0 cards extracted) → the site blocks headless. Rescan it in the CiC pass IF a `{slug}-cic.js` snippet exists; if not, it is a ⛔ coverage item — recommend building a snippet via `/immo-portal`.
+- `fallback: "reconfigure"` (no search_url, login wall) → not transient. Surface as ⛔ and recommend `/immo-portal`; do not retry blindly.
+- `fallback: "retry"` (transient timeout) → note it; it should clear next cycle.
 
 ## Workflow
 
 1. **Read configuration**: `portals.yml`, `config/profile.yml`
 2. **Read dedup sources**: `data/scan-history.tsv`, `data/listings.md`, `data/pipeline.md`
-
-3. **Select search groups**: Scan all `search_groups` from portals.yml, or a specific one if the user requests it. Process each group sequentially.
-
-4. **For each search group**, run Level 1 then Level 2:
-
-   **Level 1 — Playwright scan** (sequential, one portal at a time):
-   For each enabled portal with `scan_method: playwright`:
-   a. Navigate to search URL
-   b. Handle cookie consent
-   c. Extract listings from results
-   d. Paginate if needed (max 5 pages)
-   e. Accumulate candidates
-
-4. **Level 2 — WebSearch** (parallel if possible):
-   For each enabled portal with `scan_method: websearch`:
-   a. Execute search query
-   b. Extract listing candidates
-   c. For each new candidate from WebSearch, verify with Playwright that listing is still active
-
-5. **AI title triage** (NOT a keyword filter):
+3. **Select search groups**: all `search_groups`, or a specific one if the user requests it.
+4. **Playwright pass**: `node scripts/scan.mjs` (optionally `--group`). Then read `data/scan-failures.json` and route failures per the section above.
+5. **CiC pass**: all enabled `scan_method: cic` portals, plus `fallback: "cic"` portals from step 4 that have a snippet. Method A (`node scripts/scan.mjs --cic`) if the debug Chrome is reachable; Method B otherwise.
+6. **Websearch pass**: for each enabled `scan_method: websearch` portal, run the AI-executed discovery above.
+7. **AI title triage** (NOT a keyword filter):
    Title relevance is a judgement call — an apartment swap, a garage/parking space, a
    commercial unit, a WBS-required or time-limited sublet — and the AI reads each title
    to make it. Do **not** mechanically drop on keywords: a word like "Garage" is
@@ -112,38 +84,53 @@ For each portal with `scan_method: websearch` and `enabled: true`:
    title (+ metadata) whether it is a real, on-target rental; discard the clear non-fits
    with a one-line reason and keep the rest. When unsure, keep it — later evaluation
    catches what triage misses (favour recall over precision, same as the area rule).
-   **Swaps:** discard a Tauschwohnung here ONLY if no enabled search sets
+   **Swaps:** discard a swap listing here ONLY if no enabled search sets
    `include_swaps: true`. When swaps are enabled, keep them — the two-sided swap match
-   at evaluation decides fit, not triage.
-
-6. **Filter by criteria** (HARD GATE — objective numbers only, reject before pipeline ingestion):
+   at evaluation decides fit, not triage (see `modes/evaluate.md` step 4 for the
+   detection signals and match procedure).
+8. **Filter by criteria** (HARD GATE — objective numbers only, applied by the scripts):
    Using `scan_defaults` from portals.yml AND `searches` from profile.yml:
-   - Rooms: REJECT if rooms < `rooms_min` (default: 3). Non-negotiable.
-   - Size: REJECT if m² < `size_min` (default: 60). Non-negotiable.
-   - Price: REJECT if price > `price_max` (default: max_kaltmiete from profile). Non-negotiable.
+   - Rooms: REJECT if rooms < `rooms_min`. Non-negotiable.
+   - Size: REJECT if m² < `size_min`. Non-negotiable.
+   - Price: REJECT if price > `price_max` (max_kaltmiete from profile). Non-negotiable.
    - Area: REJECT if location matches an excluded area.
    - If a field could not be extracted from the search result snippet, log a warning but still add to pipeline (better to over-include than silently drop).
-   - Price sanity check: if price is >30% below typical area Mietspiegel, flag as suspicious — likely a coop rent, extraction error, or scam. Still add to pipeline but prepend "⚠ LOW PRICE" to the title.
+   - Price sanity check: if price is >30% below typical area Mietspiegel, flag as suspicious — likely a coop rent, extraction error, or scam. Still add to pipeline but prepend "⚠ LOW PRICE" to the title. Low price is a KEEP-and-flag signal, never an auto-discard.
    - NOTE: the scripts (`scan.mjs`, `process-scan.mjs`) apply ONLY these numeric gates + dedup — never a title keyword filter. Title relevance is the AI triage step above.
-
-7. **Deduplicate** against 3 sources (URL-level, exact match):
+9. **Deduplicate** against 3 sources (URL-level, exact match — handled by the scripts):
    - `data/scan-history.tsv` → URL already seen. Check BEFORE appending — never write duplicate rows.
    - `data/listings.md` → URL already evaluated
    - `data/pipeline.md` → URL already in pending or processed
    A URL that already exists in ANY of these sources is a duplicate, regardless of which scan run or date it was first seen. Skip it entirely — do not re-append to scan-history.tsv.
+10. **For each new listing that passes filters**:
+    a. Add to `data/pipeline.md` under "Pending": `- [ ] {url} | {portal} | {search_group_name} | {title}`
+    b. Register in `data/scan-history.tsv`: `{url}\t{date}\t{portal}\t{title}\t{location}\t{price}\t{m2}\t{rooms}\tadded`
+11. **Filtered listings**: register in scan-history.tsv with status:
+    - `skipped_criteria` — failed the objective price/size/area gate
+    - `skipped_dup` — duplicate
+    - `skipped_expired` — listing no longer active (websearch results)
+    - `discarded_triage` — AI title triage judged it a non-fit (garage, commercial,
+      WBS, sublet, wrong city, or a swap when `include_swaps` is off …); record the
+      one-line reason in the row's title/status
+    Nothing is dropped by keyword — there is no keyword-based skip status.
+12. **Coverage report** (see below) — mandatory last step of every run.
 
-8. **For each new listing that passes filters**:
-   a. Add to `data/pipeline.md` under "Pending": `- [ ] {url} | {portal} | {search_group_name} | {title}`
-   b. Register in `data/scan-history.tsv`: `{url}\t{date}\t{portal}\t{title}\t{location}\t{price}\t{m2}\t{rooms}\tadded`
+## Pagination
 
-9. **Filtered listings**: register in scan-history.tsv with status:
-   - `skipped_criteria` — failed the objective price/size/area gate
-   - `skipped_dup` — duplicate
-   - `skipped_expired` — listing no longer active (WebSearch results)
-   - `discarded_triage` — AI title triage judged it a non-fit (garage, commercial,
-     WBS, sublet, wrong city, or a swap when `include_swaps` is off …); record the
-     one-line reason in the row's title/status
-   (There is no `skipped_title` status anymore — nothing is dropped by keyword.)
+Paginate every portal until one of:
+- **≥80% already-seen early-stop**: if ≥80% of a page's listings are already in scan-history, stop — the rest is old inventory. (`--deep` disables this when history has been pruned.)
+- No next page.
+- The per-portal listing cap (script default 100; 600 with `--deep`).
+
+There is NO fixed page cap. Respect each portal's `rate_limit` (seconds) between page navigations. Portals with `captcha_risk: high` are scanned last, so a block still leaves results from the other portals.
+
+## Coverage Report (MANDATORY, every run)
+
+Every scan run — full or partial — ENDS by accounting for EVERY *enabled* portal across ALL selected search groups in `portals.yml`, **all three methods: playwright, cic, AND websearch**. Disposition per portal:
+- ✅ **scanned** (with new/seen count)
+- ⛔ **not processed** — ALWAYS state the exact blocker: CAPTCHA, missing extractor snippet, 403/bot-block, timeout, navigation error, redirect failure, no `--group` match, websearch pass not run, etc.
+
+Present as a per-group table (Portal · Method · Status · What stopped it). ⛔ rows are the priority — an enabled portal that yielded nothing because it was blocked is NOT the same as one that yielded nothing legitimately. Never silently omit a blocked or skipped portal — websearch portals in particular, since no script accounts for them.
 
 ## Scan History
 
@@ -160,14 +147,19 @@ https://...	2026-05-11	Immowelt	Studio Mitte	Berlin-Mitte	800	28	1	skipped_crite
 ```
 Portal Scan — {YYYY-MM-DD}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
-Portals scanned: {N}
+Portals scanned: {N} of {M} enabled
 Listings found: {N} total
-Filtered out: {N} (title: {N}, criteria: {N})
+Filtered (criteria): {N}
+Discarded (triage): {N}
 Duplicates: {N} (already tracked or in pipeline)
-Expired: {N} (WebSearch results no longer active)
+Expired: {N} (websearch results no longer active)
 New added to pipeline: {N}
 
   + {portal} | {title} | {location} | {price} EUR
+  ...
+
+Coverage:
+  {Group} | {Portal} | {method} | ✅/⛔ | {blocker if ⛔}
   ...
 
 → Run /immo-find pipeline to evaluate the new listings.

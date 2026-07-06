@@ -33,10 +33,15 @@ pull the JSON out in ~900-char slices) with one hands-off command.
 npm run chrome:immo         # ensure the debug browser is up (no-op if already running)
 npm run scan:cic            # scan all enabled scan_method: cic portals
 # or narrow it:
-node scripts/scan.mjs --cic --group "Berlin flat rental"
+node scripts/scan.mjs --cic --group "<your search name from config/profile.yml>"
 node scripts/scan.mjs --cic --portal "ImmoScout24" --dry-run
 node scripts/scan.mjs --cic --cdp http://127.0.0.1:9333
 ```
+
+⚠ `--group` must EXACTLY match a `searches[].name` in `config/profile.yml` (which is
+also the group `name` in `portals.yml`). If it doesn't match, the profile lookup falls
+back to the first enabled search — criteria filtering is effectively bypassed and URL
+placeholders resolve against the wrong search.
 
 Each portal: navigate → dismiss consent → (wait out CAPTCHA on the trusted profile) →
 run its `scripts/portals/{slug}-cic.js` snippet via `page.evaluate()` (a string → CDP
@@ -52,14 +57,21 @@ and stops at ≥80% already-seen; single-page portals stop after page 1.
 - If `--cic` can't connect, it exits with a clear message; fall back to the interactive CiC
   pass. Blocked portals are still recorded in `data/scan-failures.json` as ⛔.
 
-## Status / to validate on your machine
+## Status
 
-Built and syntax-clean, but **not yet run against a live browser** (this dev environment
-blocks spawning Chrome). To validate: `npm run chrome:immo`, log into IS24 once, then
-`node scripts/scan.mjs --cic --dry-run` and confirm it returns listings without CAPTCHA.
-The open question is whether the dedicated profile earns IS24's trust after login (it should,
-per the persistent-profile trust model). If IS24 keeps blocking it, keep using interactive
-CiC (or fall back to the clipboard approach, idea A).
+**Validated and in production use since June 2026.** This is the preferred way to scan
+`scan_method: cic` portals — the dedicated profile does earn IS24's trust after the
+one-time login, and scans run hands-off without CAPTCHA on that profile.
+
+Remaining caveats:
+- Trust lives in the profile directory (`~/.config/google-chrome-immo`). Deleting or
+  recreating it means logging into IS24 again and re-earning trust.
+- A CAPTCHA can still appear occasionally (e.g. after long idle periods or aggressive
+  scanning); it auto-solves only in the trusted profile — give it 5–10 s, otherwise
+  solve it once manually in the debug Chrome window.
+- If `--cic` can't connect (debug Chrome not running) or IS24 blocks despite trust,
+  fall back to the interactive CiC pass; blocked portals land in
+  `data/scan-failures.json`.
 
 ## Security notes
 

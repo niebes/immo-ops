@@ -78,14 +78,15 @@ Everything in this file is in commented-out examples — uncomment and edit what
 
 #### `portals.yml` — Which portals to scan
 
-Controls which real estate portals `/immo-find scan` checks. The template comes pre-configured with major German portals (ImmoScout24, Immowelt, Kleinanzeigen, Degewo, Howoge, Gesobau, Vonovia, Deutsche Wohnen, Sparkasse).
+Controls which real estate portals `/immo-find scan` checks. The template comes pre-configured with example portals (ImmoScout24, Immowelt, Kleinanzeigen, Degewo, Sparkasse), plus commented-out house-purchase and plot-purchase groups.
 
 | Field | What to configure |
 |-------|------------------|
+| `search_groups[].enabled` | Toggle a whole search target on/off |
 | `scan_defaults` | Default city, price, rooms, size — should match your primary search |
 | `portals[].enabled` | Toggle portals on/off |
-| `portals[].search_url` | Pre-built search URL with your filters baked in |
-| `title_filter.negative` | Keywords that auto-discard listings (WBS, Zwischenmiete, etc.) |
+| `portals[].search_url` | Pre-built search URL with your filters baked in (supports `{price_max}`-style placeholders resolved from profile.yml) |
+| `title_filter.negative` | Advisory keyword checklist for the AI triage step (WBS, Zwischenmiete, etc.) — NOT a mechanical auto-discard; the AI reads each title in context |
 
 **To customize search URLs:** Go to each portal in your browser, set your filters (city, price, rooms, size), and copy the resulting URL into `search_url`. The template URLs use Berlin defaults.
 
@@ -165,8 +166,12 @@ modes/_profile.md           ← YOUR scoring overrides (gitignored)
 portals.yml                 ← YOUR portal config (gitignored)
 data/listings.md            ← Listing tracker
 data/pipeline.md            ← URL inbox
+data/scan-history.tsv       ← Scan dedup history (which listings were already seen)
+data/scan-failures.json     ← Portals that failed/blocked during scans
 data/viewings.md            ← Viewing schedule
 data/documents.md           ← Document submission tracker
 reports/                    ← Evaluation reports
 research/                   ← Deep research reports
+correspondence/             ← Landlord correspondence logs
+output/                     ← Generated exports (Selbstauskunft, etc.)
 ```

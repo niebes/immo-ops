@@ -193,7 +193,6 @@ Run on EVERY evaluation. Score is separate from the 1–5 global score.
 - **Mindestlaufzeit**: Minimum lease duration (e.g., 2 years). Locks tenant in — note in Block G.
 - **Tauschwohnung**: Apartment swap listings. Handling is config-driven — discarded when swaps are off, or run through a two-sided swap match when `include_swaps: true` + a `swap_offer:` block exist (see evaluate.md step 4).
 - **Eigenbedarf**: Private landlords can terminate for personal use. Note risk in Block H.
-- **Staffelmiete / Indexmiete**: Pre-agreed rent increases. Note in price evaluation.
 
 ### Purchase
 - **Kaufnebenkosten**: Grunderwerbsteuer (3.5–6.5% by state) + Notar (~1.5%) + Grundbuch (~0.5%) + optional Makler (typically 3.57% buyer share).
@@ -231,8 +230,12 @@ Run on EVERY evaluation. Score is separate from the 1–5 global score.
 |------|-----|
 | WebSearch | Market data, Mietspiegel, landlord reputation, area info |
 | WebFetch | Extract listing details from static pages |
-| Playwright | Scan portals (browser_navigate + browser_snapshot). Cookie consent first. Rate limit. **NEVER 2+ agents with Playwright in parallel.** |
+| Playwright | Headless scan via `npm run scan` (`scripts/scan.mjs`). **NEVER 2+ Playwright agents in parallel.** |
+| CiC (Claude-in-Chrome) | Interactive browsing for bot-protected portals. Uses real Chrome. |
+| CiC-over-CDP | **Automated** alternative to interactive CiC: `npm run chrome:immo` + `node scripts/scan.mjs --cic`. Preferred when the debug browser is up. See `docs/cic-cdp-scan.md`. |
 | Read | profile.yml, _profile.md, portals.yml, listings.md |
 | Write | Reports, tracker additions, research |
 | Edit | Update tracker status |
 | Bash | `node scripts/*.mjs` |
+
+(Same as the Tools table in `CLAUDE.md` — keep the two in sync.)

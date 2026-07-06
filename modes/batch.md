@@ -15,18 +15,24 @@ One of:
 Process inline using `evaluate.md` workflow sequentially.
 
 ### For 3+ listings:
-Delegate to subagent workers:
+Delegate to subagent workers — the dedicated **`immo-evaluator`** agent first. It is the specialist: it carries the full evaluation procedure, the report format, and (via its own memory) the per-portal page quirks, so it does NOT need to be re-taught them. Keep the prompt THIN — pass only the per-listing variables:
 
-1. Read `modes/_shared.md` + `modes/evaluate.md`
-2. For each listing, launch a worker:
+1. For each listing, launch a worker:
    ```
    Agent(
-     subagent_type="general-purpose",
-     prompt="[_shared.md content]\n\n[evaluate.md content]\n\nEvaluate this listing: {url_or_data}",
-     description="immo-ops evaluate #{N}"
+     subagent_type="immo-evaluator",
+     description="immo-assess {expose_id}",
+     prompt="LISTING URL: {url}
+   Portal: {portal}
+   Next report number: {NNN}
+   Search-result metadata: {title, price, m², rooms — unverified hint only}
+
+   Evaluate per your standing instructions; write report #{NNN}, tracker TSV, and the pipeline update; return the one-line result."
    )
    ```
-3. **NEVER run 2+ Playwright agents in parallel** — queue workers sequentially
+   Do NOT restate steps, file paths, scoring rules, or portal quirks in the prompt — they live in the agent definition, `modes/evaluate.md`, and the agent's memory. Pass metadata as an unverified hint; let the evaluator read the live page (see `modes/evaluate.md` "Trust the LIVE listing").
+2. Only if `immo-evaluator` is unavailable: fall back to `general-purpose` and inline the `modes/evaluate.md` Browser & portal quirks + workflow (plus `modes/_shared.md` scoring) in the prompt.
+3. **NEVER run 2+ browser-driving agents in parallel** (Playwright or CiC — each needs exclusive browser access) — queue workers sequentially
 4. Each worker writes:
    - Report to `reports/{NNN}-{slug}-{date}.md`
    - Tracker addition to `batch/tracker-additions/{NNN}-{slug}.tsv`

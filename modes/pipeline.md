@@ -12,50 +12,31 @@ Processes URLs from the inbox (`data/pipeline.md`), evaluating each through the 
 
 ### Step 4 — Triage (metadata-only, no browser visits)
 
-Score each pending listing from its pipeline metadata (price, m², rooms, location) without visiting the URL. This is a quick pass to prioritize and discard obvious non-matches.
+Triage is an **AI judgement pass**, not a scoring formula — follow the pipeline-triage procedure in `.claude/skills/immo-find/SKILL.md` (auto mode, Step 3). In short: read each pending entry's title + metadata and mark `DISCARDED` (with a one-line reason) only when it is clearly not a real, on-target listing (objective criteria breach, swap when swaps are off, Zwischenmiete, WBS without WBS, garage/commercial as the object itself, wrong city). When unsure, KEEP it — evaluation catches what triage misses (favour recall).
 
-For each pending listing, compute a **triage score** (1–5) from available metadata:
-
-| Factor | Score contribution |
-|--------|-------------------|
-| Price at/below max_kaltmiete | +1.5 |
-| Price 1–10% above | +1.0 |
-| Price 10–20% above | +0.5 |
-| Price 20%+ above | 0 (auto-discard) |
-| Rooms within range | +1.0 |
-| Rooms below min | 0 (auto-discard) |
-| m² within range | +1.0 |
-| m² below min | 0 (auto-discard) |
-| Location is preferred area | +1.0 |
-| Location is acceptable area | +0.5 |
-| EUR/m² at/below max | +0.5 |
-
-**Auto-discard** (mark as `DISCARDED` without browser visit):
-- Rooms < min_rooms from profile
-- m² < min_m2 from profile
-- Kaltmiete > max_kaltmiete × 1.2 (20% tolerance — borderline listings get evaluated)
-- Price suspiciously low (>30% below Mietspiegel) — likely Tauschwohnung
+Notes:
+- **Low price is a KEEP-and-flag signal, never an auto-discard** — prepend "⚠ LOW PRICE" and let evaluation + scam-check decide (a >30%-below-Mietspiegel price can be a coop rent, an extraction error, or a scam).
+- **Swaps are config-driven** (see CLAUDE.md "Tauschwohnung"): discard only when no enabled search sets `include_swaps: true`; otherwise keep for the two-sided match at evaluation.
 
 **Triage output** (present to user before proceeding):
 ```
 Triage Results — {N} pending
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Auto-discarded: {N} (criteria: {reasons})
+Discarded: {N} ({one-line reasons})
 Qualifying for evaluation: {N}
-  ★★★ {title} | {location} | {price} | triage {X.X}
-  ★★  {title} | {location} | {price} | triage {X.X}
-  ★   {title} | {location} | {price} | triage {X.X}
+  {title} | {location} | {price}
+  ...
 ```
 
 ### Step 5 — Full Evaluation
 
-After triage, evaluate qualifying listings (triage score 2.5+):
+After triage, evaluate all qualifying listings:
 
 - If 1–2 qualifying: process inline using `evaluate.md` workflow
-- If 3+ qualifying: delegate to subagent with `_shared.md` + `evaluate.md` content
+- If 3+ qualifying: delegate to subagent (see `modes/batch.md`)
 
 For each qualifying URL:
-1. Navigate to URL with Playwright
+1. Open the URL per the browser doctrine in `modes/evaluate.md` (CiC for bot-protected portals)
 2. Verify listing is still active
 3. If expired: mark as `- [x] #{NNN} | {url} | EXPIRED` and register in tracker with status `Expired`
 4. If active: run full evaluation (blocks A–H)

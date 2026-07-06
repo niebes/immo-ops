@@ -2,16 +2,22 @@
 # Copy to config/profile.yml and fill in your details.
 
 searcher:
-  full_name: "Your Name"
-  email: "your@email.com"
+  full_name: "Max Mustermann"
+  email: "max@example.com"
   phone: "+49-..."
-  notification_email: "your@email.com"  # Where scan alerts go (can differ from contact email)
+  notification_email: "max@example.com"  # Where scan alerts go (can differ from contact email)
 
 # Multiple search types supported. Each gets its own portal filters and scoring weights.
 searches:
   - name: "Berlin flat rental"
+    enabled: true        # Set false to pause this search without deleting it.
+                         # scan.mjs / portal-url.mjs skip disabled searches.
     type: miete          # miete | kauf
-    property: wohnung    # wohnung | haus | grundstueck
+    property: wohnung    # wohnung | haus | grundstueck | freizeitgrundstueck
+    include_swaps: false # true = KEEP Tauschwohnungen (apartment swaps) instead of
+                         # discarding them, and run a two-sided match against the
+                         # `swap_offer:` block below. Only useful if you have a flat
+                         # to offer in exchange.
     location:
       city: Berlin
       preferred_areas:
@@ -61,6 +67,7 @@ searches:
   # Additional search examples — uncomment and customize:
   #
   # - name: "House purchase"
+  #   enabled: false           # keep configured but paused
   #   type: kauf
   #   property: haus
   #   location:
@@ -80,6 +87,7 @@ searches:
   #     - garten
   #
   # - name: "Plot purchase"
+  #   enabled: false
   #   type: kauf
   #   property: grundstueck
   #   location:
@@ -92,6 +100,58 @@ searches:
   #     max_price_per_m2: 200
   #   size:
   #     min_m2: 500
+  #
+  # - name: "Leisure plot (Freizeitgrundstück)"
+  #   enabled: false
+  #   type: kauf
+  #   property: freizeitgrundstueck   # leisure/garden plot — no building intent
+  #   location:
+  #     city: Brandenburg
+  #     preferred_areas: []
+  #     acceptable_areas: []
+  #     excluded_areas: []
+  #   price:
+  #     max_kaufpreis: 60000
+  #     min_kaufpreis: 1000           # floor filters out ads/leases masquerading as sales
+
+# ── Swap offer (Tauschwohnung) — the flat(s) YOU put up in a swap ──────────────
+# Only relevant when a search sets `include_swaps: true`. Enables two-sided matching:
+# a Tauschwohnung listing is kept only if BOTH sides fit — (1) THEIR flat scores well
+# for you (normal blocks A–H, ≥3.5 gate) AND (2) one of YOUR flats below plausibly
+# satisfies THEIR stated Suche (matching is lenient / recall-favoring).
+# Uncomment and describe your current flat(s):
+#
+# swap_offer:
+#   - flat: my-flat                  # short slug for this offer
+#     available: true
+#     address: "Musterstraße 1, 12345 Berlin"
+#     location:
+#       city: Berlin
+#       ortsteil: Kreuzberg
+#       plz: "12345"
+#     size_m2: 65
+#     rooms: 2
+#     etage: 3. OG
+#     aufzug: false
+#     kaltmiete: 900.00
+#     nebenkosten: 200.00
+#     warmmiete: 1100.00
+#     kaution: 2700.00               # typically 3× Kaltmiete
+#     rent_type: standard            # standard | indexmiete | staffelmiete
+#     baujahr: 1995
+#     features:                      # what the flat HAS (swap partners search for these)
+#       - balkon
+#       - einbaukueche
+#     lacks:                         # explicitly NOT present — a partner's Suche for
+#       - garten                     # these cannot be met by this flat
+#       - stellplatz
+#     energieausweis: null           # class if known, else null
+#     earliest_handover: null        # ISO date or null if unknown
+#     # Consent gate: a swap is a Mieterwechsel and needs your Vermieter's approval.
+#     # Treat all swap candidates as speculative until this is confirmed.
+#     landlord_consent: unknown      # unknown | requested | granted | denied
+#     caveats:
+#       - "Anything a swap partner must be told upfront (Indexmiete, disputes, ...)"
 
 commute:
   destinations:
@@ -119,11 +179,13 @@ documents:
 # never guess a value. Fill these in your gitignored config/profile.yml, NOT here.
 applicants:
   - role: mieter_1
-    vorname_name: "Vorname Nachname"
+    vorname_name: "Max Mustermann"
     geburtsdatum: "YYYY-MM-DD"
     staatsangehoerigkeit: "deutsch"
     familienstand: "ledig"            # ledig | verheiratet | ...
     anschrift: "Straße Nr., PLZ Ort"
+    vorherige_anschrift: null         # previous address + period, if recently moved
+                                      # (landlords cross-check against payslip/SCHUFA)
     telefon_privat: null
     mobil: "+49 ..."
     email: "name@example.com"
@@ -136,13 +198,18 @@ applicants:
       name: "Company GmbH"
       anschrift: null
       telefon: null
+    letzter_arbeitgeber: null         # last employer + period, if currently not employed
     beschaeftigt_seit: "YYYY-MM-DD"
     employment_type: unbefristet      # unbefristet | befristet | selbststaendig
     befristet_bis: null
     beruf: null
     netto_einkommen: 3500
+    einkommensart: null               # e.g. "Gehalt" | "Sozialleistungen" | "selbstständig"
+                                      # — state it when income is not regular employment pay
     schufa_vorhanden: true
-    schufa_datum: null                # §34-BDSG Datenübersicht, must be < 3 months old
+    schufa_datum: null                # must be < 3 months old
+    schufa_typ: null                  # e.g. "SCHUFA-BonitätsCheck" or "Datenübersicht §34 BDSG"
+    schufa_datei: null                # path to the PDF, e.g. "documents/Schufa-YYYY-MM-DD.pdf"
   # - role: mieter_2
   #     ... (same fields for a second applicant)
 
@@ -152,6 +219,9 @@ household:
   haustiere: null                     # "keine" or type/count
   musikinstrumente: null              # "keine" or list
   raucher: false
+  household_net_income: null          # combined net income of all applicants (EUR/month)
+  move_in_preferred: null             # e.g. "2026-09-01" — preferred move-in date
+  reason_for_moving: null             # short honest sentence, used in contact drafts
 
 # Buyer documents (for purchase mode)
 # buyer:
