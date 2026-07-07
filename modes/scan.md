@@ -32,20 +32,27 @@ node scripts/scan.mjs --deep         # disable the ≥80%-seen early-stop, raise
 
 The script handles navigation, cookie consent, extraction (via `scripts/portals/*.mjs` extractors), pagination, the numeric criteria gate, dedup, and pipeline/history writes. It can run unattended in the background.
 
-### `cic` — bot-protected portals (trusted browser required)
+### `cic` — bot-protected portals (three transports, stealth-first)
 
-Portals with aggressive bot detection block any fresh/headless browser; they must be scanned through a **persistent, logged-in, trusted** Chrome. Two ways — **prefer A**:
+Portals with aggressive bot detection block a fresh/headless browser. Three transports, tried in THIS order. **CiC over the debug Chrome is the LAST resort** — reach for the stealth tiers first.
 
-**A — Automated over CDP (preferred):**
+**Tier 1 — invisible (DEFAULT):**
+```
+npm run login:invisible      # ONE-TIME: seed session trust (headful stealth Firefox login)
+node scripts/scan.mjs --invisible   # scan all enabled scan_method: cic portals
+```
+Fully scripted and self-contained: drives the vendored stealth Firefox (patched anti-detect profile, `scripts/invisible-driver.py`) — navigate → consent → wait out the bot-block → run the portal's `scripts/portals/{slug}-cic.js` snippet → pipe to `process-scan.mjs`. No external browser needed; session trust persists in `tmp/browser-state.json`. This is the default automated pass. Details: `docs/cic-cdp-scan.md`.
+
+**Tier 2 — invisible-playwright MCP (Claude-driven stealth):** the SAME stealth Firefox, driven by hand via the `mcp__invisible-playwright__*` tools (navigate_page, evaluate_script, …). Use for portals the Tier-1 automated pass could NOT clear — an unexpected interstitial the fixed wait-loop can't handle, or a step needing judgement. Open the search URL, clear whatever blocks it, run the `{slug}-cic.js` snippet via `evaluate_script`, pipe the compact `{c,n,p,L}` to `process-scan.mjs`. Same stealth engine as Tier 1, just interactive.
+
+**Tier 3 — CiC over CDP (LAST RESORT):**
 ```
 npm run chrome:immo          # start the dedicated logged-in debug Chrome (idempotent)
-node scripts/scan.mjs --cic  # scan all enabled scan_method: cic portals
+node scripts/scan.mjs --cic  # scan the still-unprocessed scan_method: cic portals
 ```
-Fully scripted: navigate → consent → wait out CAPTCHA → run the portal's `scripts/portals/{slug}-cic.js` snippet → pipe to `process-scan.mjs`. Full flow + security notes: `docs/cic-cdp-scan.md`. Use A when `scripts/immo-chrome.sh --status` reports the debug browser up (or you can start it).
+The persistent, logged-in debug Chrome over CDP. Use ONLY when both stealth tiers fail for a portal (e.g. a defense that specifically trusts that browser's cookie/fingerprint history). Requires the debug browser up (`scripts/immo-chrome.sh --status`). Interactive Claude-in-Chrome (the user's real Chrome via `javascript_tool`, dedicated `tabs_create_mcp` tab) is a further fallback if even the debug Chrome is unavailable.
 
-**B — Interactive via Claude-in-Chrome (fallback):** manual pass in the user's real Chrome — navigate, run the `{slug}-cic.js` snippet via `javascript_tool`, pipe the compact `{c,n,p,L}` result to `process-scan.mjs`. Use only when the CDP browser isn't set up/reachable, or a portal stays blocked under A. Tab rule: create a dedicated tab (`tabs_create_mcp`), close only your own tab when done. Procedure details: the CiC scan workflow in `.claude/skills/immo-find/SKILL.md`.
-
-**CAPTCHA doctrine (trusted browser):** in the trusted CiC/CDP browser most CAPTCHAs auto-solve — wait 5–10 s, then re-check (the script retries this automatically). Only involve the user if the portal is STILL blocked after waiting. If the user is unavailable, skip the portal and record it as a ⛔ coverage item. Never ask the user as the first step. (A fresh/headless browser has no trust and stays blocked — that is why CiC portals need the persistent profile, not user intervention.)
+**Bot-block doctrine (stealth/trusted browser):** in the stealth (Tier 1/2) or trusted debug (Tier 3) browser most bot-blocks auto-clear — wait 5–10 s, then re-check (the scripted tiers retry this automatically; this is the auto-clear observed on IS24). Only involve the user if a portal is STILL blocked after all applicable tiers. If the user is unavailable, skip the portal and record it as a ⛔ coverage item. Never ask the user as the first step. (A fresh/headless browser has no stealth or trust and stays blocked — that is why these portals need the stealth engine or the persistent profile, not user intervention.)
 
 ### `websearch` — AI-executed discovery
 
@@ -71,7 +78,7 @@ Because no script covers these portals, they are the easiest to silently skip �
 2. **Read dedup sources**: `data/scan-history.tsv`, `data/listings.md`, `data/pipeline.md`
 3. **Select search groups**: all `search_groups`, or a specific one if the user requests it.
 4. **Playwright pass**: `node scripts/scan.mjs` (optionally `--group`). Then read `data/scan-failures.json` and route failures per the section above.
-5. **CiC pass**: all enabled `scan_method: cic` portals, plus `fallback: "cic"` portals from step 4 that have a snippet. Method A (`node scripts/scan.mjs --cic`) if the debug Chrome is reachable; Method B otherwise.
+5. **Bot-protected pass** (stealth-first): all enabled `scan_method: cic` portals, plus `fallback: "cic"` portals from step 4 that have a snippet. Run **Tier 1** `node scripts/scan.mjs --invisible` first (the default); escalate any portal it could not clear to **Tier 2** (the `mcp__invisible-playwright__*` tools); use **Tier 3** `node scripts/scan.mjs --cic` (debug Chrome over CDP) only as a last resort. See the `cic` section above.
 6. **Websearch pass**: for each enabled `scan_method: websearch` portal, run the AI-executed discovery above.
 7. **AI title triage** (NOT a keyword filter):
    Title relevance is a judgement call — an apartment swap, a garage/parking space, a

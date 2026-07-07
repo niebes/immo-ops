@@ -111,9 +111,11 @@ Red flags — any of these should trigger a warning (authoritative signal list w
 |------|-----|
 | WebSearch | Market data, Mietspiegel, landlord reputation, area info |
 | WebFetch | Extract listing details from static pages |
-| Playwright | Headless scan via `npm run scan`. **NEVER 2+ Playwright agents in parallel.** |
-| CiC (Claude-in-Chrome) | Interactive scan for bot-protected portals (ImmoScout24). Uses real Chrome. |
-| CiC-over-CDP | **Automated** alternative to interactive CiC: `npm run chrome:immo` (dedicated logged-in debug Chrome) + `node scripts/scan.mjs --cic`. Preferred when the debug browser is up. See `docs/cic-cdp-scan.md`. |
+| Playwright | Headless scan via `npm run scan` (`scan_method: playwright` portals). **NEVER 2+ Playwright agents in parallel.** |
+| invisible (stealth Firefox) | **DEFAULT for bot-protected `scan_method: cic` portals.** `node scripts/scan.mjs --invisible` — vendored, self-contained anti-detect Firefox; seed trust once via `npm run login:invisible`. See `docs/cic-cdp-scan.md`. |
+| invisible-playwright MCP | **Tier 2.** Same stealth Firefox driven by hand via `mcp__invisible-playwright__*` (navigate_page, evaluate_script) — for portals the automated `--invisible` pass couldn't clear. |
+| CiC-over-CDP | **LAST RESORT (Tier 3).** `npm run chrome:immo` (dedicated logged-in debug Chrome) + `node scripts/scan.mjs --cic`. Only when both stealth tiers fail. See `docs/cic-cdp-scan.md`. |
+| CiC (Claude-in-Chrome) | Interactive real-Chrome scan — deepest fallback, only if even the debug Chrome is unavailable. |
 | Read | profile.yml, _profile.md, portals.yml, listings.md |
 | Write | Reports, tracker additions, research |
 | Edit | Update tracker status |
@@ -150,21 +152,21 @@ The offered flat(s) come entirely from the `swap_offer:` block in `config/profil
 
 ## Portal-Specific Notes
 
-Scan methods: `playwright` (headless, `npm run scan`) and `cic` (bot-protected portals). A `cic` portal can be scanned two ways — **automated over CDP** (`npm run chrome:immo` + `node scripts/scan.mjs --cic`, preferred; see `docs/cic-cdp-scan.md`) or **interactive** via Claude-in-Chrome (fallback). Both require a *trusted, logged-in* Chrome — a fresh/headless browser is CAPTCHA-blocked.
+Scan methods: `playwright` (headless, `npm run scan`) and `cic` (bot-protected portals). A `cic` portal is scanned **stealth-first, in three tiers — CiC over the debug Chrome is the LAST resort**: **Tier 1 (default)** `node scripts/scan.mjs --invisible` (vendored self-contained stealth Firefox); **Tier 2** the `mcp__invisible-playwright__*` tools (same stealth engine, Claude-driven) for portals Tier 1 couldn't clear; **Tier 3** `npm run chrome:immo` + `node scripts/scan.mjs --cic` (trusted debug Chrome over CDP) only when both stealth tiers fail. See `docs/cic-cdp-scan.md`. The stealth tiers need no external browser; the CDP tier needs a *trusted, logged-in* Chrome (a fresh/headless browser is CAPTCHA-blocked).
 
 | Portal | Method | Notes |
 |--------|--------|-------|
-| ImmoScout24 | **cic** | Blocks Playwright entirely. Use CiC with user's real Chrome. CAPTCHA may need manual solve. |
+| ImmoScout24 | **cic** | Blocks Playwright entirely. Scan stealth-first (`--invisible`); the bot-block usually auto-clears. Debug Chrome / real Chrome only as last resort. |
 | Immowelt | playwright | Works headlessly. Redirect-heavy URLs — use canonical form. |
-| Kleinanzeigen | playwright | Works headlessly. Location codes are city-specific (find via WebSearch). |
-| Vonovia | playwright | SPA with dynamic loading. |
+| Kleinanzeigen | **cic** | Moved playwright→cic (now bot-blocks headless + Tailwind redesign). Extractor `kleinanzeigen-cic.js`. |
+| Vonovia | **cic** | Angular SPA, XHR-only + Cookiebot wall. `search_url` points at its JSON API; extractor `vonovia-cic.js`. |
 
 Portals are configured in `portals.yml` (user layer, gitignored). The template at `templates/portals.example.yml` has a starter set.
 
-When a CiC portal shows a CAPTCHA:
-1. Wait 5–10 s and re-check — in the trusted, logged-in browser most CAPTCHAs auto-solve (a fresh/headless browser stays blocked; that's why CiC portals need the persistent profile)
-2. Only if still blocked after waiting: inform the user which portal is blocked and ask them to solve it in the open browser tab, then resume extraction
-3. If the user is unavailable, skip the portal and record it as a ⛔ coverage item in the scan summary
+When a bot-protected portal shows a CAPTCHA / bot-block:
+1. Wait 5–10 s and re-check — in the stealth (Tier 1/2) or trusted debug (Tier 3) browser most bot-blocks auto-clear (the scripted tiers retry this automatically). A fresh/headless browser has no stealth or trust and stays blocked.
+2. Only if a portal is STILL blocked after the applicable tiers: escalate one tier (Tier 1 → 2 → 3). For the interactive real-Chrome fallback, ask the user to solve it in the open tab, then resume.
+3. If it can't be cleared / the user is unavailable, skip the portal and record it as a ⛔ coverage item in the scan summary.
 
 ## First Run
 

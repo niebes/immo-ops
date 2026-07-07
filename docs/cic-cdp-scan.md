@@ -1,5 +1,13 @@
 # CiC-over-CDP scan (`scan.mjs --cic`)
 
+> **⚠ This is the LAST-RESORT (Tier 3) transport.** Bot-protected portals are now scanned
+> **stealth-first**: **Tier 1 (default)** `node scripts/scan.mjs --invisible` — the vendored,
+> self-contained stealth Firefox (see [invisible-playwright.md](invisible-playwright.md));
+> **Tier 2** the `mcp__invisible-playwright__*` tools for portals Tier 1 couldn't clear;
+> **Tier 3 (this doc)** the CDP debug Chrome, only when both stealth tiers fail. The stealth
+> tiers need no external browser and no `~/.config/google-chrome-immo` profile. Reach here
+> only when a portal's defense specifically trusts the established debug-Chrome fingerprint.
+
 Scans the bot-protected portals (`scan_method: cic` — ImmoScout24, Regionalimmobilien24,
 eBay Grundstücke) **automatically**, by driving a persistent, logged-in Chrome over the
 DevTools protocol. It replaces the manual Claude-in-Chrome pass (navigate → paste snippet →
