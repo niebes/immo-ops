@@ -64,7 +64,7 @@ Vendored stealth Firefox, fully self-contained — no external browser needed. T
 **Tier 3 — CiC over CDP (LAST RESORT):**
 ```
 npm run chrome:immo          # start the dedicated debug Chrome (idempotent)
-node scripts/scan.mjs --cic  # scan the still-unprocessed scan_method: invisible-playwright portals
+node scripts/scan.mjs --debug-chrome  # scan the still-unprocessed scan_method: invisible-playwright portals
 ```
 Only when BOTH stealth tiers fail for a portal. Interactive Claude-in-Chrome (the `javascript_tool`/tab workflow below) is a further fallback if even the debug Chrome is unavailable. Full flow + security notes: `docs/cic-cdp-scan.md`.
 
@@ -102,7 +102,7 @@ ALWAYS create a dedicated tab for this via `tabs_create_mcp`. Never reuse existi
 **Combined scan order:**
 1. First: run `node scripts/scan.mjs` for Playwright portals (can be backgrounded)
 2. Read `data/scan-failures.json` — route Playwright failures: `fallback: "cic"` portals join the CiC pass below (if a snippet exists); everything else becomes a ⛔ coverage item (see the Coverage report RULE).
-3. Then: scan bot-protected portals (registered CiC portals + bot-defense fallbacks from step 2), stealth-first: **Tier 1** `node scripts/scan.mjs --invisible` (default); escalate portals it couldn't clear to **Tier 2** (`mcp__invisible-playwright__*`); use **Tier 3** `node scripts/scan.mjs --cic` (debug Chrome) only as a last resort.
+3. Then: scan bot-protected portals (registered CiC portals + bot-defense fallbacks from step 2), stealth-first: **Tier 1** `node scripts/scan.mjs --invisible` (default); escalate portals it couldn't clear to **Tier 2** (`mcp__invisible-playwright__*`); use **Tier 3** `node scripts/scan.mjs --debug-chrome` (debug Chrome) only as a last resort.
 4. Then: run the AI-executed pass for every enabled `scan_method: websearch` portal (see the routing section above / `modes/scan.md`).
 5. Show combined summary, including the coverage report accounting for EVERY enabled portal of ALL three methods — playwright, cic, and websearch — with the exact blocker for each ⛔ entry
 
@@ -134,7 +134,7 @@ Capture stdout. Note how many new listings were added.
 **Step 2 — Bot-protected scan (MANDATORY — every enabled `scan_method: invisible-playwright` portal, plus Playwright bot-defense fallbacks from Step 1b):**
 This step always runs when any such portal is enabled. Do not skip, defer, or substitute "flag for next time" (see the FULL-scan RULE above).
 1. Read `portals.yml` for `scan_method: invisible-playwright` portals; add any `fallback: "cic"` portals from Step 1b that have a snippet.
-2. Scan them **stealth-first** per the three-tier section above: **Tier 1** `node scripts/scan.mjs --invisible` (default) → **Tier 2** `mcp__invisible-playwright__*` for portals it couldn't clear → **Tier 3** `node scripts/scan.mjs --cic` (debug Chrome) as last resort. Do not re-derive the selection here.
+2. Scan them **stealth-first** per the three-tier section above: **Tier 1** `node scripts/scan.mjs --invisible` (default) → **Tier 2** `mcp__invisible-playwright__*` for portals it couldn't clear → **Tier 3** `node scripts/scan.mjs --debug-chrome` (debug Chrome) as last resort. Do not re-derive the selection here.
 3. Note how many new listings were added. Any `fallback: "cic"` portal WITHOUT a snippet remains a ⛔ coverage item.
 
 **Step 2b — Websearch portals (part of the FULL scan):**

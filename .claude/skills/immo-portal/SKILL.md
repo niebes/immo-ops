@@ -172,7 +172,7 @@ Add entry under the correct search group's `portals:` list:
 
 For `scan_method`:
 - `playwright` — works headlessly (most portals)
-- `invisible-playwright` — bot-protected (CAPTCHA, heavy SPAs); scanned stealth-first via `scan.mjs --invisible` (debug-Chrome `--cic` is the fallback). Needs a `{slug}-cic.js` extractor snippet.
+- `invisible-playwright` — bot-protected (CAPTCHA, heavy SPAs); scanned stealth-first via `scan.mjs --invisible` (`scan.mjs --debug-chrome` is the fallback). Needs a `{slug}-cic.js` extractor snippet.
 
 ### Step 8 — Verify
 

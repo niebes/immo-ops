@@ -1,4 +1,4 @@
-# CiC-over-CDP scan (`scan.mjs --cic`)
+# Debug-Chrome-over-CDP scan (`scan.mjs --debug-chrome`, legacy alias `--cic`)
 
 > **⚠ This is the LAST-RESORT (Tier 3) transport.** Bot-protected portals are now scanned
 > **stealth-first**: **Tier 1 (default)** `node scripts/scan.mjs --invisible` — the vendored,
@@ -39,11 +39,11 @@ pull the JSON out in ~900-char slices) with one hands-off command.
 
 ```
 npm run chrome:immo         # ensure the debug browser is up (no-op if already running)
-npm run scan:cic            # scan all enabled scan_method: invisible-playwright portals
+npm run scan:debug-chrome   # scan all enabled scan_method: invisible-playwright portals
 # or narrow it:
-node scripts/scan.mjs --cic --group "<your search name from config/profile.yml>"
-node scripts/scan.mjs --cic --portal "ImmoScout24" --dry-run
-node scripts/scan.mjs --cic --cdp http://127.0.0.1:9333
+node scripts/scan.mjs --debug-chrome --group "<your search name from config/profile.yml>"
+node scripts/scan.mjs --debug-chrome --portal "ImmoScout24" --dry-run
+node scripts/scan.mjs --debug-chrome --cdp http://127.0.0.1:9333
 ```
 
 ⚠ `--group` must EXACTLY match a `searches[].name` in `config/profile.yml` (which is
@@ -60,9 +60,9 @@ and stops at ≥80% already-seen; single-page portals stop after page 1.
 ## How it fits the workflow
 
 - `scan auto` Step 1 stays `node scripts/scan.mjs` (Playwright portals).
-- Step 2 (the CiC pass) becomes `node scripts/scan.mjs --cic` instead of the manual
+- Step 2 (the CiC pass) becomes `node scripts/scan.mjs --debug-chrome` instead of the manual
   browser+chunking flow — **only if** the dedicated debug Chrome is up and IS24-trusted.
-- If `--cic` can't connect, it exits with a clear message; fall back to the interactive CiC
+- If `--debug-chrome` can't connect, it exits with a clear message; fall back to the interactive CiC
   pass. Blocked portals are still recorded in `data/scan-failures.json` as ⛔.
 
 ## Status
@@ -77,7 +77,7 @@ Remaining caveats:
 - A CAPTCHA can still appear occasionally (e.g. after long idle periods or aggressive
   scanning); it auto-solves only in the trusted profile — give it 5–10 s, otherwise
   solve it once manually in the debug Chrome window.
-- If `--cic` can't connect (debug Chrome not running) or IS24 blocks despite trust,
+- If `--debug-chrome` can't connect (debug Chrome not running) or IS24 blocks despite trust,
   fall back to the interactive CiC pass; blocked portals land in
   `data/scan-failures.json`.
 

@@ -231,8 +231,8 @@ Run on EVERY evaluation. Score is separate from the 1–5 global score.
 | WebSearch | Market data, Mietspiegel, landlord reputation, area info |
 | WebFetch | Extract listing details from static pages |
 | Playwright | Headless scan via `npm run scan` (`scripts/scan.mjs`). **NEVER 2+ Playwright agents in parallel.** |
-| CiC (Claude-in-Chrome) | Interactive browsing for bot-protected portals. Uses real Chrome. |
-| CiC-over-CDP | **Automated** alternative to interactive CiC: `npm run chrome:immo` + `node scripts/scan.mjs --cic`. Preferred when the debug browser is up. See `docs/cic-cdp-scan.md`. |
+| invisible (stealth Firefox) | **DEFAULT** for bot-protected `scan_method: invisible-playwright` portals: `node scripts/scan.mjs --invisible` (self-contained; seed trust via `npm run login:invisible`). Tier 2 = the `mcp__invisible-playwright__*` tools. See `docs/invisible-playwright.md`. |
+| debug-Chrome (CDP) | **LAST RESORT (Tier 3):** `npm run chrome:immo` + `node scripts/scan.mjs --debug-chrome` (legacy alias `--cic`). Only when both stealth tiers fail. See `docs/cic-cdp-scan.md`. |
 | Read | profile.yml, _profile.md, portals.yml, listings.md |
 | Write | Reports, tracker additions, research |
 | Edit | Update tracker status |

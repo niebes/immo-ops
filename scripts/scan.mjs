@@ -13,12 +13,12 @@
  *   node scripts/scan.mjs --portal ImmoScout24  # scan single portal (within selected groups)
  *   node scripts/scan.mjs --headed              # visible browser (debug)
  *   node scripts/scan.mjs --invisible           # scan_method: invisible-playwright portals — stealth Firefox (DEFAULT)
- *   node scripts/scan.mjs --cic                 # same portals via the debug Chrome over CDP (fallback / last resort)
+ *   node scripts/scan.mjs --debug-chrome        # same portals via the debug Chrome over CDP (last resort; alias: --cic)
  *
  * Exit codes:
  *   0  full coverage — every attempted portal processed
  *   1  hard crash
- *   2  --cic: cannot connect to the CDP debug Chrome
+ *   2  --debug-chrome: cannot connect to the CDP debug Chrome
  *   3  completed, but some portals were NOT processed (see data/scan-failures.json)
  */
 
@@ -118,14 +118,15 @@ const GROUP_FILTER = groupIdx !== -1 ? args[groupIdx + 1] : null;
 const concIdx = args.indexOf('--concurrency');
 const SCAN_CONCURRENCY = Math.max(1, concIdx !== -1 ? parseInt(args[concIdx + 1], 10) || 4 : 4);
 
-// ── CiC-over-CDP mode (`--cic`) ────────────────────────────────────
-// Instead of launching a fresh headless Chrome (which the bot-protected portals
-// CAPTCHA-block), connect over the DevTools protocol to a persistent, LOGGED-IN
-// Chrome — the dedicated debug profile started by scripts/immo-chrome.sh. That
-// browser is trusted (cookies + fingerprint history), so IS24 etc. wave it through,
-// and the CiC extractor snippets run via page.evaluate() → JSON straight to disk,
-// no ~1 KB channel, no chunking. Scans scan_method: invisible-playwright portals (not playwright).
-const CIC_MODE = args.includes('--cic');
+// ── Debug-Chrome-over-CDP mode (`--debug-chrome`) ──────────────────
+// The LAST-RESORT transport for scan_method: invisible-playwright portals (stealth
+// Firefox via --invisible is the default). Instead of a fresh headless Chrome (which
+// the bot-protected portals CAPTCHA-block), connect over the DevTools protocol to a
+// persistent, LOGGED-IN Chrome — the dedicated debug profile started by
+// scripts/immo-chrome.sh. That browser is trusted (cookies + fingerprint history), so
+// IS24 etc. wave it through, and the extractor snippets run via page.evaluate() → JSON
+// straight to disk, no ~1 KB channel, no chunking. (`--cic` accepted as a legacy alias.)
+const DEBUG_CHROME_MODE = args.includes('--debug-chrome') || args.includes('--cic');
 // ── Invisible-playwright mode (`--invisible`) ──────────────────────
 // Same snippet contract as --cic, but the browser backend is the vendored stealth
 // Firefox (scripts/invisible-driver.py via scripts/invisible-venv.sh) instead of the
@@ -561,7 +562,7 @@ async function runSnippetScan(evaluator, label) {
       if (GROUP_FILTER && group.name !== GROUP_FILTER) continue;
       const portals = (group.portals || [])
         // "invisible-playwright" = the bot-protected portal category. Default transport
-        // is the stealth Firefox (--invisible); the debug-Chrome --cic path is the
+        // is the stealth Firefox (--invisible); the --debug-chrome path is the
         // fallback. Both select the same category here. Legacy value "cic" still accepted
         // so an un-migrated portals.yml keeps working.
         .filter(p => p.enabled !== false && (p.scan_method === 'invisible-playwright' || p.scan_method === 'cic'))
@@ -673,7 +674,7 @@ async function runSnippetScan(evaluator, label) {
 
 async function main() {
   if (INVISIBLE_MODE) { await runSnippetScan(makeInvisibleEvaluator(), 'immo-ops invisible-playwright scan (stealth Firefox)'); return; }
-  if (CIC_MODE) { await runSnippetScan(makeCdpEvaluator(), `immo-ops CiC scan over CDP (${CDP_ENDPOINT})`); return; }
+  if (DEBUG_CHROME_MODE) { await runSnippetScan(makeCdpEvaluator(), `immo-ops debug-Chrome scan over CDP (${CDP_ENDPOINT})`); return; }
   console.log(`\nimmo-ops scan — ${today()}${DRY_RUN ? ' (DRY RUN)' : ''}\n`);
   console.log(`Search groups: ${searchGroups.map(g => g.name).join(', ')}`);
 

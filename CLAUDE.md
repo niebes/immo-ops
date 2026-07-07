@@ -114,7 +114,7 @@ Red flags — any of these should trigger a warning (authoritative signal list w
 | Playwright | Headless scan via `npm run scan` (`scan_method: playwright` portals). **NEVER 2+ Playwright agents in parallel.** |
 | invisible (stealth Firefox) | **DEFAULT for bot-protected `scan_method: invisible-playwright` portals.** `node scripts/scan.mjs --invisible` — vendored, self-contained anti-detect Firefox; seed trust once via `npm run login:invisible`. See `docs/invisible-playwright.md`. |
 | invisible-playwright MCP | **Tier 2.** Same stealth Firefox driven by hand via `mcp__invisible-playwright__*` (navigate_page, evaluate_script) — for portals the automated `--invisible` pass couldn't clear. |
-| CiC-over-CDP | **LAST RESORT (Tier 3).** `npm run chrome:immo` (dedicated logged-in debug Chrome) + `node scripts/scan.mjs --cic`. Only when both stealth tiers fail. See `docs/cic-cdp-scan.md`. |
+| debug-Chrome (CDP) | **LAST RESORT (Tier 3).** `npm run chrome:immo` (dedicated logged-in debug Chrome) + `node scripts/scan.mjs --debug-chrome`. Only when both stealth tiers fail. See `docs/cic-cdp-scan.md`. |
 | CiC (Claude-in-Chrome) | Interactive real-Chrome scan — deepest fallback, only if even the debug Chrome is unavailable. |
 | Read | profile.yml, _profile.md, portals.yml, listings.md |
 | Write | Reports, tracker additions, research |
@@ -152,7 +152,7 @@ The offered flat(s) come entirely from the `swap_offer:` block in `config/profil
 
 ## Portal-Specific Notes
 
-Scan methods: `playwright` (headless, `npm run scan`) and `cic` (bot-protected portals). A `cic` portal is scanned **stealth-first, in three tiers — CiC over the debug Chrome is the LAST resort**: **Tier 1 (default)** `node scripts/scan.mjs --invisible` (vendored self-contained stealth Firefox); **Tier 2** the `mcp__invisible-playwright__*` tools (same stealth engine, Claude-driven) for portals Tier 1 couldn't clear; **Tier 3** `npm run chrome:immo` + `node scripts/scan.mjs --cic` (trusted debug Chrome over CDP) only when both stealth tiers fail. See `docs/cic-cdp-scan.md`. The stealth tiers need no external browser; the CDP tier needs a *trusted, logged-in* Chrome (a fresh/headless browser is CAPTCHA-blocked).
+Scan methods: `playwright` (headless, `npm run scan`) and `cic` (bot-protected portals). A `cic` portal is scanned **stealth-first, in three tiers — CiC over the debug Chrome is the LAST resort**: **Tier 1 (default)** `node scripts/scan.mjs --invisible` (vendored self-contained stealth Firefox); **Tier 2** the `mcp__invisible-playwright__*` tools (same stealth engine, Claude-driven) for portals Tier 1 couldn't clear; **Tier 3** `npm run chrome:immo` + `node scripts/scan.mjs --debug-chrome` (trusted debug Chrome over CDP) only when both stealth tiers fail. See `docs/cic-cdp-scan.md`. The stealth tiers need no external browser; the CDP tier needs a *trusted, logged-in* Chrome (a fresh/headless browser is CAPTCHA-blocked).
 
 | Portal | Method | Notes |
 |--------|--------|-------|
