@@ -1,0 +1,11 @@
+# Dependencies for the invisible-playwright MCP server (scripts/invisible-playwright-mcp.py).
+# invisible-playwright is NOT on PyPI — it is installed from the vendored wheel in
+# ../vendor/ (pip --find-links vendor/); everything else is ordinary PyPI.
+# Versions pinned to match the known-good set. Rebuilt into tmp/venv-ip by
+# scripts/invisible-playwright-mcp.sh on first run.
+invisible-playwright==0.1.2
+playwright==1.60.0
+mcp==1.27.1
+platformdirs>=4
+requests>=2.31
+tqdm>=4.66

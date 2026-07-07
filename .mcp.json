@@ -1,13 +1,13 @@
 {
   "mcpServers": {
     "invisible-playwright": {
-      "command": "/home/mniebes/workspace/github.com/niebes/ancestry/tmp/venv-ip/bin/python",
-      "args": ["/home/mniebes/workspace/github.com/niebes/ancestry/scripts/invisible-playwright-mcp.py"],
+      "command": "bash",
+      "args": ["scripts/invisible-playwright-mcp.sh"],
       "env": {
         "IP_HEADLESS": "true",
         "IP_LOCALE": "de-DE",
         "IP_TIMEZONE": "Europe/Berlin",
-        "IP_STORAGE_STATE": "/home/mniebes/workspace/github.com/niebes/immo-ops/tmp/browser-state.json"
+        "IP_STORAGE_STATE": "tmp/browser-state.json"
       }
     }
   }
