@@ -12,8 +12,8 @@
  *   node scripts/scan.mjs --dry-run             # preview without writing
  *   node scripts/scan.mjs --portal ImmoScout24  # scan single portal (within selected groups)
  *   node scripts/scan.mjs --headed              # visible browser (debug)
- *   node scripts/scan.mjs --cic                 # scan_method: cic portals via the debug Chrome (CDP)
- *   node scripts/scan.mjs --invisible           # scan_method: cic portals via vendored stealth Firefox
+ *   node scripts/scan.mjs --invisible           # scan_method: invisible-playwright portals — stealth Firefox (DEFAULT)
+ *   node scripts/scan.mjs --cic                 # same portals via the debug Chrome over CDP (fallback / last resort)
  *
  * Exit codes:
  *   0  full coverage — every attempted portal processed
@@ -124,7 +124,7 @@ const SCAN_CONCURRENCY = Math.max(1, concIdx !== -1 ? parseInt(args[concIdx + 1]
 // Chrome — the dedicated debug profile started by scripts/immo-chrome.sh. That
 // browser is trusted (cookies + fingerprint history), so IS24 etc. wave it through,
 // and the CiC extractor snippets run via page.evaluate() → JSON straight to disk,
-// no ~1 KB channel, no chunking. Scans scan_method: cic portals (not playwright).
+// no ~1 KB channel, no chunking. Scans scan_method: invisible-playwright portals (not playwright).
 const CIC_MODE = args.includes('--cic');
 // ── Invisible-playwright mode (`--invisible`) ──────────────────────
 // Same snippet contract as --cic, but the browser backend is the vendored stealth
@@ -545,7 +545,7 @@ function makeInvisibleEvaluator() {
   };
 }
 
-// Shared loop: walks scan_method: cic portals in the selected groups, runs each
+// Shared loop: walks scan_method: invisible-playwright portals in the selected groups, runs each
 // portal's snippet via evaluator.fetchPage, pipes results to process-scan.mjs, applies
 // the ≥80%-seen early-stop, and records coverage failures. Used by both transports.
 async function runSnippetScan(evaluator, label) {
@@ -560,7 +560,11 @@ async function runSnippetScan(evaluator, label) {
     for (const group of searchGroups) {
       if (GROUP_FILTER && group.name !== GROUP_FILTER) continue;
       const portals = (group.portals || [])
-        .filter(p => p.enabled !== false && p.scan_method === 'cic')
+        // "invisible-playwright" = the bot-protected portal category. Default transport
+        // is the stealth Firefox (--invisible); the debug-Chrome --cic path is the
+        // fallback. Both select the same category here. Legacy value "cic" still accepted
+        // so an un-migrated portals.yml keeps working.
+        .filter(p => p.enabled !== false && (p.scan_method === 'invisible-playwright' || p.scan_method === 'cic'))
         .filter(p => !SINGLE_PORTAL || p.name === SINGLE_PORTAL);
       if (portals.length === 0) continue;
       console.log(`\n${'═'.repeat(50)}\nGroup: ${group.name}\n${'═'.repeat(50)}`);

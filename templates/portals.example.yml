@@ -35,7 +35,7 @@ search_groups:
     portals:
       - name: ImmoScout24
         enabled: true
-        scan_method: cic
+        scan_method: invisible-playwright
         search_url: "https://www.immobilienscout24.de/Suche/de/berlin/berlin/wohnung-mieten?price=-{price_max}.0&livingspace={size_min}.0-&numberofrooms={rooms_min}.0-&pricetype=calculatedtotalrent"
         captcha_risk: high
         notes: "Largest German portal. Blocks Playwright — use CiC. CAPTCHA may need manual solve."
@@ -104,7 +104,7 @@ search_groups:
   #   portals:
   #     - name: ImmoScout24
   #       enabled: true
-  #       scan_method: cic
+  #       scan_method: invisible-playwright
   #       search_url: "https://www.immobilienscout24.de/Suche/de/berlin/berlin/haus-kaufen?numberofrooms=4.0-&livingspace=80.0-&price=-500000.0&sorting=2"
   #
   #     - name: Immowelt
@@ -133,7 +133,7 @@ search_groups:
   #   portals:
   #     - name: ImmoScout24
   #       enabled: true
-  #       scan_method: cic
+  #       scan_method: invisible-playwright
   #       search_url: "https://www.immobilienscout24.de/Suche/de/brandenburg/brandenburg/grundstueck-kaufen?price=-100000.0&livingspace=500.0-&sorting=2"
   #
   #   title_filter:

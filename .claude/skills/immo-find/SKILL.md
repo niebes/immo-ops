@@ -49,13 +49,13 @@ Read `modes/scan.md` — the **single source of truth** for scan execution: meth
 #### 1. Playwright portals (`scan_method: playwright`)
 Run headlessly via script: `node scripts/scan.mjs`. Can run in background, unattended.
 
-#### 2. Bot-protected portals (`scan_method: cic`) — stealth-first, three tiers
+#### 2. Bot-protected portals (`scan_method: invisible-playwright`) — stealth-first, three tiers
 These portals block fresh/headless browsers. Try three transports **in this order — CiC over the debug Chrome is the LAST resort**:
 
 **Tier 1 — invisible (DEFAULT, automated):**
 ```
 npm run login:invisible             # ONE-TIME: seed session trust (headful stealth Firefox login)
-node scripts/scan.mjs --invisible   # scan all enabled scan_method: cic portals → process-scan
+node scripts/scan.mjs --invisible   # scan all enabled scan_method: invisible-playwright portals → process-scan
 ```
 Vendored stealth Firefox, fully self-contained — no external browser needed. This is the default automated pass; it records a ⛔ failure in `data/scan-failures.json` for any portal it can't clear.
 
@@ -64,7 +64,7 @@ Vendored stealth Firefox, fully self-contained — no external browser needed. T
 **Tier 3 — CiC over CDP (LAST RESORT):**
 ```
 npm run chrome:immo          # start the dedicated debug Chrome (idempotent)
-node scripts/scan.mjs --cic  # scan the still-unprocessed scan_method: cic portals
+node scripts/scan.mjs --cic  # scan the still-unprocessed scan_method: invisible-playwright portals
 ```
 Only when BOTH stealth tiers fail for a portal. Interactive Claude-in-Chrome (the `javascript_tool`/tab workflow below) is a further fallback if even the debug Chrome is unavailable. Full flow + security notes: `docs/cic-cdp-scan.md`.
 
@@ -75,7 +75,7 @@ NOT implemented in `scan.mjs` — the agent runs these itself: WebSearch with th
 ALWAYS create a dedicated tab for this via `tabs_create_mcp`. Never reuse existing tabs. When done, close only the tab(s) you created via `tabs_close_mcp` — never close tabs you didn't create.
 
 **Interactive Claude-in-Chrome workflow (Tier 3 further fallback — use only when both stealth tiers AND the debug Chrome are unavailable):**
-1. Read `portals.yml` for all portals with `scan_method: cic` and `enabled: true`
+1. Read `portals.yml` for all portals with `scan_method: invisible-playwright` and `enabled: true`
 2. **Create a new CiC tab** via `mcp__claude-in-chrome__tabs_create_mcp` — note the tabId
 3. For each CiC portal:
    a. Navigate to `search_url` via `mcp__claude-in-chrome__navigate` (URL should include `&sorting=2` for newest first)
@@ -117,7 +117,7 @@ Delegates individual evaluations to /immo-assess.
 ### Auto mode (for `/loop` usage):
 Full automated cycle designed for `loop 1h /immo-find auto`. The purpose is to deliver scored, actionable recommendations — not raw links. Every step must complete before notifying.
 
-**RULE — `scan auto` ALWAYS runs the FULL scan (Playwright Step 1, the CiC pass Step 2, AND the websearch pass Step 2b), every time, unless the user explicitly scopes it down in their request.** The CiC pass — every enabled `scan_method: cic` portal in `portals.yml`, plus any `fallback: "cic"` portals from Step 1b — is NOT optional and NOT deferrable; the same goes for enabled `scan_method: websearch` portals. "I'll flag the CiC portals and run them next time" is a FAILURE, not an acceptable outcome — a coverage gap is something you CLOSE by doing the run, not something you merely report. The only acceptable reasons to skip the CiC pass are: (a) the user explicitly asked for Playwright-only / a named subset, or (b) session-mode is remote and CiC is disabled (then surface it as ⛔ and stop before notifying). Mid-cycle interruptions (config edits, adding a portal, answering a question) do NOT cancel the remaining steps — resume and finish the full run before notifying.
+**RULE — `scan auto` ALWAYS runs the FULL scan (Playwright Step 1, the CiC pass Step 2, AND the websearch pass Step 2b), every time, unless the user explicitly scopes it down in their request.** The CiC pass — every enabled `scan_method: invisible-playwright` portal in `portals.yml`, plus any `fallback: "cic"` portals from Step 1b — is NOT optional and NOT deferrable; the same goes for enabled `scan_method: websearch` portals. "I'll flag the CiC portals and run them next time" is a FAILURE, not an acceptable outcome — a coverage gap is something you CLOSE by doing the run, not something you merely report. The only acceptable reasons to skip the CiC pass are: (a) the user explicitly asked for Playwright-only / a named subset, or (b) session-mode is remote and CiC is disabled (then surface it as ⛔ and stop before notifying). Mid-cycle interruptions (config edits, adding a portal, answering a question) do NOT cancel the remaining steps — resume and finish the full run before notifying.
 
 **Step 1 — Playwright scan:**
 ```
@@ -131,9 +131,9 @@ Capture stdout. Note how many new listings were added.
 - `fallback: "reconfigure"` (e.g. no search_url, login wall) → not transient. Surface as ⛔ and recommend `/immo-portal`; do not retry blindly.
 - `fallback: "retry"` (transient timeout) → note it; it should clear next cycle.
 
-**Step 2 — Bot-protected scan (MANDATORY — every enabled `scan_method: cic` portal, plus Playwright bot-defense fallbacks from Step 1b):**
+**Step 2 — Bot-protected scan (MANDATORY — every enabled `scan_method: invisible-playwright` portal, plus Playwright bot-defense fallbacks from Step 1b):**
 This step always runs when any such portal is enabled. Do not skip, defer, or substitute "flag for next time" (see the FULL-scan RULE above).
-1. Read `portals.yml` for `scan_method: cic` portals; add any `fallback: "cic"` portals from Step 1b that have a snippet.
+1. Read `portals.yml` for `scan_method: invisible-playwright` portals; add any `fallback: "cic"` portals from Step 1b that have a snippet.
 2. Scan them **stealth-first** per the three-tier section above: **Tier 1** `node scripts/scan.mjs --invisible` (default) → **Tier 2** `mcp__invisible-playwright__*` for portals it couldn't clear → **Tier 3** `node scripts/scan.mjs --cic` (debug Chrome) as last resort. Do not re-derive the selection here.
 3. Note how many new listings were added. Any `fallback: "cic"` portal WITHOUT a snippet remains a ⛔ coverage item.
 

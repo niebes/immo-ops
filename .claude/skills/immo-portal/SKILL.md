@@ -172,7 +172,7 @@ Add entry under the correct search group's `portals:` list:
 
 For `scan_method`:
 - `playwright` — works headlessly (most portals)
-- `cic` — needs real browser (CAPTCHA, heavy SPAs that don't render headlessly)
+- `invisible-playwright` — bot-protected (CAPTCHA, heavy SPAs); scanned stealth-first via `scan.mjs --invisible` (debug-Chrome `--cic` is the fallback). Needs a `{slug}-cic.js` extractor snippet.
 
 ### Step 8 — Verify
 
@@ -219,7 +219,7 @@ Check `scripts/portals/` for examples of every pattern:
 - **Multi-link dedup**: `bvbi.mjs` (3 links per card, filter by text content)
 - **Custom price format**: `ivd24.mjs` (dot as decimal in m²)
 
-CiC snippets (for `scan_method: cic` portals — a `{portal-slug}-cic.js` returning `{count, hasNextPage, listings}`, NOT registered in `index.mjs`; the scan workflow derives the path from the portal name):
+Extractor snippets (for `scan_method: invisible-playwright` portals — a `{portal-slug}-cic.js` returning `{count, hasNextPage, listings}`, NOT registered in `index.mjs`; the scan workflow derives the path from the portal name. The `-cic.js` suffix is legacy — these run on BOTH the stealth-Firefox and debug-Chrome backends):
 - **Structured per-card via data-testid**: `immoscout24-cic.js` (gallery-slide id cross-check guards URL↔metadata desync)
 - **Label/value card rows**: `semmelhaack-cic.js`
 - **`.s-card` marketplace**: `ebay-cic.js`

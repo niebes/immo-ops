@@ -8,7 +8,7 @@
 > tiers need no external browser and no `~/.config/google-chrome-immo` profile. Reach here
 > only when a portal's defense specifically trusts the established debug-Chrome fingerprint.
 
-Scans the bot-protected portals (`scan_method: cic` — ImmoScout24, Regionalimmobilien24,
+Scans the bot-protected portals (`scan_method: invisible-playwright` — ImmoScout24, Regionalimmobilien24,
 eBay Grundstücke) **automatically**, by driving a persistent, logged-in Chrome over the
 DevTools protocol. It replaces the manual Claude-in-Chrome pass (navigate → paste snippet →
 pull the JSON out in ~900-char slices) with one hands-off command.
@@ -39,7 +39,7 @@ pull the JSON out in ~900-char slices) with one hands-off command.
 
 ```
 npm run chrome:immo         # ensure the debug browser is up (no-op if already running)
-npm run scan:cic            # scan all enabled scan_method: cic portals
+npm run scan:cic            # scan all enabled scan_method: invisible-playwright portals
 # or narrow it:
 node scripts/scan.mjs --cic --group "<your search name from config/profile.yml>"
 node scripts/scan.mjs --cic --portal "ImmoScout24" --dry-run
@@ -68,7 +68,7 @@ and stops at ≥80% already-seen; single-page portals stop after page 1.
 ## Status
 
 **Validated and in production use since June 2026.** This is the preferred way to scan
-`scan_method: cic` portals — the dedicated profile does earn IS24's trust after the
+`scan_method: invisible-playwright` portals — the dedicated profile does earn IS24's trust after the
 one-time login, and scans run hands-off without CAPTCHA on that profile.
 
 Remaining caveats:

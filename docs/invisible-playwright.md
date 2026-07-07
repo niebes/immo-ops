@@ -1,6 +1,6 @@
 # invisible-playwright — stealth scan (Tiers 1 & 2)
 
-The **default** transport for bot-protected portals (`scan_method: cic`). A vendored,
+The **default** transport for bot-protected portals (`scan_method: invisible-playwright`). A vendored,
 self-contained anti-detect **Firefox** (patched stealth profile) that gets past defenses
 which block headless Chromium — no external browser, no logged-in Chrome profile required.
 
@@ -38,7 +38,7 @@ No absolute paths and no reference to any sibling repo — paths are derived at 
 # one-time: seed session trust (opens a visible stealth Firefox; log in / accept cookies, then Enter)
 npm run login:invisible
 
-# scan all enabled scan_method: cic portals via the stealth Firefox (default pass)
+# scan all enabled scan_method: invisible-playwright portals via the stealth Firefox (default pass)
 npm run scan:invisible
 node scripts/scan.mjs --invisible --portal ImmoScout24 --group "Potsdam flat rental" --dry-run
 ```

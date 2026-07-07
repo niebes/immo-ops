@@ -112,7 +112,7 @@ Red flags — any of these should trigger a warning (authoritative signal list w
 | WebSearch | Market data, Mietspiegel, landlord reputation, area info |
 | WebFetch | Extract listing details from static pages |
 | Playwright | Headless scan via `npm run scan` (`scan_method: playwright` portals). **NEVER 2+ Playwright agents in parallel.** |
-| invisible (stealth Firefox) | **DEFAULT for bot-protected `scan_method: cic` portals.** `node scripts/scan.mjs --invisible` — vendored, self-contained anti-detect Firefox; seed trust once via `npm run login:invisible`. See `docs/cic-cdp-scan.md`. |
+| invisible (stealth Firefox) | **DEFAULT for bot-protected `scan_method: invisible-playwright` portals.** `node scripts/scan.mjs --invisible` — vendored, self-contained anti-detect Firefox; seed trust once via `npm run login:invisible`. See `docs/invisible-playwright.md`. |
 | invisible-playwright MCP | **Tier 2.** Same stealth Firefox driven by hand via `mcp__invisible-playwright__*` (navigate_page, evaluate_script) — for portals the automated `--invisible` pass couldn't clear. |
 | CiC-over-CDP | **LAST RESORT (Tier 3).** `npm run chrome:immo` (dedicated logged-in debug Chrome) + `node scripts/scan.mjs --cic`. Only when both stealth tiers fail. See `docs/cic-cdp-scan.md`. |
 | CiC (Claude-in-Chrome) | Interactive real-Chrome scan — deepest fallback, only if even the debug Chrome is unavailable. |
