@@ -40,3 +40,7 @@ inbox/
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Python bytecode from the vendored invisible-playwright scripts
+__pycache__/
+*.pyc

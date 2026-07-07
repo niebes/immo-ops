@@ -12,6 +12,8 @@
  *   node scripts/scan.mjs --dry-run             # preview without writing
  *   node scripts/scan.mjs --portal ImmoScout24  # scan single portal (within selected groups)
  *   node scripts/scan.mjs --headed              # visible browser (debug)
+ *   node scripts/scan.mjs --cic                 # scan_method: cic portals via the debug Chrome (CDP)
+ *   node scripts/scan.mjs --invisible           # scan_method: cic portals via vendored stealth Firefox
  *
  * Exit codes:
  *   0  full coverage — every attempted portal processed
@@ -124,6 +126,13 @@ const SCAN_CONCURRENCY = Math.max(1, concIdx !== -1 ? parseInt(args[concIdx + 1]
 // and the CiC extractor snippets run via page.evaluate() → JSON straight to disk,
 // no ~1 KB channel, no chunking. Scans scan_method: cic portals (not playwright).
 const CIC_MODE = args.includes('--cic');
+// ── Invisible-playwright mode (`--invisible`) ──────────────────────
+// Same snippet contract as --cic, but the browser backend is the vendored stealth
+// Firefox (scripts/invisible-driver.py via scripts/invisible-venv.sh) instead of the
+// CDP debug Chrome. Self-contained in this repo; gets past bot defenses that block
+// headless Chromium. Use when the debug Chrome isn't up, or as the primary stealth
+// path. Session trust persists in tmp/browser-state.json (seed via `npm run login:invisible`).
+const INVISIBLE_MODE = args.includes('--invisible');
 // --deep: paginate through ALL pages, disabling the "≥80% already seen" early-stop and
 // raising the per-portal listing cap. Use when scan-history has been pruned (e.g. swap
 // records deleted) so still-live listings buried on later pages get re-surfaced even
@@ -412,149 +421,237 @@ function withPageParam(url, n) {
   return url + (url.includes('?') ? '&' : '?') + `pagenumber=${n}`;
 }
 
-// ── CiC scan over CDP ──────────────────────────────────────────────
-// Connects to the persistent, LOGGED-IN debug Chrome (scripts/immo-chrome.sh),
-// runs each scan_method: cic portal's extractor snippet via page.evaluate()
-// (a string → CDP Runtime.evaluate, which is NOT subject to page CSP), and pipes
-// the compact {c,n,p,L} straight to process-scan.mjs. No ~1 KB channel, no chunking.
-async function runCicScan() {
-  const { execFileSync } = await import('node:child_process');
-  const os = await import('node:os');
-  console.log(`\nimmo-ops CiC scan over CDP (${CDP_ENDPOINT})${DRY_RUN ? ' (DRY RUN)' : ''}\n`);
+// ── Snippet-scan transports (shared loop + two browser backends) ────
+// Both the CiC path (persistent debug Chrome over CDP) and the --invisible path
+// (vendored stealth Firefox) run the SAME scripts/portals/*-cic.js extractor snippets
+// via evaluate() and pipe the compact {c,n,p,L} to process-scan.mjs. They differ only
+// in the browser backend, abstracted here as an "evaluator":
+//   init()                         set up the backend (CDP connect / spawn driver)
+//   fetchPage(url, snippetSrc)  →  { resultStr: string|null, blocked: bool }
+//       navigate → dismiss consent → wait out a bot-block → scroll (lazy-load) →
+//       evaluate(snippet) → retry once on a 0-count.
+//   close()                        tear down (and persist session where applicable)
 
-  let browser;
-  try {
-    browser = await chromium.connectOverCDP(CDP_ENDPOINT);
-  } catch (err) {
-    console.error(`✗ Cannot connect to Chrome over CDP at ${CDP_ENDPOINT}.`);
-    console.error(`  Start the dedicated debug browser first:  scripts/immo-chrome.sh`);
-    console.error(`  (${err.message})`);
-    process.exit(2);
-  }
-  const context = browser.contexts()[0] || await browser.newContext();
-
-  let totalNew = 0, portalsDone = 0;
-  for (const group of searchGroups) {
-    if (GROUP_FILTER && group.name !== GROUP_FILTER) continue;
-    const portals = (group.portals || [])
-      .filter(p => p.enabled !== false && p.scan_method === 'cic')
-      .filter(p => !SINGLE_PORTAL || p.name === SINGLE_PORTAL);
-    if (portals.length === 0) continue;
-    console.log(`\n${'═'.repeat(50)}\nGroup: ${group.name}\n${'═'.repeat(50)}`);
-
-    for (const portal of portals) {
-      console.log(`\n[${portal.name}]`);
-      attemptedPortals.add(portalKey(portal.name, group.name));
-      const snippetFile = cicSnippetFile(portal.name);
-      if (!snippetFile) { console.log(`  ⛔ no CiC snippet — skipping`); recordFailure(portal, group.name, 'no CiC extractor snippet', 'config'); continue; }
-      if (!portal.search_url) { console.log(`  ⛔ no search_url`); recordFailure(portal, group.name, 'no_search_url', 'config'); continue; }
-
-      const { url: baseUrl } = resolveSearchUrl(portal.search_url, findProfileSearch(profile, group.name));
-      const snippetSrc = readFileSync(snippetFile, 'utf8').trim().replace(/;\s*$/, '');
-      const page = await context.newPage();
-      let failed = false;
+// Backend A — persistent LOGGED-IN debug Chrome over the DevTools protocol
+// (scripts/immo-chrome.sh). Trusted profile (cookies + fingerprint history), so IS24
+// etc. wave it through; evaluate() runs the snippet string via CDP Runtime.evaluate,
+// which is NOT subject to page CSP.
+function makeCdpEvaluator() {
+  let browser, context;
+  return {
+    async init() {
       try {
-        let pageNum = 1, total = 0;
-        while (total < (DEEP ? 600 : 100)) {
-          const url = pageNum === 1 ? baseUrl : withPageParam(baseUrl, pageNum);
-          console.log(`  → page ${pageNum}`);
-          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
-          await page.waitForTimeout(2500);
-          await handleCookieConsent(page).catch(() => {});
-
-          // Trust model: the persistent logged-in profile usually clears the CAPTCHA
-          // after a short wait (a FRESH browser never would — that's why we reuse this one).
-          let blocked = isCaptcha(await page.textContent('body').catch(() => ''));
-          for (let t = 0; blocked && t < 3; t++) {
-            console.log(`  … CAPTCHA — waiting 8s (trusted profile usually clears)`);
-            await page.waitForTimeout(8000);
-            await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
-            blocked = isCaptcha(await page.textContent('body').catch(() => ''));
-          }
-          if (blocked) { console.log(`  ⛔ still CAPTCHA-blocked — skipping`); recordFailure(portal, group.name, 'captcha (CiC/CDP)', 'bot_defense'); failed = true; break; }
-
-          // Lazy-load nudge (some portals render cards on scroll).
-          await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
-          await page.waitForTimeout(1500);
-
-          let resultStr = await page.evaluate(snippetSrc).catch(e => { console.log(`  ⚠ evaluate error: ${e.message}`); return null; });
-          // Lazy-load portals can return 0 on the first pass — retry once after a wait.
-          if (resultStr) { try { if ((JSON.parse(resultStr).c || 0) === 0 && pageNum === 1) { await page.waitForTimeout(3000); resultStr = await page.evaluate(snippetSrc).catch(() => resultStr); } } catch { /* keep */ } }
-          // A dead page 1 is a broken portal, not "no new listings" — flag it so the
-          // coverage report surfaces it (mirrors the Playwright path's page-1 rule;
-          // silently breaking here is exactly how portals go unnoticed for weeks).
-          if (!resultStr) {
-            if (pageNum === 1) { recordFailure(portal, group.name, 'CiC snippet evaluate failed on page 1', 'config'); failed = true; }
-            break;
-          }
-          let parsed;
-          try { parsed = JSON.parse(resultStr); } catch {
-            console.log(`  ⚠ snippet did not return JSON`);
-            if (pageNum === 1) { recordFailure(portal, group.name, 'CiC snippet returned non-JSON on page 1', 'config'); failed = true; }
-            break;
-          }
-          const pageCount = parsed.c || (parsed.L ? parsed.L.length : 0);
-          if (pageCount === 0 && pageNum === 1) {
-            console.log(`  ✗ 0 listings on page 1 (after retry) — selector drift or empty shell → flagging`);
-            recordFailure(portal, group.name, 'CiC snippet returned 0 listings on page 1 (selector drift?)', 'config');
-            failed = true;
-            break;
-          }
-          total += pageCount;
-
-          const tmp = `${os.tmpdir()}/immo-cic-${cicSnippetSlug(portal.name)}-${pageNum}.json`;
-          writeFileSync(tmp, resultStr);
-          const psArgs = ['scripts/process-scan.mjs', '--file', tmp, '--portal', portal.name, '--group', group.name, '--json'];
-          if (DRY_RUN) psArgs.push('--dry-run');
-          let out = '', childFailed = false;
-          try { out = execFileSync('node', psArgs, { cwd: ROOT, encoding: 'utf8' }); }
-          catch (e) { out = (e.stdout || '') + (e.stderr || ''); childFailed = e.status !== 0; }
-          process.stdout.write(out.split('\n').filter(Boolean).map(l => '    ' + l).join('\n') + '\n');
-          if (childFailed) {
-            recordFailure(portal, group.name, `process-scan.mjs failed: ${out.trim().split('\n')[0].slice(0, 100)}`, 'config');
-            failed = true;
-            break;
-          }
-
-          // Stats come from the child's machine-readable --json line (last stdout
-          // line); the human-output regexes remain only as a fallback.
-          let stats = null;
-          try {
-            const lastLine = out.trim().split('\n').filter(l => l.trim()).pop() || '';
-            const j = JSON.parse(lastLine.trim());
-            if (j && typeof j.found === 'number') stats = j;
-          } catch { /* fall back to regex scraping */ }
-          const processed = stats ? stats.found
-            : parseInt((out.match(/Processed:\s*(\d+)/) || [])[1] || '0', 10);
-          const dups = stats ? stats.dups
-            : parseInt((out.match(/Duplicates:\s*(\d+)/) || [])[1] || '0', 10);
-          totalNew += stats ? stats.added
-            : parseInt((out.match(/New in pipeline:\s*(\d+)/) || [])[1] || '0', 10);
-
-          if (!parsed.n) { console.log(`  → single page / no next`); break; }
-          if (!DEEP && processed > 0 && dups >= processed * 0.8) { console.log(`  → ≥80% already seen — stopping`); break; }
-          pageNum++;
-          if (portal.rate_limit) await page.waitForTimeout(portal.rate_limit * 1000);
-        }
-        if (failed) {
-          console.log(`  ⛔ not processed — see failure report`);
-        } else {
-          console.log(`  ✓ done (${total} listings seen)`);
-          portalsDone++;
-        }
+        browser = await chromium.connectOverCDP(CDP_ENDPOINT);
       } catch (err) {
-        console.log(`  ✗ error: ${err.message}`);
-        recordFailure(portal, group.name, (err.message || '').slice(0, 120), 'error');
+        console.error(`✗ Cannot connect to Chrome over CDP at ${CDP_ENDPOINT}.`);
+        console.error(`  Start the dedicated debug browser first:  scripts/immo-chrome.sh`);
+        console.error(`  (${err.message})`);
+        process.exit(2);
+      }
+      context = browser.contexts()[0] || await browser.newContext();
+    },
+    async fetchPage(url, snippetSrc) {
+      const page = await context.newPage();
+      try {
+        await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
+        await page.waitForTimeout(2500);
+        await handleCookieConsent(page).catch(() => {});
+
+        // Trust model: the persistent logged-in profile usually clears the CAPTCHA
+        // after a short wait (a FRESH browser never would — that's why we reuse this one).
+        let blocked = isCaptcha(await page.textContent('body').catch(() => ''));
+        for (let t = 0; blocked && t < 3; t++) {
+          console.log(`  … CAPTCHA — waiting 8s (trusted profile usually clears)`);
+          await page.waitForTimeout(8000);
+          await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
+          blocked = isCaptcha(await page.textContent('body').catch(() => ''));
+        }
+        if (blocked) return { resultStr: null, blocked: true };
+
+        // Lazy-load nudge (some portals render cards on scroll).
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
+        await page.waitForTimeout(1500);
+
+        let resultStr = await page.evaluate(snippetSrc).catch(e => { console.log(`  ⚠ evaluate error: ${e.message}`); return null; });
+        // Lazy-load portals can return 0 on the first pass — retry once after a wait.
+        if (resultStr) { try { if ((JSON.parse(resultStr).c || 0) === 0) { await page.waitForTimeout(3000); resultStr = await page.evaluate(snippetSrc).catch(() => resultStr); } } catch { /* keep */ } }
+        return { resultStr, blocked: false };
       } finally {
         await page.close().catch(() => {});
       }
+    },
+    async close() {
+      await browser?.close().catch(() => {}); // CDP: disconnects Playwright, leaves Chrome running
+    },
+  };
+}
+
+// Backend B — vendored stealth Firefox via the line-protocol driver
+// (scripts/invisible-driver.py, run through scripts/invisible-venv.sh). Self-contained
+// in this repo; gets past bot defenses that block headless Chromium. One persistent
+// browser process; fetchPage sends one {cmd:"eval"} per page and awaits the reply.
+// The scan loop is strictly sequential, so a FIFO resolver queue is sufficient.
+function makeInvisibleEvaluator() {
+  let proc, buf = '';
+  const pending = [];
+  let onReady;
+  const readyP = new Promise(r => { onReady = r; });
+  return {
+    async init() {
+      const { spawn } = await import('node:child_process');
+      proc = spawn('bash', ['scripts/invisible-venv.sh', 'scripts/invisible-driver.py'], {
+        cwd: ROOT,
+        env: {
+          ...process.env,
+          IP_HEADLESS: process.env.IP_HEADLESS || (HEADED ? 'false' : 'true'),
+          IP_LOCALE: process.env.IP_LOCALE || 'de-DE',
+          IP_TIMEZONE: process.env.IP_TIMEZONE || 'Europe/Berlin',
+          IP_STORAGE_STATE: process.env.IP_STORAGE_STATE || 'tmp/browser-state.json',
+        },
+        stdio: ['pipe', 'pipe', 'inherit'], // stderr passes through (venv bootstrap + driver logs)
+      });
+      proc.stdout.on('data', d => {
+        buf += d.toString();
+        let nl;
+        while ((nl = buf.indexOf('\n')) >= 0) {
+          const line = buf.slice(0, nl); buf = buf.slice(nl + 1);
+          if (!line.trim()) continue;
+          let msg; try { msg = JSON.parse(line); } catch { continue; }
+          if (msg.ready) { onReady(); continue; }
+          const resolve = pending.shift();
+          if (resolve) resolve(msg);
+        }
+      });
+      proc.on('exit', () => { while (pending.length) pending.shift()({ ok: false, error: 'driver exited' }); });
+      await Promise.race([
+        readyP,
+        new Promise((_, rej) => setTimeout(() => rej(new Error('invisible driver did not signal ready (browser launch failed or timed out)')), 180000)),
+      ]);
+    },
+    fetchPage(url, snippetSrc) {
+      return new Promise(resolve => {
+        pending.push(msg => {
+          if (!msg.ok) { console.log(`  ⚠ driver error: ${msg.error || 'unknown'}`); resolve({ resultStr: null, blocked: false }); }
+          else resolve({ resultStr: msg.result ?? null, blocked: !!msg.blocked });
+        });
+        proc.stdin.write(JSON.stringify({ cmd: 'eval', url, snippet: snippetSrc }) + '\n');
+      });
+    },
+    async close() {
+      if (!proc || proc.exitCode !== null) return;
+      await new Promise(res => { pending.push(() => res()); proc.stdin.write(JSON.stringify({ cmd: 'quit' }) + '\n'); setTimeout(res, 8000); });
+      try { proc.kill(); } catch { /* already gone */ }
+    },
+  };
+}
+
+// Shared loop: walks scan_method: cic portals in the selected groups, runs each
+// portal's snippet via evaluator.fetchPage, pipes results to process-scan.mjs, applies
+// the ≥80%-seen early-stop, and records coverage failures. Used by both transports.
+async function runSnippetScan(evaluator, label) {
+  const { execFileSync } = await import('node:child_process');
+  const os = await import('node:os');
+  console.log(`\n${label}${DRY_RUN ? ' (DRY RUN)' : ''}\n`);
+
+  await evaluator.init();
+
+  let totalNew = 0, portalsDone = 0;
+  try {
+    for (const group of searchGroups) {
+      if (GROUP_FILTER && group.name !== GROUP_FILTER) continue;
+      const portals = (group.portals || [])
+        .filter(p => p.enabled !== false && p.scan_method === 'cic')
+        .filter(p => !SINGLE_PORTAL || p.name === SINGLE_PORTAL);
+      if (portals.length === 0) continue;
+      console.log(`\n${'═'.repeat(50)}\nGroup: ${group.name}\n${'═'.repeat(50)}`);
+
+      for (const portal of portals) {
+        console.log(`\n[${portal.name}]`);
+        attemptedPortals.add(portalKey(portal.name, group.name));
+        const snippetFile = cicSnippetFile(portal.name);
+        if (!snippetFile) { console.log(`  ⛔ no CiC snippet — skipping`); recordFailure(portal, group.name, 'no CiC extractor snippet', 'config'); continue; }
+        if (!portal.search_url) { console.log(`  ⛔ no search_url`); recordFailure(portal, group.name, 'no_search_url', 'config'); continue; }
+
+        const { url: baseUrl } = resolveSearchUrl(portal.search_url, findProfileSearch(profile, group.name));
+        const snippetSrc = readFileSync(snippetFile, 'utf8').trim().replace(/;\s*$/, '');
+        let failed = false;
+        try {
+          let pageNum = 1, total = 0;
+          while (total < (DEEP ? 600 : 100)) {
+            const url = pageNum === 1 ? baseUrl : withPageParam(baseUrl, pageNum);
+            console.log(`  → page ${pageNum}`);
+            const { resultStr, blocked } = await evaluator.fetchPage(url, snippetSrc);
+            // A dead page 1 is a broken portal, not "no new listings" — flag it so the
+            // coverage report surfaces it (mirrors the Playwright path's page-1 rule).
+            if (blocked) { console.log(`  ⛔ still bot-blocked — skipping`); recordFailure(portal, group.name, `captcha (${label})`, 'bot_defense'); failed = true; break; }
+            if (!resultStr) {
+              if (pageNum === 1) { recordFailure(portal, group.name, 'snippet evaluate failed on page 1', 'config'); failed = true; }
+              break;
+            }
+            let parsed;
+            try { parsed = JSON.parse(resultStr); } catch {
+              console.log(`  ⚠ snippet did not return JSON`);
+              if (pageNum === 1) { recordFailure(portal, group.name, 'snippet returned non-JSON on page 1', 'config'); failed = true; }
+              break;
+            }
+            const pageCount = parsed.c || (parsed.L ? parsed.L.length : 0);
+            if (pageCount === 0 && pageNum === 1) {
+              console.log(`  ✗ 0 listings on page 1 (after retry) — selector drift or empty shell → flagging`);
+              recordFailure(portal, group.name, 'snippet returned 0 listings on page 1 (selector drift?)', 'config');
+              failed = true;
+              break;
+            }
+            total += pageCount;
+
+            const tmp = `${os.tmpdir()}/immo-cic-${cicSnippetSlug(portal.name)}-${pageNum}.json`;
+            writeFileSync(tmp, resultStr);
+            const psArgs = ['scripts/process-scan.mjs', '--file', tmp, '--portal', portal.name, '--group', group.name, '--json'];
+            if (DRY_RUN) psArgs.push('--dry-run');
+            let out = '', childFailed = false;
+            try { out = execFileSync('node', psArgs, { cwd: ROOT, encoding: 'utf8' }); }
+            catch (e) { out = (e.stdout || '') + (e.stderr || ''); childFailed = e.status !== 0; }
+            process.stdout.write(out.split('\n').filter(Boolean).map(l => '    ' + l).join('\n') + '\n');
+            if (childFailed) {
+              recordFailure(portal, group.name, `process-scan.mjs failed: ${out.trim().split('\n')[0].slice(0, 100)}`, 'config');
+              failed = true;
+              break;
+            }
+
+            // Stats come from the child's machine-readable --json line (last stdout
+            // line); the human-output regexes remain only as a fallback.
+            let stats = null;
+            try {
+              const lastLine = out.trim().split('\n').filter(l => l.trim()).pop() || '';
+              const j = JSON.parse(lastLine.trim());
+              if (j && typeof j.found === 'number') stats = j;
+            } catch { /* fall back to regex scraping */ }
+            const processed = stats ? stats.found
+              : parseInt((out.match(/Processed:\s*(\d+)/) || [])[1] || '0', 10);
+            const dups = stats ? stats.dups
+              : parseInt((out.match(/Duplicates:\s*(\d+)/) || [])[1] || '0', 10);
+            totalNew += stats ? stats.added
+              : parseInt((out.match(/New in pipeline:\s*(\d+)/) || [])[1] || '0', 10);
+
+            if (!parsed.n) { console.log(`  → single page / no next`); break; }
+            if (!DEEP && processed > 0 && dups >= processed * 0.8) { console.log(`  → ≥80% already seen — stopping`); break; }
+            pageNum++;
+            if (portal.rate_limit) await new Promise(r => setTimeout(r, portal.rate_limit * 1000));
+          }
+          if (failed) console.log(`  ⛔ not processed — see failure report`);
+          else { console.log(`  ✓ done (${total} listings seen)`); portalsDone++; }
+        } catch (err) {
+          console.log(`  ✗ error: ${err.message}`);
+          recordFailure(portal, group.name, (err.message || '').slice(0, 120), 'error');
+        }
+      }
     }
+  } finally {
+    await evaluator.close().catch(() => {});
   }
 
-  await browser.close().catch(() => {}); // CDP: disconnects Playwright, leaves Chrome running
   console.log(`\n${'━'.repeat(40)}`);
-  console.log(`CiC portals processed: ${portalsDone}`);
-  console.log(`New in pipeline:       ${totalNew}`);
+  console.log(`Portals processed: ${portalsDone}`);
+  console.log(`New in pipeline:   ${totalNew}`);
   let carried = [];
   if (!DRY_RUN) carried = writeFailuresReport();
   if (scanFailures.length) {
@@ -571,7 +668,8 @@ async function runCicScan() {
 }
 
 async function main() {
-  if (CIC_MODE) { await runCicScan(); return; }
+  if (INVISIBLE_MODE) { await runSnippetScan(makeInvisibleEvaluator(), 'immo-ops invisible-playwright scan (stealth Firefox)'); return; }
+  if (CIC_MODE) { await runSnippetScan(makeCdpEvaluator(), `immo-ops CiC scan over CDP (${CDP_ENDPOINT})`); return; }
   console.log(`\nimmo-ops scan — ${today()}${DRY_RUN ? ' (DRY RUN)' : ''}\n`);
   console.log(`Search groups: ${searchGroups.map(g => g.name).join(', ')}`);
 

@@ -15,8 +15,10 @@
     "scan:dry": "node scripts/scan.mjs --dry-run",
     "scan:headed": "node scripts/scan.mjs --headed",
     "scan:cic": "node scripts/scan.mjs --cic",
+    "scan:invisible": "node scripts/scan.mjs --invisible",
     "chrome:immo": "scripts/immo-chrome.sh",
     "login:immoscout": "node scripts/login-immoscout.mjs",
+    "login:invisible": "bash scripts/invisible-venv.sh scripts/invisible-login.py",
     "process-scan": "node scripts/process-scan.mjs"
   },
   "dependencies": {
