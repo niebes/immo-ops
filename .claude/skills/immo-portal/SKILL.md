@@ -172,7 +172,7 @@ Add entry under the correct search group's `portals:` list:
 
 For `scan_method`:
 - `playwright` — works headlessly (most portals)
-- `invisible-playwright` — bot-protected (CAPTCHA, heavy SPAs); scanned stealth-first via `scan.mjs --invisible` (`scan.mjs --debug-chrome` is the fallback). Needs a `{slug}-cic.js` extractor snippet.
+- `invisible-playwright` — bot-protected (CAPTCHA, heavy SPAs); scanned stealth-first via `scan.mjs --invisible` (`scan.mjs --debug-chrome` is the fallback). Needs a `{slug}-extract.js` extractor snippet.
 
 ### Step 8 — Verify
 
@@ -219,18 +219,18 @@ Check `scripts/portals/` for examples of every pattern:
 - **Multi-link dedup**: `bvbi.mjs` (3 links per card, filter by text content)
 - **Custom price format**: `ivd24.mjs` (dot as decimal in m²)
 
-Extractor snippets (for `scan_method: invisible-playwright` portals — a `{portal-slug}-cic.js` returning `{count, hasNextPage, listings}`, NOT registered in `index.mjs`; the scan workflow derives the path from the portal name. The `-cic.js` suffix is legacy — these run on BOTH the stealth-Firefox and debug-Chrome backends):
-- **Structured per-card via data-testid**: `immoscout24-cic.js` (gallery-slide id cross-check guards URL↔metadata desync)
-- **Label/value card rows**: `semmelhaack-cic.js`
-- **`.s-card` marketplace**: `ebay-cic.js`
-- **Consent + lazy-load + share-link URL**: `regionalimmobilien24-cic.js`
+Extractor snippets (for `scan_method: invisible-playwright` portals — a `{portal-slug}-extract.js` returning `{count, hasNextPage, listings}`, NOT registered in `index.mjs`; the scan workflow derives the path from the portal name. The `-extract.js` suffix is legacy — these run on BOTH the stealth-Firefox and debug-Chrome backends):
+- **Structured per-card via data-testid**: `immoscout24-extract.js` (gallery-slide id cross-check guards URL↔metadata desync)
+- **Label/value card rows**: `semmelhaack-extract.js`
+- **`.s-card` marketplace**: `ebay-extract.js`
+- **Consent + lazy-load + share-link URL**: `regionalimmobilien24-extract.js`
 
 ## CiC extractor-building gotchas (hard-won)
 
 Read these before analyzing a CiC portal's DOM — they cost real time to rediscover:
 
 - **The CiC tool truncates returned strings at ~1100 chars** and **blocks** any return value containing a query string, base64, or the words cookie/consent. So: during DOM analysis return only small, sanitized values (URL *pathnames*, counts, short samples) — never dump full hrefs-with-query or big blobs. To extract a full result set, stash it on `window.__scan` and pull it in batches of ~4, or compute IDs in-page and diff against `scan-history.tsv` before processing.
-- **Pair every field with the URL from the SAME card-scoped element**, and cross-check the listing id from an unambiguous per-card token (e.g. a gallery-slide `data-testid`, an `article[id]`, a `.shariff[data-url]`). Regexing the whole card's `innerText` for price/m² while taking the URL from the first anchor causes the **URL↔metadata desync bug** (see `immoscout24-cic.js` header). Skip/flag cards where the two ids disagree.
+- **Pair every field with the URL from the SAME card-scoped element**, and cross-check the listing id from an unambiguous per-card token (e.g. a gallery-slide `data-testid`, an `article[id]`, a `.shariff[data-url]`). Regexing the whole card's `innerText` for price/m² while taking the URL from the first anchor causes the **URL↔metadata desync bug** (see `immoscout24-extract.js` header). Skip/flag cards where the two ids disagree.
 - **Number format is per-site and sometimes per-field.** German (`1.443,87` / `80,5`) vs US (`1,443.87` / `80.5`), and a single card can mix them (Regionalimmobilien24: price German, rooms dot-decimal `3.5 Räume`). Parse locale-robustly; for room counts treat dot OR comma as decimal (never thousands).
 - **Consent + lazy-load.** Many SPA portals render nothing until the TCF consent dialog is dismissed (click "Ablehnen" — privacy-preserving) AND the page is scrolled (cards lazy-load). In the real browser the consent choice is remembered across runs. Document both in the snippet header and `portals.yml notes:`.
 - **Aggregators** (Süddeutsche, Regionalimmobilien24) carry the canonical source URL in a share element (`.shariff[data-url]`) or a slug link; the listing id is usually in an `article[id^="oid-"]`. The evaluator follows these to the source — extract the cleanest detail URL the page exposes.

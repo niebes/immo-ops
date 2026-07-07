@@ -1,6 +1,6 @@
 // CiC extraction snippet for Kleinanzeigen (www.kleinanzeigen.de)
-// Run via CiC-over-CDP: `node scripts/scan.mjs --cic` (page.evaluate on the results page).
-// Returns the compact wrapper: JSON string { c, n, L } (see immoscout24-cic.js).
+// Run via `scan.mjs --invisible` (stealth Firefox, default) or `--debug-chrome` (CDP fallback); page.evaluate on the results page.
+// Returns the compact wrapper: JSON string { c, n, L } (see immoscout24-extract.js).
 //
 // WHY CiC: Kleinanzeigen now 403/bot-blocks headless Playwright/HTTP (empty shell).
 // The dedicated, persistent, trusted debug Chrome (scripts/immo-chrome.sh) loads it

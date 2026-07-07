@@ -1,6 +1,6 @@
 // CiC extraction snippet for Vonovia (Potsdam / adjacent Berlin-West).
-// Run via CiC-over-CDP: `node scripts/scan.mjs --cic` (page.evaluate on the loaded page).
-// Returns the compact wrapper: JSON string { c, n, L } (see immoscout24-cic.js).
+// Run via `scan.mjs --invisible` (stealth Firefox, default) or `--debug-chrome` (CDP fallback); page.evaluate on the loaded page.
+// Returns the compact wrapper: JSON string { c, n, L } (see immoscout24-extract.js).
 //
 // WHY CiC + WHY THE search_url IS AN API ENDPOINT:
 //   vonovia.de is an Angular SPA — the /meine-stadt/... and /zuhause-finden pages

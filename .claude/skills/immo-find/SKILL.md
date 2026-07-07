@@ -59,7 +59,7 @@ node scripts/scan.mjs --invisible   # scan all enabled scan_method: invisible-pl
 ```
 Vendored stealth Firefox, fully self-contained — no external browser needed. This is the default automated pass; it records a ⛔ failure in `data/scan-failures.json` for any portal it can't clear.
 
-**Tier 2 — invisible-playwright MCP (Claude-driven stealth):** the SAME stealth Firefox driven by hand via `mcp__invisible-playwright__*` (navigate_page → clear whatever blocks it → run the portal's `{slug}-cic.js` snippet via `evaluate_script` → pipe the `{c,n,p,L}` to `process-scan.mjs`). Use for portals Tier 1 could not clear (unexpected interstitial, a step needing judgement).
+**Tier 2 — invisible-playwright MCP (Claude-driven stealth):** the SAME stealth Firefox driven by hand via `mcp__invisible-playwright__*` (navigate_page → clear whatever blocks it → run the portal's `{slug}-extract.js` snippet via `evaluate_script` → pipe the `{c,n,p,L}` to `process-scan.mjs`). Use for portals Tier 1 could not clear (unexpected interstitial, a step needing judgement).
 
 **Tier 3 — CiC over CDP (LAST RESORT):**
 ```
@@ -81,7 +81,7 @@ ALWAYS create a dedicated tab for this via `tabs_create_mcp`. Never reuse existi
    a. Navigate to `search_url` via `mcp__claude-in-chrome__navigate` (URL should include `&sorting=2` for newest first)
    b. If CAPTCHA appears ("Ich bin kein Roboter"): wait 5-10 seconds, then re-check — most CAPTCHAs auto-solve. Only ask user if still blocked after waiting.
    c. **Pagination loop** (up to 100 listings total):
-      - Read the extraction snippet from `scripts/portals/{portal}-cic.js`
+      - Read the extraction snippet from `scripts/portals/{portal}-extract.js`
       - Run the snippet via `mcp__claude-in-chrome__javascript_tool`. It returns a **compact wrapper** `{c, n, [total,] [p,] L}` — `c`=count, `n`=hasNextPage, `p`=url-prefix (present when field-0 is a bare id), `L`=positional rows `[idOrUrl, price, m2, rooms, title, location]`.
       - Pipe that same string to process-scan with the portal + prefix flags (process-scan unwraps `L` and rebuilds each URL from `p`):
         - IS24 / IS24 Haus: `node scripts/process-scan.mjs --portal "ImmoScout24" --url-prefix "https://www.immobilienscout24.de/expose/"` (use `--portal "ImmoScout24 Haus"` for houses — same snippet)
@@ -95,13 +95,13 @@ ALWAYS create a dedicated tab for this via `tabs_create_mcp`. Never reuse existi
 5. Show scan summary
 
 **Available CiC extraction snippets:**
-- `scripts/portals/immoscout24-cic.js` — ImmoScout24 (`.listing-card` containers, returns pagination info)
-- `scripts/portals/ebay-cic.js` — eBay.de Grundstücke (`.s-card` containers; skips the "Shop on eBay" placeholder ad; single-page for the Brandenburg search). Returns pagination info.
-- `scripts/portals/semmelhaack-cic.js` — Semmelhaack (`.objekt-single-data` cards, `.label`/`.value` rows; single-page, ~53 nationwide listings). CiC fallback for when Playwright hits the CAPTCHA.
+- `scripts/portals/immoscout24-extract.js` — ImmoScout24 (`.listing-card` containers, returns pagination info)
+- `scripts/portals/ebay-extract.js` — eBay.de Grundstücke (`.s-card` containers; skips the "Shop on eBay" placeholder ad; single-page for the Brandenburg search). Returns pagination info.
+- `scripts/portals/semmelhaack-extract.js` — Semmelhaack (`.objekt-single-data` cards, `.label`/`.value` rows; single-page, ~53 nationwide listings). CiC fallback for when Playwright hits the CAPTCHA.
 
 **Combined scan order:**
 1. First: run `node scripts/scan.mjs` for Playwright portals (can be backgrounded)
-2. Read `data/scan-failures.json` — route Playwright failures: `fallback: "cic"` portals join the CiC pass below (if a snippet exists); everything else becomes a ⛔ coverage item (see the Coverage report RULE).
+2. Read `data/scan-failures.json` — route Playwright failures: `fallback: "invisible-playwright"` portals join the CiC pass below (if a snippet exists); everything else becomes a ⛔ coverage item (see the Coverage report RULE).
 3. Then: scan bot-protected portals (registered CiC portals + bot-defense fallbacks from step 2), stealth-first: **Tier 1** `node scripts/scan.mjs --invisible` (default); escalate portals it couldn't clear to **Tier 2** (`mcp__invisible-playwright__*`); use **Tier 3** `node scripts/scan.mjs --debug-chrome` (debug Chrome) only as a last resort.
 4. Then: run the AI-executed pass for every enabled `scan_method: websearch` portal (see the routing section above / `modes/scan.md`).
 5. Show combined summary, including the coverage report accounting for EVERY enabled portal of ALL three methods — playwright, cic, and websearch — with the exact blocker for each ⛔ entry
@@ -117,7 +117,7 @@ Delegates individual evaluations to /immo-assess.
 ### Auto mode (for `/loop` usage):
 Full automated cycle designed for `loop 1h /immo-find auto`. The purpose is to deliver scored, actionable recommendations — not raw links. Every step must complete before notifying.
 
-**RULE — `scan auto` ALWAYS runs the FULL scan (Playwright Step 1, the CiC pass Step 2, AND the websearch pass Step 2b), every time, unless the user explicitly scopes it down in their request.** The CiC pass — every enabled `scan_method: invisible-playwright` portal in `portals.yml`, plus any `fallback: "cic"` portals from Step 1b — is NOT optional and NOT deferrable; the same goes for enabled `scan_method: websearch` portals. "I'll flag the CiC portals and run them next time" is a FAILURE, not an acceptable outcome — a coverage gap is something you CLOSE by doing the run, not something you merely report. The only acceptable reasons to skip the CiC pass are: (a) the user explicitly asked for Playwright-only / a named subset, or (b) session-mode is remote and CiC is disabled (then surface it as ⛔ and stop before notifying). Mid-cycle interruptions (config edits, adding a portal, answering a question) do NOT cancel the remaining steps — resume and finish the full run before notifying.
+**RULE — `scan auto` ALWAYS runs the FULL scan (Playwright Step 1, the CiC pass Step 2, AND the websearch pass Step 2b), every time, unless the user explicitly scopes it down in their request.** The CiC pass — every enabled `scan_method: invisible-playwright` portal in `portals.yml`, plus any `fallback: "invisible-playwright"` portals from Step 1b — is NOT optional and NOT deferrable; the same goes for enabled `scan_method: websearch` portals. "I'll flag the CiC portals and run them next time" is a FAILURE, not an acceptable outcome — a coverage gap is something you CLOSE by doing the run, not something you merely report. The only acceptable reasons to skip the CiC pass are: (a) the user explicitly asked for Playwright-only / a named subset, or (b) session-mode is remote and CiC is disabled (then surface it as ⛔ and stop before notifying). Mid-cycle interruptions (config edits, adding a portal, answering a question) do NOT cancel the remaining steps — resume and finish the full run before notifying.
 
 **Step 1 — Playwright scan:**
 ```
@@ -127,15 +127,15 @@ Capture stdout. Note how many new listings were added.
 
 **Step 1b — Read the failure-routing signal (`data/scan-failures.json`):**
 `scan.mjs` writes this file every run (empty `failures: []` on a clean run). It is the source of truth for what Playwright could NOT process and what to do about it. For each entry:
-- `fallback: "cic"` (e.g. CAPTCHA, 403, bot-block) → the site is reachable but blocks headless. **Add this portal to the CiC fallback list for Step 2** IF a CiC extractor snippet exists for it. If `action` says no snippet exists → it is a ⛔ coverage item: report it and recommend building one via `/immo-portal`. Do NOT silently drop it.
+- `fallback: "invisible-playwright"` (e.g. CAPTCHA, 403, bot-block) → the site is reachable but blocks headless. **Add this portal to the CiC fallback list for Step 2** IF a CiC extractor snippet exists for it. If `action` says no snippet exists → it is a ⛔ coverage item: report it and recommend building one via `/immo-portal`. Do NOT silently drop it.
 - `fallback: "reconfigure"` (e.g. no search_url, login wall) → not transient. Surface as ⛔ and recommend `/immo-portal`; do not retry blindly.
 - `fallback: "retry"` (transient timeout) → note it; it should clear next cycle.
 
 **Step 2 — Bot-protected scan (MANDATORY — every enabled `scan_method: invisible-playwright` portal, plus Playwright bot-defense fallbacks from Step 1b):**
 This step always runs when any such portal is enabled. Do not skip, defer, or substitute "flag for next time" (see the FULL-scan RULE above).
-1. Read `portals.yml` for `scan_method: invisible-playwright` portals; add any `fallback: "cic"` portals from Step 1b that have a snippet.
+1. Read `portals.yml` for `scan_method: invisible-playwright` portals; add any `fallback: "invisible-playwright"` portals from Step 1b that have a snippet.
 2. Scan them **stealth-first** per the three-tier section above: **Tier 1** `node scripts/scan.mjs --invisible` (default) → **Tier 2** `mcp__invisible-playwright__*` for portals it couldn't clear → **Tier 3** `node scripts/scan.mjs --debug-chrome` (debug Chrome) as last resort. Do not re-derive the selection here.
-3. Note how many new listings were added. Any `fallback: "cic"` portal WITHOUT a snippet remains a ⛔ coverage item.
+3. Note how many new listings were added. Any `fallback: "invisible-playwright"` portal WITHOUT a snippet remains a ⛔ coverage item.
 
 **Step 2b — Websearch portals (part of the FULL scan):**
 For every enabled `scan_method: websearch` portal, run the AI-executed pass (see routing section 3 above / `modes/scan.md`). These portals count toward coverage exactly like the scripted ones — an unrun websearch portal is a ⛔ coverage item, never a silent omission.
@@ -189,7 +189,7 @@ After all agents complete: `node scripts/merge-tracker.mjs`
 **Step 5 — Verification (MUST pass before notify):**
 Before sending any notification, verify:
 - [ ] **Every enabled portal — Playwright, CiC, AND websearch — was actually scanned this cycle.** An enabled CiC or websearch portal that was not run is a verification FAILURE, not a reportable gap. Do NOT proceed to notify by "flagging it for next time" — go back and run Step 2 / Step 2b. The only pass-through exceptions are a portal genuinely blocked this run (CAPTCHA after retry, login wall, remote session-mode disabling CiC) — those, and only those, become ⛔ coverage items.
-- [ ] `data/scan-failures.json` reviewed: every `fallback: "cic"` portal WITH a snippet was actually scanned via CiC in Step 2; every remaining failure (no snippet / reconfigure / retry) is accounted for in the coverage report
+- [ ] `data/scan-failures.json` reviewed: every `fallback: "invisible-playwright"` portal WITH a snippet was actually scanned via CiC in Step 2; every remaining failure (no snippet / reconfigure / retry) is accounted for in the coverage report
 - [ ] Pipeline has 0 pending `- [ ]` entries (all evaluated or discarded)
 - [ ] `node scripts/verify-pipeline.mjs` passes
 

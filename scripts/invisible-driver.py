@@ -2,7 +2,7 @@
 """Line-protocol browser driver over InvisiblePlaywright (patched stealth Firefox).
 
 Used by `node scripts/scan.mjs --invisible` as the browser backend for the existing
-CiC extractor snippets (scripts/portals/*-cic.js). Keeps ONE stealth browser open and
+CiC extractor snippets (scripts/portals/*-extract.js). Keeps ONE stealth browser open and
 answers newline-delimited JSON commands on stdin, replying one JSON line per command
 on stdout. stdout is the protocol channel — ALL diagnostics go to stderr.
 

@@ -83,7 +83,7 @@
 
   const hasNextPage = !!document.querySelector('a[rel="next"], .pagination a.next, a[href*="seite-"]');
 
-  // Compact transport (see immoscout24-cic.js): positional rows, portal dropped (via
+  // Compact transport (see immoscout24-extract.js): positional rows, portal dropped (via
   // --portal). This portal's detail URLs are NOT derivable from a bare id (varied
   // region segment + slug), so field 0 carries the FULL URL and there is NO
   // --url-prefix — process-scan uses field 0 verbatim when it starts with http.

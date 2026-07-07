@@ -158,8 +158,8 @@ Scan methods: `playwright` (headless, `npm run scan`) and `cic` (bot-protected p
 |--------|--------|-------|
 | ImmoScout24 | **cic** | Blocks Playwright entirely. Scan stealth-first (`--invisible`); the bot-block usually auto-clears. Debug Chrome / real Chrome only as last resort. |
 | Immowelt | playwright | Works headlessly. Redirect-heavy URLs — use canonical form. |
-| Kleinanzeigen | **cic** | Moved playwright→cic (now bot-blocks headless + Tailwind redesign). Extractor `kleinanzeigen-cic.js`. |
-| Vonovia | **cic** | Angular SPA, XHR-only + Cookiebot wall. `search_url` points at its JSON API; extractor `vonovia-cic.js`. |
+| Kleinanzeigen | **cic** | Moved playwright→cic (now bot-blocks headless + Tailwind redesign). Extractor `kleinanzeigen-extract.js`. |
+| Vonovia | **cic** | Angular SPA, XHR-only + Cookiebot wall. `search_url` points at its JSON API; extractor `vonovia-extract.js`. |
 
 Portals are configured in `portals.yml` (user layer, gitignored). The template at `templates/portals.example.yml` has a starter set.
 

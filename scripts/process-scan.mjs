@@ -66,7 +66,7 @@ const search = GROUP_NAME
 // A --group that matches no profile search means criteria filtering would be
 // silently bypassed AND pipeline entries get a label no evaluator recognizes
 // (this happened: 176 entries labeled with a stale template group name).
-// Hard-fail so the caller (scan.mjs --cic records it as a portal failure) or
+// Hard-fail so the caller (scan.mjs --debug-chrome records it as a portal failure) or
 // the operator fixes the name instead of ingesting unfiltered data.
 if (GROUP_NAME && !search && profile?.searches?.length) {
   console.error(`✗ No search named "${GROUP_NAME}" in config/profile.yml.`);
@@ -123,7 +123,7 @@ try {
 let wrapperPrefix = null;
 if (listings && !Array.isArray(listings) && typeof listings === 'object') {
   // The wrapper self-describes its URL prefix in `p` (present for id-based portals
-  // like IS24/eBay), so the caller need not repeat --url-prefix — the `scan.mjs --cic`
+  // like IS24/eBay), so the caller need not repeat --url-prefix — the `scan.mjs --debug-chrome`
   // path just pipes the raw {c,n,p,L} through.
   if (typeof listings.p === 'string') wrapperPrefix = listings.p;
   listings = Array.isArray(listings.L) ? listings.L

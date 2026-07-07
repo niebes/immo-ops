@@ -7,7 +7,7 @@ which block headless Chromium — no external browser, no logged-in Chrome profi
 Two ways to drive the same stealth engine:
 
 - **Tier 1 — automated** (`node scripts/scan.mjs --invisible`): fully scripted; runs the
-  existing `scripts/portals/{slug}-cic.js` snippets. This is the default scan pass.
+  existing `scripts/portals/{slug}-extract.js` snippets. This is the default scan pass.
 - **Tier 2 — Claude-driven MCP** (`mcp__invisible-playwright__*`): the same browser driven
   by hand for portals the automated pass can't clear.
 
@@ -59,7 +59,7 @@ The venv builds itself on first run of either the MCP server or `--invisible` (v
   `{"ok":true,"result":<compact {c,n,L} string>,"blocked":<bool>}`
 - `{"cmd":"quit"}` → persist `storage_state` → exit.
 
-Because the snippet contract is identical to the CDP path, **the same `*-cic.js` extractors
+Because the snippet contract is identical to the CDP path, **the same `*-extract.js` extractors
 run unchanged** on either transport.
 
 ## Trust matters under load

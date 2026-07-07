@@ -68,28 +68,28 @@ function writeFailuresReport() {
   return carried;
 }
 
-// Does a CiC extractor snippet exist for this portal? (scripts/portals/{slug}-cic.js)
-function cicSnippetSlug(portalName) {
+// Does a CiC extractor snippet exist for this portal? (scripts/portals/{slug}-extract.js)
+function snippetSlug(portalName) {
   return portalName.toLowerCase()
     .replace(/[äöü]/g, m => ({ ä: 'ae', ö: 'oe', ü: 'ue' }[m]))
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 }
-function hasCicSnippet(portalName) {
-  const slug = cicSnippetSlug(portalName);
+function hasExtractSnippet(portalName) {
+  const slug = snippetSlug(portalName);
   // try a couple of common slug forms
   return ['', '24'].some(suffix =>
-    existsSync(`${ROOT}/scripts/portals/${slug}${suffix}-cic.js`)) ||
-    existsSync(`${ROOT}/scripts/portals/${slug.split('-')[0]}-cic.js`);
+    existsSync(`${ROOT}/scripts/portals/${slug}${suffix}-extract.js`)) ||
+    existsSync(`${ROOT}/scripts/portals/${slug.split('-')[0]}-extract.js`);
 }
 
 // Classify a failure and record it with a recommended action.
 function recordFailure(portal, groupName, reason, classification) {
   let fallback, action;
   if (classification === 'bot_defense') {
-    fallback = 'cic';
-    action = hasCicSnippet(portal.name)
+    fallback = 'invisible-playwright';
+    action = hasExtractSnippet(portal.name)
       ? `Retry via CiC (real browser) — extractor exists. Auto mode will pick it up.`
-      : `Retry via CiC, but NO extractor snippet exists — build one with /immo-portal (scripts/portals/{slug}-cic.js).`;
+      : `Retry via CiC, but NO extractor snippet exists — build one with /immo-portal (scripts/portals/{slug}-extract.js).`;
   } else if (classification === 'config') {
     fallback = 'reconfigure';
     action = `Not a transient failure — fix the portal config or rebuild the extractor via /immo-portal.`;
@@ -404,10 +404,10 @@ function writePipeline(listings, groupName) {
 
 // ── Main ───────────────────────────────────────────────────────────
 
-// Resolve a portal's CiC extractor snippet file (scripts/portals/{slug}-cic.js).
-function cicSnippetFile(portalName) {
-  const slug = cicSnippetSlug(portalName);
-  const cands = [`${slug}-cic.js`, `${slug.split('-')[0]}-cic.js`, `${slug}24-cic.js`];
+// Resolve a portal's CiC extractor snippet file (scripts/portals/{slug}-extract.js).
+function extractSnippetFile(portalName) {
+  const slug = snippetSlug(portalName);
+  const cands = [`${slug}-extract.js`, `${slug.split('-')[0]}-extract.js`, `${slug}24-extract.js`];
   for (const c of cands) {
     const p = `${ROOT}/scripts/portals/${c}`;
     if (existsSync(p)) return p;
@@ -424,7 +424,7 @@ function withPageParam(url, n) {
 
 // ── Snippet-scan transports (shared loop + two browser backends) ────
 // Both the CiC path (persistent debug Chrome over CDP) and the --invisible path
-// (vendored stealth Firefox) run the SAME scripts/portals/*-cic.js extractor snippets
+// (vendored stealth Firefox) run the SAME scripts/portals/*-extract.js extractor snippets
 // via evaluate() and pipe the compact {c,n,p,L} to process-scan.mjs. They differ only
 // in the browser backend, abstracted here as an "evaluator":
 //   init()                         set up the backend (CDP connect / spawn driver)
@@ -573,7 +573,7 @@ async function runSnippetScan(evaluator, label) {
       for (const portal of portals) {
         console.log(`\n[${portal.name}]`);
         attemptedPortals.add(portalKey(portal.name, group.name));
-        const snippetFile = cicSnippetFile(portal.name);
+        const snippetFile = extractSnippetFile(portal.name);
         if (!snippetFile) { console.log(`  ⛔ no CiC snippet — skipping`); recordFailure(portal, group.name, 'no CiC extractor snippet', 'config'); continue; }
         if (!portal.search_url) { console.log(`  ⛔ no search_url`); recordFailure(portal, group.name, 'no_search_url', 'config'); continue; }
 
@@ -608,7 +608,7 @@ async function runSnippetScan(evaluator, label) {
             }
             total += pageCount;
 
-            const tmp = `${os.tmpdir()}/immo-cic-${cicSnippetSlug(portal.name)}-${pageNum}.json`;
+            const tmp = `${os.tmpdir()}/immo-extract-${snippetSlug(portal.name)}-${pageNum}.json`;
             writeFileSync(tmp, resultStr);
             const psArgs = ['scripts/process-scan.mjs', '--file', tmp, '--portal', portal.name, '--group', group.name, '--json'];
             if (DRY_RUN) psArgs.push('--dry-run');
@@ -808,7 +808,7 @@ async function main() {
     console.log(`\n${'⚠'.repeat(20)}`);
     console.log(`PORTALS NOT PROCESSED (${scanFailures.length}) — require follow-up:`);
     for (const f of scanFailures) {
-      const tag = f.fallback === 'cic' ? '→ CiC fallback'
+      const tag = (f.fallback === 'invisible-playwright' || f.fallback === 'cic') ? '→ invisible-playwright fallback'
         : f.fallback === 'reconfigure' ? '→ reconfigure'
         : '→ retry';
       console.log(`  ⛔ ${f.portal} [${f.group}] — ${f.reason} (${f.classification}) ${tag}`);

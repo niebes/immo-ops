@@ -52,7 +52,7 @@ back to the first enabled search — criteria filtering is effectively bypassed 
 placeholders resolve against the wrong search.
 
 Each portal: navigate → dismiss consent → (wait out CAPTCHA on the trusted profile) →
-run its `scripts/portals/{slug}-cic.js` snippet via `page.evaluate()` (a string → CDP
+run its `scripts/portals/{slug}-extract.js` snippet via `page.evaluate()` (a string → CDP
 `Runtime.evaluate`, **not** subject to page CSP) → pipe the compact `{c,n,p,L}` to
 `process-scan.mjs` (dedup + criteria + pipeline/history). IS24 paginates via `&pagenumber=N`
 and stops at ≥80% already-seen; single-page portals stop after page 1.

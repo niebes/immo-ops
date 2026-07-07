@@ -41,9 +41,9 @@ Portals with aggressive bot detection block a fresh/headless browser. Three tran
 npm run login:invisible      # ONE-TIME: seed session trust (headful stealth Firefox login)
 node scripts/scan.mjs --invisible   # scan all enabled scan_method: invisible-playwright portals
 ```
-Fully scripted and self-contained: drives the vendored stealth Firefox (patched anti-detect profile, `scripts/invisible-driver.py`) — navigate → consent → wait out the bot-block → run the portal's `scripts/portals/{slug}-cic.js` snippet → pipe to `process-scan.mjs`. No external browser needed; session trust persists in `tmp/browser-state.json`. This is the default automated pass. Details: `docs/cic-cdp-scan.md`.
+Fully scripted and self-contained: drives the vendored stealth Firefox (patched anti-detect profile, `scripts/invisible-driver.py`) — navigate → consent → wait out the bot-block → run the portal's `scripts/portals/{slug}-extract.js` snippet → pipe to `process-scan.mjs`. No external browser needed; session trust persists in `tmp/browser-state.json`. This is the default automated pass. Details: `docs/cic-cdp-scan.md`.
 
-**Tier 2 — invisible-playwright MCP (Claude-driven stealth):** the SAME stealth Firefox, driven by hand via the `mcp__invisible-playwright__*` tools (navigate_page, evaluate_script, …). Use for portals the Tier-1 automated pass could NOT clear — an unexpected interstitial the fixed wait-loop can't handle, or a step needing judgement. Open the search URL, clear whatever blocks it, run the `{slug}-cic.js` snippet via `evaluate_script`, pipe the compact `{c,n,p,L}` to `process-scan.mjs`. Same stealth engine as Tier 1, just interactive.
+**Tier 2 — invisible-playwright MCP (Claude-driven stealth):** the SAME stealth Firefox, driven by hand via the `mcp__invisible-playwright__*` tools (navigate_page, evaluate_script, …). Use for portals the Tier-1 automated pass could NOT clear — an unexpected interstitial the fixed wait-loop can't handle, or a step needing judgement. Open the search URL, clear whatever blocks it, run the `{slug}-extract.js` snippet via `evaluate_script`, pipe the compact `{c,n,p,L}` to `process-scan.mjs`. Same stealth engine as Tier 1, just interactive.
 
 **Tier 3 — CiC over CDP (LAST RESORT):**
 ```
@@ -68,7 +68,7 @@ Because no script covers these portals, they are the easiest to silently skip �
 ## Failure Routing (`data/scan-failures.json`)
 
 `scan.mjs` writes this file every run (empty `failures: []` on a clean run). It is the source of truth for what could NOT be processed. For each entry:
-- `fallback: "cic"` (CAPTCHA, 403, bot-block, 0 cards extracted) → the site blocks headless. Rescan it in the CiC pass IF a `{slug}-cic.js` snippet exists; if not, it is a ⛔ coverage item — recommend building a snippet via `/immo-portal`.
+- `fallback: "invisible-playwright"` (CAPTCHA, 403, bot-block, 0 cards extracted) → the site blocks headless. Rescan it in the CiC pass IF a `{slug}-extract.js` snippet exists; if not, it is a ⛔ coverage item — recommend building a snippet via `/immo-portal`.
 - `fallback: "reconfigure"` (no search_url, login wall) → not transient. Surface as ⛔ and recommend `/immo-portal`; do not retry blindly.
 - `fallback: "retry"` (transient timeout) → note it; it should clear next cycle.
 
@@ -78,7 +78,7 @@ Because no script covers these portals, they are the easiest to silently skip �
 2. **Read dedup sources**: `data/scan-history.tsv`, `data/listings.md`, `data/pipeline.md`
 3. **Select search groups**: all `search_groups`, or a specific one if the user requests it.
 4. **Playwright pass**: `node scripts/scan.mjs` (optionally `--group`). Then read `data/scan-failures.json` and route failures per the section above.
-5. **Bot-protected pass** (stealth-first): all enabled `scan_method: invisible-playwright` portals, plus `fallback: "cic"` portals from step 4 that have a snippet. Run **Tier 1** `node scripts/scan.mjs --invisible` first (the default); escalate any portal it could not clear to **Tier 2** (the `mcp__invisible-playwright__*` tools); use **Tier 3** `node scripts/scan.mjs --debug-chrome` (debug Chrome over CDP) only as a last resort. See the `cic` section above.
+5. **Bot-protected pass** (stealth-first): all enabled `scan_method: invisible-playwright` portals, plus `fallback: "invisible-playwright"` portals from step 4 that have a snippet. Run **Tier 1** `node scripts/scan.mjs --invisible` first (the default); escalate any portal it could not clear to **Tier 2** (the `mcp__invisible-playwright__*` tools); use **Tier 3** `node scripts/scan.mjs --debug-chrome` (debug Chrome over CDP) only as a last resort. See the `cic` section above.
 6. **Websearch pass**: for each enabled `scan_method: websearch` portal, run the AI-executed discovery above.
 7. **AI title triage** (NOT a keyword filter):
    Title relevance is a judgement call — an apartment swap, a garage/parking space, a

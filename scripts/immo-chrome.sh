@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Launch (idempotently) a DEDICATED Chrome profile with the DevTools debug port,
-# for the `scan.mjs --cic` CDP scan path.
+# for the `scan.mjs --debug-chrome` CDP scan path.
 #
 # WHY a dedicated profile (never your everyday one):
 #   - Chrome (v136+) refuses --remote-debugging-port on the DEFAULT profile.

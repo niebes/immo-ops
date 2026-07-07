@@ -69,7 +69,7 @@
   const nextBtn = document.querySelector('a.pagination__next, a[aria-label="Weiter"], a[type="next"]');
   const hasNextPage = !!(nextBtn && nextBtn.getAttribute('aria-disabled') !== 'true');
 
-  // Compact transport (see immoscout24-cic.js): positional rows with the itm/ URL
+  // Compact transport (see immoscout24-extract.js): positional rows with the itm/ URL
   // prefix stripped (rebuilt via --url-prefix) and portal dropped (via --portal).
   //   node scripts/process-scan.mjs --portal "eBay.de Grundstücke" --url-prefix "https://www.ebay.de/itm/"
   const P = 'https://www.ebay.de/itm/';

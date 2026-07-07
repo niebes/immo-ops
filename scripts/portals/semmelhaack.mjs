@@ -6,7 +6,7 @@ import { parseNumber } from './base.mjs';
 //   → a.zur-objektbeschreibung (detail link to /vermietung/wohnobjekte/details-wohnobjekt/{id}/)
 // ~53 listings nationwide. Wait for JS render.
 // NOTE: site intermittently CAPTCHA-blocks headless — when that happens scan.mjs
-// flags it for the CiC fallback (scripts/portals/semmelhaack-cic.js).
+// flags it for the CiC fallback (scripts/portals/semmelhaack-extract.js).
 
 export async function extract(page) {
   await page.waitForSelector('div.objekt-single-data', { timeout: 10000 }).catch(() => {});
