@@ -6,8 +6,11 @@ const CONSENT_SELECTORS = [
   'button:has-text("Akzeptieren")',
   'button:has-text("Zustimmen")',
   'button:has-text("Accept all")',
+  'button:has-text("Alle Cookies zulassen")',
   '[data-testid="consent-accept-all"]',
   '#onetrust-accept-btn-handler',
+  '#CybotCookiebotDialogBodyLevelButtonLevelOptinAllowAll', // Cookiebot (e.g. Vonovia)
+  '#CybotCookiebotDialogBodyButtonAccept',
 ];
 
 export async function handleCookieConsent(page) {
