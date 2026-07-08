@@ -30,9 +30,24 @@ read `ort`/`plz`/`strasse` from the record and score Block B on the *real* city,
 enumeration recovers the address + summary numbers the SPA otherwise hides — the only reliable
 path when no IS24 cross-post exists to hit the mobile expose API.
 
+## How to get FULL detail WITH the browser (preferred when navigate is available)
+When CiC `navigate` works (attended sessions — the Chrome extension approves it live), just
+navigate to the detail SPA and read `document.body.innerText` after ~2.5 s. The full expose
+**renders behind the Cookiebot wall without clicking consent** — no need to dismiss the banner.
+The text carries everything the list API lacks: Kaltmiete/Nebenkosten/Heizkosten/Warmmiete,
+Kaution, Baujahr, Geschoss, Heizungsart/Energieträger, full Energieausweis (class + kWh +
+Bedarf/Verbrauch + gültig-bis), the complete Ausstattung list (Loggia/Balkon, Mieterkeller,
+Badewanne, etc.), Bezugsfrei-ab date, and Lage/description. Real-photo count: `document
+.querySelectorAll('img')` filtered to `expose.vonovia.de` — `VNA-*` = real flat photos,
+`CAMP-*` (Gruenstrom/APP) = marketing banners (exclude). Many listings have ONLY CAMP banners
+= 0 real photos → cap Block D at 3.0. This is the fastest full-detail path; use it over the
+IS24 cross-post whenever navigate is available.
+Why: earlier memory said navigate was auto-denied — that's only true unattended; when it works,
+the SPA yields ALL detail directly and no IS24 lookup is needed.
+
 ## How to get FULL detail without the browser
-The CiC `navigate` tool is **denied in unattended/remote sessions** (permission prompt →
-auto-deny), so I could not load the SPA. Vonovia Potsdam flats are cross-posted on
+The CiC `navigate` tool may be **denied in unattended/remote sessions** (permission prompt →
+auto-deny), so the SPA can't load. Vonovia Potsdam flats are cross-posted on
 ImmoScout24, so pull detail from the **IS24 mobile API** (no bot wall, returns 25 KB JSON):
 
     curl -s -A "ImmoScout24_1410_30_._" -H "Accept: application/json" \

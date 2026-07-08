@@ -32,6 +32,16 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   looks fully populated, so without checking the heading/badges you'd wrongly produce a full score for
   an ad the Anbieter has already taken down (typically because a Nachmieter was found).
 
+## Tauschwohnung swaps (two-sided match)
+- Genuine swaps: Anbieter block = "Tauschwohnung GmbH", "Gewerblicher Nutzer"; description opens
+  "Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: …)".
+- **The partner's Suche/Gesuchte Wohnung lives in the free-text `#viewad-description-text`**, not in
+  any structured list — a plain sentence like "Wir suchen eine 4-Raum-Wohnung in Potsdam bis max. 900€
+  Kaltmiete." Always read the description for Side 2 of the swap match. *Why:* the spec `list` only
+  carries THEIR flat (Wohnfläche/Zimmer/Wohnungstyp); the Suche is prose-only.
+- These swap ads often carry **0 gallery images** (imgs count 0) → Block D capped at 3,0, and the
+  page price heading is usually the **Kaltmiete** while the Warmmiete is only in the description text.
+
 ## Triage
 - "Nachmieter gesucht" / "Suche Nachmieter" titles are normal long-term rentals (the existing tenant
   is leaving) — NOT sublets. Score normally unless the text says befristet / Untermiete / auf Zeit.

@@ -10,7 +10,12 @@ HTML, no CAPTCHA/consent wall. Use curl + parse; don't burn a CiC tab.
 - **JSON-LD** `<script type="application/ld+json">` block `@type: RealEstateListing`
   gives: `name` (title), `description` (full text), `address` (street/locality/PLZ),
   `geo` lat/lng, `floorSize.value` (m²), `numberOfRooms`, `offers.price`.
-  NOTE: `offers.price` is the **Warmmiete**, not Kaltmiete.
+  NOTE: `offers.price` is UNRELIABLE for Kalt-vs-Warm — it has been the Warmmiete on
+  some listings and the **Kaltmiete** on others (e.g. 9710192: offers.price 1185 =
+  Kaltmiete (netto)). Always cross-check the detail table (`Kaltmiete (netto)` +
+  `Nebenkosten`) and compute Warmmiete yourself; never assume from offers.price.
+  Also: JSON-LD `floorSize` can disagree with the free-text description (9710192:
+  75 m² field vs "100m2" in the text) — trust the structured field, flag the gap.
 - **Detail table** renders as label line immediately followed by its value line
   once tags are stripped (`<[^>]+>` → newline, then match label → take next line):
   `Kaltmiete (netto)` → `626,62 €`; `Nebenkosten` → `190 €`; `Heizkosten` → `175 €`;
