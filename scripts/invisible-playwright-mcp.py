@@ -63,14 +63,18 @@ async def _ensure_browser():
         humanize=HUMANIZE,
         locale=LOCALE,
         timezone=TIMEZONE,
+        # Disable Firefox's built-in JSON viewer: it runs under a strict internal CSP
+        # that blocks page.evaluate's eval() on JSON-API pages (e.g. Vonovia). Showing
+        # raw JSON as a plain text document lets evaluate work.
+        extra_prefs={"devtools.jsonview.enabled": False},
     )
     _browser = await _pw_instance.__aenter__()
 
     storage_path = Path(STORAGE_STATE_PATH)
     if storage_path.exists():
-        _context = await _browser.new_context(storage_state=str(storage_path))
+        _context = await _browser.new_context(storage_state=str(storage_path), bypass_csp=True)
     else:
-        _context = await _browser.new_context()
+        _context = await _browser.new_context(bypass_csp=True)
 
     _active_page = await _context.new_page()
 

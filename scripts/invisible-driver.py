@@ -110,14 +110,20 @@ async def do_eval(ctx, cmd):
             return {"ok": True, "result": None, "blocked": True}
 
         # Lazy-load nudge, then run the extractor snippet.
+        # WHY the `() => (...)` wrap: on Firefox, page.evaluate of a STRING is executed
+        # via in-page eval(), which a strict page CSP (e.g. Vonovia's JSON-API response)
+        # blocks — "call to eval() blocked by CSP". Passing a FUNCTION instead routes
+        # through Playwright's callFunction path, which is not subject to the page CSP
+        # (this is what Chromium's CDP Runtime.evaluate does implicitly). The snippets
+        # are IIFE expressions, so wrapping them in an arrow function is transparent.
         try:
-            await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
+            await page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
         except Exception:
             pass
         await page.wait_for_timeout(1500)
 
         try:
-            result = await page.evaluate(snippet)
+            result = await page.evaluate(f"() => ({snippet})")
         except Exception as e:
             log(f"  ⚠ evaluate error: {e}")
             return {"ok": True, "result": None, "blocked": False}
@@ -126,7 +132,7 @@ async def do_eval(ctx, cmd):
         try:
             if result and json.loads(result).get("c", 0) == 0:
                 await page.wait_for_timeout(3000)
-                result = await page.evaluate(snippet)
+                result = await page.evaluate(f"() => ({snippet})")
         except Exception:
             pass
 
@@ -145,12 +151,18 @@ async def save_state(ctx):
 
 
 async def main():
-    async with InvisiblePlaywright(headless=HEADLESS, locale=LOCALE, timezone=TIMEZONE) as browser:
+    # devtools.jsonview.enabled=False: when a portal's search_url IS a JSON API (Vonovia),
+    # Firefox otherwise renders it in its built-in JSON viewer, which runs under a strict
+    # BROWSER-internal CSP that blocks page.evaluate's eval ("call to eval() blocked by
+    # CSP") — immune to bypass_csp and to stripping the response header. Disabling the
+    # viewer makes Firefox show the raw JSON as a normal text document, so evaluate works.
+    async with InvisiblePlaywright(headless=HEADLESS, locale=LOCALE, timezone=TIMEZONE,
+                                   extra_prefs={"devtools.jsonview.enabled": False}) as browser:
         st = Path(STATE)
         if st.exists():
-            ctx = await browser.new_context(storage_state=str(st))
+            ctx = await browser.new_context(storage_state=str(st), bypass_csp=True)
         else:
-            ctx = await browser.new_context()
+            ctx = await browser.new_context(bypass_csp=True)
 
         out({"ready": True})  # signals scan.mjs the browser is up
 

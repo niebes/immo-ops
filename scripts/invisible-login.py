@@ -28,12 +28,13 @@ def log(*a):
 
 
 async def main():
-    async with InvisiblePlaywright(headless=False, locale=LOCALE, timezone=TIMEZONE) as browser:
+    async with InvisiblePlaywright(headless=False, locale=LOCALE, timezone=TIMEZONE,
+                                   extra_prefs={"devtools.jsonview.enabled": False}) as browser:
         st = Path(STATE)
         if st.exists():
-            ctx = await browser.new_context(storage_state=str(st))
+            ctx = await browser.new_context(storage_state=str(st), bypass_csp=True)
         else:
-            ctx = await browser.new_context()
+            ctx = await browser.new_context(bypass_csp=True)
         page = await ctx.new_page()
         await page.goto(URL, wait_until="domcontentloaded")
 

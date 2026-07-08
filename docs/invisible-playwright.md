@@ -62,6 +62,24 @@ The venv builds itself on first run of either the MCP server or `--invisible` (v
 Because the snippet contract is identical to the CDP path, **the same `*-extract.js` extractors
 run unchanged** on either transport.
 
+## Firefox CSP / JSON-API gotcha (handled)
+
+On the patched stealth Firefox, `page.evaluate` runs via in-page `eval()`, which a strict
+CSP blocks ("call to eval() blocked by CSP"). This bit us on **Vonovia**, whose
+`search_url` is a JSON API: Firefox rendered it in its **built-in JSON viewer**, which runs
+under a browser-internal CSP that `bypass_csp` and response-header stripping can't touch.
+Fix (in `invisible-driver.py` / `invisible-login.py` / the MCP server): launch with
+`extra_prefs={"devtools.jsonview.enabled": False}` so JSON is shown as a plain text
+document, plus `new_context(bypass_csp=True)`. Vonovia now works on Tier 1. (eBay's Tier-1
+failure is unrelated — it serves different markup to Firefox, a selector matter; it falls
+back to Tier 3 cleanly.)
+
+## The evaluator uses this too
+
+`immo-evaluator` (immo-find auto Step 4 / /immo-assess) is wired to prefer the
+`mcp__invisible-playwright__*` tools over CiC — self-contained, no extension-approval
+prompt, and the JSON-viewer/CSP handling above applies. CiC remains a listed fallback.
+
 ## Trust matters under load
 
 A single light request to IS24 clears the bot-block logged-out, but sustained
