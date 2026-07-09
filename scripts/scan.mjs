@@ -600,6 +600,13 @@ async function runSnippetScan(evaluator, label) {
               break;
             }
             const pageCount = parsed.c || (parsed.L ? parsed.L.length : 0);
+            // A snippet can explicitly signal a LEGITIMATE empty state (e.g. a coop page that
+            // reads "Zur Zeit keine freien Wohnungen") by returning { empty: true }. That is a
+            // successful scan with zero inventory — NOT selector drift — so don't flag it.
+            if (pageCount === 0 && parsed.empty === true) {
+              console.log(`  ✓ scanned — legitimately empty (no current listings)`);
+              break; // failed stays false → counts as a clean scan, not a ⛔
+            }
             if (pageCount === 0 && pageNum === 1) {
               console.log(`  ✗ 0 listings on page 1 (after retry) — selector drift or empty shell → flagging`);
               recordFailure(portal, group.name, 'snippet returned 0 listings on page 1 (selector drift?)', 'config');
