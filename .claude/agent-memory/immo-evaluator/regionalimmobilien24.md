@@ -1,7 +1,7 @@
 # Regionalimmobilien24 — page quirks
 Portal match: "Regionalimmobilien24" · www.regionalimmobilien24.de
 
-Bot-blocks headless; CiC (real browser) only.
+Bot-blocks headless Playwright. **invisible-playwright (stealth Firefox) works** — reads the full detail-page DOM (incl. the inline wg-listing structured blocks) via `evaluate_script` on `document.body.innerText` WITHOUT clicking the TCF consent dialog; content is already in the DOM behind it. Use it over CiC. (The old "CiC only" note referred to headless-Playwright bot-blocking.)
 1. **Consent**: TCF cookie dialog on first load — click "Ablehnen (Funktionseinschränkung)" (privacy-preserving). Remembered in the real browser afterwards, so later runs usually skip it.
 2. **Lazy-load**: listing cards only render after scrolling — scroll to the bottom and wait ~3 s before reading; re-read if the result set is empty.
 3. **Detail URL/id**: cards are `article#oid-{id}.list-immoitem`; the canonical detail URL is in `.shariff[data-url]`. The region segment in that URL (e.g. `/vogtland/`) may not match the property's town but still resolves by id.
