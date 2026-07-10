@@ -30,7 +30,35 @@ read `ort`/`plz`/`strasse` from the record and score Block B on the *real* city,
 enumeration recovers the address + summary numbers the SPA otherwise hides — the only reliable
 path when no IS24 cross-post exists to hit the mobile expose API.
 
-## How to get FULL detail WITH the browser (preferred when navigate is available)
+## How to get FULL detail with a plain curl (BEST — no browser, no IS24 needed) [2026-07-10]
+The detail page `/zuhause-finden/immobilien/{slug}` **does** ship the complete expose in its
+server-rendered HTML — as **HTML-entity-encoded JSON** embedded in the page (contradicts the old
+"renders nothing server-side" note; that was about *visible* DOM, not the source). Just:
+
+    curl -s -A "<desktop UA>" "https://www.vonovia.de/zuhause-finden/immobilien/{slug}" -o detail.html
+    python3 -c "import html;print(html.unescape(open('detail.html',errors='ignore').read()))" | grep -o '"label":"[^"]*","value":"[^"]*"'
+
+`html.unescape` turns `&quot;label&quot;&#x3A;&quot;Nebenkosten&quot;…` into real JSON. Fields present:
+Kaltmiete, Nebenkosten, **Heizkosten** (+"Heizkosten enthalten"), Warmmiete, Kaution (rows under
+headings Kosten/Details), Baujahr, Heizungsart, Energieträger, Geschoss, "Verfügbar ab" (date),
+plus a flat JSON blob with `energyPassValueClass`/`energyPassType`(BEDARF|VERBRAUCH)/
+`energyPassEnergyRequirements`/`energyPassCreatedAt`/`energyPassValidUntil`, `space`,
+`numberOfRooms`, and a **`"features":[…]`** array = the full Ausstattung (Balkon, Mieterkeller,
+Badewanne eingemauert, Fahrradabstellraum, Holzdielen, E-Herd, etc.) + `"location":"…"` (Lage text).
+The `/api/real-estate/{id}` etc. endpoints still 404 — the data lives in the HTML, not a detail API.
+Address in the detail HTML is under key **`"postCodeAndCity"`** (e.g. `"13591 Berlin OT Staaken"`)
+— grep that, not strasse/plz/ort (those keys are the *list*-API shape, absent here). `space`/
+`numberOfRooms` are string-quoted (`"space":"94…"`, `"numberOfRooms":"4"`). The Lage text under
+`"location"` + `"postCodeAndCity"` confirm the real city — the "Potsdam" search bucket regularly
+returns Berlin flats (e.g. Berlin-Staaken/Spandau), so score Block B on the real city.
+Real-photo count still from `imageUrls`: `VNA-*`=real, `CAMP-*`(Gruenstrom/APP)=marketing banners.
+Watch the description for **"Musterbilder"/"Musterbild"** (example photos) — same as no real photos,
+cap Block D at 3.0 for an existing flat (common on Vonovia flats "wird vollständig saniert").
+**Why:** fastest, fully-unattended full-detail path; no SPA render, no CiC, no IS24 cross-post.
+Prefer this over the browser and over the IS24 mobile API. (Also: invisible-playwright `new_page`
+hung ~30min silent in this session — don't rely on it unattended; go straight to this curl path.)
+
+## How to get FULL detail WITH the browser (fallback when the HTML-JSON path fails)
 When CiC `navigate` works (attended sessions — the Chrome extension approves it live), just
 navigate to the detail SPA and read `document.body.innerText` after ~2.5 s. The full expose
 **renders behind the Cookiebot wall without clicking consent** — no need to dismiss the banner.
