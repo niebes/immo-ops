@@ -22,6 +22,8 @@ import yaml from 'js-yaml';
 import { toHistoryLine } from './lib/tsv.mjs';
 import { loadSeenUrls, canonicalizeUrl } from './lib/seen-urls.mjs';
 import { writeAtomic } from './lib/fsx.mjs';
+import { withLock } from './lib/lock.mjs';
+import { insertPendingEntries, toPipelineLine } from './lib/pipeline-md.mjs';
 
 const ROOT = process.cwd();
 const PORTALS_PATH = `${ROOT}/portals.yml`;
@@ -179,54 +181,59 @@ if (!Array.isArray(listings) || listings.length === 0) {
 }
 
 const today = new Date().toISOString().slice(0, 10);
-const seenUrls = loadSeenUrls(ROOT);
 const stats = { found: listings.length, skipped_criteria: 0, skipped_dup: 0, added: 0 };
 const newListings = [];
 const historyLines = [];
 
-for (const l of listings) {
-  const criteriaResult = filterCriteria(l);
-  if (criteriaResult) {
-    stats.skipped_criteria++;
-    historyLines.push(toHistoryLine(l, criteriaResult, today));
-    continue;
-  }
+// Filter + dedup + write as ONE critical section. Loading the seen-set INSIDE
+// the lock is what makes concurrent-pass dedup correct: a URL the other pass
+// added between an early load and our write would otherwise be re-added.
+// The section is pure fs work (no network/browser) — milliseconds.
+function filterAndDedup() {
+  const seenUrls = loadSeenUrls(ROOT);
+  for (const l of listings) {
+    const criteriaResult = filterCriteria(l);
+    if (criteriaResult) {
+      stats.skipped_criteria++;
+      historyLines.push(toHistoryLine(l, criteriaResult, today));
+      continue;
+    }
 
-  // Dedup on the canonical (query/hash-stripped) URL; the original URL is what
-  // gets written to pipeline/history below.
-  const canonUrl = canonicalizeUrl(l.url);
-  if (seenUrls.has(canonUrl)) {
-    stats.skipped_dup++;
-    continue;
-  }
+    // Dedup on the canonical (query/hash-stripped) URL; the original URL is what
+    // gets written to pipeline/history below.
+    const canonUrl = canonicalizeUrl(l.url);
+    if (seenUrls.has(canonUrl)) {
+      stats.skipped_dup++;
+      continue;
+    }
 
-  seenUrls.add(canonUrl);
-  stats.added++;
-  newListings.push(l);
-  historyLines.push(toHistoryLine(l, 'added', today));
+    seenUrls.add(canonUrl);
+    stats.added++;
+    newListings.push(l);
+    historyLines.push(toHistoryLine(l, 'added', today));
+  }
 }
 
-if (!DRY_RUN) {
-  if (historyLines.length > 0) {
-    const header = existsSync(SCAN_HISTORY_PATH) ? '' : 'url\tfirst_seen\tportal\ttitle\tlocation\tprice\tm2\trooms\tstatus\n';
-    appendFileSync(SCAN_HISTORY_PATH, header + historyLines.join('\n') + '\n');
-  }
+if (DRY_RUN) {
+  filterAndDedup(); // read-only — no lock needed
+} else {
+  await withLock('data', { root: ROOT }, () => {
+    filterAndDedup();
 
-  if (newListings.length > 0) {
-    let pipeline = existsSync(PIPELINE_PATH) ? readFileSync(PIPELINE_PATH, 'utf8') : '# Pipeline\n\n## Pending\n\n## Processed\n';
-    // Without this guard a missing header makes indexOf return -1 and the
-    // entries get spliced at byte 0's first newline — silent corruption.
-    if (!pipeline.includes('## Pending')) pipeline += '\n## Pending\n';
-    const pendingIdx = pipeline.indexOf('## Pending');
-    const insertIdx = pipeline.indexOf('\n', pendingIdx) + 1;
-    // Same line format as scan.mjs writePipeline() — one format in pipeline.md,
-    // so the evaluator never has to guess which field is the group.
-    const groupLabel = GROUP_NAME || search?.name || '';
-    const entries = newListings.map(l =>
-      `- [ ] ${l.url} | ${l.portal} | ${groupLabel} | ${l.title}${l.price ? ` | ${l.price} EUR` : ''}${l.m2 ? ` | ${l.m2} m²` : ''}`
-    ).join('\n') + '\n';
-    writeAtomic(PIPELINE_PATH, pipeline.slice(0, insertIdx) + entries + pipeline.slice(insertIdx));
-  }
+    if (historyLines.length > 0) {
+      const header = existsSync(SCAN_HISTORY_PATH) ? '' : 'url\tfirst_seen\tportal\ttitle\tlocation\tprice\tm2\trooms\tstatus\n';
+      appendFileSync(SCAN_HISTORY_PATH, header + historyLines.join('\n') + '\n');
+    }
+
+    if (newListings.length > 0) {
+      const pipeline = existsSync(PIPELINE_PATH) ? readFileSync(PIPELINE_PATH, 'utf8') : '';
+      // Same line format as scan.mjs — lib/pipeline-md.mjs owns it, so the
+      // evaluator never has to guess which field is the group.
+      const groupLabel = GROUP_NAME || search?.name || '';
+      const entries = newListings.map(l => toPipelineLine(l, groupLabel));
+      writeAtomic(PIPELINE_PATH, insertPendingEntries(pipeline, entries));
+    }
+  });
 }
 
 console.log(`Processed: ${stats.found} listings`);

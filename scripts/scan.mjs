@@ -31,6 +31,8 @@ import { resolveSearchUrl, findProfileSearch } from './lib/search-url.mjs';
 import { toHistoryLine as tsvHistoryLine } from './lib/tsv.mjs';
 import { loadSeenUrls, canonicalizeUrl } from './lib/seen-urls.mjs';
 import { writeAtomic } from './lib/fsx.mjs';
+import { withLock } from './lib/lock.mjs';
+import { insertPendingEntries, toPipelineLine } from './lib/pipeline-md.mjs';
 
 // ── Paths ──────────────────────────────────────────────────────────
 
@@ -394,19 +396,12 @@ function writeScanHistory(lines) {
   appendFileSync(SCAN_HISTORY_PATH, header + lines.join('\n') + '\n');
 }
 
+// Insertion + entry format live in lib/pipeline-md.mjs (shared with
+// process-scan.mjs). MUST be called inside the 'data' lock.
 function writePipeline(listings, groupName) {
-  let pipeline = existsSync(PIPELINE_PATH)
-    ? readFileSync(PIPELINE_PATH, 'utf8')
-    : '# Pipeline\n\n## Pending\n\n## Processed\n';
-  // Without this guard a missing header makes indexOf return -1 and the
-  // entries get spliced at byte 0's first newline — silent corruption.
-  if (!pipeline.includes('## Pending')) pipeline += '\n## Pending\n';
-  const pendingIdx = pipeline.indexOf('## Pending');
-  const insertIdx = pipeline.indexOf('\n', pendingIdx) + 1;
-  const entries = listings.map(l =>
-    `- [ ] ${l.url} | ${l.portal} | ${groupName} | ${l.title}${l.price ? ` | ${l.price} EUR` : ''}${l.m2 ? ` | ${l.m2} m²` : ''}`
-  ).join('\n') + '\n';
-  writeAtomic(PIPELINE_PATH, pipeline.slice(0, insertIdx) + entries + pipeline.slice(insertIdx));
+  const pipeline = existsSync(PIPELINE_PATH) ? readFileSync(PIPELINE_PATH, 'utf8') : '';
+  const entries = listings.map(l => toPipelineLine(l, groupName));
+  writeAtomic(PIPELINE_PATH, insertPendingEntries(pipeline, entries));
 }
 
 // ── Main ───────────────────────────────────────────────────────────
@@ -700,13 +695,16 @@ async function runSnippetScan(evaluator, label) {
             }
             total += pageCount;
 
-            const tmp = `${os.tmpdir()}/immo-extract-${snippetSlug(portal.name)}-${pageNum}.json`;
+            // PID-namespaced: two concurrent scans of the same portal must not
+            // overwrite each other's page file between write and child read.
+            const tmp = `${os.tmpdir()}/immo-extract-${snippetSlug(portal.name)}-${pageNum}-${process.pid}.json`;
             writeFileSync(tmp, resultStr);
             const psArgs = ['scripts/process-scan.mjs', '--file', tmp, '--portal', portal.name, '--group', group.name, '--json'];
             if (DRY_RUN) psArgs.push('--dry-run');
             let out = '', childFailed = false;
             try { out = execFileSync('node', psArgs, { cwd: ROOT, encoding: 'utf8' }); }
             catch (e) { out = (e.stdout || '') + (e.stderr || ''); childFailed = e.status !== 0; }
+            finally { try { (await import('node:fs')).unlinkSync(tmp); } catch { /* best-effort */ } }
             process.stdout.write(out.split('\n').filter(Boolean).map(l => '    ' + l).join('\n') + '\n');
             if (childFailed) {
               recordFailure(portal, group.name, `process-scan.mjs failed: ${out.trim().split('\n')[0].slice(0, 100)}`, 'config');
@@ -750,7 +748,7 @@ async function runSnippetScan(evaluator, label) {
   console.log(`Portals processed: ${portalsDone}`);
   console.log(`New in pipeline:   ${totalNew}`);
   let carried = [];
-  if (!DRY_RUN) carried = writeFailuresReport();
+  if (!DRY_RUN) carried = await withLock('data', { root: ROOT }, () => writeFailuresReport());
   if (scanFailures.length) {
     console.log(`\n⛔ Not processed this run:`);
     for (const f of scanFailures) console.log(`  - ${f.portal} [${f.group}] — ${f.reason}`);
@@ -775,8 +773,9 @@ async function main() {
 
   const browser = await chromium.launch({ headless: !HEADED });
   const totalStats = { found: 0, added: 0, skipped_criteria: 0, skipped_dup: 0, portals: 0 };
-  const allNewListings = [];
+  let allNewListings = [];
   const allHistoryLines = [];
+  const pendingWrites = []; // [{ group, listings }] — committed in one locked section
 
   for (const group of searchGroups) {
     console.log(`\n${'═'.repeat(50)}`);
@@ -849,20 +848,45 @@ async function main() {
         seenUrls.add(canonUrl);
         totalStats.added++;
         groupNewListings.push(listing);
-        allHistoryLines.push(toHistoryLine(listing, 'added'));
+        // NOTE: the 'added' history line is generated in the locked commit
+        // below — a listing can still be dropped there by the fresh-seen-set
+        // re-check, and a dropped listing must leave no 'added' trace.
       }
     });
 
-    if (!DRY_RUN && groupNewListings.length > 0) {
-      writePipeline(groupNewListings, group.name);
-    }
+    // Collect only — the write happens in ONE locked section after the browser
+    // closes. (Trade-off: a mid-run crash now persists nothing instead of the
+    // completed groups; scans are cheap to re-run and dedup makes them idempotent.)
+    if (groupNewListings.length > 0) pendingWrites.push({ group: group.name, listings: groupNewListings });
     allNewListings.push(...groupNewListings);
   }
 
   await browser.close();
 
-  if (!DRY_RUN && allHistoryLines.length > 0) {
-    writeScanHistory(allHistoryLines);
+  // ── COMMIT phase (locked): never hold the lock around browser work above.
+  // Re-check against a FRESH seen-set inside the lock: a parallel pass (e.g.
+  // scan.mjs --invisible in auto mode) may have added the same URL since our
+  // pre-filter loaded its snapshot.
+  if (!DRY_RUN) {
+    await withLock('data', { root: ROOT }, () => {
+      const fresh = loadSeenUrls(ROOT);
+      let crossDropped = 0;
+      for (const w of pendingWrites) {
+        w.listings = w.listings.filter(l => {
+          const canon = canonicalizeUrl(l.url);
+          if (fresh.has(canon)) { crossDropped++; totalStats.added--; totalStats.skipped_dup++; return false; }
+          fresh.add(canon);
+          allHistoryLines.push(toHistoryLine(l, 'added'));
+          return true;
+        });
+        if (w.listings.length > 0) writePipeline(w.listings, w.group);
+      }
+      if (crossDropped > 0) {
+        console.log(`  (${crossDropped} listing(s) dropped at commit — added by a parallel pass mid-run)`);
+        allNewListings = allNewListings.filter(l => pendingWrites.some(w => w.listings.includes(l)));
+      }
+      if (allHistoryLines.length > 0) writeScanHistory(allHistoryLines);
+    });
   }
 
   console.log(`\n${'━'.repeat(40)}`);
@@ -894,7 +918,7 @@ async function main() {
   // attempted (a clean pass clears them); entries from portals NOT attempted here
   // (e.g. the CiC pass's) are carried over, never clobbered.
   let carried = [];
-  if (!DRY_RUN) carried = writeFailuresReport();
+  if (!DRY_RUN) carried = await withLock('data', { root: ROOT }, () => writeFailuresReport());
 
   if (scanFailures.length > 0) {
     console.log(`\n${'⚠'.repeat(20)}`);

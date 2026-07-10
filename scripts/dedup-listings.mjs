@@ -4,16 +4,20 @@
  * dedup-listings.mjs — Cross-portal duplicate detector
  *
  * Detects the same property listed on multiple portals by fuzzy-matching
- * location + price + m². Checks both pipeline.md (pending) and listings.md (tracked).
+ * location + price + m² (+ rooms for the numeric fallback when location is
+ * unknown). Checks both pipeline.md (pending) and listings.md (tracked).
+ * Matching logic lives in lib/dedup-core.mjs (unit-tested).
  *
  * Usage:
  *   node scripts/dedup-listings.mjs              # report only
- *   node scripts/dedup-listings.mjs --fix        # mark pipeline dupes as DISCARDED
+ *   node scripts/dedup-listings.mjs --fix        # mark pipeline dupes as DUPE
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 import { parseListingRow } from './lib/listings-md.mjs';
-import { locAgree } from './lib/geo.mjs';
+import { parsePipelineLine, isSimilar } from './lib/dedup-core.mjs';
+import { writeAtomic } from './lib/fsx.mjs';
+import { withLock } from './lib/lock.mjs';
 
 const ROOT = process.cwd();
 const PIPELINE_PATH = `${ROOT}/data/pipeline.md`;
@@ -24,31 +28,10 @@ const FIX = process.argv.includes('--fix');
 
 function parsePipeline() {
   if (!existsSync(PIPELINE_PATH)) return [];
-  const content = readFileSync(PIPELINE_PATH, 'utf8');
-  const entries = [];
-  for (const line of content.split('\n')) {
-    if (!line.startsWith('- [ ]')) continue;
-    const url = (line.match(/https?:\/\/[^\s|]+/) || [])[0] || '';
-    const parts = line.split('|').map(s => s.trim());
-    const portal = parts[1] || '';
-    const text = parts.slice(2).join(' ');
-    const priceMatch = text.match(/(\d[\d.]*)\s*EUR/);
-    const m2Match = text.match(/([\d.]+)\s*m²/);
-    const roomsMatch = text.match(/(\d+)\s*Zi/);
-    // Extract location from structured format: "3 Zi, Nauener Vorstadt (14469), 1500 EUR"
-    const locMatch = text.match(/,\s*([^,]+?)\s*(?:\(\d{5}\))?(?:,|\s*\d+\s*EUR)/);
-    entries.push({
-      source: 'pipeline',
-      line,
-      url,
-      portal,
-      location: (locMatch ? locMatch[1] : '').toLowerCase().trim(),
-      price: priceMatch ? parseInt(priceMatch[1].replace(/\./g, '')) : 0,
-      m2: m2Match ? parseFloat(m2Match[1]) : 0,
-      rooms: roomsMatch ? parseInt(roomsMatch[1]) : 0,
-    });
-  }
-  return entries;
+  return readFileSync(PIPELINE_PATH, 'utf8')
+    .split('\n')
+    .map(parsePipelineLine)
+    .filter(Boolean);
 }
 
 function parseListings() {
@@ -73,28 +56,6 @@ function parseListings() {
     });
 }
 
-// ── Similarity ─────────────────────────────────────────────────────
-// Neighbourhood matching (hood/locAgree) lives in lib/geo.mjs, shared with
-// duplicates.mjs — see the comments there for why Levenshtein over the whole
-// location string is unsafe.
-
-function isSimilar(a, b) {
-  if (a.url && b.url && a.url === b.url) return false; // same URL = same entry, not a cross-portal dupe
-  if (a.portal === b.portal) return false; // same portal = not a cross-portal dupe
-
-  const loc = locAgree(a.location, b.location); // true | false | null
-  if (loc === false) return false; // KNOWN-different neighbourhoods → never the same flat (hard veto)
-
-  const priceMatch = a.price > 0 && b.price > 0 &&
-    Math.abs(a.price - b.price) / Math.max(a.price, b.price) < 0.05;
-  const sizeMatch = a.m2 > 0 && b.m2 > 0 &&
-    Math.abs(a.m2 - b.m2) <= 3;
-
-  // Require a CONFIRMED same neighbourhood — price+size coincidences across distinct
-  // Ortsteile (or with unknown locations) are not enough to auto-collapse into a DUPE.
-  return loc === true && priceMatch && sizeMatch;
-}
-
 // ── Main ───────────────────────────────────────────────────────────
 
 const pipelineEntries = parsePipeline();
@@ -104,9 +65,8 @@ const all = [...pipelineEntries, ...listingEntries];
 const dupes = [];
 for (let i = 0; i < all.length; i++) {
   for (let j = i + 1; j < all.length; j++) {
-    if (isSimilar(all[i], all[j])) {
-      dupes.push([all[i], all[j]]);
-    }
+    const kind = isSimilar(all[i], all[j]); // false | 'confirmed' | 'numeric'
+    if (kind) dupes.push([all[i], all[j], kind]);
   }
 }
 
@@ -119,10 +79,11 @@ console.log(`Found ${dupes.length} potential cross-portal duplicate(s):\n`);
 
 const pipelineLinesToRemove = new Set();
 
-for (const [a, b] of dupes) {
+for (const [a, b, kind] of dupes) {
   const labelA = a.source === 'listings' ? `#${a.num} (${a.portal})` : `pipeline (${a.portal})`;
   const labelB = b.source === 'listings' ? `#${b.num} (${b.portal})` : `pipeline (${b.portal})`;
-  console.log(`  ${labelA} ↔ ${labelB}`);
+  const tag = kind === 'numeric' ? '  (numeric-only match — no location)' : '';
+  console.log(`  ${labelA} ↔ ${labelB}${tag}`);
   console.log(`    Location: "${a.location}" / "${b.location}"`);
   console.log(`    Price: ${a.price} / ${b.price} EUR | Size: ${a.m2} / ${b.m2} m²`);
 
@@ -144,12 +105,17 @@ for (const [a, b] of dupes) {
 }
 
 if (FIX && pipelineLinesToRemove.size > 0) {
-  let pipeline = readFileSync(PIPELINE_PATH, 'utf8');
-  for (const line of pipelineLinesToRemove) {
-    const discardedLine = line.replace('- [ ]', '- [x] DUPE');
-    pipeline = pipeline.replace(line, discardedLine);
-  }
-  writeFileSync(PIPELINE_PATH, pipeline);
+  // Re-read under the lock: the parse above ran unlocked and another writer
+  // may have touched the file since. Marking by exact line text keeps this
+  // safe — a line that vanished in between simply doesn't match.
+  await withLock('data', { root: ROOT }, () => {
+    let pipeline = readFileSync(PIPELINE_PATH, 'utf8');
+    for (const line of pipelineLinesToRemove) {
+      const discardedLine = line.replace('- [ ]', '- [x] DUPE');
+      pipeline = pipeline.replace(line, discardedLine);
+    }
+    writeAtomic(PIPELINE_PATH, pipeline);
+  });
   console.log(`✓ Marked ${pipelineLinesToRemove.size} pipeline dupe(s) as DUPE.`);
 } else if (pipelineLinesToRemove.size > 0) {
   console.log(`Run with --fix to mark ${pipelineLinesToRemove.size} pipeline dupe(s).`);
