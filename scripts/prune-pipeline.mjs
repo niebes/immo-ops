@@ -28,11 +28,12 @@
  * All writes run under the shared 'data' lock.
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, appendFileSync, readdirSync, renameSync } from 'fs';
-import { join, basename } from 'path';
+import { readFileSync, existsSync, mkdirSync, appendFileSync, readdirSync, renameSync } from 'fs';
+import { join } from 'path';
 import { writeAtomic } from './lib/fsx.mjs';
 import { withLock } from './lib/lock.mjs';
 import { parseListingRow } from './lib/listings-md.mjs';
+import { toHistoryLine } from './lib/tsv.mjs';
 
 const ROOT = process.cwd();
 const PIPELINE_PATH = join(ROOT, 'data/pipeline.md');
@@ -81,7 +82,7 @@ function prunePipeline() {
   const lines = text.split('\n');
   const pendingKeep = [], processedLines = [], head = [], tail = [];
   let section = 'head';
-  let movedDone = 0;
+  let movedDone = 0, movedBack = 0;
   for (const line of lines) {
     if (line.startsWith('## Pending')) { section = 'pending'; head.push(line); continue; }
     if (line.startsWith('## Processed')) { section = 'processed'; continue; }
@@ -91,7 +92,13 @@ function prunePipeline() {
       if (line.startsWith('- [x]')) { processedLines.push(line); movedDone++; }
       else if (line.startsWith('- [ ]') || !line.trim()) { if (line.trim()) pendingKeep.push(line); }
       else pendingKeep.push(line); // unknown prose in Pending: preserve where it was
-    } else if (section === 'processed') { if (line.trim()) processedLines.push(line); }
+    } else if (section === 'processed') {
+      // A still-pending '- [ ]' misfiled under Processed (manual edit, old
+      // splice bug) must go BACK to the queue — archiving it would silently
+      // lose an unevaluated candidate forever (its URL stays in the seen-set).
+      if (line.startsWith('- [ ]')) { pendingKeep.push(line); movedBack++; }
+      else if (line.trim()) processedLines.push(line);
+    }
     else tail.push(line);
   }
 
@@ -108,27 +115,31 @@ function prunePipeline() {
       toArchive.push({ line, month: firstSeen.slice(0, 7) });
     } else if (!firstSeen && url) {
       // URL unknown to history: make it durable there FIRST, archive next run.
-      backfill.push(`${url}\t${iso(today)}\t\t\t\t\t\t\tarchived`);
+      // toHistoryLine owns the 9-column TSV shape (never hand-build the row).
+      backfill.push(toHistoryLine({ url }, 'archived', iso(today)));
       keepProcessed.push(line);
     } else {
       keepProcessed.push(line);
     }
   }
 
-  console.log(`Pending → Processed moves: ${movedDone}`);
+  console.log(`Pending → Processed moves: ${movedDone}${movedBack ? `, misfiled pending moved back: ${movedBack}` : ''}`);
   console.log(`Processed kept: ${keepProcessed.length}, archived: ${toArchive.length}, history backfills: ${backfill.length}`);
   if (DRY_RUN) return;
 
-  // head already ends with '## Pending'
-  const rebuilt = [
+  // Squash blank runs only in the parts WE assembled — the tail (unknown '## '
+  // sections, user prose) is preserved verbatim. Known limitation: an unknown
+  // section that appeared before '## Pending' is kept in head order only if it
+  // preceded the header; sections between Pending and Processed move after.
+  const squash = (s) => s.replace(/\n{3,}/g, '\n\n');
+  const rebuilt = squash([
     ...head,
-    ...pendingKeep.map(l => l),
+    ...pendingKeep,
     '',
     '## Processed',
     ...keepProcessed,
     '',
-    ...tail,
-  ].join('\n').replace(/\n{3,}/g, '\n\n') + '\n';
+  ].join('\n')) + (tail.length ? tail.join('\n') + '\n' : '\n');
   writeAtomic(PIPELINE_PATH, rebuilt);
 
   if (backfill.length > 0) appendFileSync(HISTORY_PATH, backfill.join('\n') + '\n');
@@ -175,21 +186,27 @@ function pruneHistory() {
 // ── One-off repairs (idempotent) ────────────────────────────────────
 
 function repair() {
-  // 1. listings.md: Score decimals comma→dot; Date typos 2025-→2026-.
+  // 1. listings.md: Score decimals comma→dot (a comma score is never legitimate
+  //    in the machine column — verify-pipeline flags them).
+  //    NOTE the 2025→2026 date-typo rewrite that lived here was REMOVED after
+  //    its one-off application (rows 052–058, 2026-07-11): a blanket year
+  //    rewrite cannot distinguish a typo from a legitimate 2025 date and would
+  //    fabricate dates on future data. If new date typos appear, fix them by
+  //    hand or with an explicit allowlist.
   if (existsSync(LISTINGS_PATH)) {
     const lines = readFileSync(LISTINGS_PATH, 'utf8').split('\n');
-    let scoreFixes = 0, dateFixes = 0;
+    let scoreFixes = 0;
     const out = lines.map((line) => {
       if (!line.startsWith('|') || line.startsWith('| #') || line.startsWith('|---')) return line;
       const cols = parseListingRow(line);
       if (cols.length < 11) return line;
-      let changed = false;
-      if (/^\d+,\d+$/.test(cols[8])) { cols[8] = cols[8].replace(',', '.'); scoreFixes++; changed = true; }
-      if (/^2025-/.test(cols[1])) { cols[1] = cols[1].replace(/^2025-/, '2026-'); dateFixes++; changed = true; }
-      return changed ? `| ${cols.join(' | ')} |` : line;
+      if (!/^\d+,\d+$/.test(cols[8])) return line;
+      cols[8] = cols[8].replace(',', '.');
+      scoreFixes++;
+      return `| ${cols.join(' | ')} |`;
     });
-    console.log(`listings.md: ${scoreFixes} score decimal fixes, ${dateFixes} date typo fixes`);
-    if (!DRY_RUN && (scoreFixes || dateFixes)) writeAtomic(LISTINGS_PATH, out.join('\n'));
+    console.log(`listings.md: ${scoreFixes} score decimal fixes`);
+    if (!DRY_RUN && scoreFixes) writeAtomic(LISTINGS_PATH, out.join('\n'));
   }
 
   // 2. Orphan reports from the May numbering collision: an unreferenced

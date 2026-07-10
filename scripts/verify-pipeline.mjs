@@ -93,11 +93,14 @@ if (pipeline) {
   console.log(`  Pending: ${pending}, Processed: ${processed}`);
 
   // Section purity: completed items sitting under '## Pending' hide the real
-  // queue state (the audit found 680 of them). prune-pipeline.mjs moves them.
+  // queue state (the audit found 680 of them). WARNING, not error: the normal
+  // workflow flips entries '- [ ]'→'- [x]' IN PLACE under Pending (evaluator,
+  // dedup --fix) and prune-pipeline.mjs sweeps them later in the same cycle —
+  // an error here would fail Step-5 verification on every productive cycle.
   const pendingSection = pipeline.split('## Pending')[1]?.split(/^## /m)[0] || '';
   const doneUnderPending = (pendingSection.match(/^- \[x\]/gm) || []).length;
   check(doneUnderPending === 0,
-    `${doneUnderPending} completed '- [x]' item(s) under '## Pending' — run: node scripts/prune-pipeline.mjs`);
+    `${doneUnderPending} completed '- [x]' item(s) under '## Pending' — run: node scripts/prune-pipeline.mjs`, 'warn');
 }
 
 // Check scan-history.tsv

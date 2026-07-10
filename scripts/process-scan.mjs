@@ -220,11 +220,11 @@ if (DRY_RUN) {
   await withLock('data', { root: ROOT }, () => {
     filterAndDedup();
 
-    if (historyLines.length > 0) {
-      const header = existsSync(SCAN_HISTORY_PATH) ? '' : 'url\tfirst_seen\tportal\ttitle\tlocation\tprice\tm2\trooms\tstatus\n';
-      appendFileSync(SCAN_HISTORY_PATH, header + historyLines.join('\n') + '\n');
-    }
-
+    // ORDER MATTERS: pipeline FIRST, history SECOND. A crash after the history
+    // append but before the pipeline write would leave the URL durable in the
+    // seen-set (loadSeenUrls unions history+pipeline+listings) while the listing
+    // never reached the queue — every future scan would skip it as a dup,
+    // losing it forever. Crashing in the safe order merely re-adds next run.
     if (newListings.length > 0) {
       const pipeline = existsSync(PIPELINE_PATH) ? readFileSync(PIPELINE_PATH, 'utf8') : '';
       // Same line format as scan.mjs — lib/pipeline-md.mjs owns it, so the
@@ -232,6 +232,11 @@ if (DRY_RUN) {
       const groupLabel = GROUP_NAME || search?.name || '';
       const entries = newListings.map(l => toPipelineLine(l, groupLabel));
       writeAtomic(PIPELINE_PATH, insertPendingEntries(pipeline, entries));
+    }
+
+    if (historyLines.length > 0) {
+      const header = existsSync(SCAN_HISTORY_PATH) ? '' : 'url\tfirst_seen\tportal\ttitle\tlocation\tprice\tm2\trooms\tstatus\n';
+      appendFileSync(SCAN_HISTORY_PATH, header + historyLines.join('\n') + '\n');
     }
   });
 }

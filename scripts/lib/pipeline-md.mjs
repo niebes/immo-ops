@@ -22,10 +22,13 @@ function sanitizeField(s) {
  * (location for the neighbourhood check, rooms for the numeric fallback).
  */
 export function toPipelineLine(l, groupName) {
-  return `- [ ] ${l.url} | ${l.portal} | ${groupName} | ${sanitizeField(l.title || '')}`
-    + (l.price ? ` | ${l.price} EUR` : '')
-    + (l.m2 ? ` | ${l.m2} m²` : '')
-    + (l.rooms ? ` | ${l.rooms} Zi` : '')
+  // EVERY interpolated string is sanitized — portal and groupName included:
+  // groupName comes from user-edited profile.yml / a CLI arg, and a '|' in any
+  // field shifts every positional field for the dedup parser.
+  return `- [ ] ${l.url} | ${sanitizeField(l.portal || '')} | ${sanitizeField(groupName || '')} | ${sanitizeField(l.title || '')}`
+    + (l.price ? ` | ${sanitizeField(l.price)} EUR` : '')
+    + (l.m2 ? ` | ${sanitizeField(l.m2)} m²` : '')
+    + (l.rooms ? ` | ${sanitizeField(l.rooms)} Zi` : '')
     + (l.location ? ` | ${sanitizeField(l.location)}` : '');
 }
 

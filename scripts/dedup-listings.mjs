@@ -78,6 +78,7 @@ if (dupes.length === 0) {
 console.log(`Found ${dupes.length} potential cross-portal duplicate(s):\n`);
 
 const pipelineLinesToRemove = new Set();
+let numericSurfaced = 0;
 
 for (const [a, b, kind] of dupes) {
   const labelA = a.source === 'listings' ? `#${a.num} (${a.portal})` : `pipeline (${a.portal})`;
@@ -86,6 +87,18 @@ for (const [a, b, kind] of dupes) {
   console.log(`  ${labelA} ↔ ${labelB}${tag}`);
   console.log(`    Location: "${a.location}" / "${b.location}"`);
   console.log(`    Price: ${a.price} / ${b.price} EUR | Size: ${a.m2} / ${b.m2} m²`);
+
+  // Numeric-only matches (no confirmed neighbourhood) are SURFACE-ONLY, per
+  // dedup-core's contract: without a location, price+size+rooms coincidences
+  // across a small market can be two genuinely different flats (identical
+  // Neubau unit types). Auto-marking one DUPE would silently drop a live
+  // listing forever (URL stays in the seen-set). A human/AI judges these.
+  if (kind === 'numeric') {
+    numericSurfaced++;
+    console.log(`    → numeric-only: surfaced for judgement, NOT auto-marked`);
+    console.log();
+    continue;
+  }
 
   // If one is already in listings and the other in pipeline, mark pipeline one for removal
   if (a.source === 'listings' && b.source === 'pipeline') {
@@ -106,17 +119,26 @@ for (const [a, b, kind] of dupes) {
 
 if (FIX && pipelineLinesToRemove.size > 0) {
   // Re-read under the lock: the parse above ran unlocked and another writer
-  // may have touched the file since. Marking by exact line text keeps this
-  // safe — a line that vanished in between simply doesn't match.
+  // may have touched the file since. Marking whole lines by exact text via
+  // array mapping (never String.replace: its replacement string interprets
+  // $-sequences, and it only hits the FIRST of identical duplicate lines).
+  let marked = 0;
   await withLock('data', { root: ROOT }, () => {
-    let pipeline = readFileSync(PIPELINE_PATH, 'utf8');
-    for (const line of pipelineLinesToRemove) {
-      const discardedLine = line.replace('- [ ]', '- [x] DUPE');
-      pipeline = pipeline.replace(line, discardedLine);
-    }
-    writeAtomic(PIPELINE_PATH, pipeline);
+    const lines = readFileSync(PIPELINE_PATH, 'utf8').split('\n');
+    const out = lines.map((l) => {
+      if (!pipelineLinesToRemove.has(l)) return l;
+      marked++;
+      return '- [x] DUPE' + l.slice('- [ ]'.length);
+    });
+    if (marked > 0) writeAtomic(PIPELINE_PATH, out.join('\n'));
   });
-  console.log(`✓ Marked ${pipelineLinesToRemove.size} pipeline dupe(s) as DUPE.`);
+  // marked can exceed the set size (identical duplicate lines all get marked)
+  // or fall short (a line changed since the unlocked parse).
+  const missing = Math.max(0, pipelineLinesToRemove.size - marked);
+  console.log(`✓ Marked ${marked} pipeline dupe line(s) as DUPE${missing ? ` (${missing} no longer present — changed since parse)` : ''}.`);
 } else if (pipelineLinesToRemove.size > 0) {
   console.log(`Run with --fix to mark ${pipelineLinesToRemove.size} pipeline dupe(s).`);
+}
+if (numericSurfaced > 0) {
+  console.log(`ℹ ${numericSurfaced} numeric-only match(es) surfaced above need human/AI judgement (never auto-marked).`);
 }

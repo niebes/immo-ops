@@ -77,6 +77,24 @@ test('withLock releases on exception', async () => {
   releaseLock(h);
 });
 
+test('stale-break under contention: multiple waiters breaking the same stale lock never overlap', async () => {
+  // Regression for the TOCTOU race: a waiter's blind rmSync could delete the
+  // FRESH dir another waiter had just re-created after its own steal. The
+  // rename-aside steal makes exactly one waiter win; mutual exclusion holds.
+  const root = freshRoot();
+  const h = await acquireLock('data', { root });
+  writeFileSync(join(h.dir, 'owner.json'), JSON.stringify({ pid: 999999999, startedAt: 'dead' }));
+  let inSection = 0, maxConcurrent = 0, runs = 0;
+  const job = () => withLock('data', { root, staleMs: 1000, timeoutMs: 5000 }, async () => {
+    inSection++; maxConcurrent = Math.max(maxConcurrent, inSection);
+    await new Promise((r) => setTimeout(r, 25));
+    runs++; inSection--;
+  });
+  await Promise.all([job(), job(), job(), job()]);
+  assert.equal(runs, 4);
+  assert.equal(maxConcurrent, 1);
+});
+
 test('crashed-holder dir without owner.json is broken by dir age', async () => {
   const root = freshRoot();
   const dir = join(root, 'tmp', '.locks', 'data.lock');

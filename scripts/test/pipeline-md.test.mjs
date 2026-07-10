@@ -58,8 +58,10 @@ test('toPipelineLine: missing fields are omitted, not emitted empty', () => {
   assert.equal(line, '- [ ] https://x.de/1 | P | G | T | 690 EUR');
 });
 
-test('toPipelineLine: "|" in free-text fields cannot shift columns', () => {
+test('toPipelineLine: "|" in ANY free-text field cannot shift columns (incl. group + portal)', () => {
   const line = toPipelineLine(
-    { url: 'https://x.de/1', portal: 'P', title: 'A | B', price: 1, location: 'X | Y' }, 'G');
+    { url: 'https://x.de/1', portal: 'P | Q', title: 'A | B', price: 1, location: 'X | Y' }, 'G | H');
   assert.equal(line.split('|').length, 6); // '- [ ] url', portal, group, title, price, location
+  assert.ok(line.includes('P / Q'));
+  assert.ok(line.includes('G / H'));
 });

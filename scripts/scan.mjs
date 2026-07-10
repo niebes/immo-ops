@@ -22,7 +22,7 @@
  *   3  completed, but some portals were NOT processed (see data/scan-failures.json)
  */
 
-import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from 'fs';
+import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync, unlinkSync } from 'fs';
 import { chromium } from 'playwright';
 import yaml from 'js-yaml';
 import { getExtractor } from './portals/index.mjs';
@@ -704,10 +704,16 @@ async function runSnippetScan(evaluator, label) {
             let out = '', childFailed = false;
             try { out = execFileSync('node', psArgs, { cwd: ROOT, encoding: 'utf8' }); }
             catch (e) { out = (e.stdout || '') + (e.stderr || ''); childFailed = e.status !== 0; }
-            finally { try { (await import('node:fs')).unlinkSync(tmp); } catch { /* best-effort */ } }
+            finally { try { unlinkSync(tmp); } catch { /* best-effort */ } }
             process.stdout.write(out.split('\n').filter(Boolean).map(l => '    ' + l).join('\n') + '\n');
             if (childFailed) {
-              recordFailure(portal, group.name, `process-scan.mjs failed: ${out.trim().split('\n')[0].slice(0, 100)}`, 'config');
+              // A child that died on LOCK CONTENTION (sibling pass holding the
+              // 'data' lock) is transient — classifying it 'config' would tell
+              // the operator to rebuild a perfectly good extractor.
+              const lockTimeout = /lock '.+' still held/.test(out);
+              recordFailure(portal, group.name,
+                lockTimeout ? 'process-scan.mjs lock contention (parallel pass)' : `process-scan.mjs failed: ${out.trim().split('\n')[0].slice(0, 100)}`,
+                lockTimeout ? 'error' : 'config');
               failed = true;
               break;
             }
@@ -748,7 +754,9 @@ async function runSnippetScan(evaluator, label) {
   console.log(`Portals processed: ${portalsDone}`);
   console.log(`New in pipeline:   ${totalNew}`);
   let carried = [];
-  if (!DRY_RUN) carried = await withLock('data', { root: ROOT }, () => writeFailuresReport());
+  // Lock-timeout fallback: an unlocked merge-write (the pre-lock behavior) is
+  // better than losing the routing signal entirely.
+  if (!DRY_RUN) carried = await withLock('data', { root: ROOT }, () => writeFailuresReport()).catch(() => writeFailuresReport());
   if (scanFailures.length) {
     console.log(`\n⛔ Not processed this run:`);
     for (const f of scanFailures) console.log(`  - ${f.portal} [${f.group}] — ${f.reason}`);
@@ -868,25 +876,40 @@ async function main() {
   // scan.mjs --invisible in auto mode) may have added the same URL since our
   // pre-filter loaded its snapshot.
   if (!DRY_RUN) {
-    await withLock('data', { root: ROOT }, () => {
-      const fresh = loadSeenUrls(ROOT);
-      let crossDropped = 0;
+    try {
+      await withLock('data', { root: ROOT }, () => {
+        const fresh = loadSeenUrls(ROOT);
+        let crossDropped = 0;
+        for (const w of pendingWrites) {
+          w.listings = w.listings.filter(l => {
+            const canon = canonicalizeUrl(l.url);
+            if (fresh.has(canon)) { crossDropped++; totalStats.added--; totalStats.skipped_dup++; return false; }
+            fresh.add(canon);
+            allHistoryLines.push(toHistoryLine(l, 'added'));
+            return true;
+          });
+          if (w.listings.length > 0) writePipeline(w.listings, w.group);
+        }
+        if (crossDropped > 0) {
+          console.log(`  (${crossDropped} listing(s) dropped at commit — added by a parallel pass mid-run)`);
+          allNewListings = allNewListings.filter(l => pendingWrites.some(w => w.listings.includes(l)));
+        }
+        if (allHistoryLines.length > 0) writeScanHistory(allHistoryLines);
+      });
+    } catch (err) {
+      // NEVER discard a completed scan because the lock stayed busy: dump the
+      // collected listings to a rescue file so nothing is lost, record it, and
+      // keep going so the failure report below still gets written.
+      const rescue = `${ROOT}/tmp/scan-rescue-${Date.now()}.json`;
+      mkdirSync(`${ROOT}/tmp`, { recursive: true });
+      writeFileSync(rescue, JSON.stringify({ pendingWrites, historyLines: allHistoryLines }, null, 2));
+      console.error(`✗ commit failed (${err.message})`);
+      console.error(`  Collected listings saved to ${rescue.replace(ROOT + '/', '')} — re-ingest via:`);
+      console.error(`  node scripts/process-scan.mjs --file <rescue> (per group) once the lock clears.`);
       for (const w of pendingWrites) {
-        w.listings = w.listings.filter(l => {
-          const canon = canonicalizeUrl(l.url);
-          if (fresh.has(canon)) { crossDropped++; totalStats.added--; totalStats.skipped_dup++; return false; }
-          fresh.add(canon);
-          allHistoryLines.push(toHistoryLine(l, 'added'));
-          return true;
-        });
-        if (w.listings.length > 0) writePipeline(w.listings, w.group);
+        recordFailure({ name: `commit (${w.group})` }, w.group, `data-lock busy at commit: ${err.message.slice(0, 80)}`, 'error');
       }
-      if (crossDropped > 0) {
-        console.log(`  (${crossDropped} listing(s) dropped at commit — added by a parallel pass mid-run)`);
-        allNewListings = allNewListings.filter(l => pendingWrites.some(w => w.listings.includes(l)));
-      }
-      if (allHistoryLines.length > 0) writeScanHistory(allHistoryLines);
-    });
+    }
   }
 
   console.log(`\n${'━'.repeat(40)}`);
@@ -918,7 +941,8 @@ async function main() {
   // attempted (a clean pass clears them); entries from portals NOT attempted here
   // (e.g. the CiC pass's) are carried over, never clobbered.
   let carried = [];
-  if (!DRY_RUN) carried = await withLock('data', { root: ROOT }, () => writeFailuresReport());
+  // Same lock-timeout fallback as the snippet path: unlocked beats lost.
+  if (!DRY_RUN) carried = await withLock('data', { root: ROOT }, () => writeFailuresReport()).catch(() => writeFailuresReport());
 
   if (scanFailures.length > 0) {
     console.log(`\n${'⚠'.repeat(20)}`);

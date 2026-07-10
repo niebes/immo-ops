@@ -20,7 +20,7 @@
  * transaction, and separate locks would invite ordering deadlocks.
  */
 
-import { mkdirSync, rmSync, writeFileSync, readFileSync, statSync } from 'fs';
+import { mkdirSync, rmSync, writeFileSync, readFileSync, statSync, renameSync } from 'fs';
 import { join } from 'path';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -65,9 +65,16 @@ export async function acquireLock(name, { root = process.cwd(), staleMs = 600_00
     } catch (err) {
       if (err.code !== 'EEXIST') throw err;
       if (isStale(dir, staleMs)) {
-        // Break the stale lock and retry immediately. If two waiters race here,
-        // one wins the next mkdir and the other loops — safe.
-        try { rmSync(dir, { recursive: true, force: true }); } catch { /* other waiter got it */ }
+        // Break the stale lock via an ATOMIC steal: rename the dir aside first.
+        // rename(2) succeeds for exactly one waiter; the loser gets ENOENT and
+        // loops. A bare rmSync here would race — waiter B could delete the
+        // FRESH dir waiter A just re-created after its own steal, putting two
+        // processes inside the critical section.
+        const graveyard = `${dir}.stale-${process.pid}-${Date.now()}`;
+        try {
+          renameSync(dir, graveyard);
+          rmSync(graveyard, { recursive: true, force: true });
+        } catch { /* another waiter won the steal — loop and contend normally */ }
         continue;
       }
       if (Date.now() >= deadline) {
