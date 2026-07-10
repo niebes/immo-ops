@@ -49,3 +49,32 @@ For listings fed in via the ohne-makler (OM) platform (footer says "ohne-makler 
 **Why:** the wrong geo-tag would have scored an off-target Eichwalde flat as if it were in-area Groß Glienicke (Block B 4.5 instead of 1.5), flipping the recommendation.
 
 **Why:** these tenant-network exposés (seen on #169/#170/#171/#172) lack the standard structured fields and have a provisional price; scoring the headline number as final or expecting a criteria `<dl>` both mislead. Stable pattern — candidate for promotion to evaluate.md if it keeps recurring.
+
+## Fastest full-detail path: mobile API (no browser, no bot-block, no consent)
+`curl -s -H "User-Agent: ImmoScout24_1410_35_._" -H "Accept: application/json" \
+  "https://api.mobile.immobilienscout24.de/expose/{scoutId}"`
+- Returns the WHOLE expose as JSON — no CAPTCHA/consent wall, no truncation. Beats
+  invisible-playwright for single exposes. The custom UA header is required (plain curl UA
+  gets blocked). Prefer this path FIRST for any IS24 evaluation; fall back to the stealth
+  browser only when the API misbehaves.
+
+### JSON shape (parse `.sections[]` by `.type`)
+- `header`: `publicationState` (`active` = live; else likely EXPIRED), `realEstateType`,
+  `shareMessage` (quick Kaltmiete/Zimmer/m²/Warmmiete + address).
+- `TITLE`, `MAP` (addressLine1/2 + lat/lng), `TOP_ATTRIBUTES` (Kaltmiete/Zimmer/Wohnfläche/Warmmiete).
+- `ATTRIBUTE_LIST` blocks (title = "Hauptkriterien" / "Kosten" / "Bausubstanz & Energieausweis"):
+  attributes are `{label,text}` for TEXT, or `{type:"CHECK",label}` = feature present
+  (Balkon/Keller/Aufzug/EBK/Garten/Gäste-WC/stufenlos). Energieausweis Klasse/Wert is often
+  MISSING even when "Energieausweis: liegt vor" — note it (low-reliability scam signal).
+- `TEXT_AREA` blocks: Objektbeschreibung / Ausstattung / Lage / Sonstiges (full description text).
+- `MEDIA`: count PICTURE entries for real-photo count (captions like Wohnzimmer/Küche = real).
+- `AGENTS_INFO`: company, name, rating {value, numberOfStars=#reviews}, verifiedBy (identity),
+  Impressum inside `references[].url` (is24://imprint?text=...).
+- `OBJECT_INFO`: "Scout-ID … | Objekt-Nr. …".
+- Swap listings: check TITLE/description for Tausch signals as usual.
+
+Tip: pipe to python3 `json.load` and iterate sections; dump non-MEDIA sections to read all fields.
+
+**Why:** this guide was stranded in an orphaned memory copy (`reports/.claude/agent-memory/`,
+a wrong-cwd artefact, merged + deleted 2026-07-11) while evaluations re-derived the JSON
+shape every run. `publicationState` also gives a cleaner EXPIRED signal than the web stub.

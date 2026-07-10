@@ -152,21 +152,16 @@ The offered flat(s) come entirely from the `swap_offer:` block in `config/profil
 
 ## Portal-Specific Notes
 
-Scan methods: `playwright` (headless, `npm run scan`) and `cic` (bot-protected portals). A `cic` portal is scanned **stealth-first, in three tiers — CiC over the debug Chrome is the LAST resort**: **Tier 1 (default)** `node scripts/scan.mjs --invisible` (vendored self-contained stealth Firefox); **Tier 2** the `mcp__invisible-playwright__*` tools (same stealth engine, Claude-driven) for portals Tier 1 couldn't clear; **Tier 3** `npm run chrome:immo` + `node scripts/scan.mjs --debug-chrome` (trusted debug Chrome over CDP) only when both stealth tiers fail. See `docs/cic-cdp-scan.md`. The stealth tiers need no external browser; the CDP tier needs a *trusted, logged-in* Chrome (a fresh/headless browser is CAPTCHA-blocked).
+Scan methods (the `scan_method:` values in `portals.yml`): `playwright` (headless, `npm run scan`), `invisible-playwright` (bot-protected — scanned stealth-first in three tiers), and `websearch` (AI-executed). **Tier ordering, CAPTCHA doctrine, and escalation rules live in `modes/scan.md` (SSOT) — do not re-derive them here.** Short version: Tier 1 `scan.mjs --invisible` (default) → Tier 2 `mcp__invisible-playwright__*` → Tier 3 debug Chrome over CDP (LAST resort).
 
 | Portal | Method | Notes |
 |--------|--------|-------|
-| ImmoScout24 | **cic** | Blocks Playwright entirely. Scan stealth-first (`--invisible`); the bot-block usually auto-clears. Debug Chrome / real Chrome only as last resort. |
+| ImmoScout24 | **invisible-playwright** | Blocks headless Playwright entirely. Stealth-first (`--invisible`); the bot-block usually auto-clears. Debug Chrome / real Chrome only as last resort. |
 | Immowelt | playwright | Works headlessly. Redirect-heavy URLs — use canonical form. |
-| Kleinanzeigen | **cic** | Moved playwright→cic (now bot-blocks headless + Tailwind redesign). Extractor `kleinanzeigen-extract.js`. |
-| Vonovia | **cic** | Angular SPA, XHR-only + Cookiebot wall. `search_url` points at its JSON API; extractor `vonovia-extract.js`. |
+| Kleinanzeigen | **invisible-playwright** | Bot-blocks headless + Tailwind redesign. Extractor `kleinanzeigen-extract.js`. Known to crash the stealth driver (auto-restart handles it). |
+| Vonovia | **invisible-playwright** | Angular SPA, XHR-only + Cookiebot wall. `search_url` points at its JSON API; extractor `vonovia-extract.js`. |
 
-Portals are configured in `portals.yml` (user layer, gitignored). The template at `templates/portals.example.yml` has a starter set.
-
-When a bot-protected portal shows a CAPTCHA / bot-block:
-1. Wait 5–10 s and re-check — in the stealth (Tier 1/2) or trusted debug (Tier 3) browser most bot-blocks auto-clear (the scripted tiers retry this automatically). A fresh/headless browser has no stealth or trust and stays blocked.
-2. Only if a portal is STILL blocked after the applicable tiers: escalate one tier (Tier 1 → 2 → 3). For the interactive real-Chrome fallback, ask the user to solve it in the open tab, then resume.
-3. If it can't be cleared / the user is unavailable, skip the portal and record it as a ⛔ coverage item in the scan summary.
+Portals are configured in `portals.yml` (user layer, gitignored). The template at `templates/portals.example.yml` has a starter set. Bot-block/CAPTCHA handling: `modes/scan.md`.
 
 ## First Run
 

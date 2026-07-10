@@ -44,7 +44,8 @@ One of:
    - WebSearch the address for other listings (same address, different price = suspicious)
    - Check if price is plausible for the area (use Mietspiegel data)
 
-4. **Classify**:
+4. **Classify** — per the verdict thresholds in `modes/_shared.md` (SSOT for both
+   the signal list and the counting rule; the checklists above mirror it):
    - **Legitimate**: 0 high + ≤1 medium signals
    - **Proceed with Caution**: 1 high OR 2+ medium signals
    - **Likely Scam**: 2+ high signals OR 1 high + 2+ medium

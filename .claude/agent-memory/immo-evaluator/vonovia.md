@@ -91,6 +91,11 @@ Kaution in `sections` "Kosten" as raw number (verify = 3× Kaltmiete).
 **Why:** Vonovia's own site yields only summary numbers and the browser is unavailable;
 the IS24 mobile API is the reliable full-detail source for these cross-posted Vonovia flats.
 
+## Rooms: trust the "Zimmer" field, not the title
+Marketing titles inflate ("Weitläufige 4-Zimmer-Wohnung" while the Zimmer field says 3 —
+seen on #306, wrk 1306270007). Score Block C from `numberOfRooms`/the Überblick Zimmer field.
+Object-Id on page is `82-{wrk_id}`; the URL slug ends in the bare `{wrk_id}`.
+
 ## Landlord / character
 Anbieter = "Vonovia Kundenservice GmbH", direct landlord, **no Provision** (Bestellerprinzip
 fine), low Eigenbedarf risk (corporate). Reputation: commonly cited slow-on-repairs — note in

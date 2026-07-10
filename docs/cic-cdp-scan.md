@@ -60,16 +60,19 @@ and stops at ≥80% already-seen; single-page portals stop after page 1.
 ## How it fits the workflow
 
 - `scan auto` Step 1 stays `node scripts/scan.mjs` (Playwright portals).
-- Step 2 (the CiC pass) becomes `node scripts/scan.mjs --debug-chrome` instead of the manual
-  browser+chunking flow — **only if** the dedicated debug Chrome is up and IS24-trusted.
+- Step 2 (the bot-protected pass) runs the stealth tiers FIRST; `node scripts/scan.mjs
+  --debug-chrome` is the Tier-3 escalation — **only if** the stealth tiers failed for a
+  portal AND the dedicated debug Chrome is up and IS24-trusted.
 - If `--debug-chrome` can't connect, it exits with a clear message; fall back to the interactive CiC
   pass. Blocked portals are still recorded in `data/scan-failures.json` as ⛔.
 
 ## Status
 
-**Validated and in production use since June 2026.** This is the preferred way to scan
-`scan_method: invisible-playwright` portals — the dedicated profile does earn IS24's trust after the
-one-time login, and scans run hands-off without CAPTCHA on that profile.
+**Validated June 2026; demoted to LAST RESORT (Tier 3) July 2026** when the vendored
+stealth Firefox (`docs/invisible-playwright.md`, Tiers 1–2) became the default transport for
+`scan_method: invisible-playwright` portals. Use this CDP path only for portals both stealth
+tiers could not clear. The dedicated profile does earn IS24's trust after the one-time
+login, and scans then run hands-off without CAPTCHA on that profile.
 
 Remaining caveats:
 - Trust lives in the profile directory (`~/.config/google-chrome-immo`). Deleting or

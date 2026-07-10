@@ -150,12 +150,16 @@ These conditions cap the global score at ≤2.0 regardless of other blocks:
 
 Run on EVERY evaluation. Score is separate from the 1–5 global score.
 
-### Three tiers:
-- **Legitimate** — No red flags detected
-- **Proceed with Caution** — Some concerning signals
-- **Likely Scam** — Multiple red flags, strongly advise against engaging
+### Verdict thresholds (SSOT — count the checked signals below):
+- **Legitimate** — 0 high AND ≤1 medium signals
+- **Proceed with Caution** — 1 high OR 2+ medium signals
+- **Likely Scam** — 2+ high signals OR 1 high + 2+ medium — strongly advise against engaging
 
-### Red flag signals (weighted by reliability):
+(These counting rules previously lived only in `modes/scam-check.md`, which inline
+evaluations never load — every run improvised its own cutoff. This table is now the
+single source; `scam-check.md` refers here.)
+
+### Red flag signals (weighted by reliability — the COMPLETE list):
 
 | Signal | Reliability | Description |
 |--------|-------------|-------------|
@@ -163,12 +167,17 @@ Run on EVERY evaluation. Score is separate from the 1–5 global score.
 | Advance payment before viewing | High | Kaution or "reservation fee" requested upfront |
 | No in-person viewing offered | High | "I'm abroad, I'll send you the key" |
 | Broken German + deposit narrative | High | Classic advance-fee scam pattern |
+| Email address doesn't match portal profile | High | Contact mail ≠ the Anbieter the portal shows |
 | Photos from different properties | Medium | Reverse image search or inconsistent interiors |
 | Landlord claims to be abroad | Medium | Combined with other flags = strong signal |
 | New portal account, single listing | Medium | No history on the platform |
 | Listing reposted with different prices | Medium | Price changes without explanation |
+| Contact only via WhatsApp / foreign number | Medium | Off-portal, hard-to-trace channel |
+| Unusually detailed sob story | Medium | Emotional narrative engineering the deposit ask |
 | Request for documents before contact | Low | Some legitimate landlords do this |
 | Missing Energieausweis data | Low | Required by law but sometimes omitted legitimately |
+| No exact address given | Low | Normal for many listings |
+| Professional photos for a modest apartment | Low | Possible stolen marketing material |
 
 ### Scam detection output format:
 
@@ -238,4 +247,5 @@ Run on EVERY evaluation. Score is separate from the 1–5 global score.
 | Edit | Update tracker status |
 | Bash | `node scripts/*.mjs` |
 
-(Same as the Tools table in `CLAUDE.md` — keep the two in sync.)
+(Mirror of the Tools table in `CLAUDE.md`, which is authoritative — if they diverge,
+trust CLAUDE.md and fix this copy. Tier ordering/doctrine SSOT: `modes/scan.md`.)

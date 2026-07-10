@@ -34,7 +34,9 @@ immo-find — Discover Listings
 
   Automated: /loop 1h /immo-find auto
   Pipeline:  data/pipeline.md (add URLs manually or via scan)
-  Script:    npm run scan (headless Playwright for non-CiC portals)
+  Script:    npm run scan (headless Playwright portals)
+  First run: npm run login:invisible — seed stealth-browser trust ONCE, or the
+             bot-protected portals (IS24, Kleinanzeigen, …) will stay blocked
 ```
 
 ---
@@ -101,7 +103,7 @@ ALWAYS create a dedicated tab for this via `tabs_create_mcp`. Never reuse existi
 
 **Combined scan order:**
 1. First: run `node scripts/scan.mjs` for Playwright portals (can be backgrounded)
-2. Read `data/scan-failures.json` — route Playwright failures: `fallback: "invisible-playwright"` portals join the CiC pass below (if a snippet exists); everything else becomes a ⛔ coverage item (see the Coverage report RULE).
+2. Read `data/scan-failures.json` — route Playwright failures: `fallback: "invisible-playwright"` portals join the bot-protected (stealth) pass below (if a snippet exists); everything else becomes a ⛔ coverage item (see the Coverage report RULE).
 3. Then: scan bot-protected portals (registered CiC portals + bot-defense fallbacks from step 2), stealth-first: **Tier 1** `node scripts/scan.mjs --invisible` (default); escalate portals it couldn't clear to **Tier 2** (`mcp__invisible-playwright__*`); use **Tier 3** `node scripts/scan.mjs --debug-chrome` (debug Chrome) only as a last resort.
 4. Then: run the AI-executed pass for every enabled `scan_method: websearch` portal (see the routing section above / `modes/scan.md`).
 5. Show combined summary, including the coverage report accounting for EVERY enabled portal of ALL three methods — playwright, cic, and websearch — with the exact blocker for each ⛔ entry
@@ -117,7 +119,7 @@ Delegates individual evaluations to /immo-assess.
 ### Auto mode (for `/loop` usage):
 Full automated cycle designed for `loop 1h /immo-find auto`. The purpose is to deliver scored, actionable recommendations — not raw links. Every step must complete before notifying.
 
-**RULE — `scan auto` ALWAYS runs the FULL scan (Playwright Step 1, the CiC pass Step 2, AND the websearch pass Step 2b), every time, unless the user explicitly scopes it down in their request.** The CiC pass — every enabled `scan_method: invisible-playwright` portal in `portals.yml`, plus any `fallback: "invisible-playwright"` portals from Step 1b — is NOT optional and NOT deferrable; the same goes for enabled `scan_method: websearch` portals. "I'll flag the CiC portals and run them next time" is a FAILURE, not an acceptable outcome — a coverage gap is something you CLOSE by doing the run, not something you merely report. The only acceptable reasons to skip the CiC pass are: (a) the user explicitly asked for Playwright-only / a named subset, or (b) session-mode is remote and CiC is disabled (then surface it as ⛔ and stop before notifying). Mid-cycle interruptions (config edits, adding a portal, answering a question) do NOT cancel the remaining steps — resume and finish the full run before notifying.
+**RULE — `scan auto` ALWAYS runs the FULL scan (Playwright Step 1, the bot-protected stealth pass Step 2, AND the websearch pass Step 2b), every time, unless the user explicitly scopes it down in their request.** The bot-protected pass — every enabled `scan_method: invisible-playwright` portal in `portals.yml`, plus any `fallback: "invisible-playwright"` portals from Step 1b — is NOT optional and NOT deferrable; the same goes for enabled `scan_method: websearch` portals. "I'll flag the bot-protected portals and run them next time" is a FAILURE, not an acceptable outcome — a coverage gap is something you CLOSE by doing the run, not something you merely report. The only acceptable reasons to skip the bot-protected pass are: (a) the user explicitly asked for Playwright-only / a named subset, or (b) session-mode is remote and CiC is disabled (then surface it as ⛔ and stop before notifying). Mid-cycle interruptions (config edits, adding a portal, answering a question) do NOT cancel the remaining steps — resume and finish the full run before notifying.
 
 **Step 1 — Playwright scan:**
 ```
@@ -127,7 +129,7 @@ Capture stdout. Note how many new listings were added.
 
 **Step 1b — Read the failure-routing signal (`data/scan-failures.json`):**
 `scan.mjs` writes this file every run (empty `failures: []` on a clean run). It is the source of truth for what Playwright could NOT process and what to do about it. For each entry:
-- `fallback: "invisible-playwright"` (e.g. CAPTCHA, 403, bot-block) → the site is reachable but blocks headless. **Add this portal to the CiC fallback list for Step 2** IF a CiC extractor snippet exists for it. If `action` says no snippet exists → it is a ⛔ coverage item: report it and recommend building one via `/immo-portal`. Do NOT silently drop it.
+- `fallback: "invisible-playwright"` (e.g. CAPTCHA, 403, bot-block) → the site is reachable but blocks headless. **Add this portal to the bot-protected (stealth) pass for Step 2** IF a CiC extractor snippet exists for it. If `action` says no snippet exists → it is a ⛔ coverage item: report it and recommend building one via `/immo-portal`. Do NOT silently drop it.
 - `fallback: "reconfigure"` (e.g. no search_url, login wall) → not transient. Surface as ⛔ and recommend `/immo-portal`; do not retry blindly.
 - `fallback: "retry"` (transient timeout) → note it; it should clear next cycle.
 
@@ -145,7 +147,7 @@ The scan scripts apply ONLY objective numeric gates + dedup — they never drop 
 So this triage is where title relevance is decided, by reading each entry. Read
 `data/pipeline.md`; for each pending `- [ ]` entry, judge title + metadata and mark
 `DISCARDED` (with a one-line reason) when it is clearly not a real, on-target rental:
-- Rooms < min_rooms, or m² < min_m2, or Price > max_kaltmiete × 1.2 (objective)
+- Rooms < min_rooms, or m² < min_m2, or Price > max_kaltmiete × 1.1 (objective — same grace band the scripts apply; ONE threshold everywhere)
 - Apartment **swap** — "Tauschwohnung / Wohnungstausch / Tausche / gegen Wohnung" (a
   different transaction, never a rental)
 - **Time-limited** sublet — "Zwischenmiete / befristet / auf Zeit" (open-ended Untermiete
@@ -189,11 +191,11 @@ After all agents complete: `node scripts/merge-tracker.mjs`
 **Step 5 — Verification (MUST pass before notify):**
 Before sending any notification, verify:
 - [ ] **Every enabled portal — Playwright, CiC, AND websearch — was actually scanned this cycle.** An enabled CiC or websearch portal that was not run is a verification FAILURE, not a reportable gap. Do NOT proceed to notify by "flagging it for next time" — go back and run Step 2 / Step 2b. The only pass-through exceptions are a portal genuinely blocked this run (CAPTCHA after retry, login wall, remote session-mode disabling CiC) — those, and only those, become ⛔ coverage items.
-- [ ] `data/scan-failures.json` reviewed: every `fallback: "invisible-playwright"` portal WITH a snippet was actually scanned via CiC in Step 2; every remaining failure (no snippet / reconfigure / retry) is accounted for in the coverage report
+- [ ] `data/scan-failures.json` reviewed: every `fallback: "invisible-playwright"` portal WITH a snippet was actually scanned in the bot-protected pass (Step 2); every remaining failure (no snippet / reconfigure / retry) is accounted for in the coverage report
 - [ ] Pipeline has 0 pending `- [ ]` entries (all evaluated or discarded)
 - [ ] `node scripts/verify-pipeline.mjs` passes
 
-If verification fails, DO NOT notify. Complete the missing work (e.g. run the CiC pass) and re-verify; only stop-and-report if something is genuinely blocked and cannot be completed this run.
+If verification fails, DO NOT notify. Complete the missing work (e.g. run the bot-protected pass) and re-verify; only stop-and-report if something is genuinely blocked and cannot be completed this run.
 
 **Step 5b — Follow-through (the act-phase watchdog):**
 The scan finds flats; this step makes sure found flats don't rot. It exists because a fully-prepared application (#216) once sat unsubmitted for 6 days after an "apply same day" viewing and nothing noticed.

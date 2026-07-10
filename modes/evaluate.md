@@ -80,6 +80,11 @@ General policies for opening listing pages. Stable, applies to every evaluation.
 7. **Calculate global score** (weighted average with hard blocker caps)
 8. **Generate report** in the format below
 9. **Register in tracker**: write TSV to `batch/tracker-additions/{NNN}-{location-slug}.tsv`
+10. **Merge the tracker row**: `node scripts/merge-tracker.mjs` — the TSV is only a staging
+    file; without the merge the listing never appears in `data/listings.md`. (In auto/batch
+    mode the orchestrator runs one merge after ALL evaluations; when evaluating a single
+    listing directly, run it yourself.) Scores in the TSV are dot-decimal (`4.4`, not `4,4`);
+    German comma stays in the report prose only.
 
 ## Report Format
 

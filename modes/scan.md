@@ -96,10 +96,10 @@ Because no script covers these portals, they are the easiest to silently skip �
    at evaluation decides fit, not triage (see `modes/evaluate.md` step 4 for the
    detection signals and match procedure).
 8. **Filter by criteria** (HARD GATE — objective numbers only, applied by the scripts):
-   Using `scan_defaults` from portals.yml AND `searches` from profile.yml:
-   - Rooms: REJECT if rooms < `rooms_min`. Non-negotiable.
-   - Size: REJECT if m² < `size_min`. Non-negotiable.
-   - Price: REJECT if price > `price_max` (max_kaltmiete from profile). Non-negotiable.
+   The numbers come from `config/profile.yml` `searches[]` (SSOT — `scan_defaults` in portals.yml is descriptive only, no script reads it):
+   - Rooms: REJECT if rooms < `min_rooms`. Non-negotiable.
+   - Size: REJECT if m² < `min_m2`. Non-negotiable.
+   - Price: REJECT if price > `max_kaltmiete` **× 1.1** (the scripts' grace band for fees/format noise — the SINGLE over-budget threshold; AI triage uses the same ×1.1, `filterCriteria` in scan.mjs/process-scan.mjs implements it).
    - Area: REJECT if location matches an excluded area.
    - If a field could not be extracted from the search result snippet, log a warning but still add to pipeline (better to over-include than silently drop).
    - Price sanity check: if price is >30% below typical area Mietspiegel, flag as suspicious — likely a coop rent, extraction error, or scam. Still add to pipeline but prepend "⚠ LOW PRICE" to the title. Low price is a KEEP-and-flag signal, never an auto-discard.
@@ -110,7 +110,10 @@ Because no script covers these portals, they are the easiest to silently skip �
    - `data/pipeline.md` → URL already in pending or processed
    A URL that already exists in ANY of these sources is a duplicate, regardless of which scan run or date it was first seen. Skip it entirely — do not re-append to scan-history.tsv.
 10. **For each new listing that passes filters**:
-    a. Add to `data/pipeline.md` under "Pending": `- [ ] {url} | {portal} | {search_group_name} | {title}`
+    a. Add to `data/pipeline.md` under "Pending" (format owned by `scripts/lib/pipeline-md.mjs` — one format everywhere):
+       `- [ ] {url} | {portal} | {search_group_name} | {title} | {price} EUR | {m2} m² | {rooms} Zi | {location}`
+       The numeric/location fields are conditional on the portal providing them; rooms +
+       location exist so cross-portal dedup can fuzzy-match pending entries.
     b. Register in `data/scan-history.tsv`: `{url}\t{date}\t{portal}\t{title}\t{location}\t{price}\t{m2}\t{rooms}\tadded`
 11. **Filtered listings**: register in scan-history.tsv with status:
     - `skipped_criteria` — failed the objective price/size/area gate
