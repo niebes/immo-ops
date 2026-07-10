@@ -21,7 +21,8 @@
     "login:immoscout": "node scripts/login-immoscout.mjs",
     "login:invisible": "bash scripts/invisible-venv.sh scripts/invisible-login.py",
     "process-scan": "node scripts/process-scan.mjs",
-    "prune": "node scripts/prune-pipeline.mjs"
+    "prune": "node scripts/prune-pipeline.mjs",
+    "next-actions": "node scripts/next-actions.mjs"
   },
   "dependencies": {
     "js-yaml": "^4.1.0",

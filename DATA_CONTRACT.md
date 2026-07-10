@@ -16,6 +16,8 @@ These files contain your personal data, customizations, and work product. Update
 | `data/pipeline.md`         | Your URL inbox                                           |
 | `data/scan-history.tsv`    | Your scan dedup history                                  |
 | `data/scan-failures.json`  | Portals that failed/blocked during your scans            |
+| `data/next-actions-state.json` | Follow-through bookkeeping (when each listing was last liveness-verified) |
+| `data/archive/`            | Pruned pipeline entries + compacted scan-history rows (written by `npm run prune`) |
 | `data/viewings.md`         | Your viewing schedule                                    |
 | `data/documents.md`        | Your document submission tracker                         |
 | `data/*.bak*`, `data/*.prerescan` | Backups/snapshots of the data files above (gitignored — same personal data) |

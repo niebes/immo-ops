@@ -195,6 +195,13 @@ Before sending any notification, verify:
 
 If verification fails, DO NOT notify. Complete the missing work (e.g. run the CiC pass) and re-verify; only stop-and-report if something is genuinely blocked and cannot be completed this run.
 
+**Step 5b — Follow-through (the act-phase watchdog):**
+The scan finds flats; this step makes sure found flats don't rot. It exists because a fully-prepared application (#216) once sat unsubmitted for 6 days after an "apply same day" viewing and nothing noticed.
+1. Run `node scripts/next-actions.mjs --json --fix`. `--fix` applies the only mechanically safe advance — `Viewing → Viewed` once a Confirmed viewing's date has passed. Everything else is recommend-only; notably it NEVER marks anything `Applied` (an unsubmitted application is exactly the failure this step exists to catch).
+2. For each entry in the JSON's `livenessQueue` (≤10 per cycle): verify the URL is still active (WebFetch for static portals, stealth browser for bot-protected ones). Dead/deactivated → update the tracker status to `Expired` with a one-line note. Then record the batch: `node scripts/next-actions.mjs --mark-verified {num,num,...}`.
+3. Keep the JSON's `overdue`/`dueSoon` items for Step 6 — overdue items go at the TOP of the email and lead the push message.
+4. Run `node scripts/prune-pipeline.mjs` (pipeline section hygiene + bounded growth; add `--history` on the first run of a month).
+
 **RULE — Coverage report (ALWAYS, every scan/auto run):**
 Walk EVERY *enabled* portal across ALL search groups in `portals.yml` — **all three methods: playwright, cic, and websearch** — and account for each one. Websearch portals are the easiest to silently skip (no script runs them), so they get explicit rows like everything else. The chat summary and the email scan-note MUST explicitly list every enabled-but-not-processed entry and the exact blocker. Never silently omit a blocked portal. Disposition categories (ignore `enabled: false` portals — do NOT list disabled rows):
 - ✅ **scanned** (with new/seen count)
@@ -203,12 +210,13 @@ Present the account as a per-group coverage table (Portal · Method · Status ·
 
 **Step 6 — Notify:**
 Only after verification passes:
-1. **Push notification** via `PushNotification` — short summary (under 200 chars):
-   `immo-ops: {N} new — {counts per target} (top: #{id} {score}/5)`
+1. **Push notification** via `PushNotification` — short summary (under 200 chars). With overdue follow-through items, they LEAD:
+   `immo-ops: {K} OVERDUE — {top action} · {N} new (top: #{id} {score}/5)`
+   Without overdue items: `immo-ops: {N} new — {counts per target} (top: #{id} {score}/5)`
    If the `PushNotification` tool is unavailable in the session, skip the push and rely on the email.
-2. **Email draft** via Gmail MCP — HTML with sections per search target, tables with scored listings, pro/con, color-coded.
+2. **Email draft** via Gmail MCP — HTML with sections per search target, tables with scored listings, pro/con, color-coded. When Step 5b produced overdue items, open with a red-bordered `⚠ Overdue actions` section ABOVE all listing sections: one row per item — #, action, days overdue, evidence (e.g. `#216 · send the application · 6d · docs prepared, none submitted`).
 
-If no new listings were found in this cycle, skip both silently.
+**Skip rule:** skip both channels only if there are NO new listings AND NO overdue follow-through items. An overdue action alone justifies the notification — a silently rotting application is the exact hole this rule closes.
 
 See **Notify mode** below for email format.
 
