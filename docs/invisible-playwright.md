@@ -62,6 +62,28 @@ The venv builds itself on first run of either the MCP server or `--invisible` (v
 Because the snippet contract is identical to the CDP path, **the same `*-extract.js` extractors
 run unchanged** on either transport.
 
+## Driver crashes (handled — auto-restart)
+
+A page-level uncaught JS error can trip a Playwright-Firefox bug
+(`Cannot read properties of undefined (reading 'url')` at `pageError.location.url`) that kills
+the driver mid-page. Kleinanzeigen triggers it on most runs. The crash kills Playwright's
+**inner node driver, not our python process**, so the process stays alive while every later
+command fails with `Connection closed while reading from the driver` — process exit is not a
+reliable death signal, which is why `DRIVER_DEAD_RE` matches on the error text.
+
+`fetchPageResilient()` respawns the backend and retries the same page (≤2 per page, 6 per run).
+One portal's crash therefore no longer cascades into every portal scanned after it.
+
+If a crash survives the retries it is recorded as `classification: "driver_crash"` /
+`fallback: "retry"` — **the driver failed, not the portal**. Never route a `driver_crash` to
+`/immo-portal`; re-run that portal alone:
+
+```
+node scripts/scan.mjs --invisible --group "<group>" --portal "<portal>"
+```
+
+Also: never pipe `scan.mjs` into `head` — SIGPIPE kills the scan mid-run. Redirect to a file.
+
 ## Firefox CSP / JSON-API gotcha (handled)
 
 On the patched stealth Firefox, `page.evaluate` runs via in-page `eval()`, which a strict

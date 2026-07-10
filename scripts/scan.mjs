@@ -93,6 +93,13 @@ function recordFailure(portal, groupName, reason, classification) {
   } else if (classification === 'config') {
     fallback = 'reconfigure';
     action = `Not a transient failure — fix the portal config or rebuild the extractor via /immo-portal.`;
+  } else if (classification === 'driver_crash') {
+    // The stealth-Firefox driver process died (a page-level uncaught error can trip a
+    // Playwright-Firefox bug). The portal and its extractor are innocent — never route
+    // this to /immo-portal. The scan loop already respawned and retried; if it still
+    // failed, an isolated single-portal run is the next step.
+    fallback = 'retry';
+    action = `Stealth driver crashed (not a portal/extractor fault). Auto-restart+retry did not recover — re-run isolated: node scripts/scan.mjs --invisible --group "${groupName}" --portal "${portal.name}".`;
   } else {
     fallback = 'retry';
     action = `Transient error — retry next cycle; if it persists, consider CiC or /immo-portal.`;
@@ -492,48 +499,98 @@ function makeCdpEvaluator() {
 // in this repo; gets past bot defenses that block headless Chromium. One persistent
 // browser process; fetchPage sends one {cmd:"eval"} per page and awaits the reply.
 // The scan loop is strictly sequential, so a FIFO resolver queue is sufficient.
+// The driver process is MORTAL: a page-level uncaught JS error can trip a Playwright-Firefox
+// bug (`pageError.location.url` undefined) that kills it mid-page. Kleinanzeigen does this
+// most runs. Because one process served every portal, the crash used to cascade — every
+// later portal failed with "Connection closed" and got logged as its OWN config failure,
+// blaming innocent extractors and silently zeroing out coverage. So: spawn is restartable,
+// and driver death is reported as `driverDead` rather than an indistinguishable null result.
+// The crash kills Playwright's INNER node driver, not our python process — so the process
+// stays alive while every later command fails with "Connection closed while reading from the
+// driver". Process exit is therefore NOT a reliable death signal; the error text is.
+const DRIVER_DEAD_RE = /connection closed while reading from the driver|driver exited|browser has been closed|target (page|browser) .*closed|pipe closed/i;
+
 function makeInvisibleEvaluator() {
-  let proc, buf = '';
-  const pending = [];
-  let onReady;
-  const readyP = new Promise(r => { onReady = r; });
+  let proc, buf = '', dead = false;
+  let pending = [];
+  let onReady, readyP;
+
+  async function spawnDriver() {
+    const { spawn } = await import('node:child_process');
+    buf = ''; pending = []; dead = false;
+    // Each spawn owns its queue. A previous process can emit 'exit' AFTER we've respawned
+    // (SIGKILL escalation races the restart); without this binding its handler would drain
+    // the NEW driver's queue and mark the fresh driver dead.
+    const myPending = pending;
+    readyP = new Promise(r => { onReady = r; });
+    proc = spawn('bash', ['scripts/invisible-venv.sh', 'scripts/invisible-driver.py'], {
+      cwd: ROOT,
+      env: {
+        ...process.env,
+        IP_HEADLESS: process.env.IP_HEADLESS || (HEADED ? 'false' : 'true'),
+        IP_LOCALE: process.env.IP_LOCALE || 'de-DE',
+        IP_TIMEZONE: process.env.IP_TIMEZONE || 'Europe/Berlin',
+        IP_STORAGE_STATE: process.env.IP_STORAGE_STATE || 'tmp/browser-state.json',
+      },
+      stdio: ['pipe', 'pipe', 'inherit'], // stderr passes through (venv bootstrap + driver logs)
+    });
+    const myProc = proc;
+    proc.stdout.on('data', d => {
+      buf += d.toString();
+      let nl;
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl); buf = buf.slice(nl + 1);
+        if (!line.trim()) continue;
+        let msg; try { msg = JSON.parse(line); } catch { continue; }
+        if (msg.ready) { onReady(); continue; }
+        const resolve = myPending.shift();
+        if (resolve) resolve(msg);
+      }
+    });
+    // Writing to a dead driver's stdin raises EPIPE; swallow it so the crash surfaces
+    // through the `driverDead` path rather than as an unhandled error event.
+    proc.stdin.on('error', () => {});
+    proc.on('exit', () => {
+      if (proc === myProc) dead = true; // only if this is still the CURRENT driver
+      while (myPending.length) myPending.shift()({ ok: false, error: 'driver exited', driverDead: true });
+    });
+    await Promise.race([
+      readyP,
+      new Promise((_, rej) => setTimeout(() => rej(new Error('invisible driver did not signal ready (browser launch failed or timed out)')), 180000)),
+    ]);
+  }
+
   return {
-    async init() {
-      const { spawn } = await import('node:child_process');
-      proc = spawn('bash', ['scripts/invisible-venv.sh', 'scripts/invisible-driver.py'], {
-        cwd: ROOT,
-        env: {
-          ...process.env,
-          IP_HEADLESS: process.env.IP_HEADLESS || (HEADED ? 'false' : 'true'),
-          IP_LOCALE: process.env.IP_LOCALE || 'de-DE',
-          IP_TIMEZONE: process.env.IP_TIMEZONE || 'Europe/Berlin',
-          IP_STORAGE_STATE: process.env.IP_STORAGE_STATE || 'tmp/browser-state.json',
-        },
-        stdio: ['pipe', 'pipe', 'inherit'], // stderr passes through (venv bootstrap + driver logs)
-      });
-      proc.stdout.on('data', d => {
-        buf += d.toString();
-        let nl;
-        while ((nl = buf.indexOf('\n')) >= 0) {
-          const line = buf.slice(0, nl); buf = buf.slice(nl + 1);
-          if (!line.trim()) continue;
-          let msg; try { msg = JSON.parse(line); } catch { continue; }
-          if (msg.ready) { onReady(); continue; }
-          const resolve = pending.shift();
-          if (resolve) resolve(msg);
-        }
-      });
-      proc.on('exit', () => { while (pending.length) pending.shift()({ ok: false, error: 'driver exited' }); });
-      await Promise.race([
-        readyP,
-        new Promise((_, rej) => setTimeout(() => rej(new Error('invisible driver did not signal ready (browser launch failed or timed out)')), 180000)),
-      ]);
+    init: spawnDriver,
+    isDead: () => dead || !proc || proc.exitCode !== null,
+    async restart() {
+      const old = proc;
+      if (old && old.exitCode === null) {
+        // The python process is still alive (only its inner driver died) — it will not exit
+        // on its own, so kill it and escalate to SIGKILL if it lingers.
+        await new Promise(res => {
+          const t = setTimeout(() => { try { old.kill('SIGKILL'); } catch { /* gone */ } res(); }, 5000);
+          old.once('exit', () => { clearTimeout(t); res(); });
+          try { old.kill(); } catch { clearTimeout(t); res(); }
+        });
+      }
+      await new Promise(r => setTimeout(r, 1500)); // let the browser's own processes reap
+      await spawnDriver();
     },
     fetchPage(url, snippetSrc) {
+      if (dead || !proc || proc.exitCode !== null) {
+        return Promise.resolve({ resultStr: null, blocked: false, driverDead: true });
+      }
       return new Promise(resolve => {
         pending.push(msg => {
-          if (!msg.ok) { console.log(`  ⚠ driver error: ${msg.error || 'unknown'}`); resolve({ resultStr: null, blocked: false }); }
-          else resolve({ resultStr: msg.result ?? null, blocked: !!msg.blocked });
+          if (!msg.ok) {
+            console.log(`  ⚠ driver error: ${msg.error || 'unknown'}`);
+            // Distinguish a crashed backend (respawn + retry) from a snippet/page failure
+            // (the portal's own problem). The inner driver dies silently, so match the text.
+            const crashed = !!msg.driverDead || dead || DRIVER_DEAD_RE.test(msg.error || '');
+            if (crashed) dead = true;
+            resolve({ resultStr: null, blocked: false, driverDead: crashed });
+          } else resolve({ resultStr: msg.result ?? null, blocked: !!msg.blocked });
         });
         proc.stdin.write(JSON.stringify({ cmd: 'eval', url, snippet: snippetSrc }) + '\n');
       });
@@ -555,6 +612,25 @@ async function runSnippetScan(evaluator, label) {
   console.log(`\n${label}${DRY_RUN ? ' (DRY RUN)' : ''}\n`);
 
   await evaluator.init();
+
+  // Fetch a page, surviving a driver crash: respawn the backend and re-try the SAME page.
+  // Budgeted globally so a permanently-broken driver can't spin forever, and per-call so a
+  // page that reliably kills the driver (Kleinanzeigen) gives up instead of restart-looping.
+  const MAX_RESTARTS = 6;
+  let restartsUsed = 0;
+  async function fetchPageResilient(url, snippetSrc) {
+    for (let attempt = 0; ; attempt++) {
+      const res = await evaluator.fetchPage(url, snippetSrc);
+      if (!res.driverDead) return res;
+      if (!evaluator.restart || attempt >= 2 || restartsUsed >= MAX_RESTARTS) {
+        return { ...res, driverDead: true };
+      }
+      restartsUsed++;
+      console.log(`  ↻ stealth driver crashed — restarting (${restartsUsed}/${MAX_RESTARTS}) and retrying page`);
+      try { await evaluator.restart(); }
+      catch (e) { console.log(`  ⚠ driver restart failed: ${e.message}`); return { ...res, driverDead: true }; }
+    }
+  }
 
   let totalNew = 0, portalsDone = 0;
   try {
@@ -585,10 +661,19 @@ async function runSnippetScan(evaluator, label) {
           while (total < (DEEP ? 600 : 100)) {
             const url = pageNum === 1 ? baseUrl : withPageParam(baseUrl, pageNum);
             console.log(`  → page ${pageNum}`);
-            const { resultStr, blocked } = await evaluator.fetchPage(url, snippetSrc);
+            const { resultStr, blocked, driverDead } = await fetchPageResilient(url, snippetSrc);
             // A dead page 1 is a broken portal, not "no new listings" — flag it so the
             // coverage report surfaces it (mirrors the Playwright path's page-1 rule).
             if (blocked) { console.log(`  ⛔ still bot-blocked — skipping`); recordFailure(portal, group.name, `captcha (${label})`, 'bot_defense'); failed = true; break; }
+            // Driver crash ≠ portal fault. Record it as transient (never "reconfigure") so the
+            // coverage report points at the driver, and the NEXT portal still gets scanned —
+            // fetchPageResilient has already respawned the backend for it.
+            if (driverDead) {
+              console.log(`  ⛔ stealth driver crashed on page ${pageNum} — portal not fully scanned`);
+              recordFailure(portal, group.name, `stealth driver crashed on page ${pageNum}`, 'driver_crash');
+              failed = true;
+              break;
+            }
             if (!resultStr) {
               if (pageNum === 1) { recordFailure(portal, group.name, 'snippet evaluate failed on page 1', 'config'); failed = true; }
               break;
