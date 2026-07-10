@@ -70,8 +70,11 @@ if (listings) {
       check(false, `Listing row has ${cols.length} columns, expected 11+: ${line.substring(0, 80)}`);
       continue;
     }
-    const [num, , , , , , , , , status, report] = cols;
+    const [num, , , , , , , , score, status, report] = cols;
     check(validStatuses.includes(status), `Listing #${num}: invalid status "${status}"`);
+    // Machine columns are dot-decimal; German-comma scores broke reconcile and
+    // numeric sorting (normalized 2026-07 by prune-pipeline --repair).
+    check(!/^\d+,\d+$/.test(score), `Listing #${num}: comma-decimal score "${score}" (use dot)`);
     if (report && report.startsWith('reports/') || report?.startsWith('[')) {
       const reportPath = report.replace(/^\[.*?\]\(/, '').replace(/\)$/, '');
       if (reportPath.startsWith('reports/')) {
@@ -88,6 +91,13 @@ if (pipeline) {
   const pending = (pipeline.match(/^- \[ \]/gm) || []).length;
   const processed = (pipeline.match(/^- \[x\]/gm) || []).length;
   console.log(`  Pending: ${pending}, Processed: ${processed}`);
+
+  // Section purity: completed items sitting under '## Pending' hide the real
+  // queue state (the audit found 680 of them). prune-pipeline.mjs moves them.
+  const pendingSection = pipeline.split('## Pending')[1]?.split(/^## /m)[0] || '';
+  const doneUnderPending = (pendingSection.match(/^- \[x\]/gm) || []).length;
+  check(doneUnderPending === 0,
+    `${doneUnderPending} completed '- [x]' item(s) under '## Pending' — run: node scripts/prune-pipeline.mjs`);
 }
 
 // Check scan-history.tsv
@@ -96,7 +106,9 @@ if (fileExists('data/scan-history.tsv')) {
   const tsv = readFile('data/scan-history.tsv');
   const lines = tsv.split('\n').filter(l => l.trim() && !l.startsWith('url\t'));
   console.log(`  ${lines.length} entries`);
-  const validStatuses = ['added', 'skipped_title', 'skipped_criteria', 'skipped_dup', 'skipped_expired'];
+  // 'archived' = pipeline entry moved to data/archive/ by prune-pipeline.mjs;
+  // the row keeps the URL in the seen-set so dedup never re-adds it.
+  const validStatuses = ['added', 'skipped_title', 'skipped_criteria', 'skipped_dup', 'skipped_expired', 'archived'];
   for (const line of lines) {
     const cols = line.split('\t');
     if (cols.length >= 9) {

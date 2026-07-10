@@ -146,13 +146,15 @@ for (let i = 0; i < pipeLines.length; i++) {
   if (!r) continue;
   const diffs = [];
   // pipeline desc often embeds "NNNN EUR" and "NN m²"
-  const pPrice = toNum((line.match(/([\d.]+)\s*EUR/) || [])[1]);
+  const pPrice = toNum((line.match(/([\d.,]+)\s*EUR/) || [])[1]);
   const pM2 = toNum((line.match(/([\d.,]+)\s*m²/) || [])[1]);
   if (r.kaltmiete != null && pPrice != null && Math.abs(pPrice - r.kaltmiete) > Math.max(5, r.kaltmiete * PRICE_TOL))
     diffs.push(`price ${pPrice}→${r.kaltmiete}`);
   if (r.m2 != null && pM2 != null && Math.abs(pM2 - r.m2) > 1) diffs.push(`m² ${pM2}→${r.m2}`);
   // score/status conflict (e.g. pipeline shows 3.8/5 but report is DISCARDED)
-  const pScore = toNum((line.match(/\|\s*([\d.]+)\/5/) || [])[1]);
+  // Accept both decimal separators — German-comma scores ("3,9/5") exist in
+  // real pipeline lines and were silently skipped by the dot-only regex.
+  const pScore = toNum((line.match(/\|\s*([\d.,]+)\/5/) || [])[1]);
   if (r.status && pScore != null) diffs.push(`status ${pScore}/5→${r.status}`);
   if (r.score != null && pScore != null && Math.abs(pScore - r.score) >= 0.1) diffs.push(`score ${pScore}→${r.score}`);
   if (diffs.length) pipeMismatches.push({ lineNo: i, url, line, r, diffs });
