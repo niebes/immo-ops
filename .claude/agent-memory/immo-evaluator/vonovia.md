@@ -46,7 +46,8 @@ plus a flat JSON blob with `energyPassValueClass`/`energyPassType`(BEDARF|VERBRA
 `numberOfRooms`, and a **`"features":[…]`** array = the full Ausstattung (Balkon, Mieterkeller,
 Badewanne eingemauert, Fahrradabstellraum, Holzdielen, E-Herd, etc.) + `"location":"…"` (Lage text).
 The `/api/real-estate/{id}` etc. endpoints still 404 — the data lives in the HTML, not a detail API.
-Address in the detail HTML is under key **`"postCodeAndCity"`** (e.g. `"13591 Berlin OT Staaken"`)
+Address in the detail HTML is under keys **`"postCodeAndCity"`** (e.g. `"13591 Berlin OT Staaken"`)
+and **`"streetAndHouseNumber"`** (exact street — grep it too; confirmed working 2026-07-11)
 — grep that, not strasse/plz/ort (those keys are the *list*-API shape, absent here). `space`/
 `numberOfRooms` are string-quoted (`"space":"94…"`, `"numberOfRooms":"4"`). The Lage text under
 `"location"` + `"postCodeAndCity"` confirm the real city — the "Potsdam" search bucket regularly
