@@ -15,6 +15,10 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
 - **The seller's full HTML description is in a cross-origin iframe `#desc_ifr` and is NOT readable**
   (`contentDocument` is null/blocked). Do NOT waste calls trying to read it — the Artikelmerkmale +
   seller note already contain the substance. *Why:* otherwise you loop on iframe-access errors.
+  Confirmed unreadable under **invisible-playwright** too (2026-07): in-page `fetch(iframe.src)`
+  → NetworkError, and navigating directly to `itm.ebaydesc.com/itmdesc/{id}` blocks
+  `evaluate_script` with "eval() blocked by CSP" (the CSP bypass doesn't cover that host);
+  `take_snapshot` also errors there. Give up on the description on all transports.
 - Photo count comes from the gallery buttons "Bild N von M".
 - Listing type: most plots are an **"Inserat"** (classified, fixed price, "kein Gebot") — contact-seller,
   no portal payment. Private sellers show "Angemeldet als privater Verkäufer" + member-since + feedback %.

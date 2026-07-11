@@ -28,6 +28,15 @@ HTML, no CAPTCHA/consent wall. Use curl + parse; don't burn a CiC tab.
   Gewobag/municipal listings often have just 1 photo — condition stays unverified,
   cap Block D per _shared.md.
 
+- **"Sonstige Informationen" free-text section is load-bearing**: Befristung
+  ("wird zuerst für ein Jahr … vermietet"), rent composition (Grundmiete vs
+  Möblierungszuschlag vs Stellplatz), and the true Nebenkosten total can appear
+  ONLY there — never in the detail table or JSON-LD (seen on 9714930: table said
+  NK 110 + HK 100, Sonstiges said "Betriebskostenvorauszahlung 210 €" and
+  revealed the 1-year Befristung). Always read the whole stripped-text page,
+  not just the table. **Why:** table-only parsing scores a furnished 1-year let
+  as a normal unbefristet rental.
+
 ## Expiry / early-exit
 Deleted listings would show "nicht gefunden"/"nicht mehr". The metadata price hint
 (Kaltmiete) differs from JSON-LD price (Warmmiete) — that mismatch is normal, not
