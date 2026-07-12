@@ -60,7 +60,10 @@ For listings fed in via the ohne-makler (OM) platform (footer says "ohne-makler 
 
 ### JSON shape (parse `.sections[]` by `.type`)
 - `header`: `publicationState` (`active` = live; else likely EXPIRED), `realEstateType`,
-  `shareMessage` (quick Kaltmiete/Zimmer/m²/Warmmiete + address).
+  `shareMessage` (quick Kaltmiete/Zimmer/m²/Warmmiete + address). **Can be entirely absent**
+  (seen #320, expose 169230389 — a sparse/scammy private listing): then read liveness from the
+  `FRAUD_REPORT` section's report URL, which carries `publicationState=live|...` as a query param.
+  Don't infer EXPIRED just because `header` is missing.
 - `TITLE`, `MAP` (addressLine1/2 + lat/lng), `TOP_ATTRIBUTES` (Kaltmiete/Zimmer/Wohnfläche/Warmmiete).
 - `ATTRIBUTE_LIST` blocks (title = "Hauptkriterien" / "Kosten" / "Bausubstanz & Energieausweis"):
   attributes are `{label,text}` for TEXT, or `{type:"CHECK",label}` = feature present

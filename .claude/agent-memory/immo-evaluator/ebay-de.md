@@ -12,13 +12,14 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
     `Empfohlene Nutzung`, `PLZ`. Location lives here + the `Standort:` line.
   - **Seller note** ("Hinweise des Verkäufers", quoted text) carries the real prose description
     (size in m², Grundbuch, lake distance, etc.). Extract its text node directly.
-- **The seller's full HTML description is in a cross-origin iframe `#desc_ifr` and is NOT readable**
-  (`contentDocument` is null/blocked). Do NOT waste calls trying to read it — the Artikelmerkmale +
-  seller note already contain the substance. *Why:* otherwise you loop on iframe-access errors.
-  Confirmed unreadable under **invisible-playwright** too (2026-07): in-page `fetch(iframe.src)`
-  → NetworkError, and navigating directly to `itm.ebaydesc.com/itmdesc/{id}` blocks
-  `evaluate_script` with "eval() blocked by CSP" (the CSP bypass doesn't cover that host);
-  `take_snapshot` also errors there. Give up on the description on all transports.
+- **Seller's full HTML description (cross-origin iframe `#desc_ifr`): unreadable IN-BROWSER, but
+  plain `curl` of the iframe `src` WORKS** (2026-07, item 298497838874). Recipe: grab
+  `document.querySelector('#desc_ifr').src` (an `itm.ebaydesc.com/itmdesc/{id}?...` URL with a
+  `t=` token), then Bash `curl -s '{src}' -H 'User-Agent: Mozilla/5.0 ...'` and strip tags — full
+  description (Grundbuch refs, "Verhandlungsbasis", sale motive) comes back. *Why:* the VB-vs-real
+  price question is often only answerable from the description; in-browser paths all fail
+  (contentDocument null; in-page fetch → NetworkError; navigating to ebaydesc host → eval blocked
+  by CSP + take_snapshot errors). Don't retry the in-browser routes — go straight to curl.
 - Photo count comes from the gallery buttons "Bild N von M".
 - Listing type: most plots are an **"Inserat"** (classified, fixed price, "kein Gebot") — contact-seller,
   no portal payment. Private sellers show "Angemeldet als privater Verkäufer" + member-since + feedback %.
