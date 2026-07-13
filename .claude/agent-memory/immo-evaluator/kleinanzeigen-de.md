@@ -3,6 +3,7 @@
 Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien pages.
 
 ## Getting the data
+- **Detail pages (`/s-anzeige/...`) are plain-curl accessible** — a simple `curl -A "Mozilla/5.0 ... Firefox"` returns the full 200 HTML with every field (title `#viewad-title`, price `#viewad-price`, locality `#viewad-locality`, `#viewad-details` list incl. Standort street address, `#viewad-description-text`, seller block with "Aktiv seit", gallery elements). Only the SEARCH pages bot-block headless. *Why:* on 2026-07-13 the invisible-playwright driver was crashed session-wide; curl evaluated #324 with zero browser. Prefer curl for single-listing evals.
 - A cookie consent overlay appears ("Willkommen bei Kleinanzeigen", buttons "Alle akzeptieren" /
   "Datenschutzeinstellungen"). It does NOT block `read_page` — full listing DOM renders behind it,
   so you can extract everything without touching the banner. Do not click "Alle akzeptieren".
@@ -32,7 +33,9 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   looks fully populated, so without checking the heading/badges you'd wrongly produce a full score for
   an ad the Anbieter has already taken down (typically because a Nachmieter was found).
 - **Beware hidden badge templates:** EVERY listing page (also active ones) carries display:none
-  elements containing "Gelöscht"/"Reserviert" (matched by `[class*="reserved"]`-style selectors).
+  elements containing "Gelöscht"/"Reserviert" (matched by `[class*="reserved"]`-style selectors),
+  and the h1 always has `data-soldlabel="Nicht mehr verfügbar"` as an ATTRIBUTE — a grep for
+  "nicht mehr verfügbar" in raw HTML false-positives on every active ad (hit on #328).
   Decide status only from VISIBLE text — `document.body.innerText.includes('Gelöscht')` or an h1
   prefix — never from DOM presence. *Why:* selector-based badge checks false-positive an active ad
   as EXPIRED (hit on #314).

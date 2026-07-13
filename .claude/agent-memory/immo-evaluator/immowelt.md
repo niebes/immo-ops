@@ -21,6 +21,7 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   Filter out `/shared/images/` srcs; if nothing real-CDN remains → **no real photos → cap Block D at 3.0** and
   flag "no photos" in summary. *Why:* naive `img` count returns ~5–6 and looks like photos exist when none do.
 - No on-page "N Fotos" counter to rely on.
+- **Cross-check via the aggregator:** when arriving from Süddeutsche/regionalimmobilien24, the aggregator page's `og:image` meta holds a real listing photo — use it to confirm photos EXIST (count still unknown) before capping D for "no photos". *Why:* #331 Immowelt DOM showed zero real imgs under CiC, but the SZ og:image proved the gallery is populated — a blind D-cap would have been wrong.
 
 ## Tauschwohnung (swap) listings
 - Title `h1` shows "… • Tauschwohnung"; Anbieter is a private person via **Tauschwohnung.com** (a tauschwohnung.com disclaimer paragraph sits right after the description).
