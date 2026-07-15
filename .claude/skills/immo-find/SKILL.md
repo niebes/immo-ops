@@ -211,12 +211,12 @@ Walk EVERY *enabled* portal across ALL search groups in `portals.yml` — **all 
 Present the account as a per-group coverage table (Portal · Method · Status · What stopped it). The ⛔ rows are the priority — surface them prominently; an enabled portal that yielded nothing because it was blocked is NOT the same as one that yielded nothing legitimately.
 
 **Step 6 — Notify:**
-Only after verification passes:
-1. **Push notification** via `PushNotification` — short summary (under 200 chars). With overdue follow-through items, they LEAD:
+Only after verification passes. **The push comes LAST — only after the email draft exists** (user rule 2026-07-15: the push says "results are ready", so the deliverable it points at must already be in place; a push before the draft is a false "done" signal):
+1. **Email draft** via Gmail MCP — HTML with sections per search target, tables with scored listings, pro/con, color-coded. When Step 5b produced overdue items, open with a red-bordered `⚠ Overdue actions` section ABOVE all listing sections: one row per item — #, action, days overdue, evidence (e.g. `#216 · send the application · 6d · docs prepared, none submitted`).
+2. **Push notification** via `PushNotification` (AFTER the draft is created) — short summary (under 200 chars). With overdue follow-through items, they LEAD:
    `immo-ops: {K} OVERDUE — {top action} · {N} new (top: #{id} {score}/5)`
    Without overdue items: `immo-ops: {N} new — {counts per target} (top: #{id} {score}/5)`
    If the `PushNotification` tool is unavailable in the session, skip the push and rely on the email.
-2. **Email draft** via Gmail MCP — HTML with sections per search target, tables with scored listings, pro/con, color-coded. When Step 5b produced overdue items, open with a red-bordered `⚠ Overdue actions` section ABOVE all listing sections: one row per item — #, action, days overdue, evidence (e.g. `#216 · send the application · 6d · docs prepared, none submitted`).
 
 **Skip rule:** skip both channels only if there are NO new listings AND NO overdue follow-through items. An overdue action alone justifies the notification — a silently rotting application is the exact hole this rule closes.
 
