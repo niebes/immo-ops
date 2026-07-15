@@ -285,8 +285,14 @@ Color-code rows:
 
 **Swap candidates (Tauschwohnung, `Swap-candidate` status):** color-code by THEIR-flat score
 as above, and prefix the listing title with **🔄 SWAP**. The `✓/✗` detail row must state the
-two-sided verdict (e.g. `✓ their flat 4.1 for us  ✗ swap: their Suche wants a different
-area than our offer — verify`) plus the consent caveat. Do not list `Discarded` swap-mismatches in
+two-sided verdict plus the consent caveat, AND — mandatory (user rule 2026-07-15) — include the
+partner's Suche as a compact per-criterion checklist judged against our offer, so a weak match
+can be skimmed in the email without opening the report. One line, ` · `-separated, each
+criterion followed by ✓/✗ with our value in parens:
+`Suche: Teltow+10km ✗(Golm ~20km) · ≤1.200 ✓(1.025) · ≥55m² ✗(54,19) · ≥2,5 Zi ✗(2) · Balkon ✗(nur Garten) · Garten ✓`
+If their Suche is unknown/vague, say exactly that (`Suche: unbekannt — verify on contact`).
+Even multi-criteria near-miss swaps stay IN the results (manual review beats silent discard) —
+the checklist is what makes that reviewable. Do not list `Discarded` swap-mismatches in
 the email (same as sub-3.0 exclusion — don't waste attention).
 
 **CRITICAL — Gmail strips row-level styles in the draft composer.** Set the background on EVERY cell, not just the row, and use both the legacy attribute and inline style. The `bgcolor` attribute survives every email sanitizer:
