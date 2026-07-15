@@ -246,10 +246,15 @@ Under 200 chars. Lead with total count, break down by target, mention top pick. 
 
 **Enrichment from reports:** For each listing with a report in `reports/`, read the `## Summary` section and extract:
 - The bold assessment phrase (e.g., "Strong candidate, worth pursuing")
-- Key pro: first positive point from the summary
-- Key con: first concern after "However:" or "Main concerns:" or "Key concern:"
-- If the listing has no real photos (or renders/example photos only — see Block D photo rule in `modes/_shared.md`), always include "no photos" in the ✗ con, even if other concerns rank higher.
+- ✓ pros: ALL positive points from the summary
+- ✗ cons: ALL concerns (after "However:" / "Main concerns:" / "Key concern:" / the ✗ items)
+- If the listing has no real photos (or renders/example photos only — see Block D photo rule in `modes/_shared.md`), always include "no photos" in the ✗ con.
+- Any action note from the summary/next steps (e.g. "apply immediately", "Sammelbesichtigung vorbei — neuen Termin anfragen").
 Include these as a second row under each listing in the table (smaller font, gray text).
+**The detail row does NOT need to be short (user rule 2026-07-15): completeness beats brevity.**
+It is the report's stand-in in the email — carry every relevant pro, con, and action note from
+the report summary so the user can decide from the row alone whether to open the full report.
+Do not truncate to "first pro / first con"; only leave out what the summary itself doesn't state.
 
 **Email structure — grouped by search target:**
 
@@ -311,11 +316,12 @@ All styles inline on the elements — do not rely on a `<style>` block alone (st
 
 Below each listing row, add a detail row (same `bgcolor`/background on the cell, `font-size:11px;color:#555`):
 ```
-✓ {key pro}  ✗ {key con}
+✓ {all pros}  ✗ {all cons + action note}
 ```
-Only include the detail row if a report exists for that listing.
+Only include the detail row if a report exists for that listing. Length is NOT a constraint
+(user rule 2026-07-15) — include everything relevant from the report summary.
 
-**MANDATORY — both features, every email.** Each listing MUST have BOTH (1) color-coded cells AND (2) its own `✓ pro / ✗ con` summary row beneath it. Do NOT compact the summary into the listing cell or drop it to save space/effort — the per-listing ✓/✗ row is the point of the email. Pull the pro from the report's first positive and the con from the first "However/concern" line. Reference gold-standard format: the 2026-05-20 scan-report email.
+**MANDATORY — both features, every email.** Each listing MUST have BOTH (1) color-coded cells AND (2) its own `✓ pro / ✗ con` detail row beneath it. Do NOT compact the detail row into the listing cell or drop it to save space/effort — the per-listing ✓/✗ row is the point of the email, and it should carry ALL relevant pros/cons/action notes from the report summary (see "Enrichment from reports" above). Reference gold-standard format: the 2026-05-20 scan-report email.
 
 Subject: `immo-ops: {N} listing(s) — {summary, e.g. '5 Miete, 2 Haus, 1 Grundstück'} — {current date and time from system clock, NEVER guessed}`
 
