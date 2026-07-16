@@ -37,6 +37,22 @@ HTML, no CAPTCHA/consent wall. Use curl + parse; don't burn a CiC tab.
   not just the table. **Why:** table-only parsing scores a furnished 1-year let
   as a normal unbefristet rental.
 
+## JSON-LD RealEstateListing can be ABSENT (only BreadcrumbList)
+On some detail pages the only `application/ld+json` block is a `BreadcrumbList` — there is
+NO `RealEstateListing` object, so `name/description/offers/floorSize` must come entirely
+from the stripped-text table + description prose (seen 2026-07-16 on 9724059, Caputh Neubau).
+Don't assume the structured listing block exists; always have the tag-strip fallback ready.
+
+## Neubau/Erstbezug detection → "Beispielfotos" is NOT a D-cap
+The description prose is the Neubau tell: "Das {Quartier} **entsteht**", KfW-Standard, "Erstbezug",
+new-quarter marketing. When present, the "Bei den Bildern handelt es sich teilweise um
+Beispielfotos" note + a single render photo fall under the **Neubau exception** (per _shared.md)
+→ do NOT cap Block D; score D on the new-build status (Klasse A/KfW-55 → 5.0). Also expect the
+table field "Energieausweis nicht vorhanden" to CONTRADICT a described class (e.g. "Energieausweis: A")
+— for a Neubau the Bedarfsausweis is just not issued yet; trust the described target class, note the gap.
+**Why:** without spotting "entsteht"/KfW you'd wrongly cap D at 3.0 on an in-budget Erstbezug for
+"example photos", and read the missing Energieausweis field as a real class-A contradiction.
+
 ## Expiry / early-exit
 Deleted listings would show "nicht gefunden"/"nicht mehr". The metadata price hint
 (Kaltmiete) differs from JSON-LD price (Warmmiete) — that mismatch is normal, not
