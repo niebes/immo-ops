@@ -1328,6 +1328,67 @@ Baurecht there is; here the answer is none, and reading the 4,73 EUR/m² through
 ladder would have scored a Biotopschutz-Grünfläche as an extraordinary in-budget bargain
 (A 5,0 / E ~2,5, final ~4,0) instead of 2,9.
 
+### Plot exposé that CONTRADICTS ITSELF — the TITLE beats the `Erschließung:` dropdown
+#406 (expose 158375845, Paaren im Glien/Schönwalde-Glien) has `Erschließung: Erschlossen` +
+`obj_development: developed`, while its own **TITLE** reads *"…– **teilerschlossen** & sofort
+verfügbar!"* and the Objektbeschreibung explains *"Strom, Wasser und Abwasser liegen **an der
+Straße vor dem Grundstück**"*. The description is the operative text and it describes exactly what
+*teilerschlossen* means: media at the street, **Hausanschlüsse (8–18 T EUR, my estimate) on the
+buyer**, Erschließungsbeiträge status unstated. So on every plot: **cross-read TITLE + description
+against the `Erschließung:` dropdown; the dropdown is the seller's optimistic pick.** Note also
+which media are named — #406 lists only Strom/Wasser/Abwasser, i.e. **no Gas, no Telekom/Glasfaser**,
+which in a rural Ortsteil cannot be assumed. The direction of the conflict is exculpatory in the
+scam check (the *headline* is the pessimistic one — concealment would run the other way).
+**Why:** trusting `obj_development: developed` reads the plot as fully erschlossen and drops a
+five-figure Block-A item that the title states outright.
+- **`obj_shortTermBuild: n` can contradict a rechtskräftigen B-Plan** — #406 pairs
+  `obj_constAfter: constructionplan` + a described B-Plan (offene Bauweise, 2 Vollgeschosse,
+  GFZ 0,20) with `obj_shortTermBuild: n`. Read as the same carelessness, not as a hidden defect,
+  but make it an explicit question. Corollary to #403's rule: `shortTermBuild: n` is only the
+  Baurecht floor **when `obj_constAfter` is also empty**.
+- **`Bebaubar nach: Bebauungsplan` / `obj_constAfter: constructionplan` is the TOP of the Baurecht
+  ladder** and the exposé usually hands over Bauweise + GFZ in the Objektbeschreibung. Ladder,
+  best-first: B-Plan im Attribut + Text (#406) > B-Plan nur im Text gegen `neighbourconstruction`
+  (#400) > positive Bauvoranfrage (#402) > § 34 laut *unverbindlicher* Gemeinde-Auskunft (#404) >
+  `shortTermBuild: n` + `constAfter: no_information` (#403). Still cap E: `obj_buildingPerm: n`
+  and the B-Plan's **GRZ, Baugrenzen, Firsthöhe, Dachform** are never in the exposé — pull the
+  B-Plan from the Gemeinde/Brandenburgviewer yourself, it is a public document.
+- **A `Geschossflächenzahl:` row (`obj_GFZ`) turns plot size into buildable size.** #406: GFZ 0,20
+  on 1.000 m² = **max 200 m² Geschossfläche**. Say so in Block C — surplus area above what the GFZ
+  can use buys **garden, not building rights**, so a big plot at a high EUR/m² is partly wasted spend.
+- **An "optional auch mit X m² erwerbbar" sentence = the parcel boundary is NOT fixed** ⇒ a
+  Vermessung/Teilung is pending (Block G: Kaufgegenstand, Vermessungskosten 2–4 T EUR) and it sits
+  in tension with `Verfügbar ab: sofort` (Block F). #406 offers 1.000 **or** 1.170 m² (ca. 19 m ×
+  60 m) — and the alternative's **price is never named**; at the same EUR/m² it silently breaks the
+  budget. Also use the stated dimensions of the *option* to derive the offered parcel's Zuschnitt
+  (same 60 m depth ⇒ ca. 16,7 m frontage ⇒ ~10–11 m Baufenster after BbgBO-Abstandsflächen).
+- **A Scout-ID far below the current range dates the listing.** IS24 IDs run roughly sequentially:
+  #406's **158.375.845** against a current batch of **168–169 million** ⇒ on the order of 1–2 years
+  online. Report it as an inference (never as a date), score Block F down, and use it as the
+  negotiation lever plus the "why hasn't it sold?" question. Fastest listing-age proxy available —
+  there is no publication date in the mobile API.
+- **Provision ladder on plots now spans 3,57 → 7,14 %.** #404 Böttger & Scheffler 3,57 %,
+  #399/#400 Falkensteg 5,95 %, **#406 L&S 7,14 % = 13.495 EUR**. All lawful in full on unbebautem
+  Land (§§ 656c/d cover only Wohnungen/EFH) — but at ~2× the regional norm the commission alone can
+  push an in-budget Kaufpreis over the budget all-in (#406: 189.000 ✓ → 218.560 ✗). **Quantify the
+  saving at the norm rate** ("at 3,57 % the all-in falls to 211.813") — it makes the commission the
+  most concrete negotiating item in the report. Also check whether payment terms are stated; #404
+  gave "zahlbar und fällig nach Beurkundung", #406 gives nothing.
+- **`rating.numberOfStars` is the REVIEW COUNT, not a scale.** `{"value": 4.9, "numberOfStars": 10}`
+  = 4,9 aus **10 Bewertungen** (cf. #401's 2 aus 6, #404's 4,9 aus 58). A high value on a thin base
+  is weak evidence — score H accordingly instead of treating 4,9 as equal everywhere.
+- **Havelland BRW, third anchor: Paaren im Glien ca. 130–180 EUR/m²** (my estimate) — the *middle*
+  of the Gemeinde Schönwalde-Glien, between the rural far end (Grünefeld 100–160, #404) and the
+  Berlin-nahe EFH-Siedlungen band (200–290). Driver is the **B5 corridor**: Berlin-Spandau ~30 min
+  off-peak. Judge Ortsteile of this Gemeinde on B5/Falkensee proximity, not on the Gemeindeschnitt (~120).
+- **A Berlin-facing commute is not a Potsdam-facing one.** #406's genuinely good B5 access points
+  east to Spandau while the profile's centre of gravity is Potsdam/Golm — say this explicitly in
+  Block B rather than crediting "hervorragende Anbindung" at face value. Same family as the
+  #377 rule (verify the Lage text's infrastructure claims): here the claim is true but irrelevant.
+  Also flag amenities the seller sells as pure positives that cut both ways — a **Messegelände**
+  (MAFZ Erlebnispark) means event traffic/noise, a **Bundesstraße** means the commute *and* the noise;
+  the exposé never states the distance to either.
+
 ### A **Rechtsanwalt as the private Anbieter** = Nachlass-/Insolvenz-/Teilungsversteigerungs-Verwertung
 `obj_privateOffer: true` + an AGENTS_INFO `name` like "RA {Nachname}" with **empty `address`,
 `verifiedBy: []`, no references** and a 3-sentence exposé with 0 photos (#403). Read it as a
@@ -1344,3 +1405,84 @@ ladder would have scored a Biotopschutz-Grünfläche as an extraordinary in-budg
 **Why:** scored naively the "no price + no photos + no address + unverified private seller" stack reads
 as a probable scam and would be discarded, when it is a routine and legitimate disposal pattern whose
 real defects are legal/cost-side, not fraud.
+
+### A third Baurecht tier: **Ortsgestaltungssatzung with quantified Festsetzungen** (between B-Plan and bare § 34)
+Seen on #405 (expose 169242467, Mittelstraße 47, Fichtenwalde/Beelitz). The ladder so far was
+B-Plan (#400, strongest) → bare § 34 "unverbindliche Auskunft" (#404) → `no_information` floor (#403).
+#405 sits in between and the **structured fields read at the FLOOR while the text is solid**:
+`obj_shortTermBuild: n` + `obj_constAfter: no_information` + `obj_buildingPerm: n` (the #403 red-flag
+triple) — yet the Objektbeschreibung cites *"die Festsetzungen der **Ortsgestaltungssatzung
+Fichtenwalde (2005, zuletzt geändert 2015)**"* plus § 34 BauGB and § 34 Abs. 5 S. 4 i.V.m. § 1a BauGB.
+A *Satzung* is binding Ortsrecht, not a phone call — grep the Objektbeschreibung for
+`Ortsgestaltungssatzung|Gestaltungssatzung|Satzung` alongside the existing `Bebauungsplan|B-Plan|
+Baufeld|Baufenster` test, and confirm the absence of `unverbindlich` before scoring E at the floor. E ~3,5.
+- **The decisive restriction lives ONLY in the prose and has no structured field: a max Grundfläche
+  cap.** #405: *"Maximale Grundfläche des Hauptgebäudes: 100 m² je Baugrundstück"* + 50 % Überschreitung
+  für Nebenanlagen nach § 14 BauNVO = 150 m² total überbaubar. **Convert it into achievable Wohnfläche
+  and test THAT against the profile's house target** — 100 m² footprint is a ~100 m² bungalow (below
+  target) or ~140–170 m² over two storeys (inside the 80–150 m² target). The Satzung's
+  Geschossigkeit/Dachform/Firsthöhe are never in the exposé, so **"obtain the Satzung" is Next step #1,
+  ahead of contacting the Makler** — it is public, free, and decides whether the plot fits at all.
+- **A max-Grundfläche cap also explains a sub-BRW price** — feed it into Block A rather than treating
+  the discount as unexplained.
+**Why:** the three floor-level attributes would have scored E ~2,0 and the report would have missed the
+one fact (100 m² cap) that decides whether a profile-compliant house can be built at all.
+
+### Sub-Bodenrichtwert asking price on a plot — the inverse of the #404 note
+The memory says "a price *above* the local BRW is the inverse of the below-market scam pattern — note
+it as clean". #405 is the first plot priced *below* BRW (159.000 = ~179 EUR/m² vs a Fichtenwalde BRW of
+~200–250), which nominally trips the **High** "price >20 % below market" scam signal. Do NOT log it as a
+signal when a **buildability restriction explains it** (here the 100 m² Grundflächenbegrenzung, a
+Baumbestand/§ 1a Ausgleichspflicht, and a Gemeinde market down 9,1 % y/y) AND the transparency
+indicators run the other way — exact address volunteered in the Lage text, identity-verified Makler with
+ratings, real object photos, Provision only after Beurkundung. **The tell that it isn't bait: the seller
+himself discloses the reasons the price is low** (the 100 m² cap and the § 1a Eingriffsregelung are both
+admissions against interest). Verdict stayed **Legitimate**.
+**Why:** applied mechanically the High-tier signal alone would have pushed a clean listing to "Proceed
+with Caution" on the very feature that makes it the best-value plot in the search.
+
+- **`Erschließung: Erschlossen` is often itemised in `TEXT_AREA "Sonstiges"` — read it, the detail
+  changes the risk.** #405 lists *"Erschließung in der **befestigten Straße**: Strom · Stadtwasser ·
+  **Abwasserkanalisation** · Erdgas · Telefon"*. The named **Abwasserkanalisation** is what removes the
+  #404 Kleinkläranlage unknown (15–40 T EUR); "befestigte Straße" implies the Erschließungsanlage is
+  built out. Two caveats survive the tick and belong in Block A every time: **"in der Straße" ≠ "am
+  Haus"** (Grundstücksanschlüsse are the buyer's, **5–15 T EUR**, more if the house is set back), and
+  **"erschlossen" ≠ "beitragsfrei"** (ask for the Erschließungsbeitragsbescheinigung § 133 Abs. 3 BauGB).
+- **A gewachsener Baumbestand is a Block-D LIABILITY, and its POSITION matters.** Mirror of #404's
+  "keine Bäume, kein Abriss" credit. #405's trees are *"im vorderen Bereich"* — exactly where a house
+  would go to keep the garden at the rear, so it is a design constraint, not decoration: Fällgenehmigung
+  + Ersatzpflanzung under the Baumschutzsatzung, or the house moves back (longer Zufahrt + Hausanschlüsse).
+  When the exposé also cites **§ 1a BauGB Eingriffsregelung**, Ausgleichs-/Ersatzmaßnahmen are expressly
+  anticipated — an unbezifferte cost the seller has conceded.
+- **Plot frontage is the Block-C number that matters, not just m².** Extends the #403 geometry rule with
+  a positive datapoint: #405's **26 m Straßenfront** (rechteckig, ~34 m deep) comfortably supports a
+  freistehendes EFH with side access after BbgBO-Abstandsflächen — vs #403's 13 m, which left only a
+  ~5–7 m Baufenster. Grep the Objektbeschreibung for `Straßenfront|Front von ca` as well as the
+  `\d+ ?m ?x ?\d+ ?m` line in Sonstiges.
+- **Check the area against EVERY search in profile.yml, not just the one being scanned.** #405's
+  Fichtenwalde/Beelitz is outside the *plot* search's preferred/acceptable areas (B 2,5) but **Beelitz is
+  listed in `acceptable_areas` of the user's separate Freizeitgrundstück search** — i.e. the area is
+  within the user's interest and the gap may be a config omission rather than a rejection. Say so and
+  quantify it ("adding Beelitz would lift B to ~4,0 and the total to ~4,1") so the user makes a one-line
+  config decision instead of reading a flat out-of-area verdict.
+- **BRW anchors, Potsdam-Mittelmark / south:** **Beelitz Gemeindedurchschnitt 149 EUR/m²**
+  (Gutachterausschuss PM, Stichtag 01.01.2026, veröffentlicht 09.03.2026, **−9,1 % gg. Vorjahr**);
+  **Ortsteil Fichtenwalde 250 EUR/m² zum 01.01.2022** (up from 100 — a premium Ortsteil: Kiefernwald,
+  A9-Anschluss, gewachsene EFH-Siedlung), so ca. **200–250 EUR/m² current** *(estimate)*. Same trap as
+  Schönwalde-Glien: the **Gemeinde average badly understates a premium Ortsteil** — here in the buyer's
+  favour, the inverse of the Grünefeld case. Extends the ladder: Speicherstadt 1.200 > Innenstadt 900 >
+  Babelsberg 600–900 > Teltower Vorstadt 680 > Bornim 400–500 > Marquardt 300–350 > Fahrland 250 >
+  **Fichtenwalde 200–250** > Uetz-Paaren 200–300 > Schönwalde-Glien 120 > Grünefeld 100–160.
+- **`Provision für Käufer` can be VOLUNTARILY mirrored 50/50 on an unbebautes Grundstück — read the
+  clause, don't just take the percentage.** §§ 656c/d do not apply to bare land (standing note), so the
+  full rate is lawful; #405's Sonstiges nevertheless states *"In gleicher Höhe werden wir auch vom
+  Verkäufer vergütet (§ 656c BGB)"* at 3,57 %. That is **better than the law requires** and a genuine
+  Block-G plus — score it as such rather than as a neutral cost.
+- Two minor #405 field notes: a **GEG-2020 "Käufer sind zur Energieberatung verpflichtet"** line in
+  Sonstiges is **boilerplate misapplied** to bare land (§ 80 Abs. 4 GEG concerns existing buildings) —
+  harmless, but a tell that the block is a template; and **`obj_ExclusiveExpose: false` + "Angebot
+  freibleibend, Zwischenverkauf vorbehalten"** on an under-BRW plot is a genuine urgency argument
+  (and a reason to cross-check other portals for a divergent price) — say so in Next steps.
+**Why:** none of the above was derivable from the existing `livingbuysite` rules, which assumed the
+Baurecht text would be either a B-Plan or a bare § 34 Auskunft, treated a below-BRW price as a scam
+signal, and read "Erschlossen" as settling the Erschließung cost question outright.
