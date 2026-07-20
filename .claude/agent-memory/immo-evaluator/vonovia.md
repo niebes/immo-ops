@@ -92,6 +92,16 @@ Kaution in `sections` "Kosten" as raw number (verify = 3× Kaltmiete).
 **Why:** Vonovia's own site yields only summary numbers and the browser is unavailable;
 the IS24 mobile API is the reliable full-detail source for these cross-posted Vonovia flats.
 
+## Don't grep the decoded HTML for bare short tokens (WBS, EBK, …)
+The unescaped page contains large **base64 analytics/state blobs**, so a naive
+`grep WBS` / `'WBS' in text` hits random base64 and yields a **false positive WBS
+requirement** (nearly capped a clean 4,6 listing at 2.0 as a hard blocker). Always match on
+the *labelled* JSON shape (`"label":"…","value":"…"`) or German words with context
+("Wohnberechtigungsschein", "Einbauküche"), and print the surrounding ±120 chars to confirm
+before treating any short token as a hard blocker.
+**Why:** short uppercase tokens collide with base64; a false WBS hit silently triggers the
+worst-case scoring cap.
+
 ## Rooms: trust the "Zimmer" field, not the title
 Marketing titles inflate ("Weitläufige 4-Zimmer-Wohnung" while the Zimmer field says 3 —
 seen on #306, wrk 1306270007). Score Block C from `numberOfRooms`/the Überblick Zimmer field.

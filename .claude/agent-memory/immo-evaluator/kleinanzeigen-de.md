@@ -17,6 +17,13 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     Kaltmiete/Heizkosten/Betriebskosten split only appears in the free-text description. Always
     read the description to split warm vs cold; the search-snippet number is frequently the Kaltmiete
     while the page heading is the Warmmiete.)
+  - **The price heading and the "Warmmiete" detail field can carry the SAME number** when the poster
+    left Nebenkosten empty (#356: heading 1.950 € and Warmmiete 1.950 €, no NK field at all). Don't
+    silently treat the heading as Kaltmiete then — report the ambiguity, score conservatively with the
+    figure as Kaltmiete, and put "Kalt/Warm klären" in next steps. *Why:* otherwise you invent a
+    Nebenkosten split that the ad never stated.
+  - **0 gallery images happens on ordinary private ads too**, not just Tauschwohnung ads — check
+    `grep -o 'data-imgsrc="' | wc -l` on every listing and cap Block D at 3,0 when it's 0.
   - Kaution field may read **"Kaution / Genoss.-Anteile"** → for a Genossenschaftswohnung this is
     refundable cooperative shares, NOT a deposit and NOT an advance-fee scam signal; the low rent is
     the coop structure, not too-good-to-be-true. *Why:* otherwise you'd wrongly flag scam + illegal Kaution.
@@ -43,6 +50,15 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
 ## Tauschwohnung swaps (two-sided match)
 - Genuine swaps: Anbieter block = "Tauschwohnung GmbH", "Gewerblicher Nutzer"; description opens
   "Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: …)".
+- **Second, distinct swap variant: the private DIY swap** — no Tauschwohnung GmbH, just a private
+  tenant with a "[TAUSCH]" title. Tell-tale is the spec-list field **"Tauschangebot" → "Nur Tausch"**
+  (vs "Kein Tausch" on ordinary rentals). These read like normal quality ads: 18 real photos, long
+  ortskundige prose, account active for years — so none of the GmbH-swap heuristics (0 images,
+  boilerplate opener, gewerblicher Nutzer) fire. *Why:* on #357 only the "Nur Tausch" field and the
+  title bracket distinguished a swap from a regular rental; scoring it as rentable would have been wrong.
+  On these, the Suche is a proper "Wir suchen …" paragraph under a "TAUSCHWOHNUNG" heading in the
+  description, and the price heading = **Warmmiete** (the detail list confirms it) with Kaltmiete/NK
+  never stated → Mietpreisbremse not checkable, say so instead of splitting an invented NK.
 - **The partner's Suche/Gesuchte Wohnung lives in the free-text `#viewad-description-text`**, not in
   any structured list — a plain sentence like "Wir suchen eine 4-Raum-Wohnung in Potsdam bis max. 900€
   Kaltmiete." Always read the description for Side 2 of the swap match. *Why:* the spec `list` only
@@ -52,8 +68,40 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     Read BOTH; the title states what they seek, the description/spec-list what they offer — the
     search-result metadata (m²/rooms/price) refers to the OFFERED flat despite the "Suche…" title.
     *Why:* on #317 the hint said "4 rooms" (their Suche) while the offered flat was 3,5 Zi.
-- These swap ads often carry **0 gallery images** (imgs count 0) → Block D capped at 3,0, and the
-  page price heading is usually the **Kaltmiete** while the Warmmiete is only in the description text.
+  - **Title and description can each hold a DIFFERENT half of the Suche**: the title states the
+    *motive* — a structural, non-negotiable criterion ("Tausch in eine höhere Etage") — while the
+    description states the *numeric* criteria (Zimmer, Ortsteil, Ausstattung). Merge both into one
+    Suche. A title-motive can be a categorical side-2 fail even when every number fits.
+    *Why:* on #360 rooms/price/city all matched, but title+desc together demanded höhere Etage +
+    Balkon and our Golm offer is EG without Balkon — reading only the description would have
+    scored that as a lenient near-miss instead of the categorical mismatch it is.
+- These swap ads often (not always) carry **0 gallery images** → Block D capped at 3,0. Count with
+  `grep -o 'data-imgsrc="' | wc -l` on the curl'd HTML; #355 had 2, #358 had 16 real photos — do NOT
+  assume image-poor just because the Anbieter is Tauschwohnung GmbH. The page price heading is usually
+  the **Kaltmiete** while the Warmmiete is only in the description text (or NK in the spec list).
+- **Tauschwohnung-GmbH ads frequently ship NO cost/legal fields at all** — no Nebenkosten, no
+  Warmmiete, no Kaution, no Baujahr, no Energieausweis anywhere in the page (#358). Report these as
+  "nicht angegeben" and say Mietpreisbremse isn't checkable; don't hunt for a second list that isn't
+  there. *Why:* wasted greps + risk of inventing an NK split.
+- **`#viewad-locality` on these ads is useless for the Ortsteil** — it renders as "{PLZ} Brandenburg -
+  Potsdam" (Bundesland, not Bezirk). The real Ortsteil is only in the description prose ("liegt im
+  schönen Bornstedt"). *Why:* Block B would otherwise be scored blind on the PLZ alone.
+- The Suche is often not a "Wir suchen …" sentence but an **intent clause buried mid-description**
+  ("Wir möchten uns vergrößern und möchten im waldstadt 1 oder 2 bleiben" = bigger flat + stay in
+  that Ortsteil). Read the whole description as the Suche, not just sentences starting with "Suche".
+  *Why:* on #355 a keyword grep for "suche" would have found nothing and mislabelled the Suche unknown.
+- **The Suche can be a bare comparative with zero numbers** — "Wir tauschen mit einer ähnliche{n} Wohnung."
+  (#359). Then the yardstick for side 2 is THEIR OWN flat's figures (m², Zimmer, Kaltmiete, Ortsteil,
+  Ausstattung) — score our offer against those, don't record the Suche as "unknown". *Why:* "unknown Suche"
+  would push a categorical fail into lenient/near-miss territory.
+- **Side-2 shortcut for cheap Altvertrag swaps:** our Golm offer is 1.025,25 EUR kalt / 54,19 m² / 2 Zi /
+  kein Keller. Any swap partner whose own flat is under ~800 EUR kalt or ≥3 Zi and who seeks "ähnlich"
+  fails side 2 on affordability alone, however lenient the matching. Still score side 1 for the record.
+- On GmbH-swap ads **Nebenkosten can sit in the MAIN `#viewad-details` list with no Warmmiete field at
+  all** (#359: price heading 598 € = Kaltmiete, NK 112 € in the details list, Warmmiete only derivable).
+  There is then no second list — compute Warmmiete yourself and say so.
+- Tauschwohnung spec lists are frequently **self-contradictory** (e.g. "Etage 3" + Wohnungstyp
+  "Erdgeschosswohnung"). Report both, don't pick one — these are tenant-entered fields.
 
 ## Triage
 - "Nachmieter gesucht" / "Suche Nachmieter" titles are normal long-term rentals (the existing tenant
