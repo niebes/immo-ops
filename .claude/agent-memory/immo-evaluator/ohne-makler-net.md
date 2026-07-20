@@ -64,6 +64,37 @@ Gallery images are `.../immobilie/{id}/picture/{n}/medium.jpg` — count distinc
 the site chrome advertises `OM-360° Immobilien-Scan` and OM's service menu, which
 produces false positives. Only count render keywords inside the description/Lage text.
 
+## Attachments & contact are both dead ends on-page
+- A **`PDF`** section names attachments (Exposé, Amtsblatt, Grundriss) but **no `href` to them
+  exists in the HTML** — they're gated behind the contact form. Don't hunt for the URL; record them
+  as "gated behind contact form" and request them in Next Steps.
+- **No seller phone or email is ever published**, even for commercial sellers without an Impressum.
+  Contact is a modal form with an arithmetic `Sicherheitsabfrage` captcha. So Block H can never rely
+  on an independently verifiable contact channel here.
+
+## Corroborating a private seller: use the Gemeinde's Bauleitplanung PDFs
+For **plot / Neubaugebiet** listings from private sellers (no Impressum, no rating, no HRB), the
+municipal planning file is the best — often the only — way to verify the exposé's claims, and it is
+free and greppable:
+```
+{gemeinde}.de/fileadmin/user_upload/Bauleitplanung/aktuelle_Planungen/*.pdf
+{gemeinde}.de/fileadmin/user_upload/Sitzungsdienst/Beschlussvorlagen_{year}/BV-Nr.{nnn}-{yy}-01.pdf
+```
+Fetch with the same `curl --compressed`, then `pdftotext -layout`. On #408 (Zossen "Südlicher
+Planweg") this verified the B-Plan Festsetzungen (WA §4 BauNVO, GRZ 0,3, 2 Geschosse, 10 m,
+Einzel-/Doppelhaus), Altlasten- und Denkmalfreiheit, the Ausgleichsmaßnahmen, the Artenschutz result,
+*and* the seller's Eigentümergemeinschaft — turning an anonymous private seller into a
+well-substantiated one and enabling a confident "Legitimate" scam call.
+**Why:** on this portal the exposé alone gives almost nothing checkable; without the Gemeinde file
+Block H and the scam verdict are guesswork.
+
+**While in that PDF, always grep for `13b`.** A B-Plan initiated under **§ 13b BauGB** is a
+potential deal-breaker: BVerwG 18.07.2023 (4 CN 3.22) held it EU-law-incompatible, so such plans are
+**unwirksam unless healed**, and a void plan drops the land back to § 35 BauGB Außenbereich —
+**not buildable at all**. Evidence of a cure = a later Offenlage carrying a full **`Umweltbericht
+nach § 2 Abs. 4 BauGB`** plus § 3(2)/§ 4(2) participation. If the Begründung says § 13b and you can't
+retrieve the final Satzungsbeschluss/Amtsblatt, flag it as the top Next Step, don't assume validity.
+
 ## Liveness / expiry
 A live listing always renders the `Objekt-Nr` → `OM-{id}` line; deleted ones show
 "nicht gefunden". Use that line's presence as the expiry check.
