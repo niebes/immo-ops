@@ -157,6 +157,26 @@ Block A would come out 5,0 instead of 2,0 and the report would recommend a purch
 - `adTargetingParameters.obj_cellar: "n"` is the fastest Keller check on Kauf exposés (a Bungalow is
   never unterkellert by default); `obj_newlyConst` can say `n` even with `Objektzustand: Erstbezug`.
 
+#### Benign sub-variant: **Deutsche Reihenhaus AG "Haus in Bau"** — schlüsselfertig, plot ALWAYS included, no back-calc
+Distinct from every "Haus in Planung" catalog case above: `Bauphase: Haus in Bau` (actively under
+construction, not a fictitious geo-tag), and `AGENTS_INFO.company = "Deutsche Reihenhaus AG"` — a large,
+established serial-builder of turnkey **Reihenhäuser**. The €/m² (TOP_ATTRIBUTES `Kaufpreis X €/m²`) is
+computed on the REAL delivered plot (`Grundstück` size is genuine), the house is **schlüsselfertig, NOT an
+Ausbauhaus** (Ausstattung describes a finished home: EH40, Wärmepumpe+PV, 3-Scheibenverglasung), and it is
+**provisionsfrei with a MaBV `Zahlungsplan nach Baufortschritt`** (removes prepayment/insolvency risk — a
+Block G plus, same family as "Erst BAUEN – dann ZAHLEN"). So: NO Bodenrichtwert back-calculation needed,
+score Block A on the headline as an all-in house+plot price; Block D full (Neubau Klasse A); Block G ~4,0
+(reputable builder, MaBV plan). `obj_cellar: n` = **no Keller** (slab construction is the norm — HWR +
+Abstellräume instead). The Garten must-have is met by the private plot; Terrasse + Stellplatz (Stellplatz
+is a **separate +~13 T EUR line**, E-Lade-vorbereitet) are the nice-to-haves. MEDIA are catalog renders of
+the house *model* (e.g. "120 m² Wohntraum"), not this unit — Neubau exception blocks the D cap but note
+"no photos of this specific house". Seen on #420 (expose 146668576, Wohnpark "Am Schloss Caputh",
+Schwielowsee-Caputh): 469.990 EUR / 3.917 EUR-m² all-in, plot incl, scored 4,1 (dragged down only by
+out-of-area Caputh location, not the price/build).
+**Why:** the earlier `housebuy` rules all assume a lead-gen catalog offer where the plot/Ausbaustufe is
+undisclosed and needs back-calculation; a Deutsche Reihenhaus "Haus in Bau" is a genuine turnkey house+plot
+package — running the plot inference on it would waste the report and could wrongly discount an in-budget house.
+
 #### Benign sub-variant: **plot IS included** — decide it from `TEXT_AREA "Ausstattung"`, not Lage
 Mirror image of the allkauf/#367 case. On massa haus offers the inclusion is stated in the
 **Ausstattung** list, not in Lage: *"Auch mit großer Preissenkung sind im Leistungsumfang inkludiert:
@@ -186,6 +206,7 @@ Three tie-breakers, in order of strength:
 3. **A boilerplate Lage with no place name at all is itself the tell** — where a concrete plot exists,
    the Lage text describes *that* plot.
 Corroborators: `MAP` "Adresse erhältst du vom Anbieter", `obj_street: no_information`, `TRAVELTIME.isBlocked`.
+**allkauf "Pro Time" house-only €/m² band — mind the storey count.** #367 3.586 + #377 3.953 are both single-storey **bungalows**; #422 (expose 169283494, Uetz-Paaren, 2-storey EFH 136 m², 3.013 EUR/m²) shows the band runs **DOWN to ~3.000 for multi-storey** (roof/Bodenplatte amortised over two floors). So don't read a sub-3.586 allkauf figure as "plot excluded / implausibly cheap house" on a Mehrgeschosser — 3.013 is normal house-only there. The plot-inclusion residual test still settles it: 3.013 − (752 m² × 200–300 EUR/m² BRW) leaves 1.355–1.908 EUR/m² house-only = below the 2.000–2.450 Ausbauhaus band ⇒ plot OUT, even more clearly than #377. Note #422's charitable plot-included reading (513–585 T EUR, 3–17 % over) sat *closer* to budget than #377's because its headline was lower — so the two scenarios straddle the 40 % blocker; carry the two-row table + yes/no email as Next-step 1 (like #381), don't average.
 **Score it both ways and say so.** When inference (not disclosure) drives the call, run Block A under BOTH
 scenarios; on #377 the no-plot reading gave 755–915 T EUR (51–83 % over) and even the charitable
 plot-included reading gave 604–671 T EUR (21–34 % over), so the budget verdict held either way and the
@@ -343,6 +364,37 @@ against a realistic 624–757 T EUR total.
 - **Fahrland Bodenrichtwert anchor: 250 EUR/m²** (disclosed outright on #386). Reusable for every
   Fahrland back-calculation — #387's residual came to 2.531 EUR/m² house-only on it.
 
+- **`PRICE_INFO` percentile is DIRECTIONAL corroboration for the plot question — use it, but only in
+  the direction the residual already points.** The #422 report rightly flags the percentile as
+  *misleading* when plot is EXCLUDED (it compares the house-only headline against Bestandshäuser
+  *inkl. Grundstück*, so a low percentile fakes "cheap complete house"). The mirror is also true and
+  useful: when the €/m²-band + residual point to plot INCLUDED, a low percentile among full-house comps
+  *confirms* it — a genuine house-only price would be absurdly underpriced vs those comps. So the rule
+  is: run band+residual FIRST; then read `PRICE_INFO.priceBar` percentile as a same-direction check,
+  never as the deciding test. Seen on #423 (expose 167787403, Marquardt bungalow "Haus in Planung",
+  4.143 EUR/m² all-in, 435 T EUR at the 25th percentile of 293–747 T EUR Marquardt/Satzkorn houses →
+  all three agree plot INCLUDED, scored 3,6 budget-feasible; contrast #422 where residual said plot OUT
+  and the same percentile was discounted as noise). **Why:** the earlier memory only recorded the
+  "percentile misleads" half, which would have you throw away a valid corroborating datapoint on the
+  plot-included cases.
+- **Marquardt (Nördliche Ortsteile Potsdam) Bodenrichtwert anchor: ~300–350 EUR/m²** — used on #423's
+  residual (600 m² × 300–350 = 180–210 T EUR plot ⇒ 240 T EUR / 2.286 EUR/m² house-only, in the
+  schlüsselfertig band ⇒ plot included).
+
+- **Gollwitz (Ortsteil of Brandenburg an der Havel) Bodenrichtwert anchor: ~150 EUR/m²** for
+  erschlossenes Bauland (rural band 30–100). Seen on #424 (expose 165307682, ScanHaus Marlow SH 122 S
+  Stadtvilla, Juliane Rau). Two reusable points: **(1)** Another geo-tag mismatch instance of the #389
+  family — obj_regio4 = **Fahrland / 14476 Potsdam** and the share-blob says "14476 Fahrland, Potsdam",
+  but Lage-Satz 1 says *"Ortsteil Gollwitz der Stadt Brandenburg an der Havel"* (~30 km W of Golm,
+  **outside** the house search's preferred/acceptable list; Brandenburg a.d.H. is only in the
+  Freizeitgrundstück search). Not excluded → no hard blocker, Block B 2,0, counterfactual "≈4,0 if it
+  really were Fahrland". So on ScanHaus Fahrland-tagged exposés, ALWAYS read Lage-Satz 1 — the plot can
+  sit 30 km away. **(2)** ScanHaus all-in band's LOWER edge tracks the local land price: #424 all-in was
+  **3.667 EUR/m²** (below the normal Fahrland range) precisely because Gollwitz land is cheaper than
+  Fahrland — residual @150 BRW = 1.090 m² × 150 = 163.500, house-only 287.600/122 = **2.357 EUR/m²
+  schlüsselfertig, mid-band ⇒ plot INCLUDED**. Confirms: don't read a low all-in €/m² as "plot excluded"
+  on cheap-land Ortsteile; run the residual with the LOCAL BRW, not Fahrland's 250.
+
 #### Two more step-0 phrases that settle the plot question without a Sonstiges disclosure
 Both found on #390 (expose 160615702, ScanHaus Marlow "Aktionshaus 1" Bungalow, Fahrland), whose
 Sonstiges says only *"ohne ein persönliches Gespräch … keine Grundstücksdaten"* and whose Ausstattung
@@ -374,7 +426,33 @@ answered twice, and would have scored the Ort as unverified on a listing where i
 - **ScanHaus Marlow has ≥2 Potsdam reps — don't merge them.** #369/#381/#383 are *Juliane* Rau;
   #390 is *Stefanie* Rau (Rudolf-Moos-Str. 9a, 14482 Potsdam). Same brand and same Impressum
   (R. Kossow & Levermann GmbH, HRB 2613 AG Stralsund), different Handelsvertreterin and separate
-  Anbieterprofile/ratings — score Block H per person, not per brand.
+  Anbieterprofile/ratings — score Block H per person, not per brand. **Now ≥3 reps at the same
+  Rudolf-Moos-Str. 9a office:** #426 (expose 166987619, Fahrland) is *Butros Yacoub* — same address as
+  Stefanie Rau, different verifizierter Anbieter. Keep scoring H per person.
+
+#### Sub-case: **Generationenhaus / "eine von zwei Wohnungen"** — the Lage plot figure is the FULL two-unit plot
+#426 (expose 166987619, ScanHaus SH 244 "Generationenhaus", Fahrland) opens the Objektbeschreibung with
+*"Es handelt sich hier um **eine von zwei Wohnungen**"* — you buy **one unit of a two-dwelling
+(Mehrgenerationen-) house**, and the header m²/€/plot are for the **half-unit** (122 m², 500 m² plot,
+379.000 €). This resolves a contradiction that otherwise looks like a data error: the **Lage plot
+sentence describes the WHOLE two-unit plot** — *"Das angegebene Grundstück hat eine Größe von gut
+1.000 qm. Die Kosten hierfür betragen 300.000 €."* (twice the 500 m² header, and it **omits** the
+#391/#369 "…und sind im Preis enthalten" clause). So on a two-dwelling ScanHaus offer:
+- **Do NOT take the Lage's plot € as this unit's plot cost** — it's the full plot (here 1.000 m² @
+  300 €/m² ≈ Fahrland level; this unit's share ≈ 500 m²). Taken literally it fakes a +48 % over-budget
+  hard blocker (Scenario B); the residual+band+percentile were the correct arbiter (see below).
+- **Residual test still works on the half-unit:** 379.000 − (500 m² × 250 Fahrland BRW = 125.000) =
+  254.000 / 122 = **2.082 €/m² house-only** (bottom of the 2.000–2.450 schlüsselfertig band) ⇒ plot
+  INCLUDED; priceBar 27th percentile of 271–603 T full-house comps confirms same direction. Scored
+  Scenario A (in-budget ~470–500 T after Wand-/Bodenbeläge Eigenleistung + 40–70 T build-Nebenkosten)
+  = 3,9, with a two-row table and "get plot price/inclusion in writing" as Next-step #1.
+- **Block G/E extra:** shared building → Teilungserklärung/WEG, shared walls/roof, common obligations
+  with the neighbouring unit. `obj_cellar: n` (slab, no Keller); Garten met via the plot.
+- **Ketziner Str. pipeline now has a 3rd node:** telekom leak = **Ketziner Str. 133, 14476** (after
+  #369 Str. 8, #390 Str. 23) — same Fahrland ScanHaus plot pipeline; regio4=Fahrland while the MAP text
+  said "14467" (central-Potsdam placeholder anomaly, not a real location conflict — the 14476 leak wins).
+**Why:** without knowing the Lage € is the full two-unit plot, a literal read hard-blocks an in-budget
+Fahrland offer; and the "one of two dwellings" line is the Block-G/E shared-building tell that's easy to miss.
 - **"Erst BAUEN – dann ZAHLEN" can appear ONLY as a gallery tile caption** (`Erst Bauen - Dann Zahlen`,
   `Logo mit EB DZ`) with no mention in any TEXT_AREA. Still credit it in Block G (removes the
   MaBV-prepayment/insolvency risk) but make "schriftlich bestätigen lassen" a Next step — a caption
@@ -1113,6 +1191,23 @@ carries its own attribute set and its own defect-disclosure location. Read these
   **Why:** keying the check on `Empfohlene Nutzung` alone silently passes an investor parcel through
   as an ordinary Baugrundstück, and it is the field that decides whether the listing was ever
   addressable.
+- **Commercial project-development variant of the investor disqualifier — and the price hides in
+  `TEXT_AREA "Sonstiges"`.** #428 (expose 169421957, HausHirsch GmbH, Wilhelmstadt/Berlin-Spandau)
+  is a `livingbuysite` whose TITLE reads *"Off-Market Investment Opportunity … für ca. 4.700 m² BGF"*
+  and Objektbeschreibung *"Projektentwicklungsgrundstück … Boardinghouse-, Hotel-, Büro- oder
+  gewerbliche Nutzung"*. Two things beyond the #399/#402 rules: (1) the disqualifier is **commercial
+  (Gewerbe/BGF), not MFH/Wohnfläche** — the value is quoted in `EUR/m² BGF`, so add
+  `BGF|Boardinghouse|Hotel|Büro|Gewerbe|Projektentwicklung` to the TITLE/description grep, not just
+  the MFH terms. (2) `Kaufpreis: "Auf Anfrage"` in the structured "Kosten" list, but the **real asking
+  price is disclosed inside `TEXT_AREA "Sonstiges"`** ("…beträgt 2.800.000 €, was … 610 € pro m² BGF
+  entspricht"). So on an "Auf Anfrage" plot, grep **Sonstiges for `€`/`beträgt`** (not only Lage for
+  `Bodenrichtwert`) before declaring the price unscoreable — here it made the price disclosed, so the
+  40 %-over hard blocker fires legitimately (2,8 Mio vs 200 k budget). Berlin is out-of-area but the
+  profile's `excluded_areas` is empty ⇒ no *area* hard blocker; the price blocker does the capping.
+  Anbieter was verified (TNS badge, 4,3/352) with no scam signals — legit commercial off-market, just
+  wrong fit. Scored 1,0.
+  **Why:** the existing investor-parcel check greps MFH terms + Lage-for-BRW; a Gewerbe/BGF parcel
+  with the price buried in Sonstiges would slip both and read as an unscoreable "Auf Anfrage" plot.
 - **`obj_constAfter: no_information` + a positive Bauvoranfrage in the text is BETTER than
   `neighbourconstruction`, not worse.** #402's structured field says nothing while the
   Objektbeschreibung states *"positive Bauvoranfrage vorhanden, nach Paragraf 34 BauGB ist eine
@@ -1238,6 +1333,41 @@ ladder, and a `Mehrfamilienhaus`-style disqualifier.
   Bornim 400–500, Marquardt 300–350, Fahrland 250). Practical consequence worth stating in any plot
   report: at a 200 EUR/m² profile cap, **all of inner Potsdam is arithmetically excluded** — plot search
   is only viable in the acceptable_areas and nördliche Ortsteile.
+- **`obj_constAfter: constructionplan` = "Bebaubar nach: Bebauungsplan" — the structured field ITSELF
+  confirms a B-Plan** (contrast #400 where the attribute said `neighbourconstruction`/§34 and only the
+  text disclosed the B-Plan). This is the cleanest Block-E case: rechtsgültiger B-Plan + GRZ (`obj_GRZ`)
+  + GFZ named in Objektbeschreibung ⇒ kein §34-Ermessen. `obj_buildingPerm: n` still means no
+  Baugenehmigung (Käufer beantragt nach Kauf), and `obj_shortTermBuild: n` can coexist with a valid
+  B-Plan without contradiction. `obj_recommendUtil: twinhouse:single_family_house` = "Doppelhaushälfte,
+  Einfamilienhaus" = the profile-matching Eigenheim combo (mirror of the `apartment_building`
+  disqualifier). Seen on #427 (expose 167924176, Treuenbrietzen, 812 m² @ 180 EUR/m², scored 3,9 —
+  clean plot fundamentals, dragged down only by out-of-area location ~40–50 km SW of Golm).
+  Second instance: #429 (expose 168436219, Schwanebeck/Nauen, 755 m² @ 152 EUR/m², scored 3,7) —
+  same clean B-Plan/EFH profile, `obj_constAfter: constructionplan` + named B-Plan "41/01 Am Gutshaus
+  Schwanebeck" + GRZ/GFZ 0,4 in the Objektbeschreibung; dragged down by out-of-area (~30 km NW) AND
+  the Sammelgrube caveat below.
+- **`obj_development: developed` + "voll erschlossen" text can STILL hide a missing Kanalanschluss —
+  read the Objektbeschreibung Erschließung sentence for `Sammelgrube`/`Kleinkläranlage`.** #429's
+  Hauptkriterien said `Erschlossen` and the text listed Trinkwasser/Strom/Erdgas/Telefon/Kabel-TV im
+  Straßenland — but the next line was *"Die Abwasserentsorgung erfolgt über eine Sammelgrube"* (no
+  public sewer). On a rural Brandenburg Ortsteil "erschlossen" routinely means everything-but-Abwasser;
+  a Sammelgrube = recurring emptying cost OR a future Kanalanschlussbeitrag / Kleinkläranlage build
+  (four-to-five-figure Block-A/D item). Never read `developed` as "sewer included" on a Dorfkern plot —
+  grep the Erschließung sentence. Score E/D down a notch and make it a Next step. (Distinct from #403's
+  `Teilerschlossen` and #404's blank Erschließung field — here the field says fully developed and only
+  the prose reveals the gap.)
+- **BRW anchor — Schwanebeck/Nauen (rural Havelland Dorfkern): ~100–160 EUR/m²** Wohnbauland (my
+  estimate). A 152 EUR/m² erschlossenes B-Plan-Grundstück sits at the top of / slightly above that band
+  — market-appropriate, a mild negotiation lever, and *above* BRW = clean (inverse of below-market
+  scam). Extends the Havelland ladder (Schönwalde-Glien ~120, Grünefeld 100–160). Nauen town Bahnhof
+  → Berlin City ~30 min RB, but the Ortsteil needs a bus to Nauen first; Nauen is NOT in the plot
+  search's preferred/acceptable areas (it IS in the *Freizeitgrundstück* acceptable list, but a full
+  Bauland-EFH plot belongs to the plot-purchase search) → Block B ~2,0, no hard blocker (excluded empty).
+- **BRW anchor — Treuenbrietzen / rural Niederer Fläming (Potsdam-Mittelmark far SW): ~50–90 EUR/m²**
+  for Wohnbauland (my estimate). A 180 EUR/m² asking there is a *premium* (erschlossen + B-Plan +
+  220 m zum Supermarkt) and a negotiation lever — but a price *above* BRW is the inverse of the
+  below-market scam pattern (clean). Treuenbrietzen is outside the house/plot search's preferred +
+  acceptable areas (RB33 stündlich → Potsdam Hbf, ~40 km); not excluded → no hard blocker, Block B ~2,0.
 - Blocks that have no meaning on a plot: D is condition-of-*land* (Altlasten, Topografie, photos), E is
   Erschließung/Baurecht, C is plot size. **Score C against the profile's *intent*, not just `min_m2`** —
   a plot 3–4× the stated minimum with `Empfohlene Nutzung: Mehrfamilienhaus` is not "oversized and fine",
