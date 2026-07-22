@@ -336,6 +336,21 @@ before concluding the plot data is missing.
   When the band matches but the text says **Ausbauhaus**, the plot must be unusually expensive
   (here 680 EUR/m² central Potsdam) — that is what pulls a bare shell up into the band. Always
   confirm the Ausbaustufe from the text before letting the band settle Block A.
+- **Sub-variant of #391 — Lage states the plot price but is SILENT on inclusion → let the residual
+  decide.** #437 (expose 166370850, ScanHaus "Aktionshaus 3", Anbieter **Butros Yacoub** — a
+  different Franchise-Vertriebler than Juliane Rau, Marquardt/Potsdam) has #391's exact Lage
+  template *"Das angegebene Grundstück hat eine Größe von gut 480qm. Die Kosten hierfür betragen
+  199.000€."* — extended with the price but **WITHOUT** #391's "…und sind im Preis enthalten"
+  clause. Don't read the bare "Die Kosten hierfür betragen X" as plot-on-top: run the residual.
+  459.000 headline − 199.000 plot = **260.000 = 2.131 EUR/m² house-only = squarely in the
+  2.000–2.450 schlüsselfertig band ⇒ plot INCLUDED in the headline**; the on-top reading would
+  make the house 3.762 EUR/m² (above band) → implausible. IS24 FINANCE_COSTS also applies GrESt to
+  the full 459.000, i.e. treats it as one Kaufpreis. Result: a **budget-feasible** ScanHaus
+  (459.000 all-in < 500 T, 3.762 < 4.000 EUR/m²) → scored **3,9** — the mirror of #435 (same
+  Ortsteil/brand but that Sonstiges sold the plot as a separate service ⇒ excluded ⇒ ~30 % over).
+  So: #435 and #437 are a Marquardt contrast pair — read the plot sentence to its end AND run the
+  residual before deciding the polarity. **Marquardt disclosed plot anchor:** 199.000/480 = **414
+  EUR/m²**, above the 300–350 BRW anchor but a real Potsdam-Bauland transaction datapoint.
 - **Ausbaustufe ladder observed so far, worst-first:** #391 (ScanHaus Ausbauhaus) excludes
   **Bodenplatte + komplette Haustechnik**; #374 (massa) excludes the Innenausbau; #377 (allkauf
   Pro Time) excludes Trockenbau + Estrich *labour*; #369 (ScanHaus schlüsselfertig) excludes only
@@ -361,6 +376,15 @@ and the brand band would have confirmed "plot included" while silently endorsing
 finished house — Block A would have come out ~4,0 (in budget at 4.230 EUR/m²) instead of 1,0
 against a realistic 624–757 T EUR total.
 
+- **Michendorf (Potsdam-Mittelmark, ~15 km S Potsdam) BRW anchor: ~304 EUR/m² Durchschnitt**
+  (Gutachterausschuss Stichtag 01.01.2025, −4,7 % ggü. Vorjahr; Michendorf-**West 330**, einfache
+  Lagen **252**). Seen on #438 (expose 168457520, Blue Sheep Immobilien, 537 m² livingbuysite):
+  asking 373 EUR/m² = +86 % über dem 200-EUR/m²-Plot-Cap but only ~13–23 % over local BRW → the
+  cap-miss was a **budget-fit** problem (Michendorf is structurally pricier than the 200-EUR/m²
+  search), NOT overpricing/scam. On such a case score Block A low (the €/m² cap is the binding metric,
+  1,5) but say explicitly the price is marktnah — don't fire the ≤2,0 price hard-blocker when the
+  absolute Kaufpreis is at the budget cap AND the €/m² sits near local BRW. Michendorf is out of the
+  plot search's acceptable_areas but borders Nuthetal (acceptable) → no hard blocker, Block B ~2,5.
 - **Fahrland Bodenrichtwert anchor: 250 EUR/m²** (disclosed outright on #386). Reusable for every
   Fahrland back-calculation — #387's residual came to 2.531 EUR/m² house-only on it.
 
@@ -416,6 +440,14 @@ is pure brand prose — i.e. steps 0–3 all yield nothing and you'd go straight
 **Why:** without these two the report spends itself on a Bodenrichtwert inference the exposé already
 answered twice, and would have scored the Ort as unverified on a listing where it was confirmable.
 
+- **"Tag der offenen Tür" (TDOT) relistings = DUPES of an existing catalog listing.** ScanHaus republishes
+  the same house+plot under a fresh expose ID for open-house events: title "…Tag der offenen Tür in Potsdam
+  von 10–16 Uhr", scan metadata prefixed "(1/3)"/"(1/4)", `OBJECT_INFO` Objekt-Nr = **`TDOT NN`**. The decisive
+  dupe test is the **telekom-leak street address** — #436 (expose 168551593) decoded to the SAME Ketziner
+  Str. 23 as #390 (expose 160615702), same Stefanie Rau, same 416.900/115/4/743 m² → genuine DUPE, mark DUPE,
+  do NOT re-score. Always decode the leak + compare Anbieter+plot before treating a same-spec ScanHaus
+  relisting as a new parcel. **Why:** identical specs alone don't prove same plot (twin Realteilung halves
+  look identical too — see #364/#388); the street-address match does.
 - **ScanHaus €/m² all-in band extends DOWN to ~3.600 for the budget/Bungalow lines.** #390 is
   3.625 EUR/m² all-in *with* plot — below the 4.100–4.600 band derived from #369/#381/#383. Cause:
   "Aktionshaus" is the discount line and a single-storey Bungalow is cheaper per m². So a ScanHaus
@@ -429,6 +461,17 @@ answered twice, and would have scored the Ort as unverified on a listing where i
   Anbieterprofile/ratings — score Block H per person, not per brand. **Now ≥3 reps at the same
   Rudolf-Moos-Str. 9a office:** #426 (expose 166987619, Fahrland) is *Butros Yacoub* — same address as
   Stefanie Rau, different verifizierter Anbieter. Keep scoring H per person.
+
+- **Lage-text names a DIFFERENT town than the header PLZ/geoCode → boilerplate copy-paste, plot is a placeholder.**
+  #435 (expose 168554058, Juliane Rau, SH 122 S Var. C, "(1/4)" catalog series) has header/geoCode/Financing
+  postalCode all = 14476 (Potsdam-**Marquardt**, a preferred Ortsteil), but the `Lage` block describes
+  *"Ortsteil Marquardt der Stadt **Brandenburg an der Havel**"* + Gollwitz + B1/A2 — a pasted text for the
+  wrong Marquardt (Brandenburg a.d.H. is out of scope). Trust the PLZ/geoCode for the nominal location, but
+  the mismatch is itself the tell that no real plot is secured (score B for preferred-but-speculative). Here
+  `Sonstiges` also confirmed plot-EXCLUDED via the "Grundstücksservice" phrasing ("Detaillierte Informationen
+  zu den Grundstücken erhalten Sie exklusiv als unser Kunde… auf Ihrem bereits vorhandenen Grundstück… Sollten
+  Sie noch auf der Suche nach einem passenden Grundstück sein"). **Why:** without this, a Potsdam-Marquardt
+  header could be scored as a firm preferred-area plot when the offer is really house-only lead-gen.
 
 #### Sub-case: **Generationenhaus / "eine von zwei Wohnungen"** — the Lage plot figure is the FULL two-unit plot
 #426 (expose 166987619, ScanHaus SH 244 "Generationenhaus", Fahrland) opens the Objektbeschreibung with
