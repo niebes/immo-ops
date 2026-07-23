@@ -18,7 +18,7 @@
 # fetches the binary, smoke-tests, then re-vendors). Old wheel kept in vendor/_fallback/.
 invisible-core==0.2.0
 playwright>=1.55,<1.56
-mcp==1.27.1
+mcp==1.28.1
 platformdirs>=4
 requests[socks]>=2.31
 tqdm>=4.66
