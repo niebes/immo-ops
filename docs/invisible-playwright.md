@@ -18,13 +18,23 @@ Only if **both** fail does the scan fall back to **Tier 3**, the CDP debug Chrom
 
 | In-repo (committed) | Role |
 |---------------------|------|
-| `vendor/invisible_playwright-*.whl` | the package (NOT on PyPI), vendored as a wheel |
-| `scripts/invisible-playwright-requirements.txt` | pinned deps (wheel via `--find-links vendor/`; rest from PyPI) |
-| `scripts/invisible-venv.sh` | shared bootstrap — builds `tmp/venv-ip` from the wheel + reqs, then execs a target |
+| `vendor/invisible_playwright-*.whl` + `vendor/invisible_core-*.whl` | the two git-only packages (NOT on PyPI), vendored as wheels. `vendor/_fallback/` holds the previous version for rollback. |
+| `scripts/invisible-playwright-requirements.txt` | pinned deps (core wheel via `--find-links vendor/`; rest from PyPI). NOTE: the wrapper is **not** listed here — see below. |
+| `scripts/invisible-venv.sh` | shared bootstrap — builds `tmp/venv-ip`: installs the requirements, then the wrapper wheel with `--no-deps`, then execs a target |
+| `scripts/rebuild-invisible.sh` | rebuild the whole stack from the newest upstream (builds both wheels, fetches the binary, smoke-tests, re-vendors — safe/reversible) |
 | `scripts/invisible-playwright-mcp.py` / `.sh` | the FastMCP server + its launcher (Tier 2) |
 | `scripts/invisible-driver.py` | line-protocol browser driver used by `scan.mjs --invisible` (Tier 1) |
 | `scripts/invisible-login.py` | one-time headful login to seed session trust |
 | `.mcp.json` | registers the MCP server (relative paths only) |
+
+**Version (2026-07-23):** invisible_playwright **0.3.1** + invisible_core **0.2.0**, patched Firefox
+binary **firefox-17** (Firefox 150.0.1), playwright **1.55**. Upgraded from 0.1.2/firefox-2 to fix
+the Tier-2 "Connection closed while reading from the driver" crash. **Two 0.3.x quirks the venv
+bootstrap accounts for:** the project split the engine into a second git-only package
+(`invisible-core`, also vendored), and the wrapper pins core via a *direct git URL* in its metadata
+that pip won't reconcile with a local wheel — so `invisible-venv.sh` installs the requirements first
+and then the wrapper wheel with `--no-deps`. To move to a newer upstream, run
+`bash scripts/rebuild-invisible.sh`.
 
 Rebuilt-on-demand artifacts (gitignored, in `tmp/`): the venv `tmp/venv-ip` and the session
 `tmp/browser-state.json`. The patched Firefox binary downloads once to a user cache

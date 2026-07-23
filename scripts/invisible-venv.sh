@@ -23,8 +23,18 @@ if [ ! -x "$PY" ]; then
   echo "[invisible-playwright] first run — building venv at tmp/venv-ip …" >&2
   python3 -m venv "$VENV" >&2
   "$PY" -m pip install --quiet --upgrade pip >&2
+  # Two-step install (see requirements header): invisible-playwright 0.3.1 pins
+  # invisible-core via a DIRECT git URL that pip won't reconcile with the vendored
+  # core wheel. So install everything else first (incl. the invisible-core wheel via
+  # --find-links), then invisible-playwright itself with --no-deps from the vendor wheel.
   "$PY" -m pip install --quiet --find-links "$REPO_ROOT/vendor" -r "$REQ" >&2
-  echo "[invisible-playwright] venv ready." >&2
+  IP_WHEEL="$(ls -1 "$REPO_ROOT"/vendor/invisible_playwright-*.whl 2>/dev/null | sort -V | tail -1)"
+  if [ -z "$IP_WHEEL" ]; then
+    echo "[invisible-playwright] ERROR: no invisible_playwright wheel in vendor/" >&2
+    exit 1
+  fi
+  "$PY" -m pip install --quiet --no-deps "$IP_WHEEL" >&2
+  echo "[invisible-playwright] venv ready ($(basename "$IP_WHEEL"))." >&2
 fi
 
 exec "$PY" "$@"

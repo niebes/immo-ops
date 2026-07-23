@@ -1,11 +1,26 @@
-# Dependencies for the invisible-playwright MCP server (scripts/invisible-playwright-mcp.py).
-# invisible-playwright is NOT on PyPI — it is installed from the vendored wheel in
-# ../vendor/ (pip --find-links vendor/); everything else is ordinary PyPI.
-# Versions pinned to match the known-good set. Rebuilt into tmp/venv-ip by
-# scripts/invisible-playwright-mcp.sh on first run.
-invisible-playwright==0.1.2
-playwright==1.60.0
+# Dependencies for the invisible-playwright stealth stack (scan.mjs --invisible +
+# scripts/invisible-playwright-mcp.py). Neither invisible-playwright NOR invisible-core
+# is on PyPI — both are vendored as wheels in ../vendor/ (pip --find-links vendor/);
+# everything else is ordinary PyPI. Rebuilt into tmp/venv-ip by scripts/invisible-venv.sh.
+#
+# UPGRADED 2026-07-23: 0.1.2 (Firefox binary "firefox-2") -> 0.3.1 (fetches "firefox-17").
+# 0.3.x restructured the project:
+#   * it SPLIT OUT invisible-core (the fingerprint/binary engine) as a second git-only
+#     package — so BOTH wheels are vendored now;
+#   * it CAPS playwright at <1.56 (the patched Firefox is built against 1.55), down from
+#     the old 1.60.0 pin;
+#   * invisible-playwright 0.3.1 declares invisible-core via a DIRECT git URL in its
+#     metadata, which pip refuses to reconcile with the vendored core wheel. So
+#     invisible-venv.sh installs THIS file first, then invisible-playwright with --no-deps.
+#     Keep invisible-playwright OUT of this file — the venv script adds it separately.
+#
+# To rebuild from a newer upstream: scripts/rebuild-invisible.sh (builds both wheels,
+# fetches the binary, smoke-tests, then re-vendors). Old wheel kept in vendor/_fallback/.
+invisible-core==0.2.0
+playwright>=1.55,<1.56
 mcp==1.27.1
 platformdirs>=4
-requests>=2.31
+requests[socks]>=2.31
 tqdm>=4.66
+tzdata>=2024.1
+maxminddb>=2.2
