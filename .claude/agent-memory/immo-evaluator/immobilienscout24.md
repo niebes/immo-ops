@@ -248,6 +248,21 @@ defaulting either way on a 129 m²/5-Zi/preferred-area listing flips the recomme
   A ScanHaus offer landing at ~4.100–4.600 EUR/m² all-in ⇒ plot in; ~2.000–2.400 ⇒ house only.
   **Why:** with three datapoints the band is now a usable one-step test instead of a per-listing
   re-derivation, and it settles the plot question these exposés never state.
+- **The generic "Grundstücksservice"-pitch in Sonstiges is NOT by itself a plot exclusion — cross-check
+  the band.** #435 (SH 122 S, Marquardt, 3.936 EUR/m²) and #444 (SH 100 B Bungalow, Marquardt, **4.328
+  EUR/m²**) both carry the identical boilerplate *"Detaillierte Informationen zu den Grundstücken … exklusiv
+  als unser Kunde / auf Ihrem bereits vorhandenen Grundstück / Grundstücksservice"*, which reads like a
+  plot carve-out (#367 step 3). BUT on #444 the 4.328 EUR/m² headline sits IN the plot-INCLUDED band
+  (4.100–4.600) and the house-only reading would be ~1,8× the 2.000–2.450 house-only band = implausible;
+  plot-included residual = 2.473–2.738 EUR/m² is plausible → the band test tilts INCLUDED, contradicting
+  the text. So this Grundstücksservice paragraph appears to be **standing series boilerplate**, present
+  regardless of whether a reference lot is bundled — do NOT treat it as decisive. When text (excluded) and
+  band (included) conflict, carry the two-row table, score the text-primary/realistic reading, and make the
+  single yes/no plot question Next-step #1 (both #435 and #444 landed 3,4 primary this way; neither hit the
+  40 % blocker — plot-excluded ~605–671 T EUR ≈ +21–34 %, plot-included in-budget but €/m² over the 4.000 cap).
+  **Why:** #435's residual line called 2.570–2.765 EUR/m² "implausibly cheap" to justify exclusion, but that
+  is actually *above* the house-only band — the residual/band evidence there (and clearly on #444) points the
+  other way, so don't let the boilerplate Sonstiges alone drive the exclusion call.
 - **Bauträger galleries pad with brand Gütesiegel, not just logo tiles / stock shots** (extension of
   traps 7 & 9): #383's 9 PICTUREs were 1 catalog render + 2 Grundrisse + **6 marketing tiles**
   (`Erst Bauen - Dann Zahlen`, `Logo mit EB DZ`, `Bundes-Gütegemeinschaft Montag…`,
@@ -351,6 +366,17 @@ before concluding the plot data is missing.
   So: #435 and #437 are a Marquardt contrast pair — read the plot sentence to its end AND run the
   residual before deciding the polarity. **Marquardt disclosed plot anchor:** 199.000/480 = **414
   EUR/m²**, above the 300–350 BRW anchor but a real Potsdam-Bauland transaction datapoint.
+  - **Adjacent expose IDs + identical plot size/price ≠ dupe — the telekom-leak street NUMBER
+    settles it.** #445 (expose 166370821, "Aktionshaus 4"/Stadtvilla SH 155 S, 127 m²) sits one ID
+    below #437 (166370850, "Aktionshaus 3", 122 m²), same Anbieter Butros Yacoub, same Marquardt,
+    **same 480 m²/199.000 € Lage plot figure** — looks like a dupe. But the telekom leak differs:
+    #445 = **Hauptstr. 14** (klsid 22214981) vs #437 = **Hauptstr. 17** (klsid 10181836) = two
+    distinct parcels + two house models → evaluate #445 as its own offer (same TDOT-rule tell as
+    #436/#390: decode the leak, compare the street *number*, before calling any same-spec ScanHaus
+    relisting a dupe). #445 residual 459.000−199.000 = 260.000/127 = **2.047 EUR/m²** (bottom of the
+    2.000–2.450 schlüsselfertig band) ⇒ plot INCLUDED, priceBar 22nd pct confirms; scored **3,9**,
+    the twin of #437. Note the 199.000 € plot figure is a **ScanHaus Marquardt template** repeated
+    across parcels, not a per-plot valuation — don't treat its recurrence as a dupe signal either.
 - **Ausbaustufe ladder observed so far, worst-first:** #391 (ScanHaus Ausbauhaus) excludes
   **Bodenplatte + komplette Haustechnik**; #374 (massa) excludes the Innenausbau; #377 (allkauf
   Pro Time) excludes Trockenbau + Estrich *labour*; #369 (ScanHaus schlüsselfertig) excludes only
@@ -1342,6 +1368,19 @@ carries its own attribute set and its own defect-disclosure location. Read these
   *unverbindlich* and admitted shops/doctors/schools are "in den umliegenden Orten" — admissions against
   interest. Contrast #377, whose boilerplate Lage falsely claimed both "in unmittelbarer Nähe". Also on
   plots: a price *above* the local BRW is the inverse of the below-market scam pattern — note it as clean.
+- **`obj_shortTermBuild: n` (NICHT kurzfristig bebaubar) is a Block-E caution, not a neutral field** —
+  it's the negative of #404's `shortTermBuild: y`. Paired with `obj_buildingPerm: n` + § 34
+  (`neighbourconstruction`) + **no B-Plan in text**, the Wohn-Baurecht is unsecured; score E ~2,3,
+  lower than the #404 "probable but not secured" ~2,5. **Extra tell to watch:** an existing
+  **Wochenendhäuschen/Nebengelass/Carport** on the plot + the § 34 story can mean a **Wochenend-/
+  Ferienhaus-Sondergebiet** optimistically sold as Bauland — i.e. Wohn-Neubau may be *unzulässig*.
+  Make the verbindlicher **Bauvorbescheid § 74 BbgBO** Next-step #1 (#447 Premnitz, expose 167917462).
+- **BRW anchor, rural far-Westhavelland: Premnitz ~40–90 EUR/m²** (my estimate; ehem. Chemie-/
+  Industriestadt, ~8.500 Ew., Naturpark Westhavelland). A plot priced ~114 EUR/m² there sits AT/ABOVE
+  local BRW → clean (inverse of the below-market scam pattern); the surplus reflects existing
+  structures, not land value. Premnitz is ~50 km NW of Golm, **outside** the Potsdam belt / any
+  acceptable_area → Block B ~1,5 (no hard blocker; excluded_areas empty). **Von Poll Nauen** (Enrico
+  Baumgarten) is TNS-verified 4,8★ — clean Anbieter.
 - **`Provision für Käufer` of ~3,57 % on a plot is a PLUS, not a negative** — legally the buyer's in full
   (§§ 656c/d cover only Wohnungen/EFH) but well below the 5,95 % regional norm seen on #399/#400. Say so.
   Paired tell of a serious listing: exact payment terms ("zahlbar und fällig nach Beurkundung") rather
@@ -1500,6 +1539,29 @@ priced at single-digit EUR/m² is a *different asset class* and the ladder does 
 Baurecht there is; here the answer is none, and reading the 4,73 EUR/m² through the Bauland BRW
 ladder would have scored a Biotopschutz-Grünfläche as an extraordinary in-budget bargain
 (A 5,0 / E ~2,5, final ~4,0) instead of 2,9.
+
+#### Sub-variant: bebautes **Freizeit-/Wochenendgrundstück im Wald** — no-Baurecht at 30–40 EUR/m², NOT single-digit
+#446 (expose 167281809, Borkwalde/Potsdam-Mittelmark, 3.975 m² @ **37,7 EUR/m²**, 150.000 EUR) refines
+the "under ~20 EUR/m² = not Bauland" price threshold: the price test is a *heuristic*, the **field
+signature is the real tell**. Same no-Baurecht signature as #407 (`obj_buildingPerm: n` +
+`obj_shortTermBuild: n` + `obj_constAfter: no_information` + `obj_development: no_information`,
+Hauptkriterien collapsed, **no `Empfohlene Nutzung`**) but the €/m² is 8× #407's because you are paying
+for **existing bungalows + Erschließung (Strom/Wasser/Telekom)**, not the raw Wald-BRW.
+- **The class-defining sentence is `"Ein Dauerwohnrecht ist … nicht erlaubt"` in the Objektbeschreibung**
+  — recreational/weekend use only. Grep for `Dauerwohnrecht|Freizeitgrundstück|Wochenend|bewohnbar(er|em) Zustand|Erholung`
+  alongside the #407 Außenbereich terms. This is the tell that separates it from a buildable plot.
+- **Wrong-search trap:** it mechanically PASSES the "plot purchase" search (≤200 EUR/m², ≤200 T EUR,
+  ≥500 m²) but cannot serve that intent (no residence, no new-build). It actually belongs to the separate
+  **"Brandenburg Freizeitgrundstück"** search — where its price is typically ~2–3× that search's ~60 T EUR
+  budget. State the reclassification + the over-budget fact; don't let the plot-purchase cap bless it.
+- Scoring shape (#446): A ~3,5 (in-budget on paper, overpriced for the class), B out-of-area if not in
+  the Freizeit `acceptable_areas` (~2,0, Borkwalde neighbours listed Beelitz but isn't itself listed),
+  E ~2,0 (off the 1,0 floor only because erschlossen + Bestandsbauten, vs #407's raw land at 1,0),
+  G ~2,0 (kein Dauerwohnrecht + kein Baurecht + Käuferprovision + LWaldG/§66 BNatSchG/Grube risks),
+  H high if verified Makler. Final ~3,0.
+**Why:** the #407 rule keyed the "different asset class" trigger to a single-digit €/m²; a bebautes
+Freizeitgrundstück hides at 30–40 EUR/m² and would slip through the price gate — anchor on the field
+signature + the Dauerwohnrecht sentence, not the price band.
 
 ### Plot exposé that CONTRADICTS ITSELF — the TITLE beats the `Erschließung:` dropdown
 #406 (expose 158375845, Paaren im Glien/Schönwalde-Glien) has `Erschließung: Erschlossen` +
