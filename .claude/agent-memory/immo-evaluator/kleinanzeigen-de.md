@@ -103,6 +103,19 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
 - Tauschwohnung spec lists are frequently **self-contradictory** (e.g. "Etage 3" + Wohnungstyp
   "Erdgeschosswohnung"). Report both, don't pick one — these are tenant-entered fields.
 
+## Kauf / Haus listings + ohne-makler cross-posts
+- **Haus/Kauf ads carry a different `#viewad-details` set** than rentals: Wohnfläche, Zimmer,
+  Schlafzimmer, Badezimmer, **Grundstücksfläche**, Haustyp (Doppelhaushälfte…), Etagen, Baujahr,
+  Provision. Feature checktags (`li.checktag*`) hold Terrasse/Badewanne/Keller/Garage-Stellplatz/
+  Garten. Price heading = Kaufpreis. #448 (Neu Fahrland DHH) all-curl.
+- **ohne-makler.net cross-posts:** Anbieter block reads "OM Ohne Makler – Privat vom Eigentümer",
+  Gewerblicher Nutzer, thousands of ads (the platform account, not the owner) — NOT a scam signal;
+  it's a legit FSBO Direktverkauf. Objektzustand / Verfügbar ab / **Energieausweis (Energiebedarfs-
+  ausweis, Endenergiebedarf kWh/m²a, Energieträger)** live in the `#viewad-description-text` prose
+  under "# Weitere Angaben" / "# Energie", not in the structured lists. The expose PDF link
+  (ohne-makler.net/immobilie/file/{id}.pdf) is in the description too. *Why:* Energieausweis/Objekt-
+  zustand aren't in any spec `list` on these — grep the description or you'll report "no energy data".
+
 ## Triage
 - "Nachmieter gesucht" / "Suche Nachmieter" titles are normal long-term rentals (the existing tenant
   is leaving) — NOT sublets. Score normally unless the text says befristet / Untermiete / auf Zeit.
