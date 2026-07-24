@@ -34,3 +34,18 @@ Two places to read it:
 **Why:** without the twg.click fetch the two-sided swap match runs blind ("Suche unknown")
 and the Keller/Energieausweis facts are wrong or missing; the NUXT payload gave the exact
 radius (10 km) that decided the side-2 verdict on #335.
+
+## The NUXT structured `search` dict can CONTRADICT the owner's free-text Suche — read BOTH
+On #454 (expose 169486171, obj 191235, Lankwitz DHH) the housing owner's own
+Objektbeschreibung said the Suche was "**2-3 Zimmer**, günstig, ruhig/hell/grün, am liebsten
+**Bergmannkiez/Kreuzberg**, nur nah angrenzend ok", while the resolved NUXT `search` dict (idx-42
+`{...,search}`, userId matching the housing) said `roomsMin 4, sizeMin 110, rentMax 1500,
+storeyMin 2, cityNames [Berlin], radius 0`. The two disagree on rooms (2-3 vs ≥4) and size.
+Don't trust the structured dict alone as "the Suche" — it can be a stale/match-derived filter.
+**Treat the Objektbeschreibung tail ("Suche dafür …") as the authoritative human intent, and use
+the structured dict only as a corroborator.** When they agree on the decisive axis (here: both
+say **Berlin** city, both exclude a 2-Zi/54-m² Golm flat) the side-2 verdict is robust regardless.
+IS24 MEDIA here was 5 tiles all captioned `www.tauschwohnung.com`/`Gesponsert` = 0 real photos
+(cap D 3,0), and `energyEfficiency` (Klasse A) came ONLY from NUXT — IS24 ATTRIBUTE_LIST was all null.
+**Why:** scoring side 2 off the structured `roomsMin 4/110 m²` alone would misstate what the partner
+wants; reading the free text confirmed the real target (Kreuzberg) and made the mismatch unambiguous.

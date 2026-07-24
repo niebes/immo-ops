@@ -121,3 +121,9 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   is leaving) — NOT sublets. Score normally unless the text says befristet / Untermiete / auf Zeit.
 - "Das könnte dich auch interessieren" sidebar is full of Tauschwohnung ads — ignore it; it is not
   the listing under evaluation.
+- **"Verfügbar ab {Monat}" is a START-only field and hides Befristung.** A spec-list "Verfügbar ab
+  August 2026" can actually be a 1-Monats-Zwischenmiete — the end date + "möbliert / untervermieten /
+  01.08.–31.08." only appear in `#viewad-description-text`. Always read the description before deciding
+  Zwischenmiete vs Dauermiete; the structured field never shows the end. *Why:* on #452 the field said
+  only "August 2026" (looked like a normal move-in start) while the prose revealed a single-month
+  furnished sublet → Zwischenmiete hard-blocker.

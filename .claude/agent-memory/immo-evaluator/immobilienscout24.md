@@ -1540,6 +1540,34 @@ Baurecht there is; here the answer is none, and reading the 4,73 EUR/m² through
 ladder would have scored a Biotopschutz-Grünfläche as an extraordinary in-budget bargain
 (A 5,0 / E ~2,5, final ~4,0) instead of 2,9.
 
+#### Third sub-variant: the SAME collapsed field-signature on a **small EFH plot = a sloppy Bauträger lead-gen**, NOT no-Baurecht Außenbereich
+#456 (expose 169477304, **Stahnsdorf** 14532, 570 m², massa haus - Sonsalla) carries the identical #407/#446
+"no-Baurecht" field signature (`obj_buildingPerm: n` + `obj_shortTermBuild: n` + `obj_constAfter:
+no_information` + `obj_development: no_information`, Hauptkriterien collapsed to **two rows**, **no
+`Empfohlene Nutzung`**) — but here it is **NOT** a Biotop/Außenbereich parcel. Two tells override:
+- **Plot is EFH-sized (570 m², not 1–10 ha)** AND the Objektbeschreibung is EFH marketing prose ("Traum
+  vom Eigenheim", "vollerschlossen", "§34 Nachbarbebauung bebaubar"). So the collapsed fields are
+  **unfilled by a lazy Bauträger-Vertrieb**, not an FNP saying "no permitted use" (#407). Read the
+  Objektbeschreibung before applying the #407 verdict — a small plot + EFH text flips it.
+- **Class = Bauträger/Fertighaus lead-gen on a `livingbuysite`** (massa haus here; same lead-gen family as
+  #374). Single photo, no aerial, emoji-heavy "Jetzt Termin sichern", Anbieter e-mail @massa-haus.de,
+  TNS-verified. Score H ~3,5 (verified but a sales funnel), E ~2,5 (text claims vollerschlossen/§34 but
+  the fields are all unverified + no B-Plan → §34 probable-not-secured, exactly #447's floor +0,2).
+- **PRICE hides in the Objektbeschreibung, not Kosten** — Kosten shows `Preis: Auf Anfrage` while the
+  Objektbeschreibung states *"Der Kaufpreis von **ab 280.000 EUR** beinhaltet ein vollerschlossenes
+  Grundstück…"*. Same grep-the-text-for-`€`-before-declaring-unscoreable rule as #428, but the € sat in
+  **Objektbeschreibung** (not Sonstiges/Lage). 280.000/570 = **491 EUR/m²** = plot-only (massa builds the
+  house "zusätzlich"). Disclosed price ⇒ the 40 %-over-budget blocker fires **legitimately** (280 T =
+  exactly +40 % over 200 T, and "ab" ⇒ ≥that) → capped 2,0. Do NOT treat this as an inferred-price
+  "would-fire" case; it's disclosed.
+- **BRW anchor — Stahnsdorf (Berliner Speckgürtel Wohnbauland): ~300–500 EUR/m²** (491 EUR/m² asking sits
+  at the top / market-appropriate → clean, inverse of below-market scam). First Stahnsdorf Bauland
+  datapoint; extends the Potsdam-belt ladder for the acceptable_areas. Stahnsdorf IS in the plot search's
+  acceptable_areas → Block B ~4,0 despite the price blocker.
+**Why:** applying the #407 no-Baurecht verdict (E 1,0, "not Bauland") to this would misread a real EFH
+Baugrundstück as an Außenbereich Biotop; and stopping at Kosten's "Auf Anfrage" would have scored it
+unpriceable when the price + the blocker were sitting one TEXT_AREA away.
+
 #### Sub-variant: bebautes **Freizeit-/Wochenendgrundstück im Wald** — no-Baurecht at 30–40 EUR/m², NOT single-digit
 #446 (expose 167281809, Borkwalde/Potsdam-Mittelmark, 3.975 m² @ **37,7 EUR/m²**, 150.000 EUR) refines
 the "under ~20 EUR/m² = not Bauland" price threshold: the price test is a *heuristic*, the **field
