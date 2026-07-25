@@ -113,6 +113,22 @@ For listings fed in via the ohne-makler (OM) platform (footer says "ohne-makler 
 
 **Why:** these tenant-network exposés (seen on #169/#170/#171/#172) lack the standard structured fields and have a provisional price; scoring the headline number as final or expecting a criteria `<dl>` both mislead. Stable pattern — candidate for promotion to evaluate.md if it keeps recurring.
 
+## "Kauf in die Zukunft" / Verkauf gegen lebenslanges Wohnrecht (Leibrenten-/Nießbrauch-Modell) → cap 2,0
+An *existing* Kauf/Haus exposé (`Bauphase: Haus fertig gestellt`, real Baujahr, provisionsfrei) where the
+Objektbeschreibung says the buyer acquires only the **bare ownership** subject to the sellers' **lifelong
+Wohnrecht**. Tell (seen on #460, expose 168651361, Bornim DHH): Objektbeschreibung = *"Der aktuelle Marktwert
+beträgt 630.000 €. Die Eigentümer möchten weiterhin im Haus wohnen. Der zu beurkundende Verkaufspreis nach
+Abzug eines lebenslangen Wohnrechts beträgt 330.000 €."* — plus a title like "Kauf in die Zukunft". The steep
+discount off Marktwert is the capitalised Wohnrecht value, NOT a bargain and NOT a scam signal (openly
+disclosed → scam check stays Legitimate). **The buyer cannot occupy the house for the sellers' (indefinite)
+lifetime**, so for a home-purchase profile this defeats the purpose: score Block F 1,0 (no occupancy date at
+all, even under a flexible window), Block A low (effective €/m² for usable housing is not the headline), Block G
+~2,0 (§1093 Wohnungsrecht in Grundbuch Abt. II — clarify who bears Instandhaltung/Betriebskosten). It is NOT on
+the formal hard-blocker list but functions worse than most → **cap the global score at 2,0** and say so
+explicitly, "not suitable as a home; only relevant as a Leibrenten investment."
+**Why:** the numbers alone (140 m², 2.357 €/m², preferred Bornim, renovated, garden+Keller+garage) weight-average
+to ~3,3–3,6 and would wrongly read "decent" — the report must surface that you literally cannot live in it.
+
 ## `realEstateType: housebuy` + "Bauphase: Haus in Planung" = catalog new-build, NOT an existing house
 Some Kauf/Haus exposés are a **Bauträger/Fertighaus-Katalogangebot**: a plot plus a turnkey build
 contract for a standard house type (e.g. Town & Country "Flair 148"). Tells, all from the mobile API:
