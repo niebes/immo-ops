@@ -116,6 +116,18 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   (ohne-makler.net/immobilie/file/{id}.pdf) is in the description too. *Why:* Energieausweis/Objekt-
   zustand aren't in any spec `list` on these — grep the description or you'll report "no energy data".
 
+## Bauträger / Fertighaus lead-gen ads (Kauf)
+- **allkauf haus GmbH** (and similar Fertighaus brands: Town&Country, Massa, Bien-Zenker) post generic
+  build-to-order ads via a "HD Handelsvertreter …" gewerblich account with 1000s of Anzeigen. Anbieter-
+  Objekt-ID like "3801-313-kw28-…" and a "# Sonstiges" allkauf sales boilerplate in the description are
+  the tell. These are **NOT specific existing properties** — no real address, boilerplate "# Lagebeschreibung",
+  no secured plot. Price heading is the **house/Ausbauhaus package price**, land + Grunderwerbsteuer often
+  NOT included. Watch for "Ausbauhaus"/"HEIMWERKER-Paket"/Eigenleistung (buyer finishes Trockenbau/Estrich).
+  Score as a real Kauf listing but flag prominently as aspirational: cap B (~3,5, unverifiable location),
+  dock A for the package/land ambiguity, H ~3,0 (mass lead-gen). Legit, not a scam. *Why:* #466 — without
+  flagging it you'd score a phantom "house in Golm" as a concrete buy. Their spec-list Grundstücksfläche
+  frequently contradicts the description (e.g. 1.052 m² vs "152 m²") — report both, don't pick one.
+
 ## Triage
 - "Nachmieter gesucht" / "Suche Nachmieter" titles are normal long-term rentals (the existing tenant
   is leaving) — NOT sublets. Score normally unless the text says befristet / Untermiete / auf Zeit.
