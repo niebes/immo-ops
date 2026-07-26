@@ -127,6 +127,14 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   dock A for the package/land ambiguity, H ~3,0 (mass lead-gen). Legit, not a scam. *Why:* #466 — without
   flagging it you'd score a phantom "house in Golm" as a concrete buy. Their spec-list Grundstücksfläche
   frequently contradicts the description (e.g. 1.052 m² vs "152 m²") — report both, don't pick one.
+- **Even more aspirational variant — the bespoke architect build "auf Ihrem Grundstück"** (#474,
+  SCHOSS INGENIEUR GmbH / Falk Schoß, gewerblich, active since 2009). No package price at all (price
+  heading = bare **"VB"**, no number), no plot, no address, no Baujahr, no Energieausweis, no rooms —
+  just Wohnfläche + Haustyp "Villa" + "Provision: keine". The description is a services pitch that also
+  solicits "Wir suchen ... Baugrundstücke". You bring the land; they design/build. Score as Kauf but
+  flag hard: A≈1,0 (no price + a 245 m² Reformarchitektur villa build busts a 500k budget), B≈2,5
+  (no site), C penalised (245 m² over the 150 m² cap). Legit firm, not a scam. *Why:* the locality
+  "14469 Potsdam" is decorative — nothing concrete is for sale.
 
 ## Triage
 - "Nachmieter gesucht" / "Suche Nachmieter" titles are normal long-term rentals (the existing tenant
