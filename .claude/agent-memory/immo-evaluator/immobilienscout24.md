@@ -429,6 +429,11 @@ against a realistic 624–757 T EUR total.
   plot search's acceptable_areas but borders Nuthetal (acceptable) → no hard blocker, Block B ~2,5.
 - **Fahrland Bodenrichtwert anchor: 250 EUR/m²** (disclosed outright on #386). Reusable for every
   Fahrland back-calculation — #387's residual came to 2.531 EUR/m² house-only on it.
+- **Borkheide (Potsdam-Mittelmark, ~30–35 km SW Golm) Bodenrichtwert anchor: 140 EUR/m²**
+  (disclosed in Objektbeschreibung on #469, expose 162154162, von Poll/CCR Immobilien Baugrundstück
+  1.532 m²). Borkheide is NOT in the plot-search acceptable_areas (Potsdam + close Speckgürtel) and
+  NOT excluded → no hard blocker, Block B ~2,5. RB via Brück ~20 Min Potsdam HBF makes it a real but
+  distant commuter option. A plot asking 130 EUR/m² (below the 140 BRW) is marktnah, not a scam signal.
 
 - **`PRICE_INFO` percentile is DIRECTIONAL corroboration for the plot question — use it, but only in
   the direction the residual already points.** The #422 report rightly flags the percentile as
