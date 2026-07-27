@@ -142,6 +142,26 @@ This step always runs when any such portal is enabled. Do not skip, defer, or su
 **Step 2b — Websearch portals (part of the FULL scan):**
 For every enabled `scan_method: websearch` portal, run the AI-executed pass (see routing section 3 above / `modes/scan.md`). These portals count toward coverage exactly like the scripted ones — an unrun websearch portal is a ⛔ coverage item, never a silent omission.
 
+**Step 2c — Route re-lists of already-decided flats (`node scripts/route-decided.mjs`):**
+Run this BEFORE triage. The same physical flat re-lists constantly across portals under
+new IDs/prices, and URL dedup can't see it. This script matches each pending entry against
+`data/listings.md` tracker rows the user has already DECIDED on and auto-routes the match by
+its status (`lib/decided-index.mjs`):
+- `Rejected` / `Discarded` / `Accepted` → **auto-skip** (moved to Processed as `DUPE of #N`,
+  never evaluated — a re-list must not undo a viewing decision).
+- `Interested` / `Swap-candidate` / `Contacted` / `Viewing` / `Viewed` / `Applied` →
+  **auto-attach** to that live lead (`DUPE of #N`); the lead's follow-through in
+  `next-actions.mjs` handles it (e.g. "contacted, awaiting reply → overdue").
+- `Expired` is deliberately NOT routed — a re-list of an expired flat means it is back on the
+  market and SHOULD be re-evaluated.
+It also appends the candidate URL to the tracker row's Notes as a "re-list seen" alias so URL
+dedup catches that URL next time. This is why per-listing state belongs in the **tracker
+status**, never in memory: mark a flat once, and every future re-appearance folds in here.
+Matching reuses the `dedup-core` thresholds (price Δ<5% + m² Δ≤3, rooms-equal when the
+Ortsteil is unknown, hard veto on KNOWN-different neighbourhoods) but — unlike batch dedup —
+allows same-portal matches (a flat re-lists on the same portal too). Note what it routed in
+the coverage summary.
+
 **Step 3 — Pipeline triage (AI judgement, not keyword matching):**
 The scan scripts apply ONLY objective numeric gates + dedup — they never drop by title.
 So this triage is where title relevance is decided, by reading each entry. Read

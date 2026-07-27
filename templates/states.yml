@@ -29,7 +29,11 @@ statuses:
     description: Rejected by landlord
     terminal: true
   - name: Discarded
-    description: Discarded by user
+    description: >-
+      Discarded by the user — including a flat viewed in person and then declined
+      (not a landlord rejection; that is Rejected). Terminal. route-decided.mjs
+      auto-skips any future re-list matching a Discarded row, so the decision
+      sticks across portals without re-evaluation.
     terminal: true
   - name: Expired
     description: Listing removed from portal
