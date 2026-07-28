@@ -113,6 +113,23 @@ For listings fed in via the ohne-makler (OM) platform (footer says "ohne-makler 
 
 **Why:** these tenant-network exposés (seen on #169/#170/#171/#172) lack the standard structured fields and have a provisional price; scoring the headline number as final or expecting a criteria `<dl>` both mislead. Stable pattern — candidate for promotion to evaluate.md if it keeps recurring.
 
+## Bare **Grundstück** exposé sold WITH **Bauträgerbindung** (cheap plot, tied builder)
+Distinct from the `housebuy` "Haus in Planung" catalog cases: this is a genuine **Grundstück** exposé
+(TOP_ATTRIBUTES = Kaufpreis + Grundstücksfläche only, Hauptkriterien = Vermarktungsart Kauf / Grundstück
+ca. / Erschließung / Empfohlene Nutzung), so there is no house price to back-calculate — the headline IS
+the plot price. The tell is `TEXT_AREA "Sonstiges"` ending in **"Es besteht Bauträgerbindung"** + the
+MEDIA gallery being all **house-type renders** of the Bauträger's models (captions like Rostow, Mailand150,
+Berlin120/140, Capri140, Aquamarin140, Topas) with ~1 real plot photo. Handling: score Block A on the plot
+price/€-m² (often cheap & in-budget precisely BECAUSE it forces a build contract with that Bauträger), but
+**Block G ~2,5** for the Bauträgerbindung (no free choice of builder/self-build) and flag that the effective
+total ≠ the bare plot price. Provision für Käufer on a plot is legal (Bestellerprinzip is rentals-only).
+Also flag GrESt on a possible *einheitliches Vertragswerk* (plot+build → 6,5 % BB on the total). Scam stays
+Legitimate when the Bauträgerbindung + Provision are openly disclosed. Seen on #483 (expose 169596586,
+ROSTOW Bau GmbH, Grünefeld/Schönwalde-Glien: 89.000 EUR / 154 EUR-m² / 579 m², scored 3,6 — dragged down by
+the tie-in + out-of-area rural location, not the price).
+**Why:** the plot's cheap €/m² reads as a 5,0 Block A bargain until you see the Bauträgerbindung — the low
+price is the hook for a mandatory house contract, and the report must say the real cost is not the land alone.
+
 ## "Kauf in die Zukunft" / Verkauf gegen lebenslanges Wohnrecht (Leibrenten-/Nießbrauch-Modell) → cap 2,0
 An *existing* Kauf/Haus exposé (`Bauphase: Haus fertig gestellt`, real Baujahr, provisionsfrei) where the
 Objektbeschreibung says the buyer acquires only the **bare ownership** subject to the sellers' **lifelong
