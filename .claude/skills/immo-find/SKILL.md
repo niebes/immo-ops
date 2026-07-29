@@ -220,9 +220,10 @@ If verification fails, DO NOT notify. Complete the missing work (e.g. run the bo
 **Step 5b — Follow-through (the act-phase watchdog):**
 The scan finds flats; this step makes sure found flats don't rot. It exists because a fully-prepared application (#216) once sat unsubmitted for 6 days after an "apply same day" viewing and nothing noticed.
 1. Run `node scripts/next-actions.mjs --json --fix`. `--fix` applies the only mechanically safe advance — `Viewing → Viewed` once a Confirmed viewing's date has passed. Everything else is recommend-only; notably it NEVER marks anything `Applied` (an unsubmitted application is exactly the failure this step exists to catch).
-2. For each entry in the JSON's `livenessQueue` (≤10 per cycle): verify the URL is still active (WebFetch for static portals, stealth browser for bot-protected ones). Dead/deactivated → update the tracker status to `Expired` with a one-line note. Then record the batch: `node scripts/next-actions.mjs --mark-verified {num,num,...}`.
-3. Keep the JSON's `overdue`/`dueSoon` items for Step 6 — overdue items go at the TOP of the email and lead the push message.
-4. Run `node scripts/prune-pipeline.mjs` (pipeline section hygiene + bounded growth; add `--history` on the first run of a month).
+2. Keep the JSON's `overdue`/`dueSoon` items for Step 6 — overdue items go at the TOP of the email and lead the push message.
+3. Run `node scripts/prune-pipeline.mjs` (pipeline section hygiene + bounded growth; add `--history` on the first run of a month).
+
+**Do NOT run a liveness sweep.** The JSON's `livenessQueue` (and the `--mark-verified` mechanism) is deliberately ignored: re-checking old `Evaluated` exposés nobody is actively pursuing is wasted work (~10 browser navigations/cycle) — those listings age out on their own and nobody cares whether a months-old `Evaluated` link is still live. Only listings on a live action path (`overdue`/`dueSoon` in the JSON, i.e. Contacted/Viewing/Applied leads) matter, and those are handled in step 2 above. Removed 2026-07-29 per user.
 
 **RULE — Coverage report (ALWAYS, every scan/auto run):**
 Walk EVERY *enabled* portal across ALL search groups in `portals.yml` — **all three methods: playwright, cic, and websearch** — and account for each one. Websearch portals are the easiest to silently skip (no script runs them), so they get explicit rows like everything else. The chat summary and the email scan-note MUST explicitly list every enabled-but-not-processed entry and the exact blocker. Never silently omit a blocked portal. Disposition categories (ignore `enabled: false` portals — do NOT list disabled rows):
