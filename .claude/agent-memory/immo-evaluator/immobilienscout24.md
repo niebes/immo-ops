@@ -451,6 +451,28 @@ against a realistic 624–757 T EUR total.
   1.532 m²). Borkheide is NOT in the plot-search acceptable_areas (Potsdam + close Speckgürtel) and
   NOT excluded → no hard blocker, Block B ~2,5. RB via Brück ~20 Min Potsdam HBF makes it a real but
   distant commuter option. A plot asking 130 EUR/m² (below the 140 BRW) is marktnah, not a scam signal.
+- **Falkensee (Havelland, W Berliner Stadtrand) Bodenrichtwert anchor: Finkenkrug ~850 EUR/m², zentrale
+  Lagen bis ~1.000 EUR/m² (Stichtag 01.01.2025); selbst einfache Lagen >300 EUR/m².** Falkensee IS in
+  the plot-search acceptable_areas, BUT its land is far above the 200-EUR/m²-Cap AND the 200k budget →
+  a 1.000-m²-Plot ist realistisch 300–850 T EUR. So an in-area Falkensee plot fails Block A on a
+  **budget-fit** basis (marktübliche, nicht überhöhte Preise) — the price hard-blocker (40 %+ over budget)
+  fires even for the acceptable area. Seen on #497. Same structural pattern as Michendorf (#438): area
+  acceptable but structurally pricier than the 200-EUR/m² search assumes.
+
+## "Kaufpreis: Auf Anfrage" + placeholder Fläche + Multi-Gemeinde = Makler-Sammelinserat (lead-gen), NOT a concrete parcel
+`livingbuysite` exposés where TOP_ATTRIBUTES `Kaufpreis = "Auf Anfrage"` and `Grundstücksfläche` is a round
+placeholder (1.000 m²) while the Objektbeschreibung lists **many plots across several Gemeinden** ("u.a. in
+Falkensee, Schönwalde-Glien, Nauen, Groß-Glienicke, Brieselang, Dallgow, …") and names ONE concrete
+"Beispielgrundstück" with a *different* size (1.493 m² Finkenkrug). No `obj_purchasePrice`/`obj_plotArea`/
+street/telekom-leak, MEDIA are 5 generic marketing/Symbolbilder ("BGS im Havelland", homepage-URL, "Beratung",
+"virtuelles Homestaging") = 0 real plot photos. This is a lead-gen collection ad: score it (it's live, not
+EXPIRED), but there is no single parcel/price — anchor Block A on the local BRW vs the 200-EUR/m² cap, note
+the Multi-Gemeinde spread (only some Ortsteile in-area) for Block B, and make "konkrete Parzelle + Preis +
+Adresse anfragen" Next-step 1. Scam stays Legitimate when the Makler is verified (EMA IMMOBILIEN GmbH,
+Falkensee, 4,7★/43, full Impressum, Provision 7,14 % Käufer openly disclosed). Seen on #497 (expose 159601006).
+**Why:** the round 1.000 m² + "Auf Anfrage" looks like a normal single plot; treating it as one concrete
+parcel would invent a price/location the exposé never states — it's a portfolio teaser, so the report must say
+so and route the real numbers to a contact question.
 
 - **`PRICE_INFO` percentile is DIRECTIONAL corroboration for the plot question — use it, but only in
   the direction the residual already points.** The #422 report rightly flags the percentile as
