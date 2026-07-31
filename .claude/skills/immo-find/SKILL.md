@@ -162,6 +162,18 @@ Ortsteil is unknown, hard veto on KNOWN-different neighbourhoods) but — unlike
 allows same-portal matches (a flat re-lists on the same portal too). Note what it routed in
 the coverage summary.
 
+**CAUTION — false auto-skip of a NEW swap.** Route-decided can wrongly `SKIP (DUPE of #N
+[Discarded])` a genuinely new **Tauschwohnung** when #N is an OLD swap discarded *before*
+`include_swaps: true` was enabled (2026-07-05) — i.e. discarded only because swaps were off
+then. It misfires because Kleinanzeigen swap entries often carry only `PLZ + Potsdam` in the
+location field (the Ortsteil lives in the TITLE), so the "known-different-neighbourhood" veto
+can't fire and a numeric match wins across different Ortsteile. **After running route-decided,
+eyeball any `SKIP … DUPE of #N [Discarded]` where the candidate is a swap**: read the TITLE's
+Ortsteil vs #N's, and if they differ or #N's discard reason is legacy "Wohnungstausch
+required"/pre-2026-07-05, **override** — flip the pipeline line back to `- [ ]`, evaluate it as
+a swap (two-sided match), and strip the bogus `[re-list seen …]` alias route-decided appended
+to #N's Notes. (Seen 2026-07-31: a Golm swap wrongly skipped as dupe of the Bornstedt #004.)
+
 **Step 3 — Pipeline triage (AI judgement, not keyword matching):**
 The scan scripts apply ONLY objective numeric gates + dedup — they never drop by title.
 So this triage is where title relevance is decided, by reading each entry. Read

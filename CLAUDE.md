@@ -75,6 +75,8 @@ Hard blockers cap score at ≤2.0: excluded area, WBS required without WBS, no p
 - **Bestellerprinzip**: Tenant does NOT pay agent fees for rentals (since June 2015). Flag violations.
 - **Eigenbedarf**: Landlord eviction for personal use — risk with private landlords. Note in Block H.
 - **Energieausweis**: Required by law. Classes A+ to H. Score in Block D.
+- **Nachmieter vs. landlord dual-listing**: the same flat often appears twice from different parties — the **outgoing tenant** posts a *Nachmieter* ad (usually Kleinanzeigen) and demands an **Ablöse** for furniture/kitchen; the **landlord/Verwalter** lists it via the official channel (portal Exposé) with **no Ablöse**. The Ablöse is the tenant's private demand, not a tenancy condition. In dedup, link both as one flat but pursue the **landlord channel** — applying there avoids the Ablöse. (Seen on #324 Reiherbergstr. 15b Golm: Kleinanzeigen tenant wanted ~2.300 € Ablöse; DIBOLIVING/Verwalter offered the viewing with none.)
+- **Official Exposé is authoritative**: when the user drops an Exposé in `inbox/{listing}/`, reconcile the tracker against it — search-portal metadata is often stale/wrong (e.g. #324: portal said "Neubau/Keller/warm 1.132", Exposé said Bj 1999 / Dachboden not Keller / warm 1.110 / Indexmiete).
 
 ### Purchase (Kauf)
 - **Grunderwerbsteuer**: Varies by state (Berlin: 6%, Bayern: 3.5%).
