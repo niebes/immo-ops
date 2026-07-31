@@ -454,10 +454,20 @@ against a realistic 624–757 T EUR total.
 - **Falkensee (Havelland, W Berliner Stadtrand) Bodenrichtwert anchor: Finkenkrug ~850 EUR/m², zentrale
   Lagen bis ~1.000 EUR/m² (Stichtag 01.01.2025); selbst einfache Lagen >300 EUR/m².** Falkensee IS in
   the plot-search acceptable_areas, BUT its land is far above the 200-EUR/m²-Cap AND the 200k budget →
-  a 1.000-m²-Plot ist realistisch 300–850 T EUR. So an in-area Falkensee plot fails Block A on a
+  a 1.000-m²-Plot ist realistisch 300–850 T EUR. So a LARGE in-area Falkensee plot fails Block A on a
   **budget-fit** basis (marktübliche, nicht überhöhte Preise) — the price hard-blocker (40 %+ over budget)
   fires even for the acceptable area. Seen on #497. Same structural pattern as Michendorf (#438): area
   acceptable but structurally pricier than the 200-EUR/m² search assumes.
+  - **But a SMALL Falkensee plot can stay IN budget and does NOT trigger the hard blocker — split the two
+    price metrics.** #501 (expose 166621147, Eigenheim & Invest, 500 m² @ 150.000 = 300 EUR/m²): the €/m²
+    is 50 % over the 200-EUR/m² Such-Cap, yet the **absolute** Kaufpreis 150k (173,5k incl. NK) is UNDER the
+    200k budget precisely because the parcel is small — and 300 EUR/m² is *below* Falkensee land value
+    (Wegerecht-belastete Vorderlieger-Parzelle, only ~131 m² zulässige GRF). So the price hard-blocker does
+    NOT fire (it keys on absolute Kaufpreis vs the 200k cap, not €/m²), and Block A is a decent ~3,6, not
+    ≤2,0. Rule: on a Falkensee plot check BOTH metrics — a €/m² cap-miss alone is a search-parameter artefact
+    when the absolute total is in budget AND €/m² is at/below local BRW; the blocker fires only when the
+    absolute total also blows the 200k cap (the large-plot #497 case). Scored 3,7 (marktnaher Preis,
+    acceptable-area, but Wegerecht burden + Vermessung ausstehend + Erschließung unbestätigt).
 
 ## "Kaufpreis: Auf Anfrage" + placeholder Fläche + Multi-Gemeinde = Makler-Sammelinserat (lead-gen), NOT a concrete parcel
 `livingbuysite` exposés where TOP_ATTRIBUTES `Kaufpreis = "Auf Anfrage"` and `Grundstücksfläche` is a round
