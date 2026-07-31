@@ -27,9 +27,20 @@ Six skills mapped to the apartment hunting journey:
 | Scan history | `data/scan-history.tsv` | For dedup |
 | Viewings | `data/viewings.md` | For viewing mode |
 | Documents | `data/documents.md` | For documents mode |
+| Inbox | `inbox/` | Email attachments the user drops in — Exposés, forms, applicant docs |
 
 **RULE: Read config/profile.yml and modes/_profile.md before evaluating.**
 **RULE: modes/_profile.md overrides defaults in _shared.md.**
+
+## Inbox Folder (email attachments)
+
+The user manually drops files that arrive by email into `inbox/`. **When the user references an email, an attachment, an Exposé, or a document "in the inbox", look in `inbox/` — do NOT try to pull bytes out of Gmail (the Gmail tools return attachment metadata only, and browser access to Gmail is refused).** Read PDFs/images directly with the Read tool.
+
+Layout:
+- `inbox/{Listing name}/` — per-listing attachments, e.g. `inbox/Reiherbergstr. 15b/Exposé.pdf`, plus the landlord's Selbstauskunft/Datenschutz forms. An official Exposé here is authoritative for price/Kaution/Baujahr/Energieausweis — reconcile the tracker row against it (search-portal data is often stale or wrong).
+- `inbox/Mario-Niebes/` and `inbox/Amanda-Lamont/` — applicant documents for the Selbstauskunft (Schufa, Ausweis, Entgeltabrechnungen, Bewilligungsbescheid, Niederlassungserlaubnis). These are the source files `/immo-apply` documents mode assembles.
+
+Treat `inbox/` as a user-layer source (never auto-delete or modify; it holds personal/financial data — handle per the "NEVER share financial data" rule).
 
 ## Data Contract
 
