@@ -9,57 +9,82 @@
 // Pagination: append &_pgn=N to the search URL (or click the "Weiter" pager).
 // Repeat per page until no more pages, 100 total, or >=80% already seen.
 //
-// Layout note (2026-07): eBay dropped `.s-card`/`.s-item` for its `su-*` design system with
-// OBFUSCATED per-item container classes (bQGD, a8kr, …). Stable anchors that survive the churn:
-//   - each result is an <a href*="/itm/{id}"> whose nearest ancestor with a `.su-item-card__header`
-//     or `.su-item-card__price` is the card;
-//   - title    -> `.su-item-card__header` (falls back to the item image's alt);
-//   - price    -> `.su-item-card__price` ("EUR 19.500,00");
-//   - "Privat" subtitle is stripped off the title tail.
-// The placeholder ad (itemId 123456) and the sponsored "mydays"/Gutschein voucher cards carry no
+// ── LAYOUT CHURN HISTORY (eBay rewrites this markup every few months) ──
+//   .s-item          → dropped
+//   .s-card          → dropped ~2026-06
+//   .su-item-card__* → the 2026-07 design system (OBFUSCATED per-item wrappers)
+//   .s-card + .su-card-container__*  ← CURRENT, verified live 2026-08-02
+// Verified 2026-08-02 against the live Brandenburg search: 21 `.s-card` nodes = 19 real
+// listings + 2 "Shop on eBay" placeholder ads (itemId 123456), matching the page's own
+// "19 Ergebnisse". The su-item-card__header / su-item-card__price classes the previous
+// version anchored on are now ZERO on the page — that is why it returned c:0 and the whole
+// Freizeitgrundstück group lost coverage.
+//
+// Current stable anchors:
+//   - card    -> `.s-card` (each also carries `.su-card-container`)
+//   - id      -> the card's `a[href*="/itm/{id}"]`
+//   - title   -> `.su-card-container__header` (tail "Wird in neuem Fenster…" / "Privat" stripped)
+//   - price   -> first `EUR n.nnn,nn` inside `.su-card-container__attributes__primary`
+//                (that node reads e.g. "EUR 1.000,00 Inserat Kostenlose Abholung")
+// Selector sets are tried NEWEST-FIRST with the older generations kept as fallbacks, so a
+// partial revert on eBay's side does not take the portal offline again.
+//
+// The placeholder ad (itemId 123456) and sponsored "mydays"/Gutschein voucher cards carry no
 // real /itm price — they come back with price=null and are dropped here.
 
 (function () {
   const seen = new Set();
   const listings = [];
 
+  const TITLE_SEL = [
+    '.su-card-container__header',   // current (2026-08)
+    '.su-item-card__header',        // 2026-07
+    '.s-item__title',               // legacy
+  ].join(', ');
+
+  const PRICE_SEL = [
+    '.su-card-container__attributes__primary', // current (2026-08)
+    '.su-item-card__price',                    // 2026-07
+    '.s-item__price',                          // legacy
+  ].join(', ');
+
+  const CARD_SEL = '.s-card, .su-card-container, [class*="su-item-card"]';
+
   const cleanTitle = (t) =>
     (t || '')
       .replace(/Wird in neuem Fenster oder Tab geöffnet/gi, '')
       .replace(/\s+/g, ' ')
-      .replace(/\s*Privat$/, '')
-      .replace(/\s*Anzeige$/, '')
+      .replace(/\s*Privat$/i, '')
+      .replace(/\s*Anzeige$/i, '')
+      .replace(/\s*Gewerblich$/i, '')
       .trim();
 
+  // "EUR 1.000,00 Inserat Kostenlose Abholung" -> 1000
+  // Anchored on the EUR token so trailing shipping/format noise can't be mistaken for a price.
   const parsePrice = (t) => {
     if (!t) return null;
-    const m = t.replace(/[^\d.,]/g, '').match(/[\d.,]+/);
+    const m = String(t).match(/(?:EUR|€)\s*([\d.]+(?:,\d{1,2})?)/i)
+           || String(t).match(/([\d.]+(?:,\d{1,2})?)\s*(?:EUR|€)/i);
     if (!m) return null;
-    const v = parseFloat(m[0].replace(/\./g, '').replace(',', '.'));
-    return isNaN(v) ? null : Math.round(v);
+    const v = parseFloat(m[1].replace(/\./g, '').replace(',', '.'));
+    return isNaN(v) || v <= 0 ? null : Math.round(v);
   };
 
-  document.querySelectorAll('a[href*="/itm/"]').forEach((link) => {
+  document.querySelectorAll(CARD_SEL).forEach((card) => {
+    const link = card.querySelector('a[href*="/itm/"]');
+    if (!link) return;
     const idm = (link.getAttribute('href') || '').match(/\/itm\/(\d+)/);
     if (!idm) return;
     const id = idm[1];
-    if (id === '123456' || seen.has(id)) return; // placeholder ad / dup
-
-    // climb to the card container (nearest ancestor holding the su-item-card header/price)
-    let card = link;
-    for (let i = 0; i < 8 && card; i++) {
-      if (card.querySelector && card.querySelector('.su-item-card__header, .su-item-card__price')) break;
-      card = card.parentElement;
-    }
-    if (!card) return;
+    if (id === '123456' || seen.has(id)) return; // placeholder ad / dup (nested card wrappers)
 
     const title = cleanTitle(
-      card.querySelector('.su-item-card__header')?.innerText ||
-      link.querySelector('img')?.getAttribute('alt') || ''
+      card.querySelector(TITLE_SEL)?.innerText ||
+      card.querySelector('img')?.getAttribute('alt')?.replace(/\s*Bild \d+ von \d+$/, '') || ''
     );
     if (!title || /^Shop on eBay$/i.test(title) || /^mydays|Gutschein/i.test(title)) return;
 
-    const price = parsePrice(card.querySelector('.su-item-card__price')?.innerText || '');
+    const price = parsePrice(card.querySelector(PRICE_SEL)?.innerText || '');
     if (price == null) return; // sponsored/voucher/ad rows have no real item price
 
     seen.add(id);
@@ -77,7 +102,12 @@
     });
   });
 
-  const nextBtn = document.querySelector('a.pagination__next, a[aria-label="Weiter"], a[type="next"]');
+  // Pagination. The filtered Brandenburg search is single-page (19 results as of 2026-08-02),
+  // but keep the probe so a widened search still paginates. eBay currently renders no pager
+  // at all when there is only one page.
+  const nextBtn = document.querySelector(
+    'a.pagination__next, a[type="next"], a[rel="next"], a[aria-label="Weiter"], a[aria-label="Next page"]'
+  );
   const hasNextPage = !!(nextBtn && nextBtn.getAttribute('aria-disabled') !== 'true');
 
   // Compact transport (see immoscout24-extract.js): positional rows with the itm/ URL

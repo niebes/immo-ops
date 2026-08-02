@@ -2,6 +2,12 @@
 Applies to: every Miete evaluation in Potsdam (all portals). Not a portal quirk — a data source.
 (Umland/Havelland: see the Falkensee section at the bottom.)
 
+> **PROMOTED 2026-08-02 → `modes/_shared.md`**, section "Mietspiegel & Mietpreisbremse — regional
+> reference data (SSOT)". That section is now authoritative for the Grundmietentabelle, the
+> Brandenburg-2026 regulated-Gemeinde list, and the priceBar caveat on the scam signal.
+> **Read `_shared.md` for the numbers; this file keeps only the working notes** (fetch trick,
+> per-listing anchors seen). If the two ever disagree, `_shared.md` wins — fix this file.
+
 **The trap:** searching "Mietspiegel Potsdam" returns IS24/immoportal/miet-check/E&V pages quoting
 **12,6–13,5 EUR/m²**. That is the *Angebotsmiete* (what landlords currently ask), not the
 *ortsübliche Vergleichsmiete*. Using it makes almost every Potsdam listing look "at market" and

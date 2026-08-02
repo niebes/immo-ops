@@ -35,6 +35,9 @@ For **rentals (Miete)**:
 - 30%+ above: 1.0
 - Price per m² vs area Mietspiegel: bonus/penalty ±0.5
 - Check Mietpreisbremse compliance: flag if exceeded
+- **Use the ortsübliche Vergleichsmiete, NOT the portal "Mietspiegel" pages** — and always quote
+  BOTH numbers (ortsüblich *and* Angebotsmarkt). Reference tables + the regulated-Gemeinde list:
+  "Mietspiegel & Mietpreisbremse — regional reference data" below.
 
 For **purchases (Kauf)**:
 - At or below target Kaufpreis: 5.0
@@ -163,7 +166,7 @@ single source; `scam-check.md` refers here.)
 
 | Signal | Reliability | Description |
 |--------|-------------|-------------|
-| Price >20% below Mietspiegel | High | Too-good-to-be-true pricing |
+| Price >20% below Mietspiegel | High | Too-good-to-be-true pricing. **Only fires if an address-precise band confirms it** (e.g. IS24 `priceBar` below `minSimilarPrice`) — an Angebotsmieten anchor alone is biased upward and is not sufficient. See "Mietspiegel & Mietpreisbremse — regional reference data". |
 | Advance payment before viewing | High | Kaution or "reservation fee" requested upfront |
 | No in-person viewing offered | High | "I'm abroad, I'll send you the key" |
 | Broken German + deposit narrative | High | Classic advance-fee scam pattern |
@@ -193,7 +196,7 @@ single source; `scam-check.md` refers here.)
 
 ### Rental
 - **Kaltmiete vs Warmmiete**: ALWAYS show both. Warmmiete = Kaltmiete + Nebenkosten (+ Heizkosten if applicable).
-- **Mietpreisbremse**: In regulated areas, rent may not exceed 10% above Mietspiegel (exceptions: Neubau, extensive modernization). Flag violations.
+- **Mietpreisbremse**: In regulated areas, rent may not exceed 10% above the *ortsübliche Vergleichsmiete* (exceptions: § 556e higher Vormiete, § 556f Neubau/umfassende Modernisierung ab 01.10.2014). Flag violations. Which Gemeinden are regulated and which numbers to compare against: "Mietspiegel & Mietpreisbremse — regional reference data" below.
 - **Kaution**: Maximum 3 Nettokaltmieten, payable in 3 installments. Anything above is illegal.
 - **WBS**: Wohnberechtigungsschein required = social housing. Filter out by default.
 - **Bestellerprinzip**: Tenant does NOT pay agent fees for rentals (since June 2015). Flag any listing charging Provision to tenant.
@@ -202,6 +205,77 @@ single source; `scam-check.md` refers here.)
 - **Mindestlaufzeit**: Minimum lease duration (e.g., 2 years). Locks tenant in — note in Block G.
 - **Tauschwohnung**: Apartment swap listings. Handling is config-driven — discarded when swaps are off, or run through a two-sided swap match when `include_swaps: true` + a `swap_offer:` block exist (see evaluate.md step 4).
 - **Eigenbedarf**: Private landlords can terminate for personal use. Note risk in Block H.
+
+### Mietspiegel & Mietpreisbremse — regional reference data (SSOT)
+
+**The trap that voids the whole check:** searching "Mietspiegel Potsdam" returns IS24 / immoportal /
+miet-check / E&V pages quoting **12,60–13,50 EUR/m²**. That is the *Angebotsmiete* (what landlords
+currently ask), NOT the *ortsübliche Vergleichsmiete*. For Plattenbau stock the qualified Mietspiegel
+(§ 558d BGB) is roughly **half** of it — so using the portal number makes almost every Potsdam listing
+look "at market" and silently kills the Mietpreisbremse check. Always report BOTH numbers; quoting
+only the ortsübliche value makes a perfectly normal market price read like Wucher.
+
+#### Potsdam — Grundmietentabelle 2026 (Nettokaltmiete EUR/m², Mittelwert (Spanne))
+
+Official PDF: `https://www.potsdam.de/system/files/document/Mietspiegel_2026_A5_webdatei_neu.pdf`
+(Mietspiegel **2026**, in Kraft seit 25.06.2026, ersetzt 2024; index `potsdam.de/de/mietspiegel-0`).
+WebFetch **cannot parse it** ("corrupted/binary PDF") — but it *saves* the bytes and prints the path;
+read that path with the **Read tool + `pages:`** (table = page 6, Spanneneinordnung = 8–9,
+Begriffserläuterungen = 10–11). One WebFetch + one Read gets the whole table.
+
+Columns by Wohnfläche: A ≤45 · B >45–60 · C >60–75 · D >75–90 · E >90
+(Baualter ≤1948 uses A ≤45; the 1949–1970 row group shifts: A ≤40, B >40–60.)
+
+| Baualter / EEK | A | B | C | D | E |
+|---|---|---|---|---|---|
+| bis 1948 · A+,A,B | 9,95 (8,28–11,64) | 9,78 (7,35–11,11) | 9,54 (7,76–10,65) | 11,11 (6,76–20,91) | ← D+E gemeinsam |
+| bis 1948 · C,D,E | 9,18 (7,19–11,10) | 8,62 (6,90–10,62) | 8,82 (6,90–10,43) | 9,15 (6,90–11,49) | 8,87 (6,90–10,58) |
+| bis 1948 · F,G,H | 7,22 (4,82–8,69) | 7,78 (6,12–9,04) | 7,08 (3,80–8,84) | 6,97 (4,19–9,56) | 6,97 (3,52–9,12) |
+| bis 1948 · kein EA | 6,89 (6,16–7,97) | 7,03 (6,00–8,65) | 7,49 (5,72–9,19) | 7,83 (6,51–9,24) | 8,17 (5,90–9,40) |
+| 1949–1970 · B,C | 8,66 (7,04–10,16) | 6,48 (5,85–7,06) | 6,50 (5,82–6,94) | 6,56 (6,00–7,06) | 7,49 (5,59–12,50) |
+| 1949–1970 · D,E,F,G, kein EA | 7,93 (6,71–8,86) | 6,49 (5,85–7,21) | 6,46 (5,75–7,15) | 6,44 (5,40–7,17) | ← D+E gemeinsam |
+| **1971–1990** (inkl. Wendebauten) · A,B | 7,53 (6,46–9,02) | 6,64 (5,85–7,86) | **6,06 (5,46–6,88)** | 5,87 (5,42–6,41) | 6,88 (5,69–7,77) |
+| **1971–1990** · C,D | 7,07 (6,10–8,32) | 6,30 (5,76–6,87) | **5,82 (5,23–6,25)** | 5,63 (5,13–6,10) | 6,26 (5,37–7,43) |
+| **1971–1990** · E,F | 6,67 (6,31–7,18) | 5,86 (5,29–6,39) | **5,69 (5,19–6,10)** | 5,55 (5,17–5,95) | – |
+| 1991–2008 · A+,A,B,C | 9,27 (8,53–10,31) | 9,48 (8,93–10,34) | 9,28 (8,88–10,29) | 9,10 (8,43–10,18) | 9,91 (8,71–12,70) |
+| 1991–2008 · D,E,F,G | 9,36 (8,86–10,12) | 9,24 (8,58–10,20) | 9,45 (8,20–11,51) | 9,01 (8,27–9,69) | 10,28 (7,91–13,71) |
+| 2009–2012 · alle | 11,44 (11,32–11,66) | 10,92 (10,74–11,38) | 11,07 (9,38–11,88) | 11,43 (9,03–13,04) | 12,01 (10,30–13,84) |
+| 2013–2020 · alle | 11,96 (11,69–12,15) | 11,66 (11,23–11,92) | 12,06 (11,23–12,74) | 12,34 (10,90–14,23) | 12,39 (10,31–14,00) |
+| ab 2021 · alle | 15,28 (10,57–16,74) | 16,58 (14,70–19,50) | 15,72 (10,52–19,00) | 16,73 (14,88–19,64) | 15,14 (10,90–17,86) |
+
+Wendebauten = Plattenbau Drewitz, begonnen vor 03.10.1990, fertig bis 1991. Baualter bleibt nach
+Modernisierung maßgeblich (nur Sanierung auf Neubaustandard rückt die Klasse).
+
+**How to use it:** field = Baualtersklasse × EEK-Zeile × m²-Spalte, start at the **Mittelwert** →
+Spanneneinordnung (PDF p. 8–9: wohnwerterhöhende minus -mindernde Punkte = %-Satz toward the
+Ober-/Unterwert; those are hard bounds) → zulässig = ortsüblich **+10 %**.
+
+#### Brandenburg Umland — regulated since 01.01.2026
+
+The Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung (Kabinett 25.11.2025) covers
+**36 instead of 19 Gemeinden from 01.01.2026** — newly including **Falkensee**, Blankenfelde-Mahlow,
+Eichwalde, Glienicke/Nordbahn. **In the Havelland there are exactly three: Falkensee,
+Schönwalde-Glien (new), Brieselang (new)** — i.e. practically every Havelland rental that reaches
+the scan. Only buildings **completed before 2014** are covered; zulässig = ortsüblich +10 %,
+Kappungsgrenze 15 % in 3 years.
+
+→ **Never write "Mietpreisbremse: not applicable" for a Speckgürtel/Havelland rental.** The intuitive
+assumption "Brandenburg small town → no Mietpreisbremse" has been simply wrong since 2026.
+These Gemeinden have **no qualified kommunaler Mietspiegel**, so the ortsübliche Vergleichsmiete is
+only provable via Vergleichsobjekte → phrase it in the report as a **§ 556g Abs. 3 BGB
+Auskunftshebel** (ask for Vormiete + Baujahr), never as an exclusion.
+
+Market anchors 2026 (**Angebots**mieten only): Falkensee Häuser ~16,03 EUR/m², Wohnungen
+13,50–15,70 · Schönwalde-Glien Gemeindeschnitt ~14,02 (12,69–15,48), Häuser 13,19 (150 m²)–14,55
+(100 m²). Best address-precise source is the IS24 `PRICE_INFO.priceBar`
+(`minSimilarPrice`–`maxSimilarPrice` + percentile) from the Mobile API.
+
+**Never let an Angebots anchor alone fire the "price >20 % below Mietspiegel" High scam signal.**
+Angebotsmieten are biased upward; the signal may only fire if the `priceBar` ALSO puts the offer
+below `minSimilarPrice`.
+
+Review cadence: Potsdam Mietspiegel is stable annual data, next edition expected 2028; the
+Brandenburg ordinance is re-issued annually — re-check each January.
 
 ### Purchase
 - **Kaufnebenkosten**: Grunderwerbsteuer (3.5–6.5% by state) + Notar (~1.5%) + Grundbuch (~0.5%) + optional Makler (typically 3.57% buyer share).
