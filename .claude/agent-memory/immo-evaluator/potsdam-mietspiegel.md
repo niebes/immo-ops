@@ -1,5 +1,6 @@
 # Potsdam Mietspiegel — the real ortsübliche Vergleichsmiete (NOT the portal "Mietspiegel" pages)
 Applies to: every Miete evaluation in Potsdam (all portals). Not a portal quirk — a data source.
+(Umland/Havelland: see the Falkensee section at the bottom.)
 
 **The trap:** searching "Mietspiegel Potsdam" returns IS24/immoportal/miet-check/E&V pages quoting
 **12,6–13,5 EUR/m²**. That is the *Angebotsmiete* (what landlords currently ask), not the
@@ -52,5 +53,21 @@ Baualter bleibt nach Modernisierung maßgeblich (nur Sanierung auf Neubaustandar
    marktüblicher Preis wie Wucher.
 
 Seen/first used on #504 (Caputher Heuweg 61, Waldstadt II: 11,59 EUR/m² vs. 5,69–6,06 Mittelwert).
+
+## Umland: **Falkensee (und der Berliner Speckgürtel) unterliegt seit 01.01.2026 der Mietpreisbremse**
+Die neue Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung (Kabinett 25.11.2025) gilt ab
+**01.01.2026 für 36 statt bisher 19 Gemeinden** — neu dabei u. a. **Falkensee**, Blankenfelde-Mahlow,
+Eichwalde, Glienicke/Nordbahn. Erfasst sind nur Gebäude mit **Baufertigstellung vor 2014** (Neubau
+ausgenommen); zulässig = ortsübliche Vergleichsmiete **+10 %**, Kappungsgrenze 15 % in 3 Jahren.
+→ Bei jeder Miete im Havelland/Speckgürtel: **nicht mehr „Mietpreisbremse: not applicable"** schreiben
+(so noch in Report #246 vom 02.07.2026 — das war bereits falsch). Falkensee hat **keinen qualifizierten
+kommunalen Mietspiegel**, die ortsübliche Vergleichsmiete ist also nur über Vergleichsobjekte belegbar
+→ im Report als **§ 556g Abs. 3 BGB Auskunftshebel (Vormiete + Baujahr erfragen)** formulieren, nicht als
+Ausschlussgrund. Marktanker Falkensee 2026 (nur *Angebots*mieten!): Häuser ~**16,03 EUR/m²**, Wohnungen
+~13,50–15,70 EUR/m². Beste adressgenaue Quelle bleibt das IS24-`PRICE_INFO.priceBar`
+(`minSimilarPrice`–`maxSimilarPrice` + Perzentil) direkt aus der Mobile-API. Genutzt auf #506
+(Rotkehlchenstr., 14,29 EUR/m², 57. Perzentil).
+**Why:** ohne diese Notiz wird für jede Falkensee-Miete erneut recherchiert — und die naheliegende
+Annahme „Brandenburger Kleinstadt → keine Mietpreisbremse" ist seit 2026 schlicht falsch.
 Stabile Jahresdaten → **Kandidat zur Promotion nach `modes/_shared.md`** (Mietpreisbremse-Abschnitt),
 wenn der Mietspiegel 2026 sich bewährt; Neuauflage voraussichtlich 2028.
