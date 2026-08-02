@@ -70,6 +70,32 @@ empty → D stays ~3,0 and the missing Energieausweis is a Low signal, not a sca
 grants (Block E 1,0 instead of 2,5) — and reading `obj_cellar=n` as fact would have booked a *proven*
 missing Keller when it is merely unasked.
 
+## Dating an exposé: a LOW Scout-ID = **recycled old ad object**, not a stale listing
+The mobile API has **no `onlineSince`** field for non-Plus users (`PREMIUM_ADDITIONAL_INFO.onlineSince: null`,
+`chancenCheck.enabled: false`), so when a Scout-ID looks far too low for a fresh listing, date it from these
+four surrogates instead of guessing:
+1. **`contact.freemiumSettings.dateStarted` / `dateEnding`** — the 72-h free-contact window IS24 grants a
+   private ad at (re)publication. `dateStarted` ≈ the day the ad went live *this time round*. (Also the
+   deadline to contact before the ad loses visibility → always put it in Next steps.)
+2. **`MEDIA[].caption`** — camera-original captions are timestamps: `20151208_111118` = 08.12.2015, 11:11.
+   That dates the *photos*, i.e. the underlying ad object.
+3. **`adTargetingParameters.obj_cId`** — a low customer ID = long-standing account.
+4. **Internal date references in the TEXT_AREAs** ("Im April 2026 wurde eine neue Gasheizung eingebaut")
+   + `Bezugsfrei ab` — these date the *text*.
+Seen on #507 (expose **85752568**, Burgunderweg 5 Schönwalde-Glien): ID + photos from 12/2015, but
+`freemiumSettings.dateStarted = 2026-08-01`, `publicationState: active`, `obj_highDemand: true`, text
+referencing 04/2026, and `data/scan-history.tsv` first-seen = today ⇒ the private landlord **recycled his
+own 2015 exposé** (same Scout-ID, same photos) with refreshed text. Verdict: **live and current, NOT
+EXPIRED and NOT stale** — but score it as follows:
+- **Block D:** the photos document a decade-old state, so `Objektzustand: Neuwertig` is *unbelegt*. They ARE
+  real photos → no 0-photo cap, but apply ~−0,5 for stale/thin evidence and say "Fotos von {date}" as a ✗ con.
+- **Scam:** decade-old photos = **1 Medium** signal (not High — same camera series, consistent, no stock/render
+  tell). "Aktuelle Fotos + Grundriss anfordern" becomes a Next step.
+- **Block H:** a recycled ad also means the object has been re-let before → note tenant turnover / Eigenbedarf.
+**Why:** a very low Scout-ID reads like a long-dead listing that should be EXPIRED, and the API gives no
+publication date to refute it — without the freemium/caption cross-check you'd either drop a live in-budget
+listing or trust 10-year-old photos as current evidence.
+
 ## Bare placeholder/stub expose (live, full criteria, but title/desc are single chars)
 Some real Anbieter listings are published as near-empty drafts: `TITLE.title` = a single char like `"s"` and `TEXT_AREA` Objektbeschreibung = `"t"`, with **0 photos** — yet `publicationState=live` and the ATTRIBUTE_LIST criteria (Kaltmiete/NK/Warmmiete/Kaution, Wohnungstyp/Etage/Bezugsfrei, Ausstattungsqualität) ARE fully populated. This is NOT EXPIRED and NOT a Nachvermietung (AGENTS_INFO shows a normal named private Anbieter, not "Aktuelle:r Mieter:in"). Score it from the criteria table, but: cap D at 3.0 (no photos), treat must-haves as unconfirmed (no CHECK/amenity items), score H low (2.5, weak/incomplete listing signal), and mark scam **Proceed with Caution** — an empty private listing + below-band price is unverifiable even without a classic scam narrative. Seen on #349 (expose 169234210, Bornstedt: title "s", desc "t", private "Herr Clemens Wimmer"). The caller's scan title was garbled to "s" because that IS the live title — confirm against the API, don't assume an extraction glitch.
 
