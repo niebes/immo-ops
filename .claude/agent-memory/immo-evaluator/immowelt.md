@@ -39,6 +39,33 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   only provable from a `"unverbindlicher Grundriss Keller"` FLOORPLAN caption in the payload.
   **A `Grundriss Keller` image caption is positive proof of a Keller** even when no Keller feature chip renders.
 
+## Zwangsversteigerung — positive test (resolves the nav-boilerplate false positive)
+The warning above ("`Zwangsversteigerung` in `innerHTML` is nav-dropdown boilerplate") only covers the
+*negative* direction. **Three positive tells prove the object itself is a forced auction** (all present
+together on #508, b31b3d9e):
+1. `document.title` contains **`Zwangsversteigerungen`** (the nav boilerplate never reaches the title).
+2. A **Merkmal chip literally named `Zwangsversteigerung`** in the `Merkmale` block.
+3. Inside **`Preisdetails`**, a `Zwangsversteigerung` label directly under the Kaufpreis, plus a
+   `Versteigerung / Verkehrswert: {x}` line at the end of `Sonstiges`.
+Any of 1–3 ⇒ real ZV; none ⇒ boilerplate, ignore. *Why:* without a positive test the existing
+false-positive warning makes you dismiss a genuine ZV, which is a profile deal-breaker for the
+house search.
+
+**Consequences once confirmed:** the headline price is the **Verkehrswert, not a Kaufpreis** — do not
+write it into the tracker `price` column as one; the ZVG domain rules (5/10 & 7/10 floors, § 56 S. 3
+no warranty, no Besichtigungsrecht, 10 % Sicherheitsleistung, Abt.-II-Rechte on top) are already
+written up in `zwangsversteigerung-de.md` — reuse that section rather than re-deriving it.
+Also: `Provision für Käufer: provisionsfrei` + "keine Makler- und Notarkosten" makes the ZVG route look
+cheap, but against a *provisionsfreier* freihändiger Kauf it saves only ~1 % (Notar+Grundbuch) — say so.
+
+**Anbieter `Argetra GmbH` (Ratingen, Tel. 02102-711 711) = ZV data publisher, NOT the seller.**
+The seller is the Vollstreckungsgericht. Argetra syndicates its whole nationwide ZV database into
+Immowelt/IS24 and **paywalls Versteigerungstermin, Amtsgericht and Aktenzeichen** behind its
+"Full-Service-Paket" — exactly like zwangsversteigerung.de does. Don't hunt for a date in the DOM
+(`/Termin[^<]{0,120}/` returns only the glossary sentence) and don't contact them; the data is free on
+**zvg-portal.de**. The expose also opens with "BITTE BEACHTEN SIE, DASS SIE BEI IHRER ANFRAGE EINE
+TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam signal.
+
 ## Photos
 - **Real property photos are frequently absent from the DOM** — `document.querySelectorAll('img')` returns only
   placeholders under `immowelt.de/shared/images/` (map `address-map.png`, `travel-time.png`, house-icon
