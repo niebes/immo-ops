@@ -224,6 +224,50 @@ Extractor snippets (for `scan_method: invisible-playwright` portals — a `{port
 - **Label/value card rows**: `semmelhaack-extract.js`
 - **`.s-card` marketplace**: `ebay-extract.js`
 - **Consent + lazy-load + share-link URL**: `regionalimmobilien24-extract.js`
+- **Legitimate empty state** (returns `{ empty: true }` so a 0 is a clean scan, not a ⛔):
+  `wbg-daheim-eg-extract.js`, `blb-brandenburg-extract.js`
+- **ASYNC poll for a flaky client-side render**: `sparkasse-immobilien-extract.js`
+- **SPA cards + uuid desync guard + CTA-card skip**: `engel-voelkers-extract.js`
+- **Multi-anchor cards incl. social-share decoys**: `bbg-brandenburg-extract.js`
+
+## Diagnose BEFORE you build — a 0 is not automatically a block
+
+`scan.mjs` records any 0-card extraction as `bot_defense` / selector drift. That classification
+is a GUESS, and on 2026-08-02 it was wrong for 2 of 4 flagged portals. Probe the live page in
+the stealth browser first and split the outcome four ways:
+
+| What the probe shows | Real cause | Fix |
+|---|---|---|
+| Page renders, prose says "zur Zeit keine … im Angebot" | **Legitimate empty state** | Snippet returning `{ empty: true }` — no ⛔ (BLB, WBG Daheim) |
+| Page renders fully, `bot:false`, cards present | **Headless-only block** | Move `playwright` → `invisible-playwright` + snippet (BBG, E&V) |
+| Cards appear on one probe, vanish on the next | **Async client render** | ASYNC snippet that polls (Sparkasse) |
+| Configured URL 404s / no results route exists | **Reconfigure** | Find the real listing surface — often an SEO page, not a search route |
+
+Reusable probe harness (the stealth driver speaks newline-JSON on stdin; **strip the snippet's
+trailing `;` exactly as `scan.mjs:652` does**, or the driver's `() => (…)` wrap becomes a syntax
+error that looks like a driver bug):
+
+```js
+// drive.mjs — node drive.mjs <url> <snippet.js>
+import { spawn } from 'child_process'; import { readFileSync } from 'fs';
+const url = process.argv[2];
+const snippet = readFileSync(process.argv[3], 'utf8').trim().replace(/;\s*$/, '');
+const p = spawn('bash', ['scripts/invisible-venv.sh', 'scripts/invisible-driver.py'], { stdio:['pipe','pipe','inherit'] });
+let buf = '';
+p.stdout.on('data', d => { buf += d; let i;
+  while ((i = buf.indexOf('\n')) >= 0) { const line = buf.slice(0,i); buf = buf.slice(i+1);
+    if (!line.trim()) continue; let m; try { m = JSON.parse(line); } catch { continue; }
+    if (m.ready) { p.stdin.write(JSON.stringify({cmd:'eval', url, snippet})+'\n'); continue; }
+    console.log('RESULT:', m.result ?? JSON.stringify(m)); p.stdin.write(JSON.stringify({cmd:'quit'})+'\n'); } });
+```
+
+**Async snippets are allowed and sometimes required.** Both backends run the snippet through
+`page.evaluate()`, which AWAITS a returned Promise — so `(async function(){ … })()` with a poll
+loop works, and it is the only reliable fix for a portal that injects results after first paint.
+
+**Count unique SAME-ORIGIN detail URLs, never raw anchor matches.** Social share links
+(`facebook.com/sharer.php?u=…/properties/x`) contain the detail URL *in their query string*, so
+`a[href*="/properties/"]` counted 8 properties on BBG where there were really 2.
 
 ## CiC extractor-building gotchas (hard-won)
 

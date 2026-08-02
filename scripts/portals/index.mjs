@@ -23,6 +23,13 @@ import { extract as abInsZuhause, nextPage as abInsZuhauseNext } from './ab-ins-
 import { extract as immobilienDe, nextPage as immobilienDeNext } from './immobilien-de.mjs';
 import { extract as generic, nextPage as genericNext } from './generic.mjs';
 
+// ⚠ SUPERSEDED (2026-08-02) — `engel`, `blb` and `bbg` below are DEAD for normal scans.
+// Those three portals moved to `scan_method: invisible-playwright` in portals.yml and are now
+// served by scripts/portals/{engel-voelkers,blb-brandenburg,bbg-brandenburg}-extract.js, which
+// this map does NOT index (the scan workflow derives snippet paths from the portal name).
+// The .mjs extractors are kept only as a fallback if a portal is ever moved back to headless
+// playwright — but each of them returned 0 cards on the live page, which is exactly why the
+// portals were migrated. Re-verify against the live DOM before relying on any of them again.
 const PORTAL_MAP = [
   { pattern: 'immoscout', extract: immoscout24, nextPage: immoscout24Next },
   { pattern: 'immowelt', extract: immowelt, nextPage: immoweltNext },
