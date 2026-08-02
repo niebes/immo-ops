@@ -22,8 +22,15 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     silently treat the heading as Kaltmiete then — report the ambiguity, score conservatively with the
     figure as Kaltmiete, and put "Kalt/Warm klären" in next steps. *Why:* otherwise you invent a
     Nebenkosten split that the ad never stated.
-  - **0 gallery images happens on ordinary private ads too**, not just Tauschwohnung ads — check
-    `grep -o 'data-imgsrc="' | wc -l` on every listing and cap Block D at 3,0 when it's 0.
+  - **0 gallery images happens on ordinary private ads too**, not just Tauschwohnung ads — cap Block D
+    at 3,0 when it's 0.
+  - **Counting photos: DEDUPE the `data-imgsrc` URLs — the raw grep count is 2× the real photo count.**
+    Each gallery photo is emitted twice, once as `…?rule=$_59.AUTO` (thumb strip) and once as
+    `…?rule=$_57.AUTO` (main slide), same image UUID. So count *unique* UUIDs:
+    `grep -o 'data-imgsrc="[^"]*"' f.html | sed 's/?rule.*//' | sort -u | wc -l`. Also restrict to the
+    part of the HTML **before `id="viewad-title"`** — everything after belongs to the "Das könnte dich
+    auch interessieren" sidebar. *Why:* on #505 a plain grep said 8 images for an ad that actually has 4
+    (Block D photo-evidence judgement was about to be made on a doubled number).
   - Kaution field may read **"Kaution / Genoss.-Anteile"** → for a Genossenschaftswohnung this is
     refundable cooperative shares, NOT a deposit and NOT an advance-fee scam signal; the low rent is
     the coop structure, not too-good-to-be-true. *Why:* otherwise you'd wrongly flag scam + illegal Kaution.
@@ -75,10 +82,12 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     *Why:* on #360 rooms/price/city all matched, but title+desc together demanded höhere Etage +
     Balkon and our Golm offer is EG without Balkon — reading only the description would have
     scored that as a lenient near-miss instead of the categorical mismatch it is.
-- These swap ads often (not always) carry **0 gallery images** → Block D capped at 3,0. Count with
-  `grep -o 'data-imgsrc="' | wc -l` on the curl'd HTML; #355 had 2, #358 had 16 real photos — do NOT
-  assume image-poor just because the Anbieter is Tauschwohnung GmbH. The page price heading is usually
-  the **Kaltmiete** while the Warmmiete is only in the description text (or NK in the spec list).
+- These swap ads often (not always) carry **0 gallery images** → Block D capped at 3,0. Count with the
+  deduped-UUID method above (#355 had 2, #358 had 16, #505 had 4 real photos) — do NOT assume image-poor
+  just because the Anbieter is Tauschwohnung GmbH. The page price heading is usually the **Kaltmiete**
+  while the Warmmiete is only in the description text (or NK in the spec list) — and the prose form is
+  often "**Die Miete beträgt 1600 € mit Nebenkosten**" (= Warmmiete; derive NK = warm − heading, and say
+  it's derived, #505).
 - **Tauschwohnung-GmbH ads frequently ship NO cost/legal fields at all** — no Nebenkosten, no
   Warmmiete, no Kaution, no Baujahr, no Energieausweis anywhere in the page (#358). Report these as
   "nicht angegeben" and say Mietpreisbremse isn't checkable; don't hunt for a second list that isn't
