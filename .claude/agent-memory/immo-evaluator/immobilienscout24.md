@@ -50,6 +50,26 @@ On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese
 - Below-Mietspiegel price here is the existing tenant's old contract, NOT a scam signal on its own.
 - **A Mieternetzwerk description can embed a Suche line = it's a SWAP, not a plain Nachvermietung.** When the tenant's own description ends with something like "Wir suchen eine 3-4 Zimmer Wohnung in {Stadt/Bezirk}", treat the listing as a swap and run the two-sided match (don't score it as a normal rental). Seen on #340 (expose 169179239, Berliner Vorstadt): their flat scored 4.3 for us but Suche was "3-4 Zi in Berlin-Neukölln" → Side 2 fails vs our 2-Zi Golm offer → DISCARDED swap-mismatch. The AGENTS_INFO `title` is "Aktuelle:r Mieter:in" (tenant-posted) exactly like a normal Nachvermietung, so the ONLY swap tell is the Suche sentence in the TEXT_AREA description — always scan the description tail for it before defaulting to the plain-rental path.
 
+### Sibling class: **plain private Nachmietergesuch** (`isTenantNetwork: false`) — the checkbox fields are FALSE NEGATIVES
+Not every "Nachmieter gesucht" ad is a Mieternetzwerk one. The other, commoner form is an ordinary
+private inserat the outgoing tenant posts herself: `header.isTenantNetwork: false`, `obj_privateOffer: true`,
+`AGENTS_INFO` = a plain "Frau/Herr {Name}" with `verifiedBy: []` and no phone, and a normal `ATTRIBUTE_LIST
+"Kosten"` (real Kaltmiete/NK/Heizkosten/Gesamtmiete/Kaution — **not** the Mieternetzwerk price *ranges*).
+Trap: these sellers never touch the Ausstattung checkbox mask, and IS24 then emits the **unset defaults as
+if they were negatives** — `obj_balcony=n`, `obj_cellar=n`, `obj_garden=n`, `obj_lift=n`, `obj_hasKitchen=n`
+alongside `obj_condition=no_information`, `obj_interiorQual=no_information`, `obj_petsAllowed=no_information`
+and `ATTRIBUTE_LIST "Hauptkriterien"` reduced to Wohnfläche + SCHUFA/Telekom ad links. Seen on #504
+(expose 169716646, Caputher Heuweg 61 Waldstadt II): `obj_balcony=n` while the Objektbeschreibung bullet
+list literally says "• Balkon". **Rule: on a private offer whose `obj_condition`/`obj_interiorQual` are
+`no_information`, treat every `n` in adTargetingParameters as "unset", not as "absent" — score amenities
+from the TEXT_AREA only, mark unmentioned must-haves as *unconfirmed* (not missing) and make them the
+first contact question.** Unlike Mieternetzwerk ads these usually DO have real photos (camera-original
+`IMG_####` captions) → no Block-D photo cap, but Baujahr/Objektzustand/Energieausweis are typically all
+empty → D stays ~3,0 and the missing Energieausweis is a Low signal, not a scam tell.
+**Why:** reading `obj_balcony=n` as fact would have deleted a must-have that the listing text explicitly
+grants (Block E 1,0 instead of 2,5) — and reading `obj_cellar=n` as fact would have booked a *proven*
+missing Keller when it is merely unasked.
+
 ## Bare placeholder/stub expose (live, full criteria, but title/desc are single chars)
 Some real Anbieter listings are published as near-empty drafts: `TITLE.title` = a single char like `"s"` and `TEXT_AREA` Objektbeschreibung = `"t"`, with **0 photos** — yet `publicationState=live` and the ATTRIBUTE_LIST criteria (Kaltmiete/NK/Warmmiete/Kaution, Wohnungstyp/Etage/Bezugsfrei, Ausstattungsqualität) ARE fully populated. This is NOT EXPIRED and NOT a Nachvermietung (AGENTS_INFO shows a normal named private Anbieter, not "Aktuelle:r Mieter:in"). Score it from the criteria table, but: cap D at 3.0 (no photos), treat must-haves as unconfirmed (no CHECK/amenity items), score H low (2.5, weak/incomplete listing signal), and mark scam **Proceed with Caution** — an empty private listing + below-band price is unverifiable even without a classic scam narrative. Seen on #349 (expose 169234210, Bornstedt: title "s", desc "t", private "Herr Clemens Wimmer"). The caller's scan title was garbled to "s" because that IS the live title — confirm against the API, don't assume an extraction glitch.
 
