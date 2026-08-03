@@ -174,6 +174,20 @@ required"/pre-2026-07-05, **override** — flip the pipeline line back to `- [ ]
 a swap (two-sided match), and strip the bogus `[re-list seen …]` alias route-decided appended
 to #N's Notes. (Seen 2026-07-31: a Golm swap wrongly skipped as dupe of the Bornstedt #004.)
 
+**CAUTION — false ATTACH to the wrong live lead (structural, hits every cycle).** Route-decided
+only considers rows whose status is DECIDED; `Evaluated` is deliberately not routable. So when a
+re-list's true twin is an `Evaluated` row, route-decided does not stop — it attaches the entry to
+the next-best *decided* row that happens to clear the numeric thresholds. The result is worse
+than no routing: a re-list gets welded onto an unrelated **Applied/Contacted** lead and an alias
+is appended to that lead's Notes. **After running route-decided, sanity-check every
+`ATTACH (numeric)` against the candidate's TITLE, not just its numbers** — compare it to the
+target report's `# Evaluation:` heading. If a different (Evaluated) listing matches the title
+exactly, override: re-point the pipeline line at that listing and strip the bogus
+`[re-list seen …]` alias from the wrongly-attached row's Notes.
+(Seen 2026-08-03: an Ab-ins-Zuhause re-list of #502 "Willkommen Zuhause: großzügige
+3-Zimmer-Wohnung" — price Δ 0,01 %, m² Δ 0,28 — was attached to the **Applied** #216 instead,
+because #502 is only `Evaluated`. #216 differs by 3,4 % price and 2,5 m², inside the thresholds.)
+
 **Step 3 — Pipeline triage (AI judgement, not keyword matching):**
 The scan scripts apply ONLY objective numeric gates + dedup — they never drop by title.
 So this triage is where title relevance is decided, by reading each entry. Read
