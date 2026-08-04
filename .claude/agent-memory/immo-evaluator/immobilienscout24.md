@@ -11,8 +11,9 @@ with 404 ... ERROR_RESOURCE_NOT_FOUND"}` — the record is **gone entirely**, no
 deactivation case still serves a 200 web stub, see below). Mark EXPIRED. **Before you do, run a control
 curl against a known-live exposé** (e.g. 166248960 / 164714919) with the same UA: it proves the API path,
 the UA header and the housebuy exposé class all still work, so the 404 is listing-specific and not a
-transport/UA regression. Both UA variants (`ImmoScout24_1410_30_._`, `_35_._`) behave identically — the
-minor version doesn't matter. Seen on #371 (expose 166999630, Eiche/Potsdam Hauskauf).
+transport/UA regression. Use the SAME UA as the control (`ImmoScout24_1410_35_._`) — the minor version
+does matter now, see the UA note in "Fastest full-detail path" below. Seen on #371 (expose 166999630,
+Eiche/Potsdam Hauskauf).
 **Why:** without the control test you can't distinguish "this listing is dead" from "IS24 changed the API
 and every evaluation in this batch is about to be mislabelled EXPIRED".
 
@@ -175,6 +176,64 @@ ROSTOW Bau GmbH, Grünefeld/Schönwalde-Glien: 89.000 EUR / 154 EUR-m² / 579 m�
 the tie-in + out-of-area rural location, not the price).
 **Why:** the plot's cheap €/m² reads as a 5,0 Block A bargain until you see the Bauträgerbindung — the low
 price is the hook for a mandatory house contract, and the report must say the real cost is not the land alone.
+
+### Harder variant: **"N. Baufamilie gesucht" = Fertighaus-Vertrieb sells a plot SHARE, price "Auf Anfrage"**
+Same `livingbuysite` skeleton, but the Bindung is implicit (never the word "Bauträgerbindung") and the
+**headline area is the WHOLE Doppelhaus plot, not what you get**. Tells, all from the mobile API:
+`TOP_ATTRIBUTES.Kaufpreis = "Auf Anfrage"` + `ATTRIBUTE_LIST "Kosten"` reduced to `Preis: Auf Anfrage`
+(so there is **no structured price at all** — the only number lives in the TITLE as "Grundstücks**anteil ab**
+{X} EUR **pro Familie**"); `AGENTS_INFO.company` = "{Hausmarke} - {Vorname Name}" (an *Einzelunternehmen*
+Handelsvertreter of massa haus / Town & Country / Danwood, not a Makler or Bauträger), `obj_privateOffer:
+false`, `ga_cd_customer_group: home_builder`; Objektbeschreibung sells a **Doppelhaushälfte** (Wohnfläche,
+KfW-40, "individuelle Grundrissgestaltung"); MEDIA = catalogue renders captioned "Beispielplanung …" /
+"Hausansicht" **with zero photos of the land**. Handling:
+- **Divide the plot area by the number of families before any m²/€-m² check.** 850 m² headline ÷ 2 = ~425 m²
+  actually conveyed → 110.000/425 = **259 EUR/m²**, not the 129 EUR/m² the headline area implies. This flips
+  both profile plot caps (`min_m2 500`, `max_price_per_m2`). Say explicitly in Block C that the exposé does
+  NOT distinguish Gesamt- from Anteilsfläche and make it contact question #1 (it is worth ~2 score points).
+- **"ab" + "Auf Anfrage" ⇒ Block A never above ~2,5** no matter how small the number — there is no binding offer.
+- **Block G ~2,0** (worse than the plain Bauträgerbindung 2,5): builder tie-in *plus* dependency on an unknown
+  second family (Grenzbebauung, joint Bauantrag/Bauzeit) *plus* the plot is still undivided/unvermessen.
+- **GrESt einheitliches Vertragswerk** bites hardest here (plot + Werkvertrag from literally the same person):
+  6,5 % BB on land+house, e.g. ~26–30 T EUR instead of ~7 T EUR. Always quantify it.
+- Renders on a *plot* exposé do NOT get the Neubau render-exception — the object sold is the ground and it is
+  bildlich unbelegt → **cap D at 3,0** and list "keine echten Grundstücksfotos" as an explicit ✗ con.
+- Put a **two-lectures scenario table** in Block A (score against the plot search it was scanned under; note
+  that the land+house total often fits the *house* search's caps but is entirely unquoted).
+Seen on #519 (expose 169755767, massa haus / Jennifer Fitzlaff, Kurmärkische Str. 127 Schönwalde-Siedlung:
+850 m² headline, ~425 m² share, "ab 110.000 EUR", scored 2,9).
+**Why:** taken at face value the structured fields read "850 m², 129 EUR/m², under both caps" — a clean pass —
+while you actually buy half that area at double that rate, tied to one manufacturer and to a stranger's build.
+
+## Sibling plot class: **Wochenend-/Freizeitgrundstück** (`livingbuysite`) — two traps, both in the free text
+Same skeleton as the Bauträgerbindung case (TOP_ATTRIBUTES = Kaufpreis + Grundstücksfläche, Hauptkriterien =
+only `Vermarktungsart: Kauf` + `Grundstück ca.`), but the object is an **Erholungs-/Wochenendgrundstück with
+a small Wochenendhaus**. Two things go wrong if you score it from the structured fields alone:
+1. **The headline m² and IS24's `Preis/m²` are GROSS.** The usable-vs-unusable split exists ONLY as prose in
+   `TEXT_AREA "Objektbeschreibung"` (#518, expose 169760862, Schmergow/Trebelsee: *"Das 1.111 m² große
+   Grundstück (550 m² Erholungsfläche, 561 m² eigener Wald)"*). Redo the profile `max_price_per_m2` check on
+   the **usable** area — 171 EUR/m² gross became **344 EUR/m²** on the 550 m², i.e. cap passed only because
+   the Wald diluted it. Wald ⇒ not bebaubar, §8 LWaldG Umwandlung genehmigungspflichtig, §15 LWaldG **public
+   Betretungsrecht**, Verkehrssicherungspflicht — it is a liability, not half a garden.
+2. **The word `bestandsgeschützt` in the description is the whole baurecht verdict.** Bestandsschutz ≠
+   Baurecht: it freezes a state, permits nothing, only exists if the structure was **legally erected before
+   01.08.1990**, and covers **Wochenendnutzung only** (VV Brandenburg "Umnutzung von Wochenendhäusern zum
+   dauerhaften Wohnen", 05.07.2010). Such settlements sit in **Außenbereich §35 BauGB** (often + LSG); even a
+   pending B-Plan is a **SO §10 BauNVO Wochenendhausgebiet** where **Dauerwohnen stays unzulässig**. A
+   post-1990 Um-/Ausbau (here: converted Bauwagen 2001 + Dämmung 2023) risks **Identitätsverlust** → the
+   Bestandsschutz may already be gone. Counter-tell for the benign variant: legit B-Plan plots *advertise*
+   "rechtskräftiger Bebauungsplan"; silence + "bestandsgeschützt" = no secured Baurecht.
+   Corroborate from `adTargetingParameters`: **`obj_buildingPerm: n`**, `obj_development: no_information`,
+   `obj_shortTermBuild: n`, `obj_immotype: grundstueck_wohnen_kauf`.
+**Search-group trap (the score-deciding one):** the scanner files these under the *building-land* search
+(`property: grundstueck`, 200k cap) although a Wochenendgrundstück is `property: freizeitgrundstueck`
+(60k cap) — the type-correct search fires the "price 40 %+ above target" hard blocker and the other does not.
+Score against the **type-correct** search, and put both readings in a scenario table (#518: 2,0 capped vs 3,4
+charitable). Also: banks rarely lend on Erholungsgrundstücke, so IS24's "Finanziere ab N €/Monat" tile is
+meaningless here; and a Bauwagen may be a **Scheinbestandteil (§95 BGB)** = not conveyed via Grundbuch at all.
+**Why:** taken at face value the structured fields say "1.111 m², 171 EUR/m², inside the 200 EUR cap, inside
+the 200k budget" — a clean pass — while the object can never be lived in, half of it is public-access forest,
+and the correct budget cap is a third of the price.
 
 ## "Kauf in die Zukunft" / Verkauf gegen lebenslanges Wohnrecht (Leibrenten-/Nießbrauch-Modell) → cap 2,0
 An *existing* Kauf/Haus exposé (`Bauphase: Haus fertig gestellt`, real Baujahr, provisionsfrei) where the
@@ -783,6 +842,11 @@ nor garden and pays ~1,7× the headline.
   invisible-playwright for single exposes. The custom UA header is required (plain curl UA
   gets blocked). Prefer this path FIRST for any IS24 evaluation; fall back to the stealth
   browser only when the API misbehaves.
+- **UA minor version now matters: use `_1410_35_._`, NOT `_1410_30_._`.** As of 08/2026 the `_30_`
+  variant is rejected by CloudFront with **HTTP 403 + an HTML `ERROR: The request could not be
+  satisfied` page** (~900 bytes), while `_1410_35_._` still returns the JSON. So there are THREE
+  distinct UA failure modes: 403+HTML (stale minor version), 200+zero bytes (wrong UA family, e.g.
+  iOS-style), and 404+JSON error (listing really gone). Only the last one means EXPIRED. Seen on #510.
 - **A wrong/missing UA fails as `HTTP 200` + a ZERO-BYTE body, not as an error status.** Don't read
   the 200 as success — always `wc -c` the output. (An iOS-style UA like `ImmoScout24_2.0_iOS` also
   yields the empty 200; only the `ImmoScout24_1410_35_._` Android form returns JSON.) Seen on #377.
@@ -817,6 +881,21 @@ data, producing a confidently wrong report with no error anywhere.
 - Swap listings: check TITLE/description for Tausch signals as usual.
 
 Tip: pipe to python3 `json.load` and iterate sections; dump non-MEDIA sections to read all fields.
+
+### `TOP_ATTRIBUTES` `type: "REDUCED_PRICE"` — the Kaution is usually still 3× the OLD rent
+A price-lowered rental carries `{"type":"REDUCED_PRICE","originalPrice":"1.911 €","percentage":"-8 %",
+"text":"1.751 €"}` instead of the plain TEXT Kaltmiete. Two consequences, both easy to get wrong:
+- **Kaution:** the "Kosten" ATTRIBUTE_LIST is usually NOT re-derived — it still shows 3 × the
+  *original* rent, which is >3 Nettokaltmieten of the *current* rent and therefore reads as a
+  § 551 BGB breach. Seen on #512 (expose 169661442, Gartenstr. 11 Babelsberg Süd): Kaution
+  5.733 = 3 × 1.911 = **3,27 ×** the current 1.751. Still flag it (the number in the contract is
+  what counts) but say *why* it is off and that a correction to 3 × current is the ask — don't
+  present it as a landlord trying to overcharge.
+- **Mietpreisbremse:** a voluntary −8 % is corroborating evidence that the original ask was not
+  enforceable. Cite it in Block A alongside the § 556g Abs. 3 Auskunft request.
+Always divide Kaution by BOTH `text` and `originalPrice` before writing the Nettokaltmieten multiple.
+**Why:** scoring Kaution against the current rent alone books an illegal-deposit finding without the
+explanation, and the reduction itself is free evidence for the rent-cap argument.
 
 ### Also check the "Weitere Dokumente" REFERENCE_LIST before judging D / scam
 A second `REFERENCE_LIST` (title "Weitere Dokumente") carries attached PDFs — commonly the
@@ -1707,6 +1786,59 @@ for **existing bungalows + Erschließung (Strom/Wasser/Telekom)**, not the raw W
 Freizeitgrundstück hides at 30–40 EUR/m² and would slip through the price gate — anchor on the field
 signature + the Dauerwohnrecht sentence, not the price band.
 
+##### Correction from #517: the FIELD SIGNATURE fails too — only the use-restriction SENTENCE is reliable
+#517 (expose 168025669, Kleinmachnow „Klein Moskau" am Teltowkanal, 840 m² @ **232 EUR/m²**,
+195.000 EUR, Rohde Immobilien GmbH) is a Wochenendgrundstück carrying the **exact opposite** of the
+#407/#446 no-Baurecht signature: `Bebaubar nach: **Bebauungsplan**` / `obj_constAfter: constructionplan`
+(TOP of the Baurecht ladder), the B-Plan **named** (KLM-BP-044 „Gartensiedlung Kleinmachnow Süd-Ost",
+rechtskräftig — its 1. Änderung was resolved 2021), **`Grundflächenzahl:` + `Geschossflächenzahl:` as
+structured Hauptkriterien rows**, and `Erschließung: Teilerschlossen`. So the class is NOT detectable
+from the fields at all, and the €/m² is 6× #446's.
+- **The ONLY reliable tell is the use-restriction sentence in `TEXT_AREA "Objektbeschreibung"`** —
+  here *"liegt in einem ausgewiesenen **Wochenendgebiet** … eignet sich **ausschließlich zur Nutzung
+  als Zweitwohnsitz**; eine **dauerhafte Wohnnutzung ist nicht zulässig**"* + *"Errichtung eines
+  **Wochenendhauses/Tiny Houses** mit einer maximalen Grundfläche von ca. 30 m² bzw. 60 m²"*. Run the
+  `Dauerwohn|Wochenend|Freizeitgrundstück|Erholung|Zweitwohnsitz` grep on EVERY plot exposé, including
+  ones whose Baurecht fields look perfect — a plan-secured plot can still be a Sondergebiet
+  Wochenendhaus (§ 10 BauNVO).
+- **Second, cheaper tell: a `Grundflächenzahl`/`Geschossflächenzahl` of ~0,05–0,10.** Normal EFH-Bauland
+  runs GRZ 0,2–0,4. #517's **GRZ = GFZ = 0,07** on 840 m² = max 58,8 m² Grundfläche ⇒ the plan permits a
+  hut, not a house. When GRZ ≈ GFZ *and* both are ≤0,10, suspect Wochenend-/Erholungsgebiet before
+  reading a word.
+- **Consistency fix — the reclassification MUST fire the price hard blocker.** #446 reclassified to the
+  Freizeit search but still scored A 3,5 / final 3,0 while sitting at +150 % over that search's
+  60 T EUR budget; that was wrong. Once the object is reclassified, the Freizeit budget is *the*
+  applicable target ⇒ >40 % over ⇒ Block A ≤1,5 and the global score caps at **2,0**. #517: 195.000 vs
+  60.000 = **+225 %** → 2,0 (raw weighted average was 2,85). Score it as the class it IS, not as the
+  search that happened to catch it.
+- Scoring shape (#517): A 1,0 · B 4,0 (Kleinmachnow IS in acceptable_areas of *both* the plot and the
+  Freizeit search) · C 4,0 (840 m², 21,8 × 39 m — but the m² buy garden, not Baurecht) · D 2,0 ·
+  E 2,5 (plan-secured Baurecht lifts it above #446's 2,0, the Nutzungsbeschränkung + Teilerschließung
+  pull it back down) · F 4,0 · G 2,0 · H 4,0.
+- **`obj_demolition: n` can contradict an explicit "Abrissbedarf" in the text — the text wins.** #517's
+  Objektbeschreibung says *"kleines Bestandsgebäude mit **Abrissbedarf**"* while the flag says no
+  demolition. This is the inverse of the #404 rule (where `obj_demolition: n` + "kein Abriss" caption was
+  a genuine Block-D credit): never credit the flag without checking the description, or you book a
+  5–15 T EUR Abriss (+ Schadstoffverdacht on DDR-Wochenendhausbestand) as a saving.
+- **Existing structure + a partially-Bestand-sichernder B-Plan = a Bestandsschutz trap.** KLM-BP-044
+  grandfathers *some* pre-existing Wohnnutzungen. If the abrissbedürftige Bestandsbau carries
+  Bestandsschutz for a larger footprint (or for Wohnnutzung), **demolishing it destroys that
+  irreversibly** — make it a pre-Abriss question on any Wochenendparzelle with a Bestandsgebäude.
+- **`Teilerschlossen` on a Wochenendparzelle usually means: Strom ✓, Wasser *vor* dem Grundstück,
+  Abwasser über eine vom Käufer zu bauende abflusslose Sammelgrube** (Genehmigung nach BbgWG + laufende
+  Entleerungskosten ~500–1.500 EUR/a). Size the one-off at 8–20 T EUR and say the ongoing cost exists —
+  no exposé mentions the Entleerung.
+- **BRW anchor — Kleinmachnow (teuerste Gemeinde in Potsdam-Mittelmark): Wohnbauland 450–1.250 EUR/m²,
+  Gemeindedurchschnitt 953 EUR/m²** (Gutachterausschuss, Stichtag 01.01.2026, ±0 % ggü. Vorjahr).
+  **Wochenendhausland is its own BRW zone**, im Berliner Umland grob 25–35 % des Wohnbaulandwerts
+  (≈200–350 EUR/m², my estimate) ⇒ #517's 232 EUR/m² is **marktgerecht for the class**, not a bargain
+  and not overpriced → clean in the scam check (inverse of the below-market pattern). Extends the belt
+  ladder: Stahnsdorf 300–500 · Falkensee/Finkenkrug ~850 · **Kleinmachnow 450–1.250**.
+**Why:** #446's rule promised the collapsed no-Baurecht field signature as "the real tell"; #517 has a
+named rechtskräftigen B-Plan and full attributes, so that test would have passed it through as a
+first-rate Baugrundstück at a market €/m² (A ~3,5, E ~4,5, final ~4,0) instead of an object on which
+the user may legally never live.
+
 ### Plot exposé that CONTRADICTS ITSELF — the TITLE beats the `Erschließung:` dropdown
 #406 (expose 158375845, Paaren im Glien/Schönwalde-Glien) has `Erschließung: Erschlossen` +
 `obj_development: developed`, while its own **TITLE** reads *"…– **teilerschlossen** & sofort
@@ -1869,3 +2001,60 @@ signal, and read "Erschlossen" as settling the Erschließung cost question outri
 ## Deutsche Bank Immobilien "digitaler Maklervertrag" gating (Kauf) → score it, don't treat as preview/EXPIRED
 Some DB Immobilien Kauf exposés (agent e.g. Timon-Gordon Lauterbach, FG Potsdam & Brandenburg) fully populate the ATTRIBUTE_LIST criteria + carry real photos (19 on #476, expose 168127585), but the Ausstattung TEXT_AREA states the full address, Lage-Exposé, 3D-Tour, extra photos AND the Besichtigungstermin come **only after you confirm a "digitaler Maklervertrag" (kostenfrei bis Kauf)**, and the MAP `address` is null. This is NOT the pre-publication preview case above and NOT EXPIRED — score normally from the criteria table; the true address recovers from the `obj_telekomInternetUrlAddition` base64 leak (decoded to Sternstr. 28, 14480 Potsdam, matching the geo-tag). The gating + "übermitteln Sie uns Ihre vollständigen Kontaktdaten" ask is standard DB-Immobilien funneling, NOT a scam signal on its own. Next-step #1 = confirm the free Maklervertrag to unlock address/photos/viewing.
 **Why:** the null MAP address + "erst nach Vertragsbestätigung" wording looks like a hidden/draft listing, but it's a fully scoreable live exposé — the telekom leak + geo-tag settle the location without contacting anyone.
+
+## Anbieter boilerplate: Objektbeschreibung + Lage can belong to a DIFFERENT project than the address
+Large Bestandshalter/Konzernvermieter (seen: **BUWOG Immobilien Treuhand GmbH**, a Vonovia-group entity
+— Impressum names Rolf Buch / Philip Grosse / Petra Langemann = the Vonovia SE board) paste a
+project-level Objektbeschreibung + Lage text into unrelated exposés. On #510 (expose 169749898,
+Brunnenallee 3A, 14478 Potsdam) both TEXT_AREAs describe **Bornstedt** ("Leben im entspannten
+Bornstedt", "Kronengut zu Schloss Sanssouci", "TRAM 92, 96 und Bus 697") while the flat sits in the
+**Brunnenviertel** in Potsdam-Süd, ~6 km away with a completely different transit set (Bhf
+Potsdam-Rehbrücke 350 m, Tram 91).
+**How to resolve:** the address fields are authoritative and mutually corroborating — `MAP.addressLine1/2`
++ `location.lat/lng`, the `RELOCATION` / `REFERENCE_LIST` deep links (`street=`, `houseNumber=`,
+`postcode=`, `city=`) and the price-insights `geocodes=` path. Cross-check them against each other, then
+websearch the street to name the quarter; score Block B on THAT, and log the wrong Lage text as a
+data-quality ✗ con (not a scam signal) when photos/geo are otherwise consistent. Note IS24's own Ortsteil
+label can also be self-inconsistent (`addressLine2` "Waldstadt I" vs `geocodes` ".../waldstadt-ii").
+**Why:** scoring Block B off the Lage text would have credited a Bornstedt location and Bornstedt transit
+to a flat in Potsdam-Süd, and would have missed the actually-better connection (RE 7/RB 33 at 350 m +
+direct Tram 91 to Golm).
+
+## Numeric MEDIA captions ("0","1","2"…) ≠ renders — download and look before capping Block D
+Memory elsewhere says numeric-ID captions on a Planung/Fertighaus listing mean catalog renders. On a
+normal Bestandswohnung, bare index captions `0..8` are just the upload order and say nothing. Resolve it
+cheaply: `fullImageUrl` is a plain unauthenticated CDN URL — `urllib` them into the scratchpad, convert
+webp→jpg with PIL, and Read the images. On #510 that showed 3 professional quarter shots + 6 phone
+photos of the empty flat (parquet, EBK, roof terrace with weeds) ⇒ real photos, no Block-D cap, and the
+weeds became a concrete viewing question.
+**Why:** capping D at 3,0 on caption style alone would have docked a listing whose photos are real, and
+the images carry condition evidence the criteria table doesn't (terrace upkeep, kitchen appliances).
+
+### Corollary: on `obj_condition = need_of_renovation`, a CHECK attribute asserts EXISTENCE, not working order
+`ATTRIBUTE_LIST` CHECK items (Einbauküche/Balkon/Keller…) are binary presence flags — they carry no
+condition information at all. On #511 (expose 164349200, Potsdamer Str. 18 Bornstedt) "Einbauküche:"
+was checked and `obj_hasKitchen = y`, but the downloaded `Küche` photo shows the run **half dismantled**:
+one base cabinet with its front missing, an appliance pulled out of its niche, the cooktop lying loose on
+the worktop, cable exposed. **Rule: whenever `obj_condition` is `need_of_renovation` (or the text says
+renovierungsbedürftig), download the Küche and Badezimmer photos before scoring E — and score the
+must-have as present-but-unfinished, with "who completes/repairs it, in writing, with a deadline" as a
+Next step.** Also note IS24 never states *who* renovates; silence there is the norm, not an omission.
+**Why:** the checkbox alone would have booked a working fitted kitchen as a plain amenity win, and the
+report would have missed the single most concrete pre-contract negotiating item.
+
+## `AGENTS_INFO.rating` is a PORTAL-INTERNAL score — cross-check the Anbieter externally before scoring Block H
+IS24's own star value is systematically friendlier than the independent sites, and the gap can be
+enormous: #511's EB IMMOBILIENMANAGEMENT GmbH shows **3,8 aus 1.522** in `AGENTS_INFO.rating` while
+**ProvenExpert has 1,60/5 aus 484 Bewertungen at a 0 % Weiterempfehlungsquote** and **Jacasa 1,6 aus 528**,
+with Trustpilot reviews of eb-immo.de complaining specifically about unperformed maintenance and
+unreachability. That is the difference between H = 3,5 ("unknown, default") and H = 2,0 ("known
+problematic") per `_shared.md`. **Rule: one WebSearch on `{company} {Stadt} Erfahrungen Bewertungen`
+for every non-private Anbieter — never let the IS24 star value alone set Block H.** Good query targets:
+provenexpert.com, jacasa.de (Hausverwaltungs-Rezensionen), trustpilot, kununu for the employer view.
+Weight it in context: a *renovierungsbedürftig* flat let by a Verwaltung whose complaints are about
+maintenance is a compounding risk, not two separate minor cons — say so in the summary.
+(Related, already recorded above: `rating.numberOfStars` is the review COUNT, not a scale; and the same
+brand's individual agents can differ, so score per person where the profile allows.)
+**Why:** H is only 5 % of the weight, but the reputation finding is what converts "renovierungsbedürftig,
+they'll surely fix it" into "get every promise into the contract" — without the external check the report
+gives the opposite advice.

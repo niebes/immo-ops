@@ -52,7 +52,11 @@ and **`"streetAndHouseNumber"`** (exact street — grep it too; confirmed workin
 `numberOfRooms` are string-quoted (`"space":"94…"`, `"numberOfRooms":"4"`). The Lage text under
 `"location"` + `"postCodeAndCity"` confirm the real city — the "Potsdam" search bucket regularly
 returns Berlin flats (e.g. Berlin-Staaken/Spandau), so score Block B on the real city.
-Real-photo count still from `imageUrls`: `VNA-*`=real, `CAMP-*`(Gruenstrom/APP)=marketing banners.
+Real-photo count: the detail HTML uses **`"images":[{"url":…,"caption":…},…]`** (NOT the list-API
+key `imageUrls` — grepping for `imageUrls` on a detail page returns nothing and looks like "0 photos").
+Real = `VNA-*.jpg` **plus legacy asset IDs like `DA015BB2000008D9.jpg`** (16 hex chars, older stock —
+also real flat photos, don't drop them); only `CAMP-*` (Gruenstrom/APP) are marketing banners.
+Extract by slicing from `"images":[` to the first `]`, then regex the URLs.
 Watch the description for **"Musterbilder"/"Musterbild"** (example photos) — same as no real photos,
 cap Block D at 3.0 for an existing flat (common on Vonovia flats "wird vollständig saniert").
 **Why:** fastest, fully-unattended full-detail path; no SPA render, no CiC, no IS24 cross-post.
@@ -102,10 +106,25 @@ before treating any short token as a hard blocker.
 **Why:** short uppercase tokens collide with base64; a false WBS hit silently triggers the
 worst-case scoring cap.
 
-## Rooms: trust the "Zimmer" field, not the title
+## Rooms/size: trust the detail-HTML fields, not the title and not the scan hint
 Marketing titles inflate ("Weitläufige 4-Zimmer-Wohnung" while the Zimmer field says 3 —
 seen on #306, wrk 1306270007). Score Block C from `numberOfRooms`/the Überblick Zimmer field.
+On the detail page these are **German-formatted strings**: `"numberOfRooms":"3,5"`,
+`"space":"91,20 m²"` — a `\d+` regex truncates them to "3"/"91". The **scan hint floors half
+rooms** (pipeline said "3 Zi" where the expose says 3,5 — #515); always re-read the expose.
+Useful sibling keys: `"availableFrom":"2026-09-05"` (ISO, next to the German "Verfügbar ab" row),
+`securityDeposit`, `constructionYear`, `energyPass*`.
 Object-Id on page is `82-{wrk_id}`; the URL slug ends in the bare `{wrk_id}`.
+
+## Always read the `description` for an announced **Modernisierungsumlage**
+Recurring Vonovia pattern on 70s stock: "Die Wohnanlage wird 2026/2027 umfassend modernisiert …
+Die maximale monatliche Mieterhöhung beträgt **X €**". That is a *contractually foreshadowed*
+rent increase, typically pushed right to the § 559 Kappungsgrenze (3,00 EUR/m² in 6 Jahren —
+#515 Kladow: 259,01 EUR on 91,20 m² = 2,84). Score it in **Block A** (recompute EUR/m² and
+Warmmiete *after* the umlage against the profile ceilings) and mention the construction-site
+disruption in Block D, plus the pattern itself in Block H. Missing it understates the true rent
+by 15–20 %.
+**Why:** the number only appears in the free-text description, never in the labelled Kosten rows.
 
 ## Landlord / character
 Anbieter = "Vonovia Kundenservice GmbH", direct landlord, **no Provision** (Bestellerprinzip

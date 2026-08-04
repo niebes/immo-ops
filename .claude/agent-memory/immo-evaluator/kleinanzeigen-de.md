@@ -22,6 +22,19 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     silently treat the heading as Kaltmiete then — report the ambiguity, score conservatively with the
     figure as Kaltmiete, and put "Kalt/Warm klären" in next steps. *Why:* otherwise you invent a
     Nebenkosten split that the ad never stated.
+  - **All three price fields can be present AND not add up**: heading (Kaltmiete) + spec-list
+    "Nebenkosten" ≠ spec-list "Warmmiete" (#520: 1.300 + 450 = 1.750 vs stated Warmmiete 1.717 →
+    derived NK 417). Always do the arithmetic; report both the stated and the derived NK and put
+    "NK klären" in next steps. *Why:* silently trusting the NK field overstates the monthly cost by
+    the delta, and trusting the Warmmiete hides that one of the poster's numbers is wrong.
+  - **Private Nachmieter ads:** price heading is often the **Warmmiete** and the only proof is one prose
+    line ("Miete: ca. 1.370 € warm pro Monat"); Nebenkosten/Kaution/Baujahr/Energieausweis/Adresse are
+    usually absent entirely, and the Zimmerzahl runs half a room high (HWR/Abstellraum counted). Before
+    scoring such an ad, look for the **landlord-channel twin** (Semmelhaack/Hausverwaltung/IS24) and
+    dedupe on an **exact Warmmiete + m² + Etage** match — the tenant ad typically adds an Ablöse
+    ("Küche muss übernommen werden") and a hard move-in date the landlord listing doesn't have.
+    *Why:* on #521 that match turned a would-be full evaluation into a DUPE of #516 and revealed the
+    Ablöse as avoidable.
   - **0 gallery images happens on ordinary private ads too**, not just Tauschwohnung ads — cap Block D
     at 3,0 when it's 0.
   - **Counting photos: DEDUPE the `data-imgsrc` URLs — the raw grep count is 2× the real photo count.**

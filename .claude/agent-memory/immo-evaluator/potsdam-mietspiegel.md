@@ -60,6 +60,19 @@ Baualter bleibt nach Modernisierung maßgeblich (nur Sanierung auf Neubaustandar
 
 Seen/first used on #504 (Caputher Heuweg 61, Waldstadt II: 11,59 EUR/m² vs. 5,69–6,06 Mittelwert).
 
+**Der Anker dreht die Aussage oft um 180° — Drewitz/Plattenbau ist der Standardfall.** #513
+(Erich-Pommer-Str., Bj. 1987, EEK C, 68 m², 9,06 EUR/m²) kam als *"price well below the area
+Mietspiegel → keep-and-flag, WBS prüfen"* in die Evaluation. Gegen den Angebotsmarkt (12,60–13,50)
+stimmt das (−30 %); gegen die ortsübliche Vergleichsmiete des Feldes 1971–1990 × C,D × Spalte C
+= **5,82 (5,23–6,25)** liegt es **+56 % über dem Mittel / +45 % über dem Oberwert**, zulässig wären
+6,25 × 1,1 ≈ **6,88 EUR/m²**. Also: Mietpreisbremse *überschritten*, Scam-Signal *feuert nicht*.
+→ Bei jedem "verdächtig billig"-Flag aus einer Potsdamer **Großsiedlung (Drewitz, Am Stern,
+Waldstadt, Schlaatz, Zentrum Ost)** zuerst das Plattenbau-Feld ziehen: 5,5–6,9 EUR/m² ist dort das
+*normale* Niveau, "billig gegen 13 EUR" ist bloß der Gebäudetyp und **kein WBS-Indiz**. WBS separat
+per `Wohnberechtigung`-Keyword prüfen, nicht aus dem Preis erschließen. *Why:* ohne diese Umkehrung
+liest man −30 % als Scam-/WBS-Verdacht und übersieht, dass tatsächlich der Mieter den
+§ 556g Abs. 3 BGB-Auskunftshebel in der Hand hat.
+
 ## Umland: **Falkensee/Schönwalde-Glien/Brieselang (Berliner Speckgürtel) unterliegen seit 01.01.2026 der Mietpreisbremse**
 Die neue Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung (Kabinett 25.11.2025) gilt ab
 **01.01.2026 für 36 statt bisher 19 Gemeinden** — neu dabei u. a. **Falkensee**, Blankenfelde-Mahlow,
@@ -86,3 +99,37 @@ AUCH die `priceBar` das Angebot unter `minSimilarPrice` drückt.
 Annahme „Brandenburger Kleinstadt → keine Mietpreisbremse" ist seit 2026 schlicht falsch.
 Stabile Jahresdaten → **Kandidat zur Promotion nach `modes/_shared.md`** (Mietpreisbremse-Abschnitt),
 wenn der Mietspiegel 2026 sich bewährt; Neuauflage voraussichtlich 2028.
+
+## Berlin: **Berliner Mietspiegel 2026** — in 30 s per curl + pdftotext, keine WebFetch-Krücke
+Gebraucht wird das regelmäßig, weil die Vonovia-„Potsdam"-Suche (perimeter 30 km) laufend
+**Berliner** Wohnungen liefert (Kladow/Spandau, Zehlendorf, Staaken) — und Berlin ist per
+Mietenbegrenzungsverordnung **flächendeckend reguliert** (keine Ausnahme für Randlagen).
+
+    curl -sA "Mozilla/5.0" -o t.pdf https://mietspiegel.berlin.de/wp-content/uploads/2026/05/mietspiegeltabelle2026.pdf
+    pdftotext -layout t.pdf - | less     # nur ~88 Zeilen, gesamte Tabelle
+
+Die **Tabellen-PDF** (`mietspiegeltabelle2026.pdf`, ~140 KB) ist die richtige Datei — nicht
+`mietspiegel2026.pdf` (1,6 MB Fließtext). `pdftotext -layout` liefert sie sauber; **kein**
+Read-mit-`pages`-Umweg nötig (anders als beim Potsdamer PDF).
+**Layout-Falle:** die drei Wohnlagen stehen **nebeneinander in einer Zeile** — Spaltenblock 1
+(Zeilen-Nr. 1–67) = *einfache*, 2 (68–129) = *mittlere*, 3 (130–192) = *gute* Wohnlage. Wer nur
+grept, erwischt die falsche Lage. Der Baualters-Header steht nur in der ersten Zeile der Gruppe,
+die Größenbänder darunter erben ihn.
+Werte gelten Stichtag 01.09.2025, Nettokalt, vollausgestattet; zulässig = Mittelwert **+10 %**
+(Baujahr ≤ 31.12.2024, sonst § 556f).
+
+Anker (Bj. **1973–1985 West**, **ab 85 m²**), genutzt auf #515 Lanzendorfer Weg 27, Kladow:
+| Wohnlage | untere | Mittelwert | obere |
+|---|---|---|---|
+| mittel (Zeile 95) | 6,79 | **8,35** | 10,70 |
+| gut (Zeile 157) | 7,98 | **10,39** | 13,80 |
+
+→ Vonovia rief dort **16,13 EUR/m²** auf = ~55 % über dem Mittelwert der guten Lage und über
+deren oberem Spannenwert. **Berliner Bestandsbauten der 70er sind bei Vonovia routinemäßig weit
+über der Mietpreisbremse bepreist** — immer § 556g Abs. 3 BGB (Vormiete + Modernisierungskosten)
+als Next Step in den Report schreiben, nie „compliant" ohne Rechnung.
+Wohnlage-Einstufung adressgenau: Straßenverzeichnis auf `mietspiegel.berlin.de`; solange
+ungeprüft, **beide** Werte (mittel + gut) im Report nennen und die gute Lage als Obergrenze
+rechnen (konservativ).
+**Why:** ohne diese Notiz kostet jede Berliner Wohnung aus dem Potsdam-Bucket eine neue
+PDF-Suche — und die nebeneinanderliegenden Wohnlagen-Blöcke führen zuverlässig zum falschen Wert.

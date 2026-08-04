@@ -72,7 +72,15 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
   `selection_property_house.png`). A gallery *region* exists but holds zero real `<img>`.
   Filter out `/shared/images/` srcs; if nothing real-CDN remains → **no real photos → cap Block D at 3.0** and
   flag "no photos" in summary. *Why:* naive `img` count returns ~5–6 and looks like photos exist when none do.
-- No on-page "N Fotos" counter to rely on.
+- **There IS an on-page counter after all:** `innerText` opens with `1 / N` + `Alle N Bilder ansehen` right above the price header. Cheapest reliable photo count — read it before any regex. (The mms-URL regex over-counts by ~1: the hero image also appears URL-encoded, `mms.immowelt.de%2F6%2F6%2F…`, so dedupe after decoding. #513: counter said 7, raw regex said 9, real uniques 8 incl. the encoded dupe.)
+- **The `\"classification\":{\"name\":\"…\"}` media payload is NOT always present** (absent on #513, a small 7-photo rental) — when the regex returns null it means "no payload", not "no photos". Fall back to the `1 / N` counter + mms-URL uniques; you then have no per-room labels, so state Grundriss/room coverage as unknown rather than absent.
+- **Photo URLs existing ≠ photos of THIS flat.** Three tells, all in the page tail, together mean the gallery is a Musterwohnung/archive set and the `_shared.md` "cap Block D at 3,0" rule fires even though real mms photos load:
+  1. `Sonstiges` (NOT the description body) contains *"Bei den Bildern handelt es sich ggf. um Beispiel- und/oder Archivfotos."* — a boilerplate line many Verwalter append; a description-only keyword scan misses it entirely.
+  2. `Referenznummer` is a **type** string, not a unit id (#513: `EPS San 3-Zi 68m²` = street + "saniert" + layout).
+  3. `Stichworte` says `Sonstiges: frei werdend` (still tenanted → nobody could have photographed it empty).
+  *Why:* #513 looked photo-rich (7 images) and "Saniert", which would have scored D 4,25; the disclaimer means the condition claim is unverifiable and D must be capped at 3,0. Always quote the disclaimer verbatim in the report and put "no real photos of this unit" in the ✗ cons.
+- **Rental `Sonstiges` tail is where Mietlaufzeit + Kaution actually live** — e.g. "Das Mietverhältnis ist unbefristet mit einer **Mindestmietzeit von 1 Jahr**" and "Kaution: 3 Nettokaltmieten". The `Mietkosten` box only shows "Kaution: 3 Nettokaltmieten" without the EUR amount and says nothing about a Kündigungsausschluss. *Why:* a Mindestmietzeit is a Block-G deduction that is invisible unless you read the tail.
+- **Proving "no WBS" / "no Keller" / "no Provision":** run one `innerHTML` keyword sweep with ±60 chars of context and *inspect the context* — a bare `/WBS/` match hits random base64 inside page tokens and looks like a WBS requirement (#513). `Wohnberechtigung` is the safe positive term. Absence of `Keller`/`Abstellraum` in a rental expose stays **unconfirmed, not confirmed-missing** (see the truncated-Merkmale note above) — score it between the must-have-present and the 2,0 missing-must-have penalty and make it question #1 for contact.
 - **Photo count under CiC without an aggregator:** even when gallery `<img>`s are absent, the raw HTML holds the photo CDN URLs — regex `documentElement.innerHTML` for `mms\.immowelt\.de\/[a-z0-9\/\-]+\.(webp|jpg|png)` and count uniques (also check `og:image`, which is a real mms photo). *Why:* #334 showed 0 real `<img>` but 10 unique mms URLs — avoids a wrong D-cap and needs no aggregator twin.
 - **Cross-check via the aggregator:** when arriving from Süddeutsche/regionalimmobilien24, the aggregator page's `og:image` meta holds a real listing photo — use it to confirm photos EXIST (count still unknown) before capping D for "no photos". *Why:* #331 Immowelt DOM showed zero real imgs under CiC, but the SZ og:image proved the gallery is populated — a blind D-cap would have been wrong.
 
@@ -86,6 +94,23 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
   crucially whether a **same-rate contract with the seller** exists (= § 656c BGB split confirmed).
   Read it verbatim; it is a real Block-G differentiator (#396 was clean and 2,38 %; #384's IS24 twin
   tried to bind the Maklervertrag to the mere Exposé-Abruf at 3,57 %).
+- **Fertighaus / "projektiert" listings are build offers, not properties — detect them before scoring.**
+  Tells (all on #514, 13ccf669, allkauf haus): `Zustand der Immobilie: **Projektiert**` in the
+  Bausubstanz block · description opens "Diese *projektiert geplante* …" · `Preisdetails` →
+  `Provision für Käufer: **Auf dem Grundstück möglich.**` (a plot-only commission — the object is
+  house+plot bundled) · no Energieausweis, only "Details zum Energieverbrauch anfragen" (legitimate
+  pre-completion) · `Stichworte` shows a bogus `modernisiert: {current year}` · media payload is
+  HOUSE_FACADE + Musterhaus interiors + FLOORPLANs of the *Haustyp*, never of the object.
+  **The `Referenznummer` encodes the calendar week** (`4232-313-**kw30**-26281`) ⇒ a weekly-rotating
+  Typenhaus ad, so the named plot is indicative, not secured — say so and make "is this plot real?"
+  question #1. Scoring consequences: the headline price excludes Bodenplatte/Keller, Erschließung,
+  Hausanschlüsse, Baugenehmigung, Außenanlagen/Terrasse, Küche **and** (for an Ausbauhaus) the
+  buyer's own Trockenbau+Estrich → compute a realistic all-in of roughly headline +20–30 % and check
+  *that* against the budget cap, not `Geschätzte Gesamtkosten`. Also flag the **einheitliches
+  Vertragswerk** GrESt question (6,5 % on the whole sum vs. on the plot alone). Do NOT cap Block D
+  for renders — the `_shared.md` Neubau/Erstbezug exception applies.
+  *Why:* on the sticker price alone #514 reads as a comfortable 78 %-of-budget 5,0 in Block A; the
+  real cost sits at/over the 500 k cap and the "house" does not exist.
 - **Watch the tail of the description for a digital-staging disclaimer** — e.g. "Einige Räume sowie
   die Außenanlage wurden digital gestaltet und dienen ausschließlich als Inspiration." It sits AFTER
   the prose and before "Mehr anzeigen", so a truncated read misses it. It is *partial* staging on an
@@ -96,6 +121,9 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
 ## Tauschwohnung (swap) listings
 - Title `h1` shows "… • Tauschwohnung"; Anbieter is a private person via **Tauschwohnung.com** (a tauschwohnung.com disclaimer paragraph sits right after the description).
 - **The partner's Suche is free-text in the description body**, not a structured field — e.g. "Wir suchen eine 4 Zimmer Wohnung ab 95 m². Unsere Wohnung zum Tausch ist im {Adresse}." Read the description prose for rooms/m²/area of what they want AND the real address/Vermieter of their flat (often a municipal landlord like Gesobau — swap needs that landlord's approval).
+- **Immowelt swap exposes have NO route to the tauschwohnung.com source** — unlike IS24 there is no "Original-Exposé"/`twg.click` link (`[...querySelectorAll('a')]` filtered for `twg|tauschwohnung` returns `[]`; the only tauschwohnung.com URL on the page is the illegal-content reporting link). The `Referenznummer` == the `Anbieter-ID` printed in the description ("Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: NNNNNN)") and is **NOT** a tauschwohnung.com housing id — `tauschwohnung.com/wohnung/{that id}` returns a **soft 404 with HTTP 200** (61 KB "Seite nicht vorhanden" page), so a bare status-code check looks like success. ⇒ From Immowelt you get **no NUXT `search`/`housing` dict**: the free-text Suche in the description body is the ONLY side-2 input, and Keller/Baujahr/Energieausweis/Kaution stay unknown rather than resolvable. *Why:* #521 burned two calls chasing the `tauschwohnung.md` NUXT route that only works from IS24.
+- **Swap exposes have no `Merkmale` block at all** and `Mietkosten` carries only Kaltmiete + Kaution (usually "keine Angabe") — no Nebenkosten field, so the **Warmmiete is genuinely absent, not missed**. `Bausubstanz und Energie` collapses to "Details zum Energieverbrauch anfragen" with no Baujahr. Score these as unknown and make them contact question #1; don't hunt for a hidden expander.
+- **A named historic building in the description is a free data source.** #521's expose gave no address, no Baujahr and no condition field, but the description named the "Brockessches Palais" — one WebSearch yielded the exact address (Yorckstraße 19/20, 14467), **Baujahr 1776** (⇒ Mietspiegel Baualtersklasse "bis 1948") and "denkmalgerecht vollsaniert bis Ende 2016" (⇒ Block D "Saniert" **and** the § 556f umfassende-Modernisierung exception that decides the Mietpreisbremse verdict). *Why:* without the Baujahr there is no Mietspiegel field at all, and "Der Anbieter hat die genaue Adresse nicht freigegeben" reads like a dead end.
 - **The Suche can hinge on FLOOR/Etage, not just rooms/m²/area — check the title too.** Seen on #351 (dd00b8fa, Bornstedt): title = "TAUSCHWOHNUNG **Tausch in eine höhere Etage**", flat is EG, Suche = "2-3 Zimmer mit Balkon in Potsdam (Norden)". Their central motivation was a *higher floor*. Our Golm offer (EG, no balcony) matched rooms+area (Golm = Potsdam-Nord) but failed the two explicit points (höhere Etage + Balkon) → side-2 clear fail → DISCARDED, even though their flat scored 4,4/5 for us. So a floor preference in the title is a real side-2 match dimension; our EG offer fails any "höhere Etage"/upper-floor Suche.
 
 ## Notes
