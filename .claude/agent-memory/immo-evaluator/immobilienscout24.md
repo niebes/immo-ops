@@ -71,6 +71,17 @@ empty → D stays ~3,0 and the missing Energieausweis is a Low signal, not a sca
 grants (Block E 1,0 instead of 2,5) — and reading `obj_cellar=n` as fact would have booked a *proven*
 missing Keller when it is merely unasked.
 
+**Inverse test — when IS *is* trustworthy:** the `n`-values are only "unset" if the mask looks untouched.
+On a **gewerblicher** Anbieter (`obj_privateOffer: false`) whose mask is demonstrably curated — several
+`y`-flags set (`obj_balcony=y`, `obj_lift=y`, `obj_hasKitchen=y`) AND `obj_condition` a real value
+(e.g. `well_kept`, not `no_information`) — a lone `obj_cellar=n` / `obj_garden=n` IS a deliberate
+negative, so score the must-have as missing (not merely unconfirmed). Still soften by ~0,5 and make it
+contact question #1 when the building type makes it implausible (a post-2015 Neubau normally has
+Kellerabteile). Seen on #523 (expose 169198883, Schwarzschildstr. 28 Am Stern, Bj 2021, Max Müller
+Immobilien GbR): Block E 2,5 rather than the 3,5 an "unconfirmed" reading would have given.
+**Why:** without the inverse test the #504 rule silently generalises and every missing amenity becomes
+"unconfirmed", which inflates Block E on well-maintained professional exposés.
+
 ## Dating an exposé: a LOW Scout-ID = **recycled old ad object**, not a stale listing
 The mobile API has **no `onlineSince`** field for non-Plus users (`PREMIUM_ADDITIONAL_INFO.onlineSince: null`,
 `chancenCheck.enabled: false`), so when a Scout-ID looks far too low for a fresh listing, date it from these

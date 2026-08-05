@@ -27,6 +27,14 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     derived NK 417). Always do the arithmetic; report both the stated and the derived NK and put
     "NK klären" in next steps. *Why:* silently trusting the NK field overstates the monthly cost by
     the delta, and trusting the Warmmiete hides that one of the poster's numbers is wrong.
+  - **Third price variant — heading == "Warmmiete" field WHILE NK *and* a separate "Heizkosten" field
+    are both filled** (#522: heading 898 €, Warmmiete 898 €, Nebenkosten 125 €, Heizkosten 125 €).
+    Unlike #356 (NK empty) the ad gives you enough to derive the other reading, so present BOTH as a
+    two-row table — (a) heading = Kaltmiete → warm 1.148, (b) heading = Warmmiete → kalt 648 — score
+    the conservative (a), and put "Kalt/Warm klären" first in next steps. Note the spec list has a
+    **separate `Heizkosten` field** next to `Nebenkosten`; Warmmiete = Kalt + NK + Heiz, so forgetting
+    Heizkosten under-states warm by a whole line. *Why:* on #522 the €/m² swings 10,45 ↔ 14,48 and the
+    Mietpreisbremse verdict flips with it — picking one silently would fabricate the answer.
   - **Private Nachmieter ads:** price heading is often the **Warmmiete** and the only proof is one prose
     line ("Miete: ca. 1.370 € warm pro Monat"); Nebenkosten/Kaution/Baujahr/Energieausweis/Adresse are
     usually absent entirely, and the Zimmerzahl runs half a room high (HWR/Abstellraum counted). Before
@@ -70,6 +78,12 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
 ## Tauschwohnung swaps (two-sided match)
 - Genuine swaps: Anbieter block = "Tauschwohnung GmbH", "Gewerblicher Nutzer"; description opens
   "Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: …)".
+- **A GmbH swap can carry NO `Tauschangebot` field in `#viewad-details` at all** (#524 had the full
+  Wohnfläche/Zimmer/Etage/NK list and none of "Nur Tausch"/"Kein Tausch"). The structured proof is then
+  the `#viewad-contact` Anbieter name ("Tauschwohnung GmbH … Gewerblicher Nutzer, aktiv seit …, N Anzeigen")
+  **plus** the boilerplate opener inside `#viewad-description-text` — both are ad-own DOM, unlike the
+  sidebar hits. *Why:* demanding the `Tauschangebot` field as the only structured confirmation would have
+  read #524 as a plain rental.
 - **Second, distinct swap variant: the private DIY swap** — no Tauschwohnung GmbH, just a private
   tenant with a "[TAUSCH]" title. Tell-tale is the spec-list field **"Tauschangebot" → "Nur Tausch"**
   (vs "Kein Tausch" on ordinary rentals). These read like normal quality ads: 18 real photos, long
@@ -112,6 +126,14 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   ("Wir möchten uns vergrößern und möchten im waldstadt 1 oder 2 bleiben" = bigger flat + stay in
   that Ortsteil). Read the whole description as the Suche, not just sentences starting with "Suche".
   *Why:* on #355 a keyword grep for "suche" would have found nothing and mislabelled the Suche unknown.
+  - **The Suche can be MISSING ENTIRELY** — title is just "TAUSCHWOHNUNG {flat description}" with no
+    Suche clause, and the description covers only the offered flat + platform boilerplate + "# Weitere
+    Angaben" (#524). From Kleinanzeigen there is **no recovery route**: these ads carry no twg.click /
+    "Original-Exposé" link, and `tauschwohnung.com/wohnung/{Anbieter-Objekt-ID}` soft-404s ("Seite nicht
+    vorhanden") because the Anbieter-Objekt-ID is NOT a housing id. Don't burn calls on it — record
+    "Suche unknown", use their own flat as the fallback yardstick, and apply the lenient rule
+    (surface as Swap-candidate, "verify on contact"). *Why:* #524 spent 3 fetches proving the route
+    doesn't exist.
 - **The Suche can be a bare comparative with zero numbers** — "Wir tauschen mit einer ähnliche{n} Wohnung."
   (#359). Then the yardstick for side 2 is THEIR OWN flat's figures (m², Zimmer, Kaltmiete, Ortsteil,
   Ausstattung) — score our offer against those, don't record the Suche as "unknown". *Why:* "unknown Suche"
@@ -162,7 +184,19 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
 - "Nachmieter gesucht" / "Suche Nachmieter" titles are normal long-term rentals (the existing tenant
   is leaving) — NOT sublets. Score normally unless the text says befristet / Untermiete / auf Zeit.
 - "Das könnte dich auch interessieren" sidebar is full of Tauschwohnung ads — ignore it; it is not
-  the listing under evaluation.
+  the listing under evaluation. **Concretely: a raw-HTML grep for "Tauschangebot" / "TAUSCHWOHNUNG" /
+  "Es handelt es sich hierbei um ein Tauschangebot" false-positives on almost EVERY Potsdam rental page**
+  — those strings live in the sidebar's JSON-LD + `.aditem-main--middle--description` blocks (#522 had
+  5 such hits on a plain rental). Decide swap-vs-rental ONLY from (a) the `Tauschangebot` entry inside
+  `#viewad-details` ("Nur Tausch" / "Kein Tausch"; **absent entirely on ordinary ads**), (b) the title,
+  and (c) the `#viewad-contact` Anbieter name. *Why:* on #522 a keyword grep said "swap" while the ad
+  was a plain Nachmieter rental — a bogus two-sided swap match was one step away.
+- **Feature checktags carry a `Neubau` flag with no year attached.** It is a poster-ticked box, not
+  portal-verified, and routinely contradicts the location's building stock (#522: "Neubau" on a
+  Potsdam-Waldstadt Plattenbau-Ortsteil). Never let it set the Mietspiegel Baualtersklasse — run BOTH
+  fields (the Ortsteil's plausible Baualter and "ab 2021") and say the Mietpreisbremse verdict hinges on
+  the unstated Baujahr. *Why:* on #522 the two fields give 5,82 vs 15,72 EUR/m² ortsüblich — the tag
+  alone would have turned a +149 % overshoot into "compliant".
 - **"Verfügbar ab {Monat}" is a START-only field and hides Befristung.** A spec-list "Verfügbar ab
   August 2026" can actually be a 1-Monats-Zwischenmiete — the end date + "möbliert / untervermieten /
   01.08.–31.08." only appear in `#viewad-description-text`. Always read the description before deciding

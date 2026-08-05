@@ -1,7 +1,7 @@
 # Tauschwohnung.com — page quirks
 Portal match: tauschwohnung.com (source behind "Tauschwohnung GmbH" swaps on IS24/Immowelt)
 
-## The NUXT route only exists from IS24 — from Immowelt you are on free text alone
+## The NUXT route only exists from IS24 — from Immowelt AND Kleinanzeigen you are on free text alone
 An Immowelt swap expose has **no `twg.click` / "Original-Exposé" link**, and its `Referenznummer`
 is the poster's **Anbieter-ID**, not a tauschwohnung.com housing id. `tauschwohnung.com/wohnung/{id}`
 answers **HTTP 200 with a soft-404 body** ("Fehler - Seite nicht vorhanden"), so probing by status
@@ -9,6 +9,12 @@ code alone gives a false positive — grep the body for `Seite nicht vorhanden` 
 ⇒ On an Immowelt-sourced swap, the description's free-text "Ich suche …" paragraph is the whole
 side-2 input; Keller / Baujahr / Energieausweis / Kaution / moveInDate stay **unknown**, not
 resolvable. Details in `immowelt.md`. *Why:* #521 spent two calls on the IS24-only route.
+
+**Same on Kleinanzeigen** (#524): no `twg.click` link anywhere in the HTML, and the ad's
+"Anbieter-ID / Anbieter-Objekt-ID" (e.g. 237825) is the *poster's* id — `tauschwohnung.com/wohnung/237825`
+returns 200 + the soft-404 body, and `twg.click/ka-{id}-01` is a hard 404. There is no housing id on the
+page, so the Suche is whatever the title + `#viewad-description-text` say — and on #524 they said nothing
+at all. Record "Suche unknown", fall back to their own flat as the yardstick, apply the lenient rule.
 
 ## Getting the partner's Suche (the side-2 input) — no browser needed
 The IS24 expose NEVER contains the Suche. The expose's "Weitere Links" section has an
