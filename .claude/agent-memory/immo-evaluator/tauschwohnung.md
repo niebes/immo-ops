@@ -1,6 +1,30 @@
 # Tauschwohnung.com — page quirks
 Portal match: tauschwohnung.com (source behind "Tauschwohnung GmbH" swaps on IS24/Immowelt)
 
+## Even on IS24 the object-specific twg.click link is NOT guaranteed — check "Weitere Links" first
+Some IS24 swap exposés carry only the **generic** `https://twg.click/is24-homepage` in the
+`REFERENCE_LIST` titled "Weitere Links" (it 302s to the tauschwohnung.com front page with utm
+params), not the per-object `twg.click/is24-{objektNr}-NN`. **Do not construct the object link
+from `OBJECT_INFO`'s Objekt-Nr.** — on #526 (expose 169826619, Objekt-Nr. 349800) `is24-349800-01/02/03`
+were all hard **404**, and `tauschwohnung.com/wohnung/349800` answered 200 with the soft-404 body
+("Seite nicht vorhanden"): the IS24 Objekt-Nr. is NOT a tauschwohnung housing id.
+⇒ Rule: read the actual `url` in "Weitere Links". If it is `is24-homepage`, the NUXT route does not
+exist for this listing — fall back to the free-text Suche exactly as on Immowelt/Kleinanzeigen
+(Keller/Baujahr/Kaution/moveInDate stay whatever IS24's ATTRIBUTE_LIST says, Suche = description).
+Budget: one grep of the REFERENCE_LIST, not 4 curls. *Why:* #526 burned 4 probes rediscovering this.
+
+**The free-text Suche is often one sentence in the middle of the Objektbeschreibung, not a tail
+block** — #526: *"Ich möchte mich Ende 2026 verkleinern um weniger Miete zahlen zu müssen und suche
+daher auf diesem Weg eine 3 Zimmer Wohnung."* It carries rooms + timing + an implicit rent ceiling
+(their own "derzeit 1175 € Kalt") and no Ort at all. Read the WHOLE description, and mine the
+*motive* ("verkleinern", "weniger Miete") — it is the decisive side-2 axis, often more decisive than
+the literal room count: a 2-Zi offer that is 150 EUR cheaper serves a downsizer's stated goal even
+though it misses "3 Zimmer" by one.
+
+**IS24 swap description text can end in a literal "…" that is the poster's own ellipsis, not
+truncation** — verify with `len()` on the raw `text` field before hunting for a fuller copy
+(#526: 231 chars, complete).
+
 ## The NUXT route only exists from IS24 — from Immowelt AND Kleinanzeigen you are on free text alone
 An Immowelt swap expose has **no `twg.click` / "Original-Exposé" link**, and its `Referenznummer`
 is the poster's **Anbieter-ID**, not a tauschwohnung.com housing id. `tauschwohnung.com/wohnung/{id}`

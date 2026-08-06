@@ -82,6 +82,29 @@ Immobilien GbR): Block E 2,5 rather than the 3,5 an "unconfirmed" reading would 
 **Why:** without the inverse test the #504 rule silently generalises and every missing amenity becomes
 "unconfirmed", which inflates Block E on well-maintained professional exposés.
 
+**Third reading — `obj_x = n` while the TEXT_AREA grants the amenity is usually neither "unset" nor a
+lie: the amenity exists but is NOT part of the Mietvertrag.** On a curated commercial mask, read the
+Ausstattung sentence to its end before calling it a contradiction. Seen on #525 (expose 169803650,
+Lilienthalstr. 12 Am Stern, TAG Wohnen): `obj_garden=n` while Ausstattung says *"der Garten ist direkt
+an der Wohnung und vom Balkon aus begehbar – **ein separater Pachtvertrag muss abgeschlossen werden**"*.
+The flag is correct — the garden is a separate Pachtverhältnis with its own (unquoted) cost. Score the
+nice-to-have as **met with a cost caveat**, and put the Pacht conditions (Höhe, Laufzeit, Pflegepflicht)
+in Next steps + Block G, not as a data error. Same family: Stellplatz/Garage "gegen Aufpreis", Keller
+"anmietbar".
+**Why:** flagging it as an IS24 data bug would either delete a real amenity or hide a recurring extra
+cost — and for this household the Golm Gartenpflege dispute makes an unclear Pachtvertrag a live risk.
+
+**`obj_picturecount: 1` with the sole caption `Objektansicht` = exterior-only shot → Block D −1,0, not
+the full 3,0 cap.** The `_shared.md` rule only covers *zero* real photos. A single building elevation is
+a real photo (no cap trigger) but proves nothing about a claimed interior renovation, and there is no
+Grundriss either. Handle as: base condition + Energieausweis adjustment, then −1,0, and name "nur 1
+Außenfoto, keine Innenfotos, kein Grundriss" as an explicit ✗ con. Corroborate against
+`obj_condition: no_information` — a renovation asserted only in free text with an empty Objektzustand
+field is unbelegt. #525 landed D 3,5 this way; the baugleiche Nachbarwohnung #231 (Lilienthalstr. 6,
+15 Innenfotos + Grundriss) got 4,5, i.e. the photo evidence alone is worth ~1 point of D / 0,1 global.
+**Why:** without the middle case you either cap a photographed listing at 3,0 or wave through an
+unverified "komplett renoviert" at 4,5.
+
 ## Dating an exposé: a LOW Scout-ID = **recycled old ad object**, not a stale listing
 The mobile API has **no `onlineSince`** field for non-Plus users (`PREMIUM_ADDITIONAL_INFO.onlineSince: null`,
 `chancenCheck.enabled: false`), so when a Scout-ID looks far too low for a fresh listing, date it from these
@@ -215,6 +238,55 @@ Seen on #519 (expose 169755767, massa haus / Jennifer Fitzlaff, Kurmärkische St
 850 m² headline, ~425 m² share, "ab 110.000 EUR", scored 2,9).
 **Why:** taken at face value the structured fields read "850 m², 129 EUR/m², under both caps" — a clean pass —
 while you actually buy half that area at double that rate, tied to one manufacturer and to a stranger's build.
+
+### Mildest variant: real price, full parcel, **Bindung = ONE sentence in `Sonstiges`** + `Provision: Nein`
+Third rung under #483 (explicit "Es besteht Bauträgerbindung") and #519 (Anteil "ab X EUR pro Familie"):
+#528 (expose 158176464, massa haus – Rick Sonsalla, Beelitz OT Fichtenwalde, 840 m² / 179.000 EUR)
+publishes a **concrete price for the whole parcel**, `Empfohlene Nutzung: Einfamilienhaus`, and
+`obj_courtage: n` / **`Provision für Käufer: Nein`** — so every structured field reads like an ordinary
+private-buyer plot. The tie-in exists only as the Sonstiges opener *"Das Grundstück wird bebaut mit einem
+massa Haus nach Wunsch."* followed by the rep's mobile + `@massa-haus.de` address. Rules:
+- **Grep `TEXT_AREA "Sonstiges"` for `wird bebaut mit|Hausbindung|Bauträgerbindung|{Hausmarke}` on EVERY
+  plot** — the word "Bauträgerbindung" is the *least* common phrasing of it.
+- **`Provision für Käufer: Nein` on a plot is a tell, not just a plus.** A Makler works for commission; a
+  0 %-plot means the seller earns elsewhere — usually the house contract. Still score it as the genuine
+  Block-A/G plus it is (0 % vs the 3,57–7,14 % ladder = 6.400–12.800 EUR), but say *why* it is free.
+- **`AGENTS_INFO.company` = "{Hausmarke} - {Nachname}" + `rating: {}` + two divergent addresses**
+  (profile = Vertriebs-/Musterhausstandort, `is24://imprint` = the rep's own Geschäftssitz) is the normal
+  Handelsvertreter-Einzelunternehmen shape — **not** the #401 three-identity scam pattern. H ~3,0: he is
+  neither owner nor Makler, so his "§ 34, 2 Vollgeschosse möglich" is a sales claim, not an Auskunft.
+- **Caption fingerprint for zero-plot-photo galleries:** `LS-13-01-S-bild-1/3/4` (Haustyp-Renderings) +
+  `MA23_LifeS_13_01_S_EG_01_01` / `..._DG_01_01` (EG-/DG-**Grundrisse** of the same catalogue type).
+  `{Typkürzel}-bild-N` and `MA{jj}_{Typ}_{EG|DG}_..` ⇒ catalogue material ⇒ **0 real plot images →
+  cap D at 3,0** (renders get no Neubau exception on a plot). Bonus contradiction worth reporting:
+  EG+DG Grundrisse mean Dachgeschoss, i.e. **not** the "bis zu 2 Vollgeschosse" the text promises.
+**Why:** with a published price, the full area, EFH-Nutzung and 0 % Provision, nothing in the structured
+data flags the tie-in — scored from the fields alone it reads as the cleanest plot in the batch.
+
+### Erschließung has THREE grades, and the preposition is the whole difference
+Extends the #406 title-vs-dropdown rule with the positive end of the scale. Grade the
+`TEXT_AREA` Erschließung sentence by preposition, not by the `Erschließung:` dropdown:
+**"liegt IM Grundstück"** (Hausanschlüsse already on the parcel — best, seen #528 for Trinkwasser/Strom/
+Telekom/Gas) > **"liegt IN DER STRASSE" / "an der Straße vor dem Grundstück"** (Kanal/Leitung exists,
+Grundstücksanschluss is the buyer's, **5–15 T EUR**, #406/#405) > field blank or `no_information`
+(#404, 15–40 T EUR unknown incl. Kleinkläranlage risk). A sentence can mix grades — #528 has everything
+"im Grundstück" **except Abwasser "in der Straße"**, which is simultaneously the one cost item AND the
+proof that a public sewer exists (kills the #429 Sammelgrube/Kleinkläranlage risk). Always name which
+medium sits at which grade; "erschlossen ≠ beitragsfrei" (§ 133 Abs. 3 BauGB) survives all three.
+**Why:** collapsing the sentence to "erschlossen ✓" loses both a five-figure buyer cost and a five-figure
+risk that was ruled out.
+
+### Ortsteil-wide Satzungen carry ACROSS listings — check the Ortsteil, not the exposé
+#405 (Mittelstraße 47, Fichtenwalde) disclosed the **Ortsgestaltungssatzung Fichtenwalde (2005, zuletzt
+geändert 2015)** with **max. 100 m² Grundfläche des Hauptgebäudes je Baugrundstück** (+50 % Nebenanlagen
+nach § 14 BauNVO = 150 m² überbaubar). A *Satzung* is Ortsrecht for the whole Ortsteil, so it binds
+#528's parcel too — and #528 **never mentions it**. So: when a plot sits in an Ortsteil where an earlier
+report established a Satzung/B-Plan restriction, apply it and say the current exposé is silent about it;
+silence is not absence. Make "Satzung von der Gemeinde holen" Next-step #1 (free, public, decides whether
+a profile-compliant house fits at all). Keep a running Ortsteil→Satzung list here as they turn up:
+**Fichtenwalde (Beelitz) → Ortsgestaltungssatzung, 100 m² Grundflächenkappung.**
+**Why:** scored per-exposé, the second Fichtenwalde plot would have been credited with the seller's
+unrestricted "EFH mit bis zu 2 Vollgeschossen" claim that the first listing proved is capped.
 
 ## Sibling plot class: **Wochenend-/Freizeitgrundstück** (`livingbuysite`) — two traps, both in the free text
 Same skeleton as the Bauträgerbindung case (TOP_ATTRIBUTES = Kaufpreis + Grundstücksfläche, Hauptkriterien =
@@ -1524,6 +1596,61 @@ carries its own attribute set and its own defect-disclosure location. Read these
   Objektbeschreibung for `Bebauungsplan|B-Plan|Geltungsbereich|Baufeld|Baufenster`.
   **Why:** taking the attribute at face value would score a fully plan-gesicherten Parzelle as § 34
   legal-uncertainty and understate Block E by ~1,5 points.
+- **The word "**denkbar**" is the tell that a § 34 claim is a seller guess — and FOUR structured
+  fields refute it at once.** #529 (expose 169786142, IMMOBERLIN, Kloster Lehnin OT Damsdorf) says
+  *"**Denkbar** ist eine Bebauung gemäß 34 BauGB"* — grammatically a Zulässigkeits-statement, factually
+  a Vermutung. Cross-check the quartet in `adTargetingParameters` before granting any Block-E credit:
+  **`obj_shortTermBuild: n`** (= NOT kurzfristig bebaubar — this one is the strongest, the Anbieter had
+  to actively *not* tick it), `obj_buildingPerm: n`, `obj_constAfter: no_information`,
+  `obj_development: no_information`. All four negative + no B-Plan cited + no Bauvoranfrage quoted ⇒
+  **Baurecht entirely unproven → E ≈ 2,5**, not the ~4,0 that reading the sentence as fact gives.
+  Grade the verb: *"Bebauung nach § 34 zulässig / positive Bauvoranfrage vorhanden"* (#402) ≫
+  *"Denkbar ist eine Bebauung gemäß § 34"* (#529) ≫ silence.
+  Corroborate against the **aerial photo**: § 34 requires the parcel to lie *im im Zusammenhang
+  bebauten Ortsteil*. A strip in an open Feldflur at the Ortsrand (what #529's Luftbild shows) is the
+  classic case where the Behörde applies **§ 35 Außenbereich** to the rear half of a deep parcel — so
+  say in Block C that the *bebaubare* area may be far under the headline m².
+  **Why:** #490 scored the identical plot E 4,0 by taking the sentence at face value; the four flags
+  say the opposite and are worth ~0,5 global points.
+- **Kartenmaterial + Gütesiegel-Kacheln can make `obj_picturecount` 100 % fictitious on plot exposés.**
+  #529 reports `obj_picturecount: 7`, and #490's report duly recorded "7 Fotos (Grundstück/Umgebung)" —
+  but the gallery was **1 Luftbild/Orthofoto (© GeoBasis-DE/LGB, Geoportal), 2 mapz.com/OSM
+  Kartenausschnitte with a red locator circle, and 4 branding tiles** (`IMMOBERLIN.DE`, `CAPITAL2026`,
+  `FIABCI`, `IMMOBERLINER`). **Real on-site photos: 0 → cap Block D at 3,0** (maps/renders get no
+  Neubau exception on a plot) and name "keine echten Grundstücksfotos, nur Luftbild + Karten" as an
+  explicit ✗ con. Caption fingerprints for the junk classes: plain ordinals `1/2/3` reveal nothing —
+  **always download and LOOK at the first 2–3 images on a plot exposé** (`previewImageUrl` …/format/jpg
+  works with plain curl, no auth). Upside: the map images are the only way to locate an
+  address-suppressed plot — #529's Ortslage (nördlicher Ortsrand Damsdorf, Mühlenstr./Alte Schulstr.)
+  and its Streifenparzellen-Zuschnitt came entirely from reading those two pictures.
+  **Why:** the count field alone turned "zero evidence of the object" into "7 photos" and lifted D by
+  a full point.
+- **Same-Makler duplicate detection: MD5 the image bytes, not the URLs.** IMMOBERLIN runs the *same*
+  plot under **two simultaneously live Scout-IDs** with different `obj_objectnumber` (#490 = 26-4501,
+  #529 = 26-4870), identical price/area/title/Objektbeschreibung, and re-uploaded images that get
+  **fresh UUID URLs** — so URL comparison says "different listing" while
+  `curl … | md5sum` on the 3 real images returns **identical hashes**. Related pattern in
+  scan-history: sibling parcels listed at 1 m² apart (Zepernick 699/698, Zeesen 2201/2200) to dodge
+  IS24's duplicate filter; here the areas are identical, so the Objekt-Nr. is the only structured
+  difference. Handling: **still evaluate** (a second report can correct the first), open with a
+  near-duplicate table, make "sind 26-XXXX und 26-YYYY dasselbe Flurstück?" contact question #1,
+  and dock Block H ~0,5. Not a scam signal — the *price is identical*, and the listed "reposted with
+  different prices" Medium signal requires diverging prices.
+  **Why:** without the byte-hash the two exposés look like two separate plots and the user would
+  chase both (or think the site has inventory it doesn't).
+- **On an unbebautes Grundstück a below-Bodenrichtwert price is usually a *classification* statement,
+  not a bargain.** #529: 94 EUR/m² vs. amtlicher BRW Damsdorf **160 EUR/m²** (Gutachterausschuss
+  Potsdam-Mittelmark, Stand 01.01.2024, gesenkt von 210) = −41 %. The BRW applies to **baureifem**
+  Land; an unvermessenes, § 34-ungesichertes Feldstück is Roh-/Bauerwartungsland and *belongs* below
+  it. So: do NOT fire the "price >20 % below" High scam signal (it is a rental signal anyway and needs
+  an address-precise band), and do NOT credit Block A with a bargain — say the discount is priced-in
+  risk and add the real follow-on costs (Vermessung/Teilung 2–4 T, Bauvoranfrage 0,5–1,5 T,
+  Grundstücksanschlüsse 5–15 T, Bodengutachten/Kampfmittel 0,8–2,5 T). **Ortsteil-BRW is published per
+  Ortsteil by the kommunale Website** — `klosterlehnin.de` news "Bodenrichtwerte des Landkreises" gave
+  Lehnin 180 / **Damsdorf 160** / Göhlsdorf 170 EUR/m² in one fetch, faster and more authoritative than
+  the portal aggregators (miete-aktuell quoted 206,80 erschlossen / 126,55 unerschlossen for 2026).
+  **Why:** scored as a bargain, #529's Block A reads 5,0 and the report recommends land that may never
+  get a Baugenehmigung.
 - **The `Erschließung:` row can be ABSENT ENTIRELY — check `obj_development`, don't assume the four
   Hauptkriterien fields are always served.** The list above says Hauptkriterien "gives the four fields";
   #404 (expose 169336740, Grünefeld/Schönwalde-Glien) served only `Vermarktungsart / Grundstück ca. /
@@ -2040,6 +2167,20 @@ photos of the empty flat (parquet, EBK, roof terrace with weeds) ⇒ real photos
 weeds became a concrete viewing question.
 **Why:** capping D at 3,0 on caption style alone would have docked a listing whose photos are real, and
 the images carry condition evidence the criteria table doesn't (terrace upkeep, kitchen appliances).
+
+### Corollary: the downloaded photo VERIFIES the `obj_telekomInternetUrlAddition` address (private ads with no published address)
+On private exposés `MAP.addressLine1` is only "Die vollständige Adresse … erhältst du vom Anbieter",
+so the base64 `obj_telekomInternetUrlAddition` is the only address. It is unverified on its own (and per
+the geo-tag note above it can even name the wrong Gemeinde) — but on a **Haus/EFH** the street-side photo
+usually shows the **Hausnummer on the facade**, and gates/mailboxes/street signs work the same way.
+Decode the parameter, download the exterior shot, read the number off it: a match makes the address
+*confirmed* and is **exculpatory in the scam check** (object and claimed address are consistent, photos
+are not stolen from elsewhere). Seen on #527 (expose 169818729, `houserent`, private "Herr Achim Reusch"):
+decoded `Leester Str. 42, 14542 Werder (Havel)`, and the "42" is legible on the gable of the first photo.
+A **mismatch** is the interesting case — then the photos likely don't belong to the advertised address;
+escalate to a Medium scam signal rather than assuming a typo.
+**Why:** it upgrades "no exact address" from a permanent unknown to a verified fact for free, which both
+sharpens Block B (exact street → real transit/commute figures) and removes the usual private-ad doubt.
 
 ### Corollary: on `obj_condition = need_of_renovation`, a CHECK attribute asserts EXISTENCE, not working order
 `ATTRIBUTE_LIST` CHECK items (Einbauküche/Balkon/Keller…) are binary presence flags — they carry no
