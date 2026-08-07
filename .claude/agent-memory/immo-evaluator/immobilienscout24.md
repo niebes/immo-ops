@@ -82,6 +82,21 @@ Immobilien GbR): Block E 2,5 rather than the 3,5 an "unconfirmed" reading would 
 **Why:** without the inverse test the #504 rule silently generalises and every missing amenity becomes
 "unconfirmed", which inflates Block E on well-maintained professional exposés.
 
+**Discriminator correction: it is the COUNT OF POSITIVE AMENITY FLAGS that makes a mask trustworthy —
+`obj_condition` alone does NOT.** A gewerblicher Anbieter can file a real `obj_condition`
+(`refurbished`/`well_kept`) and still leave the whole Ausstattung mask untouched. Seen on #530
+(expose 169832278, Schneeballweg 14 Dallgow-Döberitz, Semmelhaack, `obj_privateOffer:false`,
+`obj_condition:refurbished`): **`obj_hasKitchen=n` while BOTH the IS24 Ausstattung line ("EBK … Herd:
+ja") and the landlord's own datasheet advertise the Einbauküche** — the only flags actually set were
+`obj_noParkSpaces=1` + a Gäste-WC CHECK, everything else (`obj_cellar`, `obj_hasKitchen`,
+`obj_barrierFree`) sat at `n` and `obj_interiorQual` at `no_information`. So: require **≥2 amenity
+`y`/CHECK positives** before reading a lone `n` as a deliberate negative; with 0–1 positives fall back
+to the #504 "unset, not absent" reading and score from the TEXT_AREA. Where the text is silent too
+(the Keller here), call it absent only with an independent corroborator — a second channel's datasheet
+that also omits it, or the text advertising a substitute ("Dachboden ausgebaut").
+**Why:** a lone real `obj_condition` looked like the curated-mask signal and would have deleted a
+plainly advertised EBK.
+
 **Third reading — `obj_x = n` while the TEXT_AREA grants the amenity is usually neither "unset" nor a
 lie: the amenity exists but is NOT part of the Mietvertrag.** On a curated commercial mask, read the
 Ausstattung sentence to its end before calling it a contradiction. Seen on #525 (expose 169803650,
@@ -104,6 +119,23 @@ field is unbelegt. #525 landed D 3,5 this way; the baugleiche Nachbarwohnung #23
 15 Innenfotos + Grundriss) got 4,5, i.e. the photo evidence alone is worth ~1 point of D / 0,1 global.
 **Why:** without the middle case you either cap a photographed listing at 3,0 or wave through an
 unverified "komplett renoviert" at 4,5.
+
+## `PRICE_INFO.priceBar` can be missing entirely — keep Havelland Miet-Anker ready as the fallback
+The address-precise band is the preferred price check, but it is **not guaranteed**: #530 (169832278,
+`realEstateType: houserent`, Dallgow-Döberitz) had **no `PRICE_INFO` section at all**, while #506
+(169722503, also `houserent`, Falkensee) did. Absence is listing-specific and means nothing about the
+listing — just fall back to the Angebots anchors and say the band is unavailable (and remember a
+missing band means the "price >20 % below Mietspiegel" High scam signal can never fire).
+
+**Havelland Miet-Anker 2026 (Angebotsmieten, upward-biased), extending the `_shared.md` list:**
+**Dallgow-Döberitz** — Wohnungen ~11,81 (Q1/26) – 14,65 EUR/m², Spanne 12,39–15,12, Toplagen ~16,07;
+**Häuser um 100 m² ~18,95 EUR/m²**. The house/flat spread here is huge (~+30 %), so never judge a
+rented Haus against the Wohnungs-Mietspiegel number — 18,50 EUR/m² for a 95 m² DHH reads as "way over
+market" on the flat anchor and as "at market" on the house anchor.
+**Mietpreisbremse:** Dallgow-Döberitz is **NOT** among the 36 regulated Gemeinden (Havelland has
+exactly Falkensee, Brieselang, Schönwalde-Glien) → "nicht anwendbar" is the correct finding here, and
+crucially there is then **no § 556g Abs. 3 Auskunftshebel** on the Vormiete to offer in Next steps —
+don't copy that paragraph over from a Falkensee report.
 
 ## Dating an exposé: a LOW Scout-ID = **recycled old ad object**, not a stale listing
 The mobile API has **no `onlineSince`** field for non-Plus users (`PREMIUM_ADDITIONAL_INFO.onlineSince: null`,
@@ -1823,6 +1855,81 @@ Extends the Hauptkriterien list above; both seen on #403 (expose 168208239, Marq
 (118–138 T EUR); with Abriss + Resterschließung the real figure is 153–205 T EUR = 389–520 EUR/m²
 effective, i.e. 1,9–2,6× the profile's per-m² cap.
 
+### Hinterlieger / **2. Baureihe** plot — three costs and one legal gap that no structured field carries
+Seen on #534 (expose 165640609, locals Real Estate, Perwenitz/Schönwalde-Glien, 1.982 m² @ 76 EUR/m²).
+A plot marketed as "in geschützter zweiter Baureihe" / "Idyllisch gelegen" sits *behind* the street-row
+houses and is reached over a driveway strip on someone else's land. Consequences:
+- **`SICHERUNG ZUFAHRT ÜBER BAULAST` (usually only a caption on the aerial photo) is HALF a right of
+  way.** A Baulast is *öffentlich-rechtlich*: it makes the Bauaufsicht treat the plot as erschlossen. It
+  gives the owner **no civil-law right to drive there** — that needs a separate **Grunddienstbarkeit
+  (Geh-, Fahr- und Leitungsrecht) in Abt. II**. These exposés never mention the second one. Always demand
+  BOTH in the Kaufvertrag and score Block G down; without them the plot is unreachable and unanschließbar
+  in a dispute. (Distinct from the existing "Baulastenverzeichnis ≠ Grundbuch" note, which is about
+  *finding* Baulasten, not about what they legally do.)
+- **Erschließung is systematically more expensive here** — the Hausanschlüsse must run 40–90 m from the
+  street along the Zufahrt. Raise the usual 5–15 T EUR Grundstücksanschluss estimate to **15–35 T EUR**
+  whenever `obj_development: no_information` coincides with a 2.-Baureihe/Hinterlieger position.
+- **§ 34 BauGB Hinterlandbebauung is the fallgruppe that fails.** A rear-row plot is exactly where the
+  Behörde may decide the Bebauungszusammenhang ends. Never grade a 2.-Baureihe § 34 claim as highly as
+  the same claim on a street-front parcel.
+**Why:** the price/m² and the Baurecht text can both look fine while the access right is only half
+granted and the connection cost is triple the usual estimate.
+
+### **A `Teilungsentwurf` image is the densest single document on a plot exposé — always download it**
+On #534 one JPEG carried four things no attribute or TEXT_AREA mentioned: (1) the object is a
+**"NEU ZU BILDENDES TRENNSTÜCK TF 33B mit ca. 1.982 m²"** = it is not a Flurstück yet (⇒ Kaufpreis­
+anpassung je m², Eigentumsumschreibung 3–9 Monate on the Fortführungsnachweis); (2) the planned house
+from the lapsed permit with real dimensions and storeys (`Whs II m/DN 28°`, 10,04 × 8,84 m ≈ 89 m² GF
+⇒ ~150–170 m² Wohnfläche — that is the Block-C buildability answer); (3) **eingetragene Baulasten with
+Aktenzeichen** (Feuerwehrzufahrt ~89 m², Feuerwehrstellfläche ~84 m², Zufahrt ~13 m², Az. 104-22/107-22)
+— ask for the full text: do they *benefit* or *burden* the parcel? (4) side notes like "Zaun und
+Schuppen werden zurückgebaut" (⇒ who pays?). Caption to grep for in MEDIA: `Teilungsentwurf|Lageplan|
+Flurstück|Vermessung`. Pair it with the **aerial photo carrying a drawn boundary + a metre label**
+("CA. 89 M") — area ÷ depth gives the width, and width decides whether a house fits after Abstandsflächen.
+**Why:** all four items are Block C/G-deciding and none of them exist anywhere else in the exposé.
+
+### Baurecht ladder, top rung: an **erteilte (but expired) Baugenehmigung** beats a Bauvoranfrage
+Extends the grading `B-Plan ≫ positive Bauvoranfrage (#402) ≫ "unverbindliche Auskunft" (#404) ≫
+"denkbar" (#529) ≫ silence`. #534's Objektbeschreibung: *"Für das Grundstück lag 2019 bereits eine
+**Baugenehmigung** für ein Einfamilienhaus mit zwei Stellplätzen vor"* + *"die links angrenzende,
+vergleichbare Parzelle wurde bereits (nach 2019) bebaut"*. A granted permit is a Behörden-**Entscheidung**,
+not an opinion, and a neighbour who actually built proves the Bebauungszusammenhang in fact. But:
+**§ 72 Abs. 1 BbgBO — eine Baugenehmigung erlischt nach 3 Jahren**, so a 2019 permit is void and binds
+nobody; a new Bauantrag is decided on today's Ermessen. Score E ~3,5 (evidence strong, security zero),
+and make the **Bauakte von 2019 aus dem Bauamt** a Next step — it is the strongest argument in the new
+procedure. Corollary: **`obj_shortTermBuild: n` does NOT always mean "Baurecht unproven"** (the #529
+quartet rule) — here it plainly reflects the *unvermessene* parcel, not a Baurecht doubt. Read the
+negative flag against the text's reason before applying the quartet.
+**Why:** mechanically applying the #529 quartet (`shortTermBuild n` + `buildingPerm n`) would have scored
+E ~2,5 on the best-documented Baurechtshistorie in the plot batch.
+
+### The #518 gross-vs-usable trap also fires on ORDINARY Baugrundstücke — via a **Landschaftsschutzgebiet**
+The existing rule lives under the Wochenend-/Freizeitgrundstück heading (Wald diluting the €/m²), which
+makes it look Freizeit-specific. It is not. #534 is a plain `livingbuysite` EFH plot whose Objekt­
+beschreibung says *"Der rückwärtige Grundstücksteil liegt im Landschaftsschutzgebiet … nicht als
+klassischer Bauplatz vorgesehen"* — the seller frames it as a feature (unverbaubarer Weitblick, garden).
+So on EVERY plot: grep the Objektbeschreibung for `Landschaftsschutz|LSG|Naturschutz|Außenbereich|Wald|
+Erholungsfläche` and **redo the profile `max_price_per_m2` check on the buildable share**. #534:
+75,68 EUR/m² brutto → 150 EUR/m² at ~1.000 m² Bauland, but **214 EUR/m² at ~700 m² = over the 200 cap**.
+Put the scenario table in Block A and make "wie viele m² liegen außerhalb des LSG / im § 34-Innenbereich?"
+a Next step — the exposé never quantifies the split. The LSG itself is also a Block-G item (Gartenhäuser,
+Einfriedungen, Aufschüttungen, Baumfällung often genehmigungs-/befreiungspflichtig) and the exposé
+typically does **not name which LSG** → untere Naturschutzbehörde des Landkreises.
+**Why:** the brutto €/m² is what makes these plots look cheap, and the LSG share is exactly why they are.
+
+- **BRW anchor — Schönwalde-Glien Ortsteil Perwenitz (ländlicher Nordwesten): my estimate 100–150 EUR/m²**
+  baureifes Land, i.e. the same band as Grünefeld (100–160), *not* the 200–290 of the berlinnahen
+  EFH-Siedlungen. Amtlich für die Gemeinde: **~120 EUR/m², Stichtag 01.01.2025, −4,8 % ggü. Vorjahr**;
+  die BRW zum 01.01.2026 werden erst **03–06/2026** veröffentlicht (Havelland).
+  **Aggregator warning, second datapoint:** `miete-aktuell.de` quotes **Perwenitz 288,77 EUR/m²
+  erschlossen / 231,02 unerschlossen (2026)** — ~2× the amtlicher Gemeindewert, derived from asking
+  prices. Same overshoot as at #529 Damsdorf (206,80 quoted vs 160 amtlich). **Never let miete-aktuell /
+  bodenrichtwerte-deutschland / aktuelle-grundstueckspreise set the Block-A anchor**; use them only to
+  show the user why a "bargain" claim doesn't hold, and send BORIS-BB / the Gutachterausschuss as the
+  Next step. Note the direction of the error: the aggregator makes an overpriced plot look cheap.
+  **Why:** at 231 EUR/m² #534 would read as a 3× bargain; at the amtlichen 120 it reads as roughly
+  fair-to-expensive once the LSG share is discounted — a full Block-A grade apart.
+
 ### A `livingbuysite` under ~20 EUR/m² is almost never Bauland — it's Acker/Grünland/Wald/Wasser im Außenbereich
 The BRW ladder above (Fahrland 250 … Speicherstadt 1.200) is a **Bauland** ladder. A plot exposé
 priced at single-digit EUR/m² is a *different asset class* and the ladder does not apply. #407
@@ -1872,6 +1979,71 @@ priced at single-digit EUR/m² is a *different asset class* and the ladder does 
 Baurecht there is; here the answer is none, and reading the 4,73 EUR/m² through the Bauland BRW
 ladder would have scored a Biotopschutz-Grünfläche as an extraordinary in-budget bargain
 (A 5,0 / E ~2,5, final ~4,0) instead of 2,9.
+
+#### Easiest sub-variant of all: the fields are FILLED IN with explicit negatives — `Empfohlene Nutzung: Keine Bebauung`
+#535 (expose 169839709, Nahmitz/Kloster Lehnin, 6.997 m² @ **0,79 EUR/m²**, 5.500 EUR) is the same
+no-Baurecht asset class as #407 but needs **no text grep at all**, because a diligent seller filled the
+Hauptkriterien with the negative answers instead of leaving them empty:
+`Erschließung: **Unerschlossen**` (`obj_development: not_developed`) · `Bebaubar nach: **Aussengebiet**`
+(`obj_constAfter: **externalarea**`) · **`Empfohlene Nutzung: Keine Bebauung`
+(`obj_recommendUtil: no_development`)** · `obj_buildingPerm: n` · `obj_shortTermBuild: n`.
+- **Check `obj_recommendUtil` for `no_development` and `obj_constAfter` for `externalarea` FIRST** on any
+  cheap plot — either value settles Block E at 1,0 in one field read. They are stronger evidence than
+  #407's collapsed `no_information` signature (absence can mean laziness — cf. #456; an explicit
+  "Keine Bebauung" cannot). Full value ladder for `obj_constAfter`:
+  `constructionplan` (B-Plan, best) > `neighbourconstruction` (§ 34) > `no_information` (unknown) >
+  **`externalarea` (§ 35 Außenbereich — worst, means "not buildable")**.
+- **Correction to the #407 GrdstVG rule: § 4 Nr. 1 GrdstVG exempts sales where the Bund or a Land is a
+  Vertragsteil.** So when the seller is a state body (BLB, see below), the Genehmigungspflicht *and* the
+  siedlungsrechtliche Vorkaufsrecht of the Landgesellschaft simply do not apply — do NOT copy that risk
+  from #407 onto a Landesverkauf. LWaldG (Waldumwandlungsverbot + § 25 Betretungsrecht) on any
+  Nadelholz-Teilfläche and § 24 BauGB Gemeinde-Vorkaufsrecht still apply.
+- **Official agricultural BRW anchors, Potsdam-Mittelmark, Stichtag 01.01.2026** (Gutachterausschuss):
+  **Grünland 0,90 EUR/m², Ackerland 1,10** im *weiteren Metropolenumland*; **Grünland 1,00, Acker 1,30**
+  im *Berliner Umland*. Wald ca. 0,50–1,50 (my estimate). This replaces #407's rough "1–3 EUR/m²" band
+  with numbers you can quote. #535 at 0,79 sits ~12 % *below* the Grünland BRW ⇒ market-fair, and
+  crucially **inside** the 20 % threshold, so the "price far below market" High scam signal does NOT fire
+  — say so explicitly, otherwise a 0,79 EUR/m² headline looks like a lure.
+- **A single image captioned like the Objekt-Nr. is usually the LGB-Luftbild mit Grenzverlauf — open it,
+  it is Block C evidence you get nowhere else.** #535's showed the "6.997 m²" to be **two ~12–15 m wide,
+  300+ m long Handtuch strips running through a neighbour's actively ploughed field, with no road
+  frontage**. The m² number alone would have read as generous reserve; the image turns C into 2,0.
+  Pair it with the exposé's own `"Teilbereiche werden … ohne vertragliche Grundlage landwirtschaftlich
+  genutzt"` — the buyer inherits a factual possessor (Herausgabe + Nutzungsentschädigung to enforce
+  himself, plus the risk that a Landpachtverhältnis is asserted). Block G, always unquantified.
+- **"Für die Liegenschaft liegen sowohl ein Flächennutzungsplan als auch ein Bebauungsplan vor" next to
+  "§ 35 Außenbereich" is self-contradictory boilerplate, not Baurecht evidence** — a B-Plan-Geltungsbereich
+  excludes Außenbereich. Unless the B-Plan is *named* (contrast #400's "Nr. 36-3 Speicherstadt-Süd"),
+  treat it as noise and turn it into the § 24 BauGB Vorkaufsrecht question instead of an E credit.
+- Scoring shape (#535): A 4,5 (below BRW, but the price is a *Kaufpreisvorstellung* in a bidding process —
+  never 5,0) · B 1,5 · C 2,0 · D 3,5 · E 1,0 · F 3,5 · G 2,5 · H 5,0 → **2,8**, uncapped (excluded_areas
+  empty ⇒ no area blocker; far under budget ⇒ no price blocker). Reclassification to the Freizeit search
+  does **not** rescue it either (see #517 rule): "Keine Bebauung" + unerschlossen rules out even a
+  Wochenendhaus, so it belongs to no configured search at all — state that as the verdict.
+**Why:** the whole preceding plot ladder teaches you to *infer* the Baurecht from collapsed fields and
+text greps; here IS24 hands you the answer in one attribute, and the #407 GrdstVG risk block would have
+been copied onto a state sale where it is legally inapplicable.
+
+#### Anbieter class: **BLB — Brandenburgischer Landesbetrieb für Liegenschaften und Bauen** (Landesliegenschaft im öffentlichen Bieterverfahren)
+Seen on #535. `company: "Brandenburgischer Landesbetrieb für Liegenschaften und Bauen"`, Objekt-Nr. of the
+form `FE 1299`, Eigentümer = Land Brandenburg (Ministerium der Finanzen und Europa), `obj_courtage: n`.
+- **`verifiedBy: []` + empty `rating` + empty `address` is meaningless here** — it is a Landesbehörde, not
+  an unverified private seller. Do not apply the usual H-penalty for missing verification: **H 5,0.**
+  (Same family of exception as the note on `AGENTS_INFO.rating` being portal-internal.)
+- **The "Weitere Dokumente" REFERENCE_LIST carries a full multi-page Exposé PDF — always download it, it
+  is far richer than the IS24 sections.** #535's 13 pages gave: Grundbuchblatt + **Abt. II / Abt. III
+  lastenfrei**, explicit *Keine*-Auskünfte for **Kampfmittelbelastung, Altlasten, Baulasten, Denkmal**,
+  the Nutzungsarten split per Flurstück in m², Flurkarte + Luftbild, and the whole bidding procedure.
+  That disclosure set is why D stays ~3,5 despite a single photo.
+- **It is an Ausschreibung, not a fixed-price sale.** The PDF states a *Kaufpreisvorstellung* + a
+  **Gebotsfrist**; bids must be written, name a fixed sum, include a **Finanzierungsnachweis + Ausweiskopie**,
+  may contain **no Gleitklauseln**; Nachgebote are excluded but the Land reserves Nachverhandlungen and is
+  **not bound to accept the highest or any bid**. Consequences: cap Block A at ~4,5 (headline price is not
+  the price) and dock F (~3,5 — acquisition is not plannable even with a perfect bid). No Provision, no
+  Reservierungsgebühr, no advance payment ⇒ scam-wise pristine.
+**Why:** read through the IS24 sections alone, a BLB listing looks like a sparse, unverified seller with one
+photo (H ~1,5–3,5, D capped); the attached PDF inverts both judgements, and missing the Gebotsverfahren
+would score a bidding invitation as a firm 5.500 EUR asking price.
 
 #### Third sub-variant: the SAME collapsed field-signature on a **small EFH plot = a sloppy Bauträger lead-gen**, NOT no-Baurecht Außenbereich
 #456 (expose 169477304, **Stahnsdorf** 14532, 570 m², massa haus - Sonsalla) carries the identical #407/#446
@@ -2210,3 +2382,28 @@ brand's individual agents can differ, so score per person where the profile allo
 **Why:** H is only 5 % of the weight, but the reputation finding is what converts "renovierungsbedürftig,
 they'll surely fix it" into "get every promise into the contract" — without the external check the report
 gives the opposite advice.
+
+## `Gesamtmiete` / `Warmmiete` is NOT a Warmmiete when `Heizkosten: 0 €` + `Heizkosten in Nebenkosten enthalten: Nein`
+Always read the **three** cost fields together, never just `Gesamtmiete` / TOP_ATTRIBUTES `Warmmiete`:
+`Nebenkosten`, `Heizkosten`, and **`Heizkosten in Nebenkosten enthalten:`**. The combination
+**`Heizkosten: 0 €` + `Heizkosten in Nebenkosten enthalten: Nein`** means heating is in *neither* line —
+IS24 still prints `Gesamtmiete = Kaltmiete + Nebenkosten` and labels it "Warmmiete", but it is really a
+Kalt+NK figure. The cause lives in the TEXT_AREA, usually one sentence in **Ausstattung**: seen on #532
+(expose 119554638, Meistersingerstr. 3 Brandenburger Vorstadt) — *"Den Gasvertrag schließt der Mieter
+direkt mit dem Versorger auf seine Kosten ab."* with `Heizungsart: Etagenheizung` /
+`obj_heatingType: self_contained_central_heating`. **An Etagenheizung (Gas-Etagentherme, Nachtspeicher)
+is the structural tell — the meter is the tenant's, so heating can never be in the NK.**
+How to handle:
+- Report BOTH numbers: the inserierte "Warmmiete" **and** a labelled *realistic all-in* estimate
+  (Kalt + NK + your heating estimate). #532: 2.050 EUR inseriert vs ~2.200–2.270 EUR real.
+- `COST_CHECK.expenses` has a `Gas`/`Strom` line (#532: 140 EUR) — usable as a floor, but it is a generic
+  IS24 figure, not floor-area aware. For a pre-1949 Altbau with Kastenfenstern budget 12–18 EUR/m²/Jahr
+  (143 m² → ~150–220 EUR/Monat), i.e. clearly above the IS24 number.
+- Score it in **Block A**, not F/G: this is what decides `max_warmmiete`. #532 passed on the printed
+  2.050 and sat *at/over* the 2.200 cap on the real figure → A 4,0 instead of 4,5.
+- Make "Jahresgasverbrauch in kWh / die letzten zwei Abrechnungen" a top-3 Next step — on a listing with
+  no Energieausweis (Denkmal exemption, see the `nicht erforderlich` rule above) it is the ONLY way to
+  bound the heating cost at all, and the two gaps compound.
+**Why:** taking `Gesamtmiete` at face value silently understates the monthly cost by 100–250 EUR and can
+flip a listing from "over the Warmmiete cap" to "in budget" — and the exclusion is never in the cost
+table's headline, only in the `Heizkosten in Nebenkosten enthalten: Nein` sub-line plus one prose sentence.
