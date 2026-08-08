@@ -129,8 +129,13 @@ async def do_eval(ctx, cmd):
             return {"ok": True, "result": None, "blocked": False}
 
         # Retry once on a 0-count (lazy-load portals sometimes need a second pass).
+        # Snippets return either the compact {c,n,L} wrapper or the older verbose
+        # {count,hasNextPage,listings} form — read both, or a verbose snippet never
+        # gets its lazy-load retry.
         try:
-            if result and json.loads(result).get("c", 0) == 0:
+            parsed = json.loads(result) if result else {}
+            count = parsed.get("c", parsed.get("count", 0))
+            if result and count == 0:
                 await page.wait_for_timeout(3000)
                 result = await page.evaluate(f"() => ({snippet})")
         except Exception:

@@ -679,7 +679,15 @@ async function runSnippetScan(evaluator, label) {
               if (pageNum === 1) { recordFailure(portal, group.name, 'snippet returned non-JSON on page 1', 'config'); failed = true; }
               break;
             }
-            const pageCount = parsed.c || (parsed.L ? parsed.L.length : 0);
+            // Accept BOTH snippet shapes: the compact {c,n,L} wrapper and the older
+            // verbose {count,hasNextPage,listings} one (semmelhaack-extract.js). Reading
+            // only `c`/`L` scored a perfectly good verbose snippet as 0 listings and
+            // reported it as "selector drift", which is how Semmelhaack looked broken on
+            // the stealth path while process-scan.mjs — which already accepts both —
+            // handled its output fine.
+            const pageCount = parsed.c ?? parsed.count
+              ?? (Array.isArray(parsed.L) ? parsed.L.length
+                : Array.isArray(parsed.listings) ? parsed.listings.length : 0);
             // A snippet can explicitly signal a LEGITIMATE empty state (e.g. a coop page that
             // reads "Zur Zeit keine freien Wohnungen") by returning { empty: true }. That is a
             // successful scan with zero inventory — NOT selector drift — so don't flag it.
@@ -733,7 +741,7 @@ async function runSnippetScan(evaluator, label) {
             totalNew += stats ? stats.added
               : parseInt((out.match(/New in pipeline:\s*(\d+)/) || [])[1] || '0', 10);
 
-            if (!parsed.n) { console.log(`  → single page / no next`); break; }
+            if (!(parsed.n ?? parsed.hasNextPage)) { console.log(`  → single page / no next`); break; }
             if (!DEEP && processed > 0 && dups >= processed * 0.8) { console.log(`  → ≥80% already seen — stopping`); break; }
             pageNum++;
             if (portal.rate_limit) await new Promise(r => setTimeout(r, portal.rate_limit * 1000));

@@ -42,11 +42,18 @@ export function toNum(s) {
 }
 
 /**
- * Load decided tracker entries from data/listings.md.
+ * Load tracker entries from data/listings.md.
  * Columns: # | Date | Portal | Type | Location | Price | m² | Rooms | Score | Status | Report | Notes
- * Only rows whose Status is in DECIDED_STATUSES are returned.
+ *
+ * ALL rows are returned, not just decided ones — `decided` says whether the row
+ * may be routed. This matters: matching must see the whole tracker, because the
+ * closest twin of a re-list is frequently a NON-decided row (an `Evaluated` one),
+ * and a matcher that cannot see it does not stop — it falls through to the
+ * next-best *decided* row and welds the re-list onto an unrelated lead. Loading
+ * decided rows only is what caused #502's re-list to attach to the Applied #216
+ * (2026-08-03) and #510's to the Swap-candidate #251 (2026-08-07).
  */
-export function loadDecidedListings(root) {
+export function loadTrackerListings(root) {
   const path = `${root}/data/listings.md`;
   if (!existsSync(path)) return [];
   const out = [];
@@ -57,7 +64,6 @@ export function loadDecidedListings(root) {
     const num = c[0];
     if (!/^\d+$/.test(num)) continue; // skip header + separator rows
     const status = c[9];
-    if (!DECIDED_STATUSES.has(status)) continue;
     out.push({
       num,
       status,
@@ -66,10 +72,17 @@ export function loadDecidedListings(root) {
       price: toNum(c[5]),
       m2: toNum(c[6]),
       rooms: toNum(c[7]),
+      report: c[10] || '',
+      decided: DECIDED_STATUSES.has(status),
       skip: SKIP_STATUSES.has(status),
     });
   }
   return out;
+}
+
+/** Decided-only view of the tracker (the routable subset). */
+export function loadDecidedListings(root) {
+  return loadTrackerListings(root).filter((e) => e.decided);
 }
 
 /**
@@ -96,16 +109,127 @@ export function matchesDecided(a, b) {
 }
 
 /**
- * Find the best decided-entry match for a candidate.
- * Prefers a 'confirmed' (neighbourhood-agreeing) match over a 'numeric' one.
+ * How close is this match? Lower is better. Combines the relative price gap with
+ * the absolute m² gap, both normalised against the thresholds matchesDecided
+ * already enforces (5 % and 3 m²), so neither dominates.
+ */
+export function matchCloseness(a, b) {
+  const priceGap = Math.abs(a.price - b.price) / Math.max(a.price, b.price, 1) / 0.05;
+  const sizeGap = Math.abs(a.m2 - b.m2) / 3;
+  return priceGap + sizeGap;
+}
+
+/**
+ * Find the best-matching tracker entry for a candidate.
+ *
+ * Ranks by kind first (a neighbourhood-confirmed match beats a numeric-only one),
+ * then by closeness. Ranking is the second half of the false-attach fix: with the
+ * whole tracker in the pool, several rows can clear the thresholds at once, and
+ * "first row in file order" is not a decision — it is an accident. Yesterday #510
+ * matched at Δ 0,00 % / 0,00 m² while #251 matched at Δ 2,49 % / 0,16 m²; ranking
+ * is what makes the former win.
+ *
+ * opts.titleConflict(candidate, entry) — optional veto consulted for numeric-only
+ * matches, letting a caller bring the title signal the tracker row itself lacks.
  * Returns { entry, kind } or null.
  */
-export function findDecidedMatch(candidate, decidedList) {
-  let numericHit = null;
-  for (const entry of decidedList) {
+export function findBestMatch(candidate, list, opts = {}) {
+  const { titleConflict } = opts;
+  let best = null;
+  for (const entry of list) {
     const kind = matchesDecided(candidate, entry);
-    if (kind === 'confirmed') return { entry, kind };
-    if (kind === 'numeric' && !numericHit) numericHit = { entry, kind };
+    if (!kind) continue;
+    if (kind === 'numeric' && titleConflict && titleConflict(candidate, entry)) continue;
+    const rank = kind === 'confirmed' ? 0 : 1;
+    const closeness = matchCloseness(candidate, entry);
+    if (!best || rank < best.rank || (rank === best.rank && closeness < best.closeness)) {
+      best = { entry, kind, rank, closeness };
+    }
   }
-  return numericHit;
+  return best ? { entry: best.entry, kind: best.kind } : null;
+}
+
+/** Back-compat alias: best match within an already-filtered decided list. */
+export function findDecidedMatch(candidate, decidedList, opts = {}) {
+  return findBestMatch(candidate, decidedList, opts);
+}
+
+// ── Title signal ────────────────────────────────────────────────────────────
+// Price and m² cannot tell two similarly-sized flats apart, which is exactly how
+// a re-list gets welded onto an unrelated lead — or, in the swap case, auto-
+// skipped as a dupe of an old discarded swap in a different Ortsteil. The tracker
+// has no title column, but every scored row links a report whose first line reads
+// `# Evaluation: {title} — {address}`, so a title IS recoverable per row.
+//
+// Used ONLY as a veto on numeric-only matches, never as positive evidence, and it
+// FAILS OPEN: an unknown or wholly generic title vetoes nothing. The worst case is
+// therefore a duplicate evaluation, never a silently dropped listing.
+
+// Category and marketing words carry no identity. "Tauschwohnung" in particular
+// must be stopped: it is the one token every swap ad shares, and leaving it in is
+// what would let a Golm swap look like the Bornstedt swap #004.
+const TITLE_STOPWORDS = new Set([
+  'wohnung', 'wohnungen', 'zimmer', 'raum', 'raeume', 'räume', 'haus', 'haushaelfte', 'haushälfte',
+  'etage', 'geschoss', 'stock', 'lage', 'angebot', 'objekt', 'immobilie', 'wohnen', 'wohntraum',
+  'tauschwohnung', 'wohnungstausch', 'tausche', 'tausch', 'swap', 'nachmieter', 'nachvermietung',
+  'untermiete', 'miete', 'mieten', 'vermietung', 'provisionsfrei', 'erstbezug', 'neubau',
+  'schoene', 'schöne', 'schoenes', 'schönes', 'tolle', 'tolles', 'toller', 'grosse', 'große',
+  'grosses', 'großes', 'grosser', 'großer', 'grosszuegige', 'großzügige', 'gemuetliche',
+  'gemütliche', 'moderne', 'modernes', 'moderner', 'attraktive', 'attraktives', 'attraktiver',
+  'helle', 'helles', 'ruhige', 'ruhiges', 'charmante', 'exklusive', 'gepflegte', 'renovierte',
+  'sanierte', 'begehrter', 'begehrte', 'bester', 'beste', 'traumhafte', 'kompakte', 'barrierearme',
+  'sofort', 'frei', 'neue', 'neues', 'neuer', 'inkl', 'mit', 'ohne', 'und', 'oder', 'fuer', 'für',
+  'der', 'die', 'das', 'den', 'dem', 'ein', 'eine', 'einer', 'eines', 'von', 'vom', 'zur', 'zum',
+  'auf', 'bei', 'aus', 'ist', 'sehr', 'ihre', 'ihr', 'sie', 'wir', 'ganz', 'top',
+]);
+
+/** Distinctive lowercase tokens of a listing title ('' / generic → empty set). */
+export function titleTokens(s) {
+  const out = new Set();
+  for (const raw of String(s || '').toLowerCase().split(/[^a-zäöüß]+/)) {
+    if (raw.length < 4) continue;          // drops 'zi', 'og', bare numerals
+    if (TITLE_STOPWORDS.has(raw)) continue;
+    out.add(raw);
+  }
+  return out;
+}
+
+/** true only when BOTH titles are known-and-distinctive and share no token. */
+export function titlesConflict(a, b) {
+  const ta = titleTokens(a), tb = titleTokens(b);
+  if (ta.size === 0 || tb.size === 0) return false; // fail open
+  for (const t of ta) if (tb.has(t)) return false;
+  return true;
+}
+
+/** `[510](reports/510-x.md)` → `reports/510-x.md`; '' when absent. */
+export function reportPathFromCell(cell) {
+  const m = String(cell || '').match(/\(([^)]*\.md)\)/);
+  return m ? m[1] : '';
+}
+
+/**
+ * Title from a report's `# Evaluation: {title} — {address}` first line.
+ * Splits on the LAST em dash — the address is the trailing segment, and titles
+ * themselves contain em dashes (e.g. "🔄 SWAP — TAUSCHWOHNUNG …").
+ */
+export function readReportTitle(root, reportCell) {
+  const rel = reportPathFromCell(reportCell);
+  if (!rel) return '';
+  const path = `${root}/${rel}`;
+  if (!existsSync(path)) return '';
+  const first = (readFileSync(path, 'utf8').split('\n')[0] || '').trim();
+  const heading = first.replace(/^#\s*Evaluation:\s*/i, '');
+  if (heading === first) return '';           // not an evaluation report
+  const cut = heading.lastIndexOf(' — ');
+  return (cut > 0 ? heading.slice(0, cut) : heading).trim();
+}
+
+/** Memoised title lookup for a tracker entry, for use as findBestMatch's veto. */
+export function makeTitleConflict(root) {
+  const cache = new Map();
+  return (candidate, entry) => {
+    if (!cache.has(entry.num)) cache.set(entry.num, readReportTitle(root, entry.report));
+    return titlesConflict(candidate.title, cache.get(entry.num));
+  };
 }

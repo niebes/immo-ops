@@ -15,6 +15,13 @@
  * In both cases the candidate URL is appended to the tracker row's Notes as a
  * "re-list seen" alias, so lib/seen-urls.mjs catches that exact URL next time too.
  *
+ * Matching considers the WHOLE tracker but routes only decided rows. When the
+ * closest match is a non-decided row (typically `Evaluated`) the entry is left
+ * pending and merely reported: it is the correct twin, so the entry must NOT be
+ * routed by some worse-matching decided row further down the file. That fall-
+ * through is what attached #502's re-list to the Applied #216 (2026-08-03) and
+ * #510's to the Swap-candidate #251 (2026-08-07).
+ *
  * Expired is intentionally NOT routed — a re-list of an expired flat means it is
  * back on the market and should be evaluated afresh.
  *
@@ -25,7 +32,7 @@
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { withLock } from './lib/lock.mjs';
 import { parsePipelineLine } from './lib/dedup-core.mjs';
-import { loadDecidedListings, findDecidedMatch } from './lib/decided-index.mjs';
+import { loadTrackerListings, findBestMatch, makeTitleConflict } from './lib/decided-index.mjs';
 
 const ROOT = process.cwd();
 const PIPE = `${ROOT}/data/pipeline.md`;
@@ -33,6 +40,7 @@ const LISTINGS = `${ROOT}/data/listings.md`;
 const DRY = process.argv.includes('--dry-run');
 const today = new Date().toISOString().slice(0, 10);
 const routed = [];
+const heldBack = [];
 
 function appendAlias(listingsText, num, url) {
   const lines = listingsText.split('\n');
@@ -50,8 +58,10 @@ async function main() {
   if (!existsSync(PIPE)) { console.log('No pipeline.md — nothing to route.'); return; }
 
   await withLock('pipeline', { root: ROOT }, () => {
-    const decided = loadDecidedListings(ROOT);
-    if (decided.length === 0) { console.log('No decided tracker entries — nothing to match against.'); return; }
+    // The whole tracker, not just its decided rows — see loadTrackerListings.
+    const tracker = loadTrackerListings(ROOT);
+    if (tracker.length === 0) { console.log('No tracker entries — nothing to match against.'); return; }
+    const titleConflict = makeTitleConflict(ROOT);
 
     const text = readFileSync(PIPE, 'utf8');
     const lines = text.split('\n');
@@ -66,15 +76,33 @@ async function main() {
       else if (section === 'other') tail.push(line);
       else if (section === 'pending') {
         const cand = parsePipelineLine(line);
-        const match = cand ? findDecidedMatch(cand, decided) : null;
+        const match = cand ? findBestMatch(cand, tracker, { titleConflict }) : null;
         if (!match) { pendingKeep.push(line); continue; }
         const { entry, kind } = match;
+        // Only a DECIDED row may route. When the best match is anything else
+        // (Evaluated, New, Expired) the entry stays pending and goes through
+        // normal triage + evaluation — the point is that it no longer falls
+        // through to a worse-matching decided row and attaches there.
+        if (!entry.decided) {
+          heldBack.push({ entry, kind, url: cand.url, title: cand.title });
+          pendingKeep.push(line);
+          continue;
+        }
         const action = entry.skip ? 'auto-skip' : 'attached to live lead';
         processedAdd.push(
           `- [x] DUPE of #${entry.num} (re-list of ${entry.status} flat, ${action}; ${kind} match) | ${cand.url} | ${cand.portal}`,
         );
         routed.push({ ...match, url: cand.url, title: cand.title });
       } else pendingKeep.push(line);
+    }
+
+    // Held-back entries are reported even when nothing routed: each one is a
+    // duplicate evaluation the operator may want to short-circuit by hand.
+    if (heldBack.length > 0) {
+      console.log(`Best match is a non-decided row — left pending (${heldBack.length}):`);
+      for (const h of heldBack) {
+        console.log(`  · #${h.entry.num} [${h.entry.status}] (${h.kind}): ${h.title || h.url}`);
+      }
     }
 
     if (routed.length === 0) { console.log('No re-lists of decided flats found.'); return; }
