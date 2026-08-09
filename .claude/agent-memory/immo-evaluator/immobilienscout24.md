@@ -2332,7 +2332,9 @@ and would score E ~2,5, when the Innenbereich is in fact legally established.
 **Borkheide → Klarstellungssatzung Nr. 3 v. 27.10.2000** (Innenbereichsgrenzen) **+ eine Baumschutz-/
 Gestaltungssatzung** („nicht der gesamte Baumbestand darf gefällt werden"). Both bind every Borkheide plot —
 #469 (expose 162154162) referenced the same "Innenbereichssatzung" independently. Silence in a later exposé
-is not absence.
+is not absence. #544 quotes the Geltungsbereich concretely — *„der Bereich der Straßen **Erikaweg und ff.**
+als Bauland eingestuft"* — which is exactly why "Geltungsbereichskarte anfordern: liegt das Flurstück
+**vollständig** darin?" stays a Next step for any corner parcel whose second street isn't named.
 
 ### Fourth Erschließung grade, BELOW "liegt in der Straße": **the street itself is not built yet**
 The three-grade preposition ladder (im Grundstück > in der Straße > blank) misses the worst realistic case.
@@ -2344,9 +2346,16 @@ Herstellung* nach §§ 127 ff. BauGB**, ~90 % of the road cost apportioned to ab
 whoever owns the plot **at the time of the levy** — possibly years after purchase. Handling:
 - Size it on **Grundstücksfläche**, not frontage: ~20–60 EUR/m² is the usual Satzungs-range ⇒ on 1.234 m²
   that is **25–74 T EUR**, i.e. it can dwarf every other cost item on the exposé.
-- **A corner plot doubles the exposure** (#543: 30,5 m Erikaweg + 48,5 m Ulmenweg). Ask specifically for
-  the **Eckgrundstücksermäßigung** in the Gemeinde's Erschließungsbeitragssatzung — it is often 1/2 or 2/3
+- **A corner plot doubles the exposure** (#543: 30,5 m Erikaweg + 48,5 m Ulmenweg — two Anliegerstraßen
+  can be two separately levied Erschließungsanlagen). Ask specifically for the
+  **Eckgrundstücksermäßigung** in the Gemeinde's Erschließungsbeitragssatzung — it is often 1/2 or 2/3
   and swings the figure by a factor of two.
+- **Do NOT discount the Beitrag for a shorter Straßenfront** — the intuitive "less frontage = less
+  Erschließungsbeitrag" is wrong under the standard **Flächen-/Nutzungsmaßstab** (Grundstücksfläche ×
+  Vollgeschoss-Faktor); a pure **Frontmetermaßstab** is the rare exception. #544 (Erikaweg 10) has
+  59,5 m total front vs #543's 79 m = **−25 % frontage but only −6 % Beitrag** (1.162 vs 1.234 m²).
+  So on two sibling parcels the *area* is the differentiator, and the free Gemeinde-Anfrage should ask
+  for the **Verteilungsmaßstab** alongside the Eckermäßigung.
 - Because the range straddles the budget cap, put a **two-row scenario table** in Block A (#543:
   ~183 T günstig vs ~238 T ungünstig against a 200 T cap) and make the free written Gemeinde-Anfrage
   ("sind die Straßen endgültig hergestellt i. S. d. §§ 127 ff. BauGB? Beitragsbescheinigung § 133 Abs. 3?")
@@ -2378,8 +2387,38 @@ filed for BOTH). Score it as a Block-C plus only when **both** halves clear the 
 - Upside worth naming: an existing Flurstück (as here) is materially better than #534's *"neu zu bildendes
   Trennstück"* — the Kaufgegenstand is defined and there is no Kaufpreisanpassung-je-m² / 3–9-month
   Eigentumsumschreibung risk.
+- **The absence of the field is itself evidence — and it is NOT a Block-C penalty.** #544 (Erikaweg 10)
+  has no `Fläche teilbar ab`, no Teilungsskizze and a title without „teilbar", while the same Makler
+  advertises the neighbouring parcel as teilbar ⇒ read it as "a split is not presentable here", not as
+  "not mentioned". Score C unchanged (the profile asks only `min_m2`, no max, no divisibility) and put
+  the loss in the **Summary/comparison as lost optionality** — the abtrennbare second parcel is the only
+  instrument that could refinance a five-figure Erschließungsbeitrag. Where it *does* move a number:
+  Block G goes **up** ~0,5 on the non-divisible sibling (one unverified legal claim fewer: no Vermessung,
+  no Fortführungsnachweis, no §-34-Einfügen test for two halves) — say explicitly that this is "less to
+  verify, not more value", otherwise the score reads as if the poorer parcel were better.
 **Why:** the three sources disagree by ~10 m² each and the field alone says nothing about whether the split is
 permissible; the skizzen answer both in one download.
+
+### The Flurkarte also answers "who are the neighbours" — and the exposé house number is NOT the parcel ID
+Two things from #544's single `Flurlage {Straße} {Nr} (2)` PNG that no text field carries:
+- **Identify a plot by its Flurstücksnummer, never by the exposé address.** An unbebautes Flurstück has no
+  amtliche Hausnummer, so IS24's `MAP.addressLine1` is the seller's/geocoder's assignment. #543 "Erikaweg 14"
+  = **Flurstück 186**, #544 "Erikaweg 10" = **Flurstück 188** — and #544's map shows an *existing* house
+  numbered 10 on a different parcel to the south. Corollary: **"sibling" parcels from one seller are not
+  necessarily adjacent** — 186 and 188 are separated by the built plot Erikaweg 12. Put the Flurstück number
+  into the report, the Grundbuch/Forstbehörde questions and the tracker note.
+- **Read the neighbouring parcels' buildings — it is direct § 34 evidence and often the sharpest
+  differentiator between two otherwise identical parcels.** #543's abutting Flurstücke 185/187/188 are all
+  *unbebaut* (closed row only across the street), whereas #544 abuts a house east (~9 m) and one south ⇒ its
+  Innenbereich/„Einfügen" position is carried by facts as well as by the Klarstellungssatzung, and the
+  neighbouring houses are the yardstick for the permissible Maß der Nutzung (worth naming in Block D/E and
+  as "bring Nachbarhaus Nr. X as reference to the Bauvoranfrage").
+- Cheap sanity check worth doing once: shoelace the parcel polygon in pixel coordinates against the caption's
+  m² — it validated #544's 33,5 m / 26 m / 35,5 m prose and exposed a contradictory second depth figure
+  ("links 35,5 m" vs a 26 m Spatzenweg front). Where prose and Karte disagree, the Karte wins.
+**Why:** without the Karte the two Vehlow parcels look interchangeable; with it, the cheaper one turns out to
+have the better § 34 position, an exactly matching amtliche Fläche, and a different Flurstück than its address
+suggests.
 
 ### Potsdam-Mittelmark BRW: get it from the Gutachterausschuss PRESS RELEASE, and read the PDF with `pdftotext`
 The full BRW table PDF (`gutachterausschuss.brandenburg.de/sixcms/media.php/9/GA_PM_BRW_{jj}.pdf`) is 600+
@@ -2398,16 +2437,28 @@ for Borkheide is a stale/asking-price figure (same overshoot as the miete-aktuel
 **Crucial for Block A: the BRW is for *baureifes* Land.** An **unerschlossenes** parcel must trade at a clear
 discount (rule of thumb 20–40 EUR/m²), so "10 % under BRW" on an unerschlossenem plot is **not** a bargain —
 say so explicitly. The sharpest possible check is a **sibling exposé in the same Ortslage**: #469 (voll
-erschlossen inkl. Glasfaser) asked 130 EUR/m², #543 (unerschlossen) asks 126 EUR/m² ⇒ effectively no discount
-at all. Always grep `data/listings.md` for the Ortsteil before scoring a rural plot's Block A.
+erschlossen inkl. Glasfaser) asked 130 EUR/m², #543 (unerschlossen) asks 126 EUR/m², #544 128 EUR/m² ⇒
+effectively no discount at all (#544 is a mere 1,3 % cheaper than the fully serviced parcel). Always grep
+`data/listings.md` for the Ortsteil before scoring a rural plot's Block A.
+**Beware the €/m² vs. absolute-price inversion on sibling parcels:** the *smaller, cheaper* parcel can be the
+*dearer* one per m² (#544: 149.000/1.162 = 128 vs #543: 155.000/1.234 = 126) while still being the better
+budget fit, because Kaufnebenkosten, the area-scaled Erschließungsbeitrag and any Vermessungsposition all
+shrink with it (all-in mean ~202 T vs ~210 T against a 200 T cap). Score Block A on the **all-in scenario
+mean vs the absolute cap**, and name the €/m² inversion instead of letting either metric decide alone.
 
-### Local-Makler portfolio: **Immobilienbüro Vehlow (Klaus Vehlow, Werder/Havel)** runs adjacent Borkheide parcels
+### Local-Makler portfolio: **Immobilienbüro Vehlow (Klaus Vehlow, Werder/Havel)** runs two Borkheide parcels in one street (not adjacent — a built plot sits between them)
 `obj_cId 397490`, TNS „Identität verifiziert", 4,5★ (thin base), full Impressum with Gewerbeamt Werder + StNr.,
 Festnetz **03327 731447** + Mobil 0172 2107913, **`Provision für Käufer: Nein`** (seller pays — and here it is
 *not* a Bauträger hook: `Sonstiges` names no Hausmarke and no "wird bebaut mit"). Two neighbouring exposés were
-live simultaneously — **Erikaweg 14 (168282754, 1.234 m², 155.000)** and **Erikaweg 10 (168282613, 1.162 m²,
-149.000)** — so treat them as ONE seller contact and expect near-identical terms/text (same family as the
-Falkensteg Speicherstadt portfolio note). Minor blemish only: two different freemail addresses of his own name
+live simultaneously — **Erikaweg 14 (168282754, Objekt-Nr. 2241, Flurstück 186, 1.234 m², 155.000, #543)** and
+**Erikaweg 10 (168282613, Objekt-Nr. 2240, Flurstück 188, 1.162 m², 149.000, #544)** — so treat them as ONE
+seller contact (one viewing, one free Gemeinde-Anfrage covering both, and "two unsold parcels in one street"
+as a price argument) and expect near-identical terms/text (same family as the Falkensteg Speicherstadt
+portfolio note). **Both exposés are near-verbatim copies** — Klarstellungssatzung, Erschließung/Medien, „Straßen
+noch nicht befestigt", Waldumwandlungs-Klausel, Verfügbarkeit, Provision, Impressum are word-for-word identical,
+so on the second sibling only these differ and only these deserve effort: **Flurstück + amtliche Fläche,
+Kaufpreis/€ per m², corner streets + frontages, the `Fläche teilbar ab` field, and the Flurkarte's neighbouring
+buildings.** Everything else can be carried over from the first report with a pointer. Minor blemish only: two different freemail addresses of his own name
 (`kvehlow@gmx.de` in the profile Impressum vs `Kvehlow@t-online.de` in the Widerrufsbelehrung) — **not** the
 #401 three-identity pattern, H ~4,0.
 **Why:** applied mechanically the High-tier signal alone would have pushed a clean listing to "Proceed
