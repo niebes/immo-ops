@@ -2309,6 +2309,107 @@ indicators run the other way — exact address volunteered in the Lage text, ide
 ratings, real object photos, Provision only after Beurkundung. **The tell that it isn't bait: the seller
 himself discloses the reasons the price is low** (the 100 m² cap and the § 1a Eingriffsregelung are both
 admissions against interest). Verdict stayed **Legitimate**.
+
+### Baurecht ladder, new rung: **Klarstellungssatzung § 34 Abs. 4 S. 1 Nr. 1 BauGB** = the Innenbereich is settled by Ortsrecht
+Seen on #543 (expose 168282754, Erikaweg 14 Borkheide): *"Gemäß der seit dem 27. Oktober 2000 beschlossenen
+**Klarstellungsatzung Nr. 3** der Gemeinde … über die Grenzen der im Zusammenhang bebauten Ortsteile, ist der
+Bereich des Grundstücks als Bauland eingestuft."* This is **binding Ortsrecht**, not a phone Auskunft — it
+places it between a positive Bauvoranfrage (#402) and a qualified B-Plan on the ladder, i.e. well above
+#404's *unverbindliche Auskunft* and #529's *"denkbar"*. Two limits to state every time:
+- **It settles the *Wo*, not the *Wieviel*.** Art und Maß still run through § 34 Abs. 1 („Einfügen in die
+  Eigenart der näheren Umgebung"), so `Bebaubar nach: wie Nachbarbebauung` + `obj_buildingPerm: n` still
+  cap E; the seller's „zweigeschossig mit Keller / auch Doppelhaus" stays a sales claim. E-Baurecht ≈ 4,0.
+- **Check the aerial/Flurkarte for WHY the Satzung was needed.** #543's westward and southward neighbours
+  (Flurstücke 185/187/188) are *unbebaut*, the closed row is across the street — without the Satzung the
+  Innenbereichslage would be genuinely arguable. That makes the Satzung load-bearing, and makes
+  "Geltungsbereichskarte anfordern — liegt das Flurstück **vollständig** darin?" a real Next step.
+Add `Klarstellungssatzung|Innenbereichssatzung|Abrundungssatzung|Ergänzungssatzung` to the existing
+`Bebauungsplan|B-Plan|Baufeld|Baufenster|Ortsgestaltungssatzung` grep on the Objektbeschreibung.
+**Why:** the structured fields here read as a bare § 34 case (`neighbourconstruction` + `buildingPerm: n`)
+and would score E ~2,5, when the Innenbereich is in fact legally established.
+
+**Ortsteil→Satzung running list (extends the Fichtenwalde entry):**
+**Borkheide → Klarstellungssatzung Nr. 3 v. 27.10.2000** (Innenbereichsgrenzen) **+ eine Baumschutz-/
+Gestaltungssatzung** („nicht der gesamte Baumbestand darf gefällt werden"). Both bind every Borkheide plot —
+#469 (expose 162154162) referenced the same "Innenbereichssatzung" independently. Silence in a later exposé
+is not absence.
+
+### Fourth Erschließung grade, BELOW "liegt in der Straße": **the street itself is not built yet**
+The three-grade preposition ladder (im Grundstück > in der Straße > blank) misses the worst realistic case.
+#543: `Erschließung: Unerschlossen` / `obj_development: not_developed`, while the Objektbeschreibung says
+*"Medien wie Wasser, Abwasser, Strom und ein Anschluss der Telekom liegen dort an"* — i.e. the media grade is
+the *middle* rung — **but the same paragraph ends *"Die vor dem Grundstück verlaufenden Straßen sind noch
+nicht befestigt."*** That is a different and much larger cost: **Erschließungsbeitrag für die *erstmalige
+Herstellung* nach §§ 127 ff. BauGB**, ~90 % of the road cost apportioned to abutters, levied against
+whoever owns the plot **at the time of the levy** — possibly years after purchase. Handling:
+- Size it on **Grundstücksfläche**, not frontage: ~20–60 EUR/m² is the usual Satzungs-range ⇒ on 1.234 m²
+  that is **25–74 T EUR**, i.e. it can dwarf every other cost item on the exposé.
+- **A corner plot doubles the exposure** (#543: 30,5 m Erikaweg + 48,5 m Ulmenweg). Ask specifically for
+  the **Eckgrundstücksermäßigung** in the Gemeinde's Erschließungsbeitragssatzung — it is often 1/2 or 2/3
+  and swings the figure by a factor of two.
+- Because the range straddles the budget cap, put a **two-row scenario table** in Block A (#543:
+  ~183 T günstig vs ~238 T ungünstig against a 200 T cap) and make the free written Gemeinde-Anfrage
+  ("sind die Straßen endgültig hergestellt i. S. d. §§ 127 ff. BauGB? Beitragsbescheinigung § 133 Abs. 3?")
+  Next-step #1 — don't average the scenarios into one number.
+- **`TEXT_AREA "Sonstiges"` is where the cost is contractually shifted**: grep it for *"Der Erwerber trägt
+  alle noch in Zukunft anfallenden Kosten für Erschließungsmaßnahmen"*. Score it as a Block-G item
+  (unbezifferte offene Verpflichtung), and note it is simultaneously **exculpatory in the scam check** —
+  disclosing it is an admission against interest.
+- Companion tell in the same sentence family: **"inkl. anfallender Waldumwandlungsgebühren"** ⇒ parts of the
+  parcel may be *Wald* under § 2 LWaldG even though a Satzung calls it Bauland. That contradiction is its own
+  Next step (untere Forstbehörde: Umwandlungsgenehmigung § 8 LWaldG + Walderhaltungsabgabe/Ersatzaufforstung),
+  and it is the gross-vs-usable trap in a new disguise — grep `Waldumwandlung|Walderhaltungsabgabe` next to
+  the existing `Landschaftsschutz|LSG|Wald|Außenbereich` test.
+**Why:** read only off the media sentence, #543 looks like an ordinary "teilerschlossen, 8–18 T EUR Hausanschluss"
+plot; the unbuilt road is a separate five-figure item that decides whether it stays inside the 200 T budget.
+
+### `Fläche teilbar ab:` — a real structured divisibility field (+ the Teilungsskizzen that go with it)
+New Hauptkriterien row `Fläche teilbar ab: 550 m²` plus a TOP_ATTRIBUTES `Teilbar ab` (#543). Treat it as
+**a size statement, not a legal one** — the Objektbeschreibung phrasing is typically *"lässt sich **von seiner
+Größe her** auch in zwei Baugrundstücke aufteilen"*. What to check: Vermessung/Fortführungsnachweis is still
+outstanding, and **each resulting parcel must independently einfügen nach § 34** (so a Bauvoranfrage should be
+filed for BOTH). Score it as a Block-C plus only when **both** halves clear the profile's `min_m2`.
+- **Download the map images — the numbers in them beat the prose.** #543's three PNG captions were
+  `Flurlage {Straße} (2)` / `Teilstück {Straße A}` / `Teilstück {Straße B}`; they gave the **Flurstücksnummer
+  and amtliche Fläche (186, 1.235 m²)**, the exact split (**688 + 541 m²** vs the description's "ca. 684 + 550"
+  and the field's 550), which street each half fronts, that the neighbouring parcels are unbebaut, and that a
+  small third Flurstück (189) sits at the street corner ⇒ a Grundbuch Abt. II question. Extends the
+  `Teilungsentwurf|Lageplan|Flurstück|Vermessung` caption grep with **`Flurlage|Teilstück`**.
+- Upside worth naming: an existing Flurstück (as here) is materially better than #534's *"neu zu bildendes
+  Trennstück"* — the Kaufgegenstand is defined and there is no Kaufpreisanpassung-je-m² / 3–9-month
+  Eigentumsumschreibung risk.
+**Why:** the three sources disagree by ~10 m² each and the field alone says nothing about whether the split is
+permissible; the skizzen answer both in one download.
+
+### Potsdam-Mittelmark BRW: get it from the Gutachterausschuss PRESS RELEASE, and read the PDF with `pdftotext`
+The full BRW table PDF (`gutachterausschuss.brandenburg.de/sixcms/media.php/9/GA_PM_BRW_{jj}.pdf`) is 600+
+zones and WebFetch cannot parse either it or the Landkreis press release ("corrupted/binary PDF"). But WebFetch
+**saves the bytes and prints the path**, and `pdftotext -layout {path} - | grep -i -A4 -B4 {Ortslage}` pulls the
+named Ortslagen out in one call — faster and more targeted than the Read+`pages:` route used for the Potsdam
+Mietspiegel. The press releases name only the *changed* zones, which is usually exactly what you need.
+**Anchors, Landkreis Potsdam-Mittelmark, Stichtag 01.01.2026** (amtlich; supersede the older figures above):
+**Borkheide ~140 EUR/m²** (−20 zum 01.01.2026, −20 zum 01.01.2025; corroborated by the BRW disclosed in
+exposé #469) · **Damsdorf 180 → 140** (the "160, Stand 01.01.2024" figure in the #529 note is outdated) ·
+**Fichtenwalde 200 → 160** (was 250 → 200 im Vorjahr) · Bad Belzig Friedrich-Engels-Str. 280 · Stücken
+Wohnpark Naeve 240 · Lehnin Wohnpark Hohlweg 260 · Seddiner See/Neuseddin 200 → 270 · Schwielowsee/Caputh
+550 → 500. Kreisweit 46 Zonen angehoben, 35 gesenkt — the SW-Mittelmark Ortslagen are in a **multi-year
+downtrend**, which is a concrete negotiation lever, and it means an aggregator's "Ø 166 EUR/m², 125–180"
+for Borkheide is a stale/asking-price figure (same overshoot as the miete-aktuell warning above).
+**Crucial for Block A: the BRW is for *baureifes* Land.** An **unerschlossenes** parcel must trade at a clear
+discount (rule of thumb 20–40 EUR/m²), so "10 % under BRW" on an unerschlossenem plot is **not** a bargain —
+say so explicitly. The sharpest possible check is a **sibling exposé in the same Ortslage**: #469 (voll
+erschlossen inkl. Glasfaser) asked 130 EUR/m², #543 (unerschlossen) asks 126 EUR/m² ⇒ effectively no discount
+at all. Always grep `data/listings.md` for the Ortsteil before scoring a rural plot's Block A.
+
+### Local-Makler portfolio: **Immobilienbüro Vehlow (Klaus Vehlow, Werder/Havel)** runs adjacent Borkheide parcels
+`obj_cId 397490`, TNS „Identität verifiziert", 4,5★ (thin base), full Impressum with Gewerbeamt Werder + StNr.,
+Festnetz **03327 731447** + Mobil 0172 2107913, **`Provision für Käufer: Nein`** (seller pays — and here it is
+*not* a Bauträger hook: `Sonstiges` names no Hausmarke and no "wird bebaut mit"). Two neighbouring exposés were
+live simultaneously — **Erikaweg 14 (168282754, 1.234 m², 155.000)** and **Erikaweg 10 (168282613, 1.162 m²,
+149.000)** — so treat them as ONE seller contact and expect near-identical terms/text (same family as the
+Falkensteg Speicherstadt portfolio note). Minor blemish only: two different freemail addresses of his own name
+(`kvehlow@gmx.de` in the profile Impressum vs `Kvehlow@t-online.de` in the Widerrufsbelehrung) — **not** the
+#401 three-identity pattern, H ~4,0.
 **Why:** applied mechanically the High-tier signal alone would have pushed a clean listing to "Proceed
 with Caution" on the very feature that makes it the best-value plot in the search.
 
