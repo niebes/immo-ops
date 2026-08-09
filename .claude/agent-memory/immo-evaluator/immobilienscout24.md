@@ -1980,6 +1980,58 @@ typically does **not name which LSG** → untere Naturschutzbehörde des Landkre
   **Why:** at 231 EUR/m² #534 would read as a 3× bargain; at the amtlichen 120 it reads as roughly
   fair-to-expensive once the LSG share is discounted — a full Block-A grade apart.
 
+### `obj_demolition: n` can be a LIE BY OMISSION — the half-demolished plot
+The note above credits `obj_demolition: n` (+ a "kein Abriss" caption) as a real Block-D plus. **That
+only holds when the photos back it.** #545 (expose 166335451, Paulinenaue, Grünland-Immobilien) has
+`obj_demolition: n` while the Objektbeschreibung says *"Das Einfamilienhaus wurde zu 90 % abgerissen,
+hier steht noch eine Wand, die Teilunterkellerung ist in Takt"* and the 16 real photos show **large
+un-removed Bauschutt heaps**, a standing wall, and a small Restbau with **Faserzement-Wellplatten
+roofing (Asbestverdacht)**. So on every plot: **grep the Objektbeschreibung for
+`abgerissen|Abriss|Rückbau|Teilunterkellerung|Bauschutt|Trümmer` and LOOK at the photos before
+reading the flag as a credit.** Cost to add to Block A: Restabriss + Verfüllung + Schuttabfuhr
+**15–30 T EUR** (+ Asbest surcharge), and *who owes the clearing* is never stated → contact question.
+Score Block D ~2,0 (land condition), not the 3,5+ an "unbebaut, kein Abriss" reading gives.
+**Why:** the flag says the exact opposite of the text and the photos, and the clearing cost is what
+turns a 30 %-under-budget plot into one that straddles the budget cap.
+
+- **Erschließung, fifth reading: connections "IM Grundstück" can sit INSIDE the part that must be
+  demolished.** #545's Strom + Hauptwasserleitung are in the *Teilunterkellerung* that has to be
+  removed — i.e. the best Erschließungsgrad is conditional on a rebuild/relocation (3–8 T EUR) and
+  the exposé is silent on whether the Hausanschlüsse survive. Grade it as a plus *with* that question
+  attached. Same listing: **no zentraler Abwasseranschluss at all** ("es muss eine neue Abwassergrube
+  errichtet werden") — the worst grade, one rung below #429's Sammelgrube (there one existed).
+  New Abwasserlösung 8–18 T EUR + 600–2.500 EUR/yr laufend.
+- **Baurecht: a demolished predecessor building is the strongest *factual* § 34 support short of a
+  B-Plan.** #545 has the bad quartet (`obj_buildingPerm n`, `obj_shortTermBuild n`,
+  `obj_development no_information`, only `obj_constAfter: neighbourconstruction`) but a house stood
+  there until recently and both neighbours are built EFH → Bebauungszusammenhang is a fact, not a
+  guess. Don't apply the #529 quartet mechanically: E ~2,5 (probable, unsecured), not the ~2,0 the
+  flags alone suggest. Seller punting with *"Ihr Bauvorhaben reichen Sie bitte beim Bauamt ein"*
+  = no Bauvoranfrage exists.
+
+#### BRW anchors — westliches Havelland 2026, and the aggregator error is NOT always upward
+Official (Gutachterausschuss Havelland, Beschluss 28.01.2026, **Stichtag 01.01.2026**, published
+09.03.2026): **erschlossenes Wohnbauland westliches Havelland 25–110 EUR/m², im Schnitt +7 %**
+(Einzellagen bis +20 %); **EFH-Lagen Rathenow/Premnitz 65–120**, Innenstadt-Mischlagen 65–140,
+Wasserlagen Rathenow 180–300. Extends the ladder (Schönwalde-Glien ~120, Perwenitz/Grünefeld
+100–160, Schwanebeck/Nauen 100–160, Premnitz 40–90). **Paulinenaue: Gemeindemittel 42 EUR/m²**
+(Spanne 10–110, ±0 % ggü. 2025); my estimate for the Ortslage-Wohnbauland **55–85 EUR/m²**.
+**Correction to the "aggregators overshoot" rule:** `bodenrichtwerte-deutschland.de` quoted
+Paulinenaue *below* the official Wohnbauland band, because its headline number is a **mean over ALL
+Nutzungsarten incl. Acker (min 10 EUR/m²)** — it is not comparable to a Wohnbauland-BRW at all. So
+the aggregator error has **no fixed direction**: miete-aktuell inflates (Damsdorf, Perwenitz),
+bodenrichtwerte-deutschland dilutes. Use either only as a sanity range and always name BORIS-BB /
+Gutachterausschuss Havelland (Nauen, **03321 403 6181**) as the Next step.
+**Why:** an asking price of 118 EUR/m² reads "roughly at the 110-ish top" against the aggregator's
+42 mean but is actually ~1,4–2,1× the local Wohnbauland value — a full Block-A grade.
+
+- **Location anchor — Paulinenaue (Gemeinde Paulinenaue/Selbelang, Amt Friesack, ~1.300 Ew.):**
+  ~40 km NW of Golm, ~45 km/45 min by car to Potsdam; **Bahnhof im Ort** (Berlin–Hamburg line,
+  Nauen ~8 min, Berlin-Spandau ~25–30 min) but **no direct connection to Potsdam** (change in
+  Spandau, ~1 h 05–1 h 20). Not in preferred/acceptable areas, excluded empty ⇒ **B 2,0** — same as
+  Schwanebeck/Nauen despite being further out, because the station is in the village rather than a
+  bus ride away. Line was under SEV 08/2025–04/2026 (Berlin–Hamburg works) — re-verify the timetable.
+
 ### A `livingbuysite` under ~20 EUR/m² is almost never Bauland — it's Acker/Grünland/Wald/Wasser im Außenbereich
 The BRW ladder above (Fahrland 250 … Speicherstadt 1.200) is a **Bauland** ladder. A plot exposé
 priced at single-digit EUR/m² is a *different asset class* and the ladder does not apply. #407
