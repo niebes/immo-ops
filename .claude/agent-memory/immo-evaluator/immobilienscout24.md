@@ -1046,6 +1046,33 @@ THEIR form, not the IS24 Bewerbermappe). Seen on #361 (expose 169253644, talyo.)
 **Why:** without checking it you'd log "Energieausweis fehlt" as a real gap and point the user at
 the wrong application route.
 
+The same list also carries the **einheitsgenauen Grundriss**, labelled with the unit number
+(`"WE 58"` → 1-page PDF "Luisenhof 16 … GRUNDRISSTYP C.3 · EG & 1.OG · Wohnfläche ca. 123 m² ·
+Wohnungsnummer WE 58"). `curl` it and `pdftotext` it: it confirms Zimmerzahl/Fläche/Etagenlage of
+*this* unit (and often reveals the Bauträger's Haftungsausschluss = "Planmaße", i.e. the m² are
+plan figures, not a WoFlV-Aufmaß). Seen on #537 (expose 169858137).
+
+### Bestandswohnung in einem Neubau**projekt** whose gallery is a **Musterwohnung** → D-cap still fires
+A `Vermarkter` re-letting a unit in his own 2018er project publishes 20 pictures that are all of a
+*Referenz-/Musterwohnung*, with the disclaimer twice in the text: *"Bei den Bildern handelt es sich um
+Bilder einer Musterwohnung im gleichen Objekt. Der Zuschnitt der angebotenen Wohnung entspricht nicht
+den Bildern. Die Ausstattung … ist jedoch in allen Wohnungen identisch."* (justified by the sitting
+tenants' privacy). Two independent calls:
+- **Block D:** the `_shared.md` Neubau/Erstbezug render-exception does **not** apply — the building is
+  7 years old and the flat is a re-let, so this is an *existing* flat with **zero photos of itself** →
+  **cap D at 3,0** even with `obj_condition: mint_condition` + Klasse A. Say what D would have been
+  without the cap (#537: 5,0 → 3,0 ≈ −0,2 global) so the user sees the price of the missing evidence.
+- **Scam:** openly disclosed twice ⇒ **exculpatory**, do NOT count the "photos from different
+  properties" Medium signal. Verdict stays Legitimate.
+- **Caption fingerprint** that identifies the class before you read the text: a `backbone_{n}_{seq}_WEB`
+  photo series (the marketer's reference-flat shoot) mixed with `{YYMMDD}_{bautraeger}_{projekt}-WE…`
+  project renders (#537: `180704_tricon_luisenpark-WE…` = 04.07.2018, i.e. pre-completion marketing
+  material re-used years later).
+Seen on #537 (169858137, Luisenhof 16 / Neubau "Luisenpark" Potsdam, Müller Merkle Immobilien).
+**Why:** `obj_picturecount: 20` + Neuwertig + Baujahr 2018 reads as a fully documented flat, and the
+Neubau exception looks like it applies — scoring D at 5,0 would have hidden that nothing about *this*
+unit is verifiable, which is the single most important viewing instruction in the report.
+
 ### Kauf exposés (`realEstateType: housebuy`) — three traps
 Seen on #366 (expose 165446870, Babelsberg Nord Denkmal-Weberhaus).
 1. **`Kaufpreis: "Auf Anfrage"`** — both `header.shareMessage` and the "Kosten" `ATTRIBUTE_LIST`
