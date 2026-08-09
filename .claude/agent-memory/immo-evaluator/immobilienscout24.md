@@ -303,6 +303,15 @@ private-buyer plot. The tie-in exists only as the Sonstiges opener *"Das Grundst
 massa Haus nach Wunsch."* followed by the rep's mobile + `@massa-haus.de` address. Rules:
 - **Grep `TEXT_AREA "Sonstiges"` for `wird bebaut mit|Hausbindung|Bauträgerbindung|{Hausmarke}` on EVERY
   plot** — the word "Bauträgerbindung" is the *least* common phrasing of it.
+- **Inverse case — a title claiming „bauträgerfrei" CAN be confirmed, and it is worth score + money.**
+  Run the same grep over the WHOLE json (`Bauträger|Hausbindung|wird bebaut mit|massa|Town & Country|
+  Danwood|Scanhaus`); zero hits **plus** an `AGENTS_INFO.company` that is a real **Makler-GmbH with HRB +
+  § 34c-Berufsaufsicht** and `obj_courtage: y` (he earns from the commission, not from a Werkvertrag)
+  ⇒ the claim holds as far as the exposé reaches. Then say so explicitly in Block G as a **plus**:
+  free choice of builder AND **no einheitliches Vertragswerk** ⇒ GrESt 6,5 % on the land only, not on
+  land+house (a five-figure difference vs #483/#519/#528). Seen on #546.
+  **Why:** the memory so far only knew how to *detect* a hidden tie-in; without the inverse test a genuinely
+  free plot gets no credit for the one feature that separates it from the whole Bauträger family.
 - **`Provision für Käufer: Nein` on a plot is a tell, not just a plus.** A Makler works for commission; a
   0 %-plot means the seller earns elsewhere — usually the house contract. Still score it as the genuine
   Block-A/G plus it is (0 % vs the 3,57–7,14 % ladder = 6.400–12.800 EUR), but say *why* it is free.
@@ -330,6 +339,43 @@ proof that a public sewer exists (kills the #429 Sammelgrube/Kleinkläranlage ri
 medium sits at which grade; "erschlossen ≠ beitragsfrei" (§ 133 Abs. 3 BauGB) survives all three.
 **Why:** collapsing the sentence to "erschlossen ✓" loses both a five-figure buyer cost and a five-figure
 risk that was ruled out.
+
+### The word **„Teilungsgrundstück"** in the Objektbeschreibung is a whole risk class — grep for it
+A plot advertised as *Teilungsgrundstück* (also: *Teilfläche*, *wird herausgemessen*, *noch zu vermessen*)
+is a parcel **carved out of a larger, usually still-built plot** — typically the oversized garden behind an
+existing EFH. Three consequences the structured fields never show:
+1. **Fläche/Grenzen sind nicht final.** `Grundstück ca.: N m²` is a *planned* figure; there is no own
+   Flurstück/Grundbuchblatt yet. Ask who pays the **Teilungsvermessung** (2.000–4.500 EUR) and when the
+   area becomes binding. Score Block C ~0,5 lower than an equally sized surveyed parcel.
+2. **§ 34 + Teilung = Bebauung in ZWEITER REIHE**, the classic rejection case: the Bebauungszusammenhang
+   often ends at the rückwärtige Bauflucht („faktische Bautiefe"), rear garden land can be **Außenbereich
+   im Innenbereich**, and § 34 Abs. 1 requires **gesicherte Erschließung** → a Hinterliegergrundstück needs
+   a **Baulast (Geh-, Fahr-, Leitungsrecht)** over the parent plot. So a Teilungs-plot's „liegt im
+   Innenbereich" claim is materially weaker than the same sentence on a normal Baulücke, even with
+   `obj_shortTermBuild: y`. Cap Block E ~3,0 until Zufahrt + Vorbescheid are answered.
+3. **Fotocheck that decides it:** look for **street, kerb, driveway** in the gallery. If every shot points
+   into the depth of the parcel and none shows the road, treat street frontage as **unproven** and make it
+   contact question #1 (worth ~0,5–1,0 Punkte). Counter-evidence that argues *for* frontage: the text saying
+   media lie „in der Straße **vor dem Grundstück**", or an existing **Garage/Carport** on the parcel (needs
+   vehicular access).
+Seen on #546 (expose 169793857, Premnitz, KREMSER GMBH, 647 m² / 63.000 EUR, `developed_partially`,
+`shortTermBuild: y`, `buildingPerm: n`).
+**Why:** every structured field on #546 reads like a clean, cheap, kurzfristig bebaubare Baulücke —
+the single word „Teilungsgrundstück" is the only hint that neither the area nor the Baurecht nor the
+access is actually settled.
+
+### Read the plot photos for ENCUMBRANCES the text omits (Freileitung, Masten, Schächte, Wege)
+On a Grundstück the gallery is evidence, not decoration — and sellers describe the vegetation, not the
+burdens. On #546 three of four photos show **wooden overhead-line poles standing on/at the parcel with the
+cable spanning it**, while the Objektbeschreibung mentions only Zaun, Ziersträucher, Obstbäume and a
+Doppelgarage. A Freileitung implies a possible **Leitungsdienstbarkeit in Grundbuch Abt. II**, a
+**Schutzstreifen** that eats überbaubare Fläche, and Umverlegungskosten (E.DIS). Same scan applies to
+visible Schächte/Kanaldeckel, Trampelpfade across the plot (unrecorded Wegerecht), border sheds and
+Grenzbebauung of neighbours. Report it as *your image reading*, not as an Anbieterangabe, and turn it into
+a Grundbuch/Baulast question — do **not** log it as a scam signal (omission of a burden in a Fließtext is
+normal seller behaviour, not deception).
+**Why:** the encumbrance never appears in any attribute, so unless it's read off the photos it enters the
+purchase unnoticed — and it directly reduces the buildable area you scored Block C/E on.
 
 ### Ortsteil-wide Satzungen carry ACROSS listings — check the Ortsteil, not the exposé
 #405 (Mittelstraße 47, Fichtenwalde) disclosed the **Ortsgestaltungssatzung Fichtenwalde (2005, zuletzt
@@ -740,6 +786,16 @@ so and route the real numbers to a contact question.
   and the same percentile was discounted as noise). **Why:** the earlier memory only recorded the
   "percentile misleads" half, which would have you throw away a valid corroborating datapoint on the
   plot-included cases.
+- **Westliches Havelland Bodenrichtwert anchors (Gutachterausschuss Havelland, Stichtag 01.01.2026,
+  ~850 BRW beschlossen; Wohnbauland im Schnitt +7 %, Einzellagen bis +20 %):**
+  **Stadt Premnitz EFH-Lagen 65–120 EUR/m²** (Ortszentren gemischt/Wohnen 65–140; Gemeindemittel aller
+  Nutzungen ~70 EUR/m² Stand 01.01.2023) · **erschlossenes Wohnbauland Westhavelland gesamt 25–110 EUR/m²**
+  · Paulinenaue Gemeindemittel ~42 EUR/m² (Spanne 10–110). Quelle ohne Login:
+  `havelland.de` Pressemitteilung „Bodenrichtwerte {Jahr} im Havelland beschlossen" — sie nennt die
+  Ortsbänder im Fließtext, das spart den BORIS-BB-Umweg. Nutzen: #546 (97 EUR/m² Premnitz) landete damit
+  *im* Band = marktkonform (kein Preishebel, aber auch kein „zu billig"-Scamsignal), #545 (118 EUR/m²
+  Paulinenaue) *über* der gesamten Westhavelland-Obergrenze = Hauptverhandlungshebel. Re-check jeden
+  Februar (Beschluss Ende Januar).
 - **Marquardt (Nördliche Ortsteile Potsdam) Bodenrichtwert anchor: ~300–350 EUR/m²** — used on #423's
   residual (600 m² × 300–350 = 180–210 T EUR plot ⇒ 240 T EUR / 2.286 EUR/m² house-only, in the
   schlüsselfertig band ⇒ plot included).
