@@ -3,6 +3,7 @@
     "invisible-playwright": {
       "command": "bash",
       "args": ["scripts/invisible-playwright-mcp.sh"],
+      "timeout": 120000,
       "env": {
         "IP_HEADLESS": "true",
         "IP_LOCALE": "de-DE",
