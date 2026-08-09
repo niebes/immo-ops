@@ -20,6 +20,8 @@ General policies for opening listing pages. Stable, applies to every evaluation.
 - **Number format in reports is always German** (see Report Format): `1.443,87 EUR`, `80,5 m²`, `3,5 Zimmer`.
 - **Furnished / "auf Zeit" / Zwischenmiete / Mietkauf** are not standard long-term rentals: apply the hard-blocker cap per `_shared.md` (Zwischenmiete) or discard (Mietkauf is a sale), and say so.
 - **CiC truncates returned strings at ~1100 chars** — extract field-by-field, not in one giant blob.
+- **Immowelt: go to CiC FIRST — do not open it with `mcp__invisible-playwright__*`.** `new_page` wedges on Immowelt detail pages and returns nothing. Observed on #397, #538, #539 and #542; on #538 it burned a full 30-minute MCP idle timeout (35,7 min for one evaluation vs a ~6 min baseline). Both backstops now bound it — `IP_TIMEOUT_MS` (30 s, context default in `scripts/invisible-playwright-mcp.py`) and the per-server `"timeout": 120000` in `.mcp.json` — so a stall now fails fast instead of hanging, but it is still a wasted round trip. Entry sequence that works: `tabs_context_mcp{createIfEmpty:true}` (required — a bare `tabs_create_mcp` errors out) → `tabs_create_mcp` → `navigate` → `javascript_tool`. Close only the tab you created.
+- **Prefer a plain `curl` over any browser when the portal has a data route.** ImmoScout24 answers fully on `api.mobile.immobilienscout24.de/expose/{id}` with UA `ImmoScout24_1410_35_._`, and Kleinanzeigen detail pages render server-side — both need no browser at all. This is the single biggest lever on evaluation cost, and a curl-only evaluation holds no browser lock, so it is safe to run in parallel with other evaluations (see `immo-find` auto Step 4).
 
 ## Workflow
 

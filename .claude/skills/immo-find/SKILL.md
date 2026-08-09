@@ -230,7 +230,11 @@ Pass the search-result metadata as an unverified **hint only** — it can be sta
 
 Do NOT restate the steps, file paths, scoring rules, number format, or portal quirks in the prompt — they live in the agent definition, `modes/evaluate.md`, and the agent's memory. (If `immo-evaluator` is unavailable, fall back to `general-purpose` and inline the `modes/evaluate.md` Browser & portal quirks + workflow.)
 
-Launch agents **one at a time** (CiC tabs can't run in parallel — each agent needs exclusive browser access). Wait for each agent to complete before launching the next.
+**Concurrency — serialize only what actually needs a browser.** The constraint is the shared browser (CiC tabs and the single stealth-Firefox context can't be driven by two agents at once), NOT evaluation itself. Most evaluations no longer touch a browser: ImmoScout24 answers fully on `api.mobile.immobilienscout24.de/expose/{id}` and Kleinanzeigen detail pages render server-side, so both are plain `curl` (6 of 10 evaluations in the 2026-08-09 cycle needed no browser at all). So:
+
+- **Curl-only portals — ImmoScout24 (incl. ImmoScout24 Haus) and Kleinanzeigen: launch in parallel**, several agents in one message. Tell each one in its prompt that it is running alongside others and must not open a browser; if it finds it genuinely needs one, it should report back rather than grab the browser.
+- **Browser-bound portals — Immowelt, Vonovia, aggregators that redirect to a source page, anything unknown: strictly one at a time.** Wait for each to finish before launching the next, and do not overlap one with a parallel batch.
+- Tracker TSVs are written per-listing to `batch/tracker-additions/` and merged once at the end, so parallel agents don't collide there. `data/pipeline.md` is the one shared file they each edit — if two agents ever report a lost pipeline update, fall back to serial for that portal and note it here.
 
 After all agents complete: `node scripts/merge-tracker.mjs`
 

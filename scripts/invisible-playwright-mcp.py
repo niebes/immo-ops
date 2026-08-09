@@ -32,6 +32,10 @@ else:
 LOCALE = os.environ.get("IP_LOCALE", "en-US")
 TIMEZONE = os.environ.get("IP_TIMEZONE", "Europe/Berlin")
 STORAGE_STATE_PATH = os.environ.get("IP_STORAGE_STATE", "tmp/browser-state.json")
+# Per-action/navigation ceiling applied to the context (see _ensure_browser). Must stay
+# well under the .mcp.json per-server "timeout" so a stall surfaces as a normal Playwright
+# TimeoutError the agent can fall back from, rather than as an aborted MCP tool call.
+DEFAULT_TIMEOUT_MS = int(os.environ.get("IP_TIMEOUT_MS", "30000"))
 
 # ---------------------------------------------------------------------------
 # Browser state
@@ -75,6 +79,14 @@ async def _ensure_browser():
         _context = await _browser.new_context(storage_state=str(storage_path), bypass_csp=True)
     else:
         _context = await _browser.new_context(bypass_csp=True)
+
+    # Bound every navigation/action so a stalled page can never hang the MCP call.
+    # Without this, page.goto() and friends inherit Playwright's context default and a
+    # wedged portal (seen repeatedly on Immowelt) blocks until Claude Code's stdio idle
+    # timeout — 30 minutes by default — burning a whole evaluation slot on dead waiting.
+    # The .mcp.json per-server "timeout" is the outer backstop; this is the inner one.
+    _context.set_default_timeout(DEFAULT_TIMEOUT_MS)
+    _context.set_default_navigation_timeout(DEFAULT_TIMEOUT_MS)
 
     _active_page = await _context.new_page()
 

@@ -284,6 +284,62 @@ Brandenburg ordinance is re-issued annually — re-check each January.
 - **Instandhaltungsrücklage**: Check the reserve fund — low reserves = future special assessments.
 - **Teilungserklärung**: Review for usage restrictions.
 
+### Bauland (Grundstück) — regional reference data (SSOT)
+
+Use these before spending a WebSearch. They exist for the same reason as the Mietspiegel table
+above: without them every plot evaluation re-runs a Bodenrichtwert hunt (search → Gutachterausschuss
+PDF → `pdftotext`) and costs ~2× a flat.
+
+**Bodenrichtwerte (BRW), erschlossenes Wohnbauland, Stand 01.01.2026:**
+
+| Area | BRW EUR/m² | Source / note |
+|---|---|---|
+| Borkheide (Potsdam-Mittelmark) | 140 | Gutachterausschuss PM; corrects an older 160 figure |
+| Damsdorf (Potsdam-Mittelmark) | 140 | was recorded as 160 before 2026 — do not reuse the old value |
+| Paulinenaue (Havelland) | ~42 | Gemeindemittel |
+| Premnitz (Havelland), EFH | 65–120 | price inside this band = market-conform, no scam signal |
+| Westhavelland (district band) | 25–110 | 110 is the official ceiling — above it, justify or mark overpriced |
+
+Refresh each January (Havelland publishes via a havelland.de press release rather than BORIS-BB).
+⚠ **Aggregator sites are not a substitute and their error direction is NOT fixed**:
+`bodenrichtwerte-deutschland.de` *under*states, because its mean blends all land uses including
+Acker (~10 EUR/m²); other aggregators overstate. Prefer the Gutachterausschuss figure.
+
+**Erschließung — five grades, best to worst.** The stated grade drives Block E and the all-in
+cost, so read it off the exposé rather than assuming:
+1. **Erschlossen, Anschlüsse im Grundstück** — ready to build.
+2. **Anschlüsse in der Straße** — buyer pays the house connections, ~5.000–15.000 EUR.
+3. **Medien liegen an, aber die Anliegerstraße ist unbefestigt** — the road itself is unbuilt, so
+   a full Erschließungsbeitrag is still open, sized on **Grundstücksfläche** (20–60 EUR/m²).
+4. **Unerschlossen.**
+5. **Kein Abwasseranschluss at all** — Grube/Kleinkläranlage mandatory, plus running cost.
+
+- **"Erschlossen" ≠ beitragsfrei (§ 133 Abs. 3 BauGB).** A levy can still be outstanding on a
+  serviced plot; ask the Gemeinde in writing before making an offer.
+- **The Erschließungsbeitrag is apportioned by area/use, NOT by frontage metres.** A 25 % shorter
+  street frontage bought only ~6 % less exposure on #544. The corner-plot **Eckermäßigung** is the
+  real lever, not frontage.
+- Watch for the buyer contractually assuming *all future* Erschließungskosten (and, in wooded
+  Brandenburg parcels, **Waldumwandlungsgebühren**) — unquantified five-figure exposure that can
+  push an apparently 25 %-under-budget plot over the cap. Seen on #543/#544.
+
+**Baurecht ladder** (strongest first): rechtskräftiger B-Plan → **Klarstellungs-/Ergänzungssatzung**
+(binding Ortsrecht, e.g. Borkheide Satzung Nr. 3 of 27.10.2000) → § 34 with built neighbours on
+both sides → § 34 asserted with unbuilt surroundings → nothing but the lister's claim.
+`obj_buildingPerm: n` + no B-Plan + no Bauvoranfrage means the Baurecht is **asserted, not proven**.
+Two recurring traps: a **"Teilungsgrundstück"** (area, boundaries and Grundbuchblatt not final, and
+§ 34 development *in the second row* is the classic refusal case — faktische Bautiefe, Außenbereich
+im Innenbereich, Baulast for access), and `obj_demolition: n` that contradicts the text/photos —
+grep the description for `abgerissen|Abriss|Rückbau|Bauschutt` and look at the images before
+crediting it (clearing costs 15.000–30.000 EUR).
+
+**Always read the map/plan images and the photos before scoring C, E and G.** The Flurkarte gives
+the Flurstücksnummer, the exact split and who the neighbours are (identify the parcel by Flurstück,
+never by the exposé's nominal house number — an unbebautes Flurstück has none). The photos carry
+encumbrances the text omits: overhead power pylons (easement + protective strip, #546), shafts,
+worn paths — and whether a street, kerb or driveway is visible at all. Paid off on #529, #534,
+#543, #544, #545, #546.
+
 ---
 
 ## Global Rules
