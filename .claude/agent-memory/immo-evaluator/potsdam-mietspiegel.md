@@ -73,6 +73,19 @@ per `Wohnberechtigung`-Keyword prüfen, nicht aus dem Preis erschließen. *Why:*
 liest man −30 % als Scam-/WBS-Verdacht und übersieht, dass tatsächlich der Mieter den
 § 556g Abs. 3 BGB-Auskunftshebel in der Hand hat.
 
+## Ortsteil-Anker: **Speicherstadt (14473, Teltower Vorstadt, Havelufer)**
+Groth-Gruppe-Quartier zwischen Brauhausberg und Havel, gegenüber Stadtschloss, 5–10 Gehmin. zum Hbf.
+**Zwei Bauabschnitte — und der Schnitt liegt genau auf der § 556f-Grenze:** Südteil Ende **2014**
+fertig (155 Miet- + 98 Eigentumswohnungen), Nordteil bis **2022** (~270 WE). Erstbezug **nach dem
+01.10.2014 → Mietpreisbremse nicht anwendbar**; Südteil-Erstbezug davor → sie gilt. Baujahr steht auf
+Anzeigen praktisch nie drin → immer als offene Frage in die Next Steps, nie „not applicable" behaupten.
+Mietspiegelfeld je nach Abschnitt **2013–2020** oder **ab 2021** — das sind bei 60–75 m² 12,06 vs.
+15,72 EUR/m², also ein Faktor 1,3 auf das Ergebnis. Beide rechnen und beide nennen.
+Preisniveau: Havelufer-Neubau mit TG/Aufzug/Fußbodenheizung liegt deutlich über dem stadtweiten
+Angebotsanker 12,60–13,50; ~18 EUR/m² kalt ist dort plausibel, >22 EUR/m² kalt nicht.
+Genutzt auf #540. *Why:* ohne das kostet jede Speicherstadt-Wohnung zwei Websuchen und man tippt
+das Mietspiegelfeld blind.
+
 ## Umland: **Falkensee/Schönwalde-Glien/Brieselang (Berliner Speckgürtel) unterliegen seit 01.01.2026 der Mietpreisbremse**
 Die neue Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung (Kabinett 25.11.2025) gilt ab
 **01.01.2026 für 36 statt bisher 19 Gemeinden** — neu dabei u. a. **Falkensee**, Blankenfelde-Mahlow,

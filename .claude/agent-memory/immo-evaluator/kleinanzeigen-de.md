@@ -35,6 +35,22 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     **separate `Heizkosten` field** next to `Nebenkosten`; Warmmiete = Kalt + NK + Heiz, so forgetting
     Heizkosten under-states warm by a whole line. *Why:* on #522 the €/m² swings 10,45 ↔ 14,48 and the
     Mietpreisbremse verdict flips with it — picking one silently would fabricate the answer.
+  - **Fourth price variant — heading == "Warmmiete" field, NK filled, NO Heizkosten field** (#540:
+    heading 1.692 €, Warmmiete 1.692 €, Nebenkosten 305 €). Unlike #356 (NK empty) and #522 (extra
+    Heizkosten field) the arithmetic closes cleanly in exactly one direction, so you can *rank* the
+    two readings instead of calling it a coin flip: (b) heading = Warmmiete → kalt = heading − NK is
+    the plausible one whenever (a) heading = Kaltmiete would push **warm EUR/m² past ~25 EUR/m² for
+    Potsdam**. Present both readings as a two-row table, score the conservative (a), but say in prose
+    which one the arithmetic + market level favour, and put "Kalt/Warm klären" first in next steps.
+    *Why:* on #540 (a) implied 26,6 EUR/m² warm — impossible for Potsdam; declaring it a pure tie
+    would have thrown away decidable evidence.
+  - **The Ablöse is often NOT called "Ablöse".** #540 used "**Abschlagszahlung** von 1500€" for a
+    tenant-installed Geschirrspüler + Kochinsel; a grep for `Ablöse` returns 0 hits. Grep for
+    `Abschlag|Ablös|Abstand|übernehmen|Übernahme` when checking a Nachmieter ad for the
+    outgoing-tenant demand. Note the sub-case: when the Ablöse covers **equipment the tenant owns and
+    installed themselves** (not the landlord's fitted kitchen), taking the landlord channel removes
+    the payment *and* the appliances — say so instead of framing the landlord channel as pure saving.
+    *Why:* a keyword-blind read reports "no Ablöse" on an ad that has one.
   - **Private Nachmieter ads:** price heading is often the **Warmmiete** and the only proof is one prose
     line ("Miete: ca. 1.370 € warm pro Monat"); Nebenkosten/Kaution/Baujahr/Energieausweis/Adresse are
     usually absent entirely, and the Zimmerzahl runs half a room high (HWR/Abstellraum counted). Before
