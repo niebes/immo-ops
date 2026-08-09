@@ -17,6 +17,12 @@ After grepping the source expose URL out of the raw HTML (above), grep that expo
 
 **Why:** without this, a duplicate burns a fresh report number and produces a second, divergent score for one flat.
 
+**But an expose-ID grep does NOT catch a re-list of an already-Expired flat.** When a landlord re-offers a unit it gets a **brand-new** source expose ID (and a new SZ slug), so the ID search comes back clean even though the flat has its own old report. Second dedup pass, cheap: grep `data/listings.md` for the **exact price+m² tuple** from the SZ price block (`grep "577,61\|66,24"`) — those figures survive a re-list unchanged even when dates and IDs don't. Seen #542: new Immowelt ID `8ef25270-…`, zero ID hits, but the price tuple matched #227 (Vonovia Waldstadt I) instantly. *Why:* without it you re-derive a whole evaluation from scratch and lose the "what changed since last time" comparison, which is the only real value a re-list has.
+
+## SZ's price block is a *subset* — pull the Ab-ins-Zuhause twin before concluding "nothing changed"
+The SZ detail page carries **no availability date, no Baujahr, no Energieausweis, no street, no description**. On #542 that made a genuine re-offer look like a stale syndication echo: SZ's numbers were byte-identical to the old report, but the AIZ twin of the *same* source expose showed `Frei ab 02.09.2026` (two months later than the original), the street name, and `Energieausweis C / 78,00 kWh/(m²a) / gültig bis 09.07.2030` — none of it visible on SZ. So on any suspected re-list: curl the AIZ twin (`ab-ins-zuhause.de/angebot/{uuid}`) even when the source expose is already dead — it is a much fatter cache of the same ad and is what lets you say *what changed*.
+Corollary: AIZ's `Quelle` link may resolve to the **same** expose ID as SZ's — then it is a second cache of one dead ad, not an independent live channel. Check the link before treating it as a separate chance.
+
 ## Cross-listing shortcut
 SZ listings are frequently duplicated on **Ab ins Zuhause** (`/angebot/{uuid}`), which is fully static-curlable and much richer (full Objektbeschreibung, Lage, Sonstiges, Baujahr, Energieausweis, photo uuids, Kaution, frei-ab date). If the pipeline flags a DUPE, curl the AIZ twin for the body text and the source expose for the authoritative facts leaflet (Etage, Warmmiete, Anbieter name + rating). Two curls + one browser call covers everything.
 

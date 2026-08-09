@@ -9,6 +9,16 @@ No Nebenkosten/Warmmiete/energy/floor/Baujahr/Keller/Kaution/description/availab
 Guessed detail endpoints (`/api/real-estate/{id}`, `/detail`, `/expose`) all 404 to the SPA
 shell; `/api/real-estate/OBJECT` seen in the page is an **econda analytics placeholder**, not data.
 
+## ⚠ The list API is DOWN for plain curl as of 2026-08-09 — HTTP 406, zero-byte body
+`GET /api/real-estate/list?latitude=…&longitude=…&perimeter=…&limit=50&offset=…` now answers
+**406 Not Acceptable with an empty body**, both with and without `Accept: application/json`,
+with a normal desktop UA, at perimeter 15000 and 30000. This is *not* the documented soft-block
+(that returned `count:0`, valid JSON). Don't spend more than one probe on it — if it 406s, skip
+straight to the **detail-HTML curl** path below (which still works and is richer anyway), or to
+an aggregator/IS24 cross-post. Re-test occasionally; if it stays 406 for weeks, delete the
+enumeration section.
+**Why:** #542 burned three rounds of requests reading the empty files as an IP throttle.
+
 ## Finding ONE object without the browser (works — no CiC needed for summary data)
 The list API **paginates via `offset` + `limit`** (NOT `page`, which is ignored and re-returns
 the same 15). `limit` max is ~50 (limit=1000/500 → `count:0`; limit=50 → 50 rows). So to locate

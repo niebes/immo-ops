@@ -22,5 +22,8 @@ Detail page: `/angebot/{uuid}`. Listings platform that re-lists from source port
 
 ## Expiry / discard
 - Source is a re-list, so cache can go stale (like other aggregators) — if page shows "nicht gefunden"/sold, mark EXPIRED. Title `<title>` reflects the listing title when live.
+- **AIZ keeps serving HTTP 200 with the full expose long after the source ad is deleted** — it shows no "gelöscht"/"vermietet" state of its own. Liveness must always be decided at the source: the `Quelle: Immowelt.de` link (grep `immowelt\.de/expose/[0-9a-f-]+` in the raw HTML) is the only ID that matters. #542: AIZ rendered a complete, plausible expose while that exact Immowelt ID answered "Anzeige gelöscht". *Why:* a rich, fully-rendered AIZ page reads as proof of liveness and it is not.
+- **But keep the AIZ cache — it is the best post-mortem record.** It is a much fatter cache than Süddeutsche's (which has no date/Baujahr/energy/street) and is what lets you state *what changed* between an old report and a re-list. Curl it even when the source is already dead.
+- Transient `curl` exit 35 (SSL) happens occasionally; a plain retry succeeds. Not a block.
 
 Stable so far (first eval 2026-06-17, report #174). If the curl-renders-fully behaviour holds across more evals, promote to evaluate.md as "Ab ins Zuhause detail pages are static-fetchable".
