@@ -120,6 +120,29 @@ field is unbelegt. #525 landed D 3,5 this way; the baugleiche Nachbarwohnung #23
 **Why:** without the middle case you either cap a photographed listing at 3,0 or wave through an
 unverified "komplett renoviert" at 4,5.
 
+## „Kaution **oder Genossenschaftsanteile**" is IS24's STANDARD deposit label — not a Genossenschaft tell
+The `ATTRIBUTE_LIST "Kosten"` row is literally labelled `Kaution oder Genossenschaftsanteile:` on
+ordinary rentals, including **private** ones. It appears whether or not a Genossenschaft is involved,
+so it can never establish a membership/Anteile requirement — and the same goes for the WBS question:
+IS24 has **no WBS field at all**, so a WBS requirement only exists if the TEXT_AREAs say so. Decide
+both from `AGENTS_INFO`/`obj_privateOffer` + the TEXT_AREAs, and cross-check the €/m²: a unit at
+market rate (~9–14 EUR/m² Potsdam) is essentially never WBS/social stock (~7 EUR/m²). Seen on #536
+(expose 169898764, Roßkastanienstr. 14 Eiche): the search snippet's low 9,24 EUR/m² prompted a
+"WBS or Genossenschaft?" question — the answer was neither; it is a private landlord's below-band
+existing-contract rent. Say so explicitly in the report, since the label reads like evidence.
+**Why:** treating the label as a Genossenschaft finding (or inferring WBS from a cheap €/m²) would
+fire the Block-G hard blocker and cap a 4,6 listing at ≤2,0.
+
+## `obj_typeOfFlat: maisonette` + `Etage: N von N` ⇒ Dachschrägen, and the m² probably include them
+A maisonette on the **top** floor has its second level in the roof; IS24 has no Dachschrägen field, so
+the only evidence is the photo set (Velux/roof windows, sloped plasterboard) plus `Nutzfläche = Wohnfläche`
+(a casual measurement, not a WoFlV calc). Note in Block C that usable floor area is smaller than the
+headline and make WoFlV anrechnung (0 % under 1 m, 50 % 1–2 m) a viewing check — don't dock the block,
+which scores size vs the profile range. Same combo also means the internal staircase + no lift.
+Seen on #536 (94 m², Etage 2 von 2, `obj_lift: n`).
+**Why:** 94 m² read as flat floor area overstates what the household actually gets, and the exposé
+never mentions the slopes.
+
 ## `PRICE_INFO.priceBar` can be missing entirely — keep Havelland Miet-Anker ready as the fallback
 The address-precise band is the preferred price check, but it is **not guaranteed**: #530 (169832278,
 `realEstateType: houserent`, Dallgow-Döberitz) had **no `PRICE_INFO` section at all**, while #506
