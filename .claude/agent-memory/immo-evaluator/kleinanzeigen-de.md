@@ -118,6 +118,14 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     Read BOTH; the title states what they seek, the description/spec-list what they offer — the
     search-result metadata (m²/rooms/price) refers to the OFFERED flat despite the "Suche…" title.
     *Why:* on #317 the hint said "4 rooms" (their Suche) while the offered flat was 3,5 Zi.
+    - **Title sub-pattern "X gg Y" / "X gegen Y"** ("Tauschen **3 Raum** Wohnung **gg 4 Raum**", #541):
+      one title carries BOTH sides — the first number is the OFFERED flat, the number after
+      `gg`/`gegen`/`→` is the **Suche**. Parse it that way and the Suche is a hard, structural
+      criterion (rooms) even when the description says nothing about what they seek; an
+      *upsize* direction (offered < sought) is a categorical side-2 fail against our 2-Zi Golm
+      offer, not a lenient near-miss. *Why:* on #541 the description held zero Suche and the
+      search hint said "3 Zi" — reading only those would have recorded "Suche unknown" and
+      surfaced a Swap-candidate the partner can never accept.
   - **Title and description can each hold a DIFFERENT half of the Suche**: the title states the
     *motive* — a structural, non-negotiable criterion ("Tausch in eine höhere Etage") — while the
     description states the *numeric* criteria (Zimmer, Ortsteil, Ausstattung). Merge both into one
