@@ -52,11 +52,16 @@
     const text = (card.innerText || '').replace(/\s+/g, ' ').trim();
     if (!text || EMPTY_RE.test(text)) return;
 
-    // A real offer mentions a price or an explicit Grundstück/Objekt size.
+    // A real offer mentions a price or an explicit Grundstück/Objekt size — OR carries a
+    // price LABEL with no number at all. Verified live 2026-08-11: BLB's first actual offer
+    // ("Denkmalgeschütztes Wohnhaus in Ortrand") reads "Kaufpreisvorstellung: ohne
+    // Kaufpreisvorstellung", so a digits-only gate dropped it and the page looked like
+    // selector drift (a false ⛔ — the exact failure mode this snippet exists to prevent).
     const priceM = text.match(/(?:Kaufpreis(?:vorstellung)?|Preis)\s*:?\s*([\d.]+(?:,\d+)?)\s*(?:EUR|€)/i)
                 || text.match(/([\d.]+(?:,\d+)?)\s*(?:EUR|€)/);
     const m2M = text.match(/([\d.,]+)\s*m²/);
-    if (!priceM && !m2M) return;
+    const priceLabel = /Kaufpreis(?:vorstellung)?|Preis auf Anfrage|auf Anfrage/i.test(text);
+    if (!priceM && !m2M && !priceLabel) return;
 
     const link = card.querySelector('a[href]');
     if (!link) return;
