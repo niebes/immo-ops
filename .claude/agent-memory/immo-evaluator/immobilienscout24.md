@@ -1238,6 +1238,41 @@ Wohnungsnummer WE 58"). `curl` it and `pdftotext` it: it confirms Zimmerzahl/Fl�
 *this* unit (and often reveals the Bauträger's Haftungsausschluss = "Planmaße", i.e. the m² are
 plan figures, not a WoFlV-Aufmaß). Seen on #537 (expose 169858137).
 
+#### The Grundriss PDF is the ONLY check on the advertised Zimmerzahl — and it is often a bare image
+Three additions from #565 (expose 150385816, Graf-von-Schwerin-Str. 3 Nauener Vorstadt, Trend Immobilien):
+1. **`pdftotext` can return nothing but the label** (here literally `WE38`) because the plan is a scanned/
+   embedded image. Do NOT conclude "no data" — **`Read` the PDF with `pages: 1`**; the image renders and
+   the room schedule (`2.02.1 Küche 11,78 m²`, `2.02.2 Wohnen 25,43 m²`, `2.02.3 Zimmer 25,62 m²`,
+   `2.02.4 Bad 11,71 m²`, `2.02.5 Flur 10,82 m²`, `2.02.6 Balkon 3,03 m²`, plus lichte Höhen) is legible.
+2. **Verify it is really this unit by summing the rooms against the advertised Wohnfläche** before using it
+   against the exposé (85,36 m² + ½ Balkon = 86,88 ≈ the advertised 87,39 m² ⇒ same flat). Without that
+   arithmetic a mismatched plan looks like a data error instead of evidence.
+3. **The headline Zimmerzahl can be inflated by counting the Küche.** IS24 said `Zimmer: 3` *and*
+   `Schlafzimmer: 3`; the plan shows **two Aufenthaltsräume + a separate Küche** and the Objektbeschreibung
+   quietly agrees ("separate Küche und **Schlafnische** … für Singles oder **Paare**"). Also compute the
+   Flur+Bad share (here 22,53 m² = 25,8 % of 87,39) — a big non-living share is what makes an 87 m² flat
+   feel like a 2-room. Consequence: score Block C against the *real* Aufenthaltsräume vs `min_rooms`
+   (#565: C 3,0 instead of 5,0 = −0,3 global), and make the Zimmer question contact question #1.
+   Corroborating tells to grep in Objektbeschreibung: `Schlafnische|Schlafempore|Kochnische|für Singles`.
+   Also expect the plan's unit numbering (`2.02` = 2. OG) to contradict `Etage: 3 von 4` — note it as a
+   viewing check, not as a fault.
+4. **The PDF's `CreationDate` (via `pdfinfo`) is a 5th dating surrogate** for the low-Scout-ID case below
+   (#565: ID 150385816 looks ancient next to today's 169.xxx.xxx, but `WE38.docx` → PDF24, CreationDate
+   **27.07.2026** + `obj_highDemand: true` ⇒ recycled ad object carrying a *current* letting). Cheap: one
+   `curl` + one `pdfinfo`.
+**Why:** every structured field said "3 Zimmer, 87,39 m², in budget, both must-haves" — the attached plan
+is the only place in the whole record where the flat's actual room count exists.
+
+#### `obj_telekomInternetSpeed` is a scoreable Block-B negative, not just an ad
+`adTargetingParameters.obj_telekomInternetSpeed` is an **address-precise** Telekom availability figure
+(`obj_telekomInternetAvailable`, and the `bis zu N MBit/s` `secondaryLabel` on the "Internet:" LINK row).
+Read it on every rental: #565 returned **6 MBit/s** (bare copper DSL, no vectoring) in a prime Potsdam
+location. For this household (Mario = Senior Software Engineer, home office) that is a near-deal-breaker —
+dock Block B ~0,3 and make "Vodafone Kabel / DNS:NET / Glasfaser adressgenau prüfen" a Next step *before*
+the viewing. Values ≥50 MBit/s are unremarkable; ≤16 MBit/s deserves the flag.
+**Why:** the field sits among the ad/tracking params and reads like Telekom marketing, so it gets skipped —
+but it is the only hard infrastructure datum in the whole exposé and it is decided per building.
+
 ### Silent variant of the same D-cap: the disclaimer lives ONLY in the MEDIA **captions**
 Sometimes there is no disclaimer sentence anywhere in the text — the whole gallery is simply
 captioned `Beispielfoto 1…4`, `Hauseingang Beispiel`, `Weg Beispiel`, plus generic outdoor shots
