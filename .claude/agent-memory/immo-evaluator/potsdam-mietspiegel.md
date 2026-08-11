@@ -191,8 +191,34 @@ Anker (Bj. **1973–1985 West**, **ab 85 m²**), genutzt auf #515 Lanzendorfer W
 deren oberem Spannenwert. **Berliner Bestandsbauten der 70er sind bei Vonovia routinemäßig weit
 über der Mietpreisbremse bepreist** — immer § 556g Abs. 3 BGB (Vormiete + Modernisierungskosten)
 als Next Step in den Report schreiben, nie „compliant" ohne Rechnung.
-Wohnlage-Einstufung adressgenau: Straßenverzeichnis auf `mietspiegel.berlin.de`; solange
-ungeprüft, **beide** Werte (mittel + gut) im Report nennen und die gute Lage als Obergrenze
-rechnen (konservativ).
 **Why:** ohne diese Notiz kostet jede Berliner Wohnung aus dem Potsdam-Bucket eine neue
 PDF-Suche — und die nebeneinanderliegenden Wohnlagen-Blöcke führen zuverlässig zum falschen Wert.
+
+### Wohnlage **hausnummerngenau** in EINEM curl — GDI-Berlin WFS (kein PDF, kein Schätzen)
+Erledigt das bisherige „solange ungeprüft beide Werte nennen"-Provisorium. Es gibt **kein**
+Straßenverzeichnis-PDF mehr (`strassenverzeichnis2026.pdf` u. ä. → 404); die Wohnlagen 2026 liegen
+als WFS-Layer vor. Einstieg steht auf
+`mietspiegel.berlin.de/berliner-mietspiegel/erlaeuterungen-zum-mietspiegel/wohnlagen/`
+(einziger Link dort: `gdi.berlin.de/view/wohnlagenadr2026`).
+
+    curl -sG "https://gdi.berlin.de/services/wfs/wohnlagenadr2026" \
+      --data-urlencode "service=WFS" --data-urlencode "version=2.0.0" \
+      --data-urlencode "request=GetFeature" \
+      --data-urlencode "typeNames=wohnlagenadr2026:wohnlagenadr2026" \
+      --data-urlencode "outputFormat=application/json" --data-urlencode "count=30" \
+      --data-urlencode "CQL_FILTER=strasse LIKE 'Machnower%' AND plz='14165'"
+
+Felder: `strasse` · `hnr` (**dreistellig nullgepolstert + Buchstabe**: `011`, `002A`) · **`wol`**
+(`einfach|mittel|gut`) · `plz` · `stadtteil` · `bezname` · `plr_name`. Property-Namen erraten geht
+schief (`strname` → `Illegal property name`) — im Zweifel `request=DescribeFeatureType`.
+Praxistipp: nicht auf die exakte Hausnummer filtern, sondern `strasse LIKE '…%'` + PLZ ziehen und
+die Liste lesen — man sieht dann sofort, wie fein es wechselt.
+
+**Die Einstufung springt von Haus zu Haus, nicht straßenweise.** Machnower Straße 14165: Nr. 11 =
+**gut**, die direkten Nachbarn 10 und 12 = **mittel** (durchgehend alternierend ungerade=gut /
+gerade=mittel). Der Unterschied ist bei „bis 1918 / 90–110 m²" 7,65 vs. 8,45 EUR/m² Mittelwert,
+also ~10 % auf die zulässige Miete — „Zehlendorf ist doch gute Lage" als Annahme ist ein Münzwurf.
+**Why:** #570 Machnower Str. 11 — ohne den WFS hätte der Report zwei Werte hedgen müssen; mit ihm
+steht adressgenau `gut`/Zeile 138 (6,60 · **8,45** · 12,99) und die Mietpreisbremse-Rechnung ist
+belastbar statt „konservativ geschätzt". Layer-Name enthält das Jahr → im Januar auf
+`wohnlagenadr20NN` hochzählen.
