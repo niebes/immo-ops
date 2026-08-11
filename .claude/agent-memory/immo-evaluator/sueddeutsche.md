@@ -17,6 +17,10 @@ After grepping the source expose URL out of the raw HTML (above), grep that expo
 
 **Why:** without this, a duplicate burns a fresh report number and produces a second, divergent score for one flat.
 
+**One flat can fan out ≥3 aggregator caches inside a single scan cycle** (seen 2026-08-11, Immowelt `26XFJFHH69IZ` = report #538 → Ab-ins-Zuhause twin → SZ twin, all three surfacing hours apart with identical price blocks). So the expose-ID grep must hit `data/pipeline.md` **including its already-`[x]`-marked DUPE rows**, not just rows carrying a `#NNN`: the sibling you match may itself be a DUPE annotation rather than the original report. *Why:* grepping only for scored rows makes the 3rd cache look novel.
+
+**A route-level "re-list of #NNN" auto-skip is not a dedup — always re-derive it from the source expose ID.** Seen 2026-08-11: the router skipped this SZ URL as a re-list of #357 (a *Discarded Tauschwohnung* in a different Ortsteil); the ID grep showed it was actually #538, an ordinary rental in Jägervorstadt. Two unrelated failure modes hide here — a wrong skip target, and skipping against a `Discarded` swap (which should never suppress a normal rental at all). *Why:* accepting the router's guess would have both mis-linked the flat and lost the "already scored 4,2/5" fact.
+
 **But an expose-ID grep does NOT catch a re-list of an already-Expired flat.** When a landlord re-offers a unit it gets a **brand-new** source expose ID (and a new SZ slug), so the ID search comes back clean even though the flat has its own old report. Second dedup pass, cheap: grep `data/listings.md` for the **exact price+m² tuple** from the SZ price block (`grep "577,61\|66,24"`) — those figures survive a re-list unchanged even when dates and IDs don't. Seen #542: new Immowelt ID `8ef25270-…`, zero ID hits, but the price tuple matched #227 (Vonovia Waldstadt I) instantly. *Why:* without it you re-derive a whole evaluation from scratch and lose the "what changed since last time" comparison, which is the only real value a re-list has.
 
 ## SZ's price block is a *subset* — pull the Ab-ins-Zuhause twin before concluding "nothing changed"
