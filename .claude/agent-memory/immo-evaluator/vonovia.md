@@ -136,6 +136,19 @@ disruption in Block D, plus the pattern itself in Block H. Missing it understate
 by 15–20 %.
 **Why:** the number only appears in the free-text description, never in the labelled Kosten rows.
 
+## „Keller ✓" on 70s Hochhaus stock can be a **Kellerersatzabteil auf der gleichen Etage**
+On Vonovia Plattenbau-Hochhäuser every structured field agrees there is a cellar — IS24
+`obj_cellar: y`, Hauptkriterium „Keller ✓", Ausstattung „Mieterkeller" — while the
+**Objektbeschreibung** says the real thing: *"zu jeder Wohnung ein Kellerersatzabteil auf der
+gleichen Etage"*, i.e. a lockable storage closet on the flat's own floor, no basement compartment.
+Score the `keller` must-have as **met with a caveat** (it is private lockable storage) and make
+size/access a viewing check — don't silently upgrade it to a real Keller and don't delete it.
+Same family as the Vonovia „Stellplatz … sofern verfügbar anmietbar" line (an option, not an
+included amenity). Seen on #566 (IS24 expose 150719587, Humboldtring 21, Südliche Innenstadt
+Potsdam, Bj 1975, 15 Geschosse).
+**Why:** three independent fields say "Keller" and only the free text distinguishes a 7th-floor
+closet from a basement — bulky-storage plans (bikes, sports kit) depend on which one it is.
+
 ## Landlord / character
 Anbieter = "Vonovia Kundenservice GmbH", direct landlord, **no Provision** (Bestellerprinzip
 fine), low Eigenbedarf risk (corporate). Reputation: commonly cited slow-on-repairs — note in
