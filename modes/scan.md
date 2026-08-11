@@ -94,7 +94,38 @@ Because no script covers these portals, they are the easiest to silently skip �
    **Swaps:** discard a swap listing here ONLY if no enabled search sets
    `include_swaps: true`. When swaps are enabled, keep them — the two-sided swap match
    at evaluation decides fit, not triage (see `modes/evaluate.md` step 4 for the
-   detection signals and match procedure).
+   detection signals and match procedure) — *except* for the one prefilter below.
+
+   **Swap direction prefilter (AI judgement only — NEVER keyword matching).**
+   A swap only works if one of our `swap_offer` flats can satisfy the partner's
+   *Suche*. Our offer is a single small flat (see `config/profile.yml swap_offer` —
+   currently 2 Zi / 54,19 m² in Golm), so a partner who wants to **enlarge** can never
+   be satisfied, no matter how good their flat is. When the swap listing **states its
+   Suche in the title/metadata you can already see**, and that Suche asks for
+   *more rooms or more m² than any enabled `swap_offer` flat has*, discard it here as
+   `discarded_triage` with the reason `swap-direction: sucht {X} Zi/{Y} m², Angebot hat
+   {A} Zi/{B} m²`. This is a comparison of NUMBERS the lister wrote down, read in
+   context — it is not a keyword rule.
+
+   Guardrails, because this is the one place triage is allowed to drop a swap:
+   - **Read the Suche, don't pattern-match it.** Only fire when you have actually
+     understood the stated target. Words like "Tausche", "gegen Wohnung" or "suche"
+     say nothing about direction and must never trigger a discard on their own —
+     substring matching here is exactly the failure that cost us expose 168836565.
+   - **Silence is not a signal.** No stated Suche, a vague one ("etwas Kleineres",
+     "Berlin"), or one you cannot resolve to numbers → **KEEP** and let the two-sided
+     match at evaluation decide. Side-2 matching stays lenient/recall-favoring.
+   - **Only compare against the enabled offer.** If `swap_offer` gains a larger flat,
+     this prefilter narrows or stops applying by itself — it reads the config, it is
+     not a fixed rule about "big" swaps.
+   - **Equal or smaller is a KEEP.** Fire only on a clear, quantified overshoot;
+     a near-miss (e.g. wants 3 Zi, we have 2) still goes to evaluation, where the
+     lenient side-2 rule can surface it.
+
+   Why it exists: five consecutive swaps (#492, #505, #533, #541, #550) failed side 2
+   on this same axis after a full evaluation each, and in several cases the Suche was
+   legible in the title all along (e.g. "Tauschwohnung: 4 Zi Whg in Spandau, suche
+   Whg/Haus 5 Zi in B…" → #550).
 8. **Filter by criteria** (HARD GATE — objective numbers only, applied by the scripts):
    The numbers come from `config/profile.yml` `searches[]` (SSOT — `scan_defaults` in portals.yml is descriptive only, no script reads it):
    - Rooms: REJECT if rooms < `min_rooms`. Non-negotiable.

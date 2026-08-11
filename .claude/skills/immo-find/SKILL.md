@@ -194,8 +194,13 @@ So this triage is where title relevance is decided, by reading each entry. Read
 `data/pipeline.md`; for each pending `- [ ]` entry, judge title + metadata and mark
 `DISCARDED` (with a one-line reason) when it is clearly not a real, on-target rental:
 - Rooms < min_rooms, or m² < min_m2, or Price > max_kaltmiete × 1.1 (objective — same grace band the scripts apply; ONE threshold everywhere)
-- Apartment **swap** — "Tauschwohnung / Wohnungstausch / Tausche / gegen Wohnung" (a
-  different transaction, never a rental)
+- Apartment **swap** — only when NO enabled search sets `include_swaps: true`. When
+  swaps are enabled they are KEPT for the two-sided match, with one exception: the
+  **swap direction prefilter** (discard when the listing's *stated* Suche asks for more
+  rooms/m² than any enabled `swap_offer` flat has). That prefilter is AI judgement over
+  numbers the lister wrote down — **never keyword matching** — and silence or vagueness
+  means KEEP. Full rule + guardrails: `modes/scan.md` step 7 (SSOT); do not restate them
+  here.
 - **Time-limited** sublet — "Zwischenmiete / befristet / auf Zeit" (open-ended Untermiete
   is fine)
 - **WBS-required** without the user holding a WBS
