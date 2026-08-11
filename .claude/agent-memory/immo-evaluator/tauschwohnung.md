@@ -1,5 +1,31 @@
 # Tauschwohnung.com — page quirks
-Portal match: tauschwohnung.com (source behind "Tauschwohnung GmbH" swaps on IS24/Immowelt)
+Portal match: tauschwohnung.com (source behind "Tauschwohnung GmbH" swaps on IS24/Immowelt/Kleinanzeigen)
+
+## ⚠️ The portal's STRUCTURED fields can hold the poster's SUCHE, not the offered flat
+On IS24 swap exposés some posters type their **search criteria** into the object fields. #550
+(expose 169908178) shipped `realEstateType: houserent`, TOP_ATTRIBUTES "5 Zimmer / 100 m²
+Wohnfläche / 100 m² Grundstück / Kaltmiete 1.500 €" — while the Objektbeschreibung offered a
+**4-Zi / 84 m² / 1.300 € warm Wohnung** and *sought* "Haus oder Wohnung … mindestens 5 Zimmern
+und einer Fläche von 100 m² für maximal 1.700 € warm". The address (Gorgasring 10, 13599) was
+still the poster's own flat, so nothing looked broken.
+⇒ **Rule: on every swap, cross-check TOP_ATTRIBUTES/ATTRIBUTE_LIST against the description
+before scoring.** Tells that the fields are the Suche: a `Grundstück` figure identical to the
+Wohnfläche, `realEstateType: houserent` on something the title calls a "Whg", a room/m² count
+that equals the number in the title's "suche …" half, or a round 100/1.500.
+⇒ Two knock-on effects: (a) score blocks A–H off the **description** numbers; (b) the
+`PRICE_INFO.priceBar` is computed for the *phantom* object and is **unusable** as an
+address-precise band — do not quote it and do not let it drive the "20 % below Mietspiegel"
+scam signal. *Why:* scoring #550 off the fields would have invented a 100-m²-Haus at 1.500 €
+kalt that does not exist, and inverted the two-sided match (their Suche read as their offer).
+
+## Side-2 base rate: our 2-Zi/54-m² Golm offer only serves DOWNSIZERS
+#492, #505, #533, #541, #550 all failed side 2 on the same axis — the partner wants to
+*enlarge* (≥3–5 Zi, 70–100 m², family households), and the Golm flat is the small end of the
+market. Side 1 kept passing (3,5–4,3/5), so the cost was a full evaluation each time.
+⇒ Read the Suche's **direction** (vergrößern vs. verkleinern / "weniger Miete") FIRST; if they
+name ≥4 Zimmer or a 3+-person household, side 2 is a deterministic fail and the rest of the
+evaluation is only worth doing for the record. Worth proposing a triage prefilter
+("suche … ≥4 Zi / ≥70 m²" → discard before evaluation).
 
 ## Even on IS24 the object-specific twg.click link is NOT guaranteed — check "Weitere Links" first
 Some IS24 swap exposés carry only the **generic** `https://twg.click/is24-homepage` in the
