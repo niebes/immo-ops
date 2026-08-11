@@ -73,6 +73,23 @@ per `Wohnberechtigung`-Keyword prüfen, nicht aus dem Preis erschließen. *Why:*
 liest man −30 % als Scam-/WBS-Verdacht und übersieht, dass tatsächlich der Mieter den
 § 556g Abs. 3 BGB-Auskunftshebel in der Hand hat.
 
+## Ortsteil-Anker: **Am Stern (14480)** — Großsiedlung MIT eingestreuten Neubauten, Baujahr immer prüfen
+Am Stern ist überwiegend Plattenbau 1971–1990 (Feld 60–75 m² = 5,82 · 6,06 EUR/m²), aber **nicht
+durchgängig** — es gibt Neubauriegel von ~2021, die im selben PLZ-Band stehen und ins Feld
+**ab 2021** (60–75 m² = 15,72, 75–90 m² = 16,73) gehören. Das ist ein Faktor ~2,7 auf das Ergebnis
+und dreht regelmäßig sowohl den Mietpreisbremse-Befund als auch das Vorzeichen des Vergleichs.
+Bekannte Neubau-Adressen (Bj. 2021), fortschreiben wenn neue auftauchen:
+- **Ziolkowskistr. 2** — MFH, 77 WE + 24 TG-Plätze, Energie**bedarfs**ausweis **B / 56 kWh/(m²·a)**,
+  KWK fossil, Fußbodenheizung, Balkone/Terrassen, Ausweis vom 22.04.2021. Neuvertragsniveau im Haus
+  ~14,0 EUR/m² kalt (2-Zi 62,54 m² zu 876 EUR). Gegenüber (Parkplatz Newton-/Ziolkowskistraße)
+  geplant: 6-Geschosser mit bis zu 109 WE → mehrjährige Baustelle als Lage-Con nennen. (#561)
+- **Schwarzschildstr. 28** — Bj. 2021, Max Müller Immobilien GbR. (#523)
+Neubau ab 2021 heißt außerdem **§ 556f BGB: Mietpreisbremse dauerhaft nicht anwendbar** (auch bei
+Wiedervermietung) — eine angekündigte „Mietanpassung" hat dort *keine* gesetzliche Obergrenze; das
+gehört als Risiko in Block A/G, nicht als „compliant" abgehakt.
+*Why:* das Standard-Playbook für Potsdamer Großsiedlungen („zuerst das Plattenbau-Feld ziehen") ist
+für Am Stern nur die halbe Wahrheit und liefert bei diesen Adressen einen um +100 % falschen Befund.
+
 ## Ortsteil-Anker: **Speicherstadt (14473, Teltower Vorstadt, Havelufer)**
 Groth-Gruppe-Quartier zwischen Brauhausberg und Havel, gegenüber Stadtschloss, 5–10 Gehmin. zum Hbf.
 **Zwei Bauabschnitte — und der Schnitt liegt genau auf der § 556f-Grenze:** Südteil Ende **2014**
