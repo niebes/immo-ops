@@ -27,7 +27,9 @@ Detail page: `/angebot/{uuid}`. Listings platform that re-lists from source port
 - Transient `curl` exit 35 (SSL) happens occasionally; a plain retry succeeds. Not a block.
 
 ## Dedup (aggregator twins)
-- **Dedup on the `Quelle` expose ID, never on the price.** The AIZ headline price is the **Kaltmiete** ("Kaltmiete zzgl. Nk"), while sibling aggregators (Süddeutsche) often cache the same-numbered **Warmmiete** of a *different* flat. *Why:* #571 came in as "1.650 EUR / 3 Zi / Potsdam" with a strong prior that it was #539's warm rent (1.250 kalt / 1.650 warm); the grepped source ID `26XFJFHH69IZ` proved it was #538 instead (1.650 **kalt** / 1.790 warm, Jägervorstadt). One grep beats the numeric coincidence.
+- **Dedup on the `Quelle` expose ID, never on the price.** One grep — `grep -oE 'immowelt\.de/expose/[0-9A-Za-z-]+' page.html` — settles it before any scoring. The AIZ headline price is the **Kaltmiete** ("Kaltmiete zzgl. Nk"), while sibling aggregators (Süddeutsche) often cache the same-numbered **Warmmiete** of a *different* flat.
+  - *Why (both directions seen in the 2026-08-11 cycle, same portal, same day):* an AIZ entry hinted "1.650 EUR / 3 Zi / Potsdam" looked exactly like #539's warm rent (1.250 kalt / 1.650 warm) — source ID `26XFJFHH69IZ` proved it was **#538** (1.650 **kalt**, Jägervorstadt). A second AIZ entry hinted "1.250 EUR" and this time really *was* #539 (`26EPHN5FFVMA`). Price similarity predicts nothing in either direction; the ID always decides.
+- **Expect 3+ aggregator copies of one expose per cycle.** `26EPHN5FFVMA` surfaced as Immowelt (#539, scored) → Süddeutsche → AIZ. Whenever a Potsdam Immowelt expose has been scored recently, assume an AIZ/SZ twin is queued behind it and grep the ID first.
 - AIZ titles are frequently the generic placeholder **"Immobilie in Potsdam"** — no title signal for dedup; go by source ID + street in the Objektbeschreibung.
 - **AIZ silently DROPS fields the source expose has.** #571 rendered no Keller and `Energieausweisart: Nicht angegeben`, but the Immowelt source had Keller confirmed. Never score a must-have as *missing* from the AIZ page alone — check the source expose first.
 
