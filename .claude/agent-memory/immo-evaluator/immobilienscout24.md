@@ -388,6 +388,22 @@ For listings fed in via the ohne-makler (OM) platform (footer says "ohne-makler 
 
 **Why:** the wrong geo-tag would have scored an off-target Eichwalde flat as if it were in-area Groß Glienicke (Block B 4.5 instead of 1.5), flipping the recommendation.
 
+### Counter-case: the `TEXT_AREA "Lage"` can itself be **IS24-generated boilerplate naming the wrong Ortsteil**
+The rule above ("the body Lage text is authoritative") only holds when the Lage text was written by the
+lister. On private inserate IS24 sometimes auto-fills it, and the generated blurb can name a different
+Ortsteil and non-existent transit. #568 (expose 169903105): Lage said "Die Immobilie liegt in der
+**Nauener Vorstadt** … **S-Bahn-Linie S7** sowie den Buslinien 695 und 605", but `MAP.addressLine2`
+= "14469 Bornstedt, Potsdam", `geo_ot: bornstedt`, `obj_regio4: Bornstedt`, the decoded
+`obj_telekomInternetUrlAddition` = Hermann-Kasack-Str. 7 / 14469, and the S7 does not serve the
+Bornstedter Feld at all. Tell: the paragraph is short, generic marketing prose with no street name and
+no landmark the lister could know, and it **contradicts the title/Objektbeschreibung** (here "Bornstedter
+Feld", "direkt am Volkspark"). Rule: don't rank Lage-text vs geo-tag by fixed priority — take the
+**majority of independent channels** (MAP + `geo_ot`/`obj_regio3/4` + decoded Telekom address + title +
+Objektbeschreibung) and treat the odd one out as the artefact. Report it as a data-integrity note, not
+a scam signal.
+**Why:** applying the #214 rule mechanically would have moved this flat from Bornstedt to Nauener
+Vorstadt and credited it with an S-Bahn connection it does not have.
+
 **Why:** these tenant-network exposés (seen on #169/#170/#171/#172) lack the standard structured fields and have a provisional price; scoring the headline number as final or expecting a criteria `<dl>` both mislead. Stable pattern — candidate for promotion to evaluate.md if it keeps recurring.
 
 ## Bare **Grundstück** exposé sold WITH **Bauträgerbindung** (cheap plot, tied builder)
