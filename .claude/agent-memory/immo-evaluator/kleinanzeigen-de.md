@@ -22,6 +22,15 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     silently treat the heading as Kaltmiete then — report the ambiguity, score conservatively with the
     figure as Kaltmiete, and put "Kalt/Warm klären" in next steps. *Why:* otherwise you invent a
     Nebenkosten split that the ad never stated.
+    - **BUT before declaring it ambiguous, grep the description for a self-declaring price sentence.**
+      Private posters often close the text with one line that settles it outright — #575:
+      "**Der angegebene Preis ist die aktuelle Warmmiete.**" Patterns to grep:
+      `angegebene[nr]? Preis|Preis ist|Miete ist|alles inklusive|warm pro Monat|inkl\. NK|zzgl\.`.
+      When present it OVERRIDES the conservative default: score the figure as Warmmiete, say the
+      Kaltmiete/NK are unstated, and estimate the split (Potsdam Neubau w/ Fußbodenheizung+Aufzug+TG
+      ≈ 3,00–3,50 EUR/m² NK incl. heating) instead of treating the number as Kaltmiete.
+      *Why:* on #575 the default reading would have inflated €/m² from ~14,4 to 17,66 and swung the
+      Mietpreisbremse verdict, on an ad that states the answer in plain German.
   - **All three price fields can be present AND not add up**: heading (Kaltmiete) + spec-list
     "Nebenkosten" ≠ spec-list "Warmmiete" (#520: 1.300 + 450 = 1.750 vs stated Warmmiete 1.717 →
     derived NK 417). Always do the arithmetic; report both the stated and the derived NK and put
@@ -213,6 +222,13 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   *Why:* #547 ("WG für zwei in Golm", 1.500 EUR) was ad-ID 3464538575 = the ad already discarded
   2026-07-22 as "WG Zimmer in Potsdam-Golm oder Verkauf von Eigentumswohnung" (610 EUR) — a full
   re-evaluation that the ID check would have short-circuited.
+  - **It cuts the other way too — use the ad-ID to REFUTE a wrong dupe-skip.** Grab the ad-ID from
+    the earlier report's `**URL:**` line and compare. #575 was auto-skipped as a re-list of #357;
+    the IDs (3481658144 vs 3461620807) plus `Tauschangebot: Kein Tausch` vs `Nur Tausch` proved two
+    distinct ads, and the "dupe" was a genuine 4,4/5 rental. Similar-looking Potsdam ads cluster hard
+    (89 m² / 3 Zi / Bornstedt-Volkspark alone covers #351, #360 and #575) — **m² + rooms + Ortsteil
+    never identify a flat; Etage + exact rent + ad-ID do.** *Why:* a same-numbers heuristic silently
+    drops live listings.
 - **WG / room-share ads look like whole-flat rentals in the spec list.** `#viewad-details` shows the FULL
   flat (81 m², 3,5 Zi, Etage, Balkon) and the search hint copies it, so the ad reads like a 3,5-Zi
   Wohnung. Only `#viewad-description-text` reveals it's per-room ("Die beiden Schlafzimmer kosten jeweils

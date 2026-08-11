@@ -5,6 +5,19 @@ CAPTCHA ("Ich bin kein Roboter") on navigation — wait ~8 s and re-check; most 
 
 **Why:** asking the user to solve a CAPTCHA that would have auto-solved wastes their attention (see [[feedback-captcha-wait]]).
 
+### Confirming/refuting a "same flat as #NNN" suspicion: rent+size is NOT a discriminator in a portfolio estate
+Bulk landlords price a whole estate off one m²-table, so several distinct units carry almost the same
+Kaltmiete and m² (Vonovia in Potsdam-Kirchsteigfeld sits at ~10,3–10,6 EUR/m² across #107/#200/#208/
+#209/#248/#286/#576 — two different flats came out at 820 vs 822,44 EUR on 80 vs 78,29 m²). Decide the
+identity question on fields the estate does NOT share: **Etage + Aufzug, EBK yes/no, Balkon vs
+Balkon+Terrasse, the Nebenkosten structure (split NK/Heizkosten vs one all-in figure), Anbieter, and the
+Objekt-Nr. in `OBJECT_INFO`**. All of those come out of the mobile-API JSON, so the check costs nothing.
+**Why:** #576 was routed as a re-list of the #302 Tauschwohnung purely on 820≈822 EUR / 80≈78 m²; the
+JSON showed 1. OG w/ Aufzug + no EBK + split 197/177 NK vs 4. OG DG + EBK + 390 all-in — a *different*
+flat, i.e. a normal Vonovia rental rather than the landlord channel of a swap. Getting this backwards
+either invents an Ablöse-free "landlord channel" that does not exist, or drops a genuinely new listing
+as a duplicate.
+
 ## Mobile-API **404 `ERROR_RESOURCE_NOT_FOUND`** = removed exposé → EXPIRED (distinct from "deaktiviert")
 A 404 from `api.mobile.immobilienscout24.de/expose/{id}` returns a JSON `{"error": "... Request failed
 with 404 ... ERROR_RESOURCE_NOT_FOUND"}` — the record is **gone entirely**, not merely deactivated (the
@@ -1223,6 +1236,49 @@ Always divide Kaution by BOTH `text` and `originalPrice` before writing the Nett
 **Why:** scoring Kaution against the current rent alone books an illegal-deposit finding without the
 explanation, and the reduction itself is free evidence for the rent-cap argument.
 
+**Second, score-deciding variant: the reduction is a CONTRACTUAL, TEMPORARY Mietminderung for a known
+building defect — `originalPrice` is the rent you will actually pay.** Here the discount is not a
+marketing cut but a clause: the ad is titled "… mit attraktiver Einstiegsmiete", and the terms live in
+the **`TEXT_AREA "Lage"`, not in "Objektbeschreibung"** — a block headed *"Besondere Mietkondition:"*
+spelling out the current reduced Gesamtmiete, the trigger, the post-trigger rent with its full component
+breakdown, and a Sonderkündigungsrecht. Seen on #569 (expose 169726629, Am Jungfernsee 32, Nauener
+Vorstadt): 1.700/2.190 today, **automatically 2.345/2.835 "nach vollständiger Beseitigung der im
+Mietvertrag definierten Schallschutzmängel"** (1.820 Wohnung + 325 Einbauküche + 200 TG + 490 BK) —
+in budget now, +23 %/+29 % over the profile caps after. Rules:
+- **Grep the Lage AND Objektbeschreibung for `Einstiegsmiete|temporär|Mietreduzierung|Mietminderung|
+  erhöht sich|Staffel|Sonderkündigungsrecht` on every `REDUCED_PRICE` exposé** before scoring A. If the
+  −N % is contractual, score Block A on `originalPrice`, not on `text`, and put a two-column
+  jetzt/nachher table in the report (Kaltmiete, NK, Warmmiete, EUR/m² for both).
+- **The trigger names a defect that the exposé otherwise never mentions.** A Schallschutzmangel is a real
+  `Objektzustand` finding even when `obj_condition: no_information` and the photos are flawless → dock
+  Block D and make an on-site Hörtest a Next step. The rent clause is the only place it surfaces.
+- **The Sonderkündigungsrecht is not a rescue** for a household looking for a permanent home — say so in
+  Block G (~2,5): it converts the flat into a probable interim stop.
+- **Kaution stays at 3 × the reduced rent** (5.100 = 3 × 1.700 here, legal); get written confirmation it
+  is not topped up after the step-up (§ 551 BGB anchors on Vertragsschluss).
+**Why:** every structured field (Kaltmiete 1.700 ≤ 1.900, Warmmiete 2.190 ≤ 2.200) passes the profile
+caps, so scored from the API attributes alone this reads as an in-budget luxury flat — the real,
+contractually fixed rent is 645 EUR/month higher and only exists in one paragraph of the Lage text.
+
+### Nachmieter as **Eintritt in den bestehenden Mietvertrag** (Vertragsübernahme) — a distinct third class
+Not the Mieternetzwerk case and not the plain private Nachmietergesuch: `isTenantNetwork: false`,
+`obj_privateOffer: true`, a normal full `ATTRIBUTE_LIST "Kosten"` with real figures, a curated amenity
+mask and 20+ real photos — but the description says the new tenant *"in die bestehende vertragliche
+Mietregelung eintritt"* / *"übernimmt die bestehende vertragliche Regelung"*. Consequences to score:
+- The **Vermieter is never named** — `AGENTS_INFO` is the outgoing tenant (empty `address`,
+  `verifiedBy: []`, no phone). Block H ~2,5: reputation and Eigenbedarf risk are unassessable and the
+  decision rests with an invisible third party whose consent the ad cannot promise.
+- **Mietpreisbremse:** a genuine Vertragseintritt is no new Mietvertrag → § 556d does not apply. Ask
+  whether a fresh contract will be signed instead — that flips the whole check (and § 556f Neubau
+  exemption then hinges on the Baujahr, which these ads usually give as "unbekannt").
+- Terms are **non-negotiable and unseen** → Next step #1 is always "Mietvertrag inkl. Nachträge anfordern".
+- "Umzug ins Ausland zum {future date}" as the moving reason does **not** fire the "landlord abroad"
+  Medium scam signal: it is future-tense, the address is complete and the gallery is real. Note it as
+  considered-and-not-counted, plus a "verify the Vermieter before any payment" caveat.
+**Why:** without separating this class you either treat the outgoing tenant as the landlord (Block H
+too high) or run a Mietpreisbremse check that legally does not apply, and you miss that the binding
+document is a contract nobody has shown you.
+
 ### Also check the "Weitere Dokumente" REFERENCE_LIST before judging D / scam
 A second `REFERENCE_LIST` (title "Weitere Dokumente") carries attached PDFs — commonly the
 **Energieausweis** and the Anbieter's **own Mieterselbstauskunft form**. When `ATTRIBUTE_LIST`
@@ -1302,6 +1358,21 @@ Kündigungsausschluss|Mindestmietzeit` on every rental before scoring — Indexm
 financial risk, Mindestmietdauer → Block G lock-in. Both cost ~1,0 in their block.
 **Why:** the attribute lists look complete, so it's easy to score G = 5,0 ("all rules met") on a
 flat that actually locks the tenant in for 18 months with CPI-indexed rent.
+
+#### Corollary — on a **private Nachmietergesuch**, `obj_baseRent` is the OUTGOING tenant's rent, and the rent YOU would pay can be announced only in free text
+Distinct from the #552 range-vs-`obj_baseRent` case: here the structured figures are exact and internally
+consistent, they are just **the wrong contract**. #568 (expose 169903105, Hermann-Kasack-Str. 7, Bornstedt)
+had `obj_baseRent 1480.7` / `obj_totalRent 2000.7` / `Kosten` "Kaltmiete 1.480,70 €" / Kaution 4.442,10
+(= exactly 3 × the *old* rent) — while the Objektbeschreibung said "**Indexmietvertrag**. Aufgrund einer
+anstehenden Anpassung … ist bei Neuabschluss mit **ca. 200 € Aufschlag** auf die Kaltmiete zu rechnen."
+So: on any private/tenant-posted rental, grep the description for
+`Aufschlag|Anpassung|Erhöhung|erhöht sich|Neuabschluss|Neuvermietung` and **re-run every budget cap,
+the EUR/m², the Mietspiegel delta and the Kaution on the announced figure, not on `obj_baseRent`.**
+Here that flipped Warmmiete 2.000,70 (comfortably inside the 2.200 cap) → ~2.200,70 (cap breached) and
+13,58 → 15,43 EUR/m² (from +10 % to +25 % over ortsüblich). Quote both numbers and make the exact new
+Kaltmiete contact question #1 with an explicit walk-away threshold.
+**Why:** every structured field agreed with itself, so nothing signalled that the scored price was
+obsolete — Block A would have been 5,0 instead of 3,5 and the listing would have looked cap-compliant.
 
 ### Bestandswohnung in einem Neubau**projekt** whose gallery is a **Musterwohnung** → D-cap still fires
 A `Vermarkter` re-letting a unit in his own 2018er project publishes 20 pictures that are all of a
