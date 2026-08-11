@@ -63,8 +63,10 @@ the middle case (base condition from what the photo shows, then **−1,0** becau
 Grundriss). The photo is also the only amenity evidence you'll get: it confirmed the *Badewanne*
 nice-to-have outright, and its fit-out age brackets the missing Baujahr. Generic captions
 (`image.jpg`, `IMG_####`, bare numerals) mean phone-original, i.e. **more** trustworthy than a
-titled marketing caption — always `curl` + `dwebp` + Read them (the `fullImageUrl` is WebP; `dwebp` is
-installed).
+titled marketing caption — always download + Read them. **Skip `dwebp` entirely: the `fullImageUrl`
+ends in `.../format/webp/quality/80`; edit that path segment to `format/jpg` and the CDN serves a
+JPEG the Read tool opens directly** (one `curl -sL`, no conversion step). `dwebp` is installed as a
+fallback if a URL shape ever resists the swap. Verified on #558.
 **Why:** taking the "these have 0 real photos" line at face value would have capped D at 3,0 for the
 wrong reason and thrown away the only verified amenity and the only Baujahr clue in the whole exposé.
 
@@ -2886,10 +2888,11 @@ brand's individual agents can differ, so score per person where the profile allo
 they'll surely fix it" into "get every promise into the contract" — without the external check the report
 gives the opposite advice.
 
-## `Gesamtmiete` / `Warmmiete` is NOT a Warmmiete when `Heizkosten: 0 €` + `Heizkosten in Nebenkosten enthalten: Nein`
+## `Gesamtmiete` / `Warmmiete` is NOT a Warmmiete when `Heizkosten` is 0/absent + `Heizkosten in Nebenkosten enthalten: Nein`
 Always read the **three** cost fields together, never just `Gesamtmiete` / TOP_ATTRIBUTES `Warmmiete`:
 `Nebenkosten`, `Heizkosten`, and **`Heizkosten in Nebenkosten enthalten:`**. The combination
-**`Heizkosten: 0 €` + `Heizkosten in Nebenkosten enthalten: Nein`** means heating is in *neither* line —
+**`Heizkosten: 0 €` (or the row MISSING ENTIRELY) + `Heizkosten in Nebenkosten enthalten: Nein`** means
+heating is in *neither* line —
 IS24 still prints `Gesamtmiete = Kaltmiete + Nebenkosten` and labels it "Warmmiete", but it is really a
 Kalt+NK figure. The cause lives in the TEXT_AREA, usually one sentence in **Ausstattung**: seen on #532
 (expose 119554638, Meistersingerstr. 3 Brandenburger Vorstadt) — *"Den Gasvertrag schließt der Mieter
@@ -2899,9 +2902,22 @@ is the structural tell — the meter is the tenant's, so heating can never be in
 How to handle:
 - Report BOTH numbers: the inserierte "Warmmiete" **and** a labelled *realistic all-in* estimate
   (Kalt + NK + your heating estimate). #532: 2.050 EUR inseriert vs ~2.200–2.270 EUR real.
+- **There may be NO prose sentence at all** — do not wait for the Ausstattung confession before firing this
+  rule. Seen on #567 (expose 169865898, Karl-Marx-Str. 72 Babelsberg Nord): the `Kosten` list had no
+  `Heizkosten` row whatsoever and no TEXT_AREA mentioned the Gasvertrag; the *only* three tells were
+  `Heizkosten in Nebenkosten enthalten: Nein`, `Heizungsart: Etagenheizung` in **Bausubstanz**, and a
+  two-word `TEXT_AREA "Sonstiges"` reading *"Heizungsart: Gastherme"*. **`obj_heatingType:
+  self_contained_central_heating` alone is sufficient to trigger it.**
+- **When an Energieausweis IS present, compute the estimate instead of using the rule of thumb:**
+  `Endenergiebedarf (kWh/m²·a) × Wohnfläche × ~0,11 EUR/kWh ÷ 12` + ~15 EUR Grundpreis. #567:
+  96,6 × 93 = 8.984 kWh/a → ~110–140 EUR/Monat, i.e. 1.570 EUR inseriert vs ~1.700 EUR real. This is much
+  tighter than the 12–18 EUR/m²/Jahr band and defensible in the report as *your* labelled estimate.
+  Note a **Bedarfsausweis is a calculated figure** (it ignores actual usage) — still ask for the last two
+  Gasabrechnungen. Also check whether Warmwasser runs off the same Therme (usually yes → included above).
 - `COST_CHECK.expenses` has a `Gas`/`Strom` line (#532: 140 EUR) — usable as a floor, but it is a generic
   IS24 figure, not floor-area aware. For a pre-1949 Altbau with Kastenfenstern budget 12–18 EUR/m²/Jahr
-  (143 m² → ~150–220 EUR/Monat), i.e. clearly above the IS24 number.
+  (143 m² → ~150–220 EUR/Monat), i.e. clearly above the IS24 number. Use it only when there is no
+  Energieausweis to compute from.
 - Score it in **Block A**, not F/G: this is what decides `max_warmmiete`. #532 passed on the printed
   2.050 and sat *at/over* the 2.200 cap on the real figure → A 4,0 instead of 4,5.
 - Make "Jahresgasverbrauch in kWh / die letzten zwei Abrechnungen" a top-3 Next step — on a listing with

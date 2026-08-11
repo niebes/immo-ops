@@ -73,6 +73,25 @@ per `Wohnberechtigung`-Keyword prüfen, nicht aus dem Preis erschließen. *Why:*
 liest man −30 % als Scam-/WBS-Verdacht und übersieht, dass tatsächlich der Mieter den
 § 556g Abs. 3 BGB-Auskunftshebel in der Hand hat.
 
+### Gegenprobe zur Großsiedlungs-Regel: **das Baualter aus den FOTOS verifizieren, bevor man das Plattenbau-Feld nimmt**
+Der Ortsteil-Reflex ("Waldstadt/Drewitz/Schlaatz → 1971–1990") ist eine *Vermutung*, und weil
+zwischen den Baualtersklassen bis zu **Faktor 1,4** liegt, dreht eine falsche Klasse das
+Mietpreisbremsen-Ergebnis komplett um. Wenn das Exposé kein Baujahr nennt (Mieterinserate nie),
+**erst das Bildmaterial ansehen** — ein einziges Innenfoto genügt oft:
+- **Kassettentüren, profilierte Türbekleidungen, Deckenhohlkehle, hohe Decken, tiefe Laibungen**
+  → Vorkriegs-/Zwischenkriegsbestand, Feld **bis 1948**, *nicht* Plattenbau.
+- **Glatte Türblätter, keine Profile, niedrige Decke, Betonfertigteilfugen** → Plattenbau bestätigt.
+Seen on #558 (expose 169875863, Sonnentaustr. 15, `geo_ot: waldstadt_ii`, 83 m², 7,59 EUR/m²): der
+Ortsteil-Reflex hätte Feld 1971–1990 × C,D × Spalte D = **5,63 (5,13–6,10)** gezogen → zulässig
+6,19–6,71 → **"Mietpreisbremse überschritten"**. Das einzige Foto (Flur) zeigte Kassettentüren +
+Hohlkehle → richtiges Feld **bis 1948 · kein EA · Spalte D = 7,83 (6,51–9,24)** → 7,59 liegt
+**unter dem Mittelwert**, **Mietpreisbremse eingehalten**. Also: Ortsteil-Anker liefert die
+Hypothese, das Foto entscheidet. Beide Felder trotzdem im Report nennen und das Baujahr als
+Kontaktfrage setzen.
+*Why:* ohne die Gegenprobe wird einem markt- und mietspiegelkonformen Angebot ein
+Mietpreisbremsen-Verstoß angedichtet — und der Report empfiehlt einen § 556g-Rügehebel, den es
+gar nicht gibt.
+
 ## Ortsteil-Anker: **Am Stern (14480)** — Großsiedlung MIT eingestreuten Neubauten, Baujahr immer prüfen
 Am Stern ist überwiegend Plattenbau 1971–1990 (Feld 60–75 m² = 5,82 · 6,06 EUR/m²), aber **nicht
 durchgängig** — es gibt Neubauriegel von ~2021, die im selben PLZ-Band stehen und ins Feld
