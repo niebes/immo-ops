@@ -112,8 +112,13 @@ Two places to read it:
      collide with array indices).
 3. `moveInDate` can be a stale past date (seen 2024-03-01 on a live 2026 listing) —
    treat as "nach Vereinbarung", not as availability data.
-4. Photos: IS24 MEDIA often has just 1 "picture" = the tauschwohnung logo (caption
-   `www.tauschwohnung.com`) → that is 0 real photos, cap Block D at 3.0.
+4. Photos: the caption `www.tauschwohnung.com` is a **watermark attribution, not proof of a logo
+   tile** — do NOT infer "0 real photos" from the caption alone (that misread would have capped D
+   on #548, which has 14 genuine phone photos all captioned that way). Decide by **fetching one
+   `fullImageUrl`**: a real photo is ~40–60 KB at 1333×1000 (amateur snap with a translucent
+   "Tauschwohnung" wordmark across the middle); a placeholder/logo tile is tiny and uniform, and
+   the `Gesponsert`-captioned tile has an **empty** `fullImageUrl` (it is the AD slot, never count
+   it). One curl + `file` settles it; only then cap Block D at 3.0 for "no real photos".
 
 **Why:** without the twg.click fetch the two-sided swap match runs blind ("Suche unknown")
 and the Keller/Energieausweis facts are wrong or missing; the NUXT payload gave the exact
