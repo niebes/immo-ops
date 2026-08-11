@@ -86,6 +86,20 @@ Angebotsanker 12,60–13,50; ~18 EUR/m² kalt ist dort plausibel, >22 EUR/m² ka
 Genutzt auf #540. *Why:* ohne das kostet jede Speicherstadt-Wohnung zwei Websuchen und man tippt
 das Mietspiegelfeld blind.
 
+## Ortsteil-Anker: **Fahrland (14476, Nördliche Ortsteile) — Ketziner Str. = Bauträger Holger Behnke**
+Dorf-Ortsteil ~11 km nördlich der Innenstadt an der B2 Richtung Ketzin/Nauen. **Kein Bahn-/Tram-,
+nur Busanschluss** (609/638, ~25–35 min zum Hbf) → autoabhängig; Block B landet für „Potsdam als
+preferred area" realistisch bei **3,5**, nicht bei 4,5. Nach Golm ~10–15 min mit dem Auto.
+**Ketziner Str. 100–108 = Neubauquartier Holger Behnke**, 3 Mehrfamilienhäuser à 3 Geschosse,
+**42 WE / 3.300 m², Fertigstellung Sommer 2025 geplant**, 2- bis 4-Zimmer; **alle EG-Wohnungen mit
+Terrasse, alle OG-Wohnungen mit Balkon, EG barrierefrei** — daneben zwei ältere Behnke-Blöcke.
+Nutzen: (a) das ist die einzige belastbare Balkon/Terrasse-Aussage, wenn die IS24-Ausstattungsmaske
+leer ist; (b) es klärt die § 556f-Frage — Erstbezug 2025 ⇒ Mietpreisbremse nicht anwendbar, ein
+Altblock ⇒ Feld 1991–2008 (Spalte C 9,28–9,45, zulässig ~10,4). Beide Lesarten nennen, Baujahr steht
+auf keiner Anzeige. Preisniveau: ~11–12 EUR/m² kalt kam dort 2026 vor (unter dem Angebotsanker).
+Genutzt auf #563. *Why:* ohne den Anker kostet jede Fahrland-Wohnung zwei Websuchen, und die
+unausgefüllte `obj_balcony: n`-Maske einer Mieternetzwerk-Anzeige bleibt unentscheidbar.
+
 ## Umland: **Falkensee/Schönwalde-Glien/Brieselang (Berliner Speckgürtel) unterliegen seit 01.01.2026 der Mietpreisbremse**
 Die neue Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung (Kabinett 25.11.2025) gilt ab
 **01.01.2026 für 36 statt bisher 19 Gemeinden** — neu dabei u. a. **Falkensee**, Blankenfelde-Mahlow,

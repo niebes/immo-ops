@@ -55,6 +55,19 @@ at all**, so there was no priceBar band. Two workarounds:
   Baualter/EEK** (these ads never state Baujahr or Energieausweis) and always name the Angebots anchor
   too — see [[potsdam-mietspiegel]] / `_shared.md`.
 
+**"0 real photos" is the norm for Mieternetzwerk ads, NOT a rule — check `obj_picturecount` and
+download.** #563 (expose 169557244, Ketziner Str. 100 Fahrland) had `obj_picturecount: 1` and a single
+`MEDIA` PICTURE with the phone-upload caption **`image.jpg`** — the tenant's own camera shot of the
+bathroom (real, not a render, not an SVG icon). So the automatic Block-D 3,0 cap does **not** fire; use
+the middle case (base condition from what the photo shows, then **−1,0** because 1 of ~6 rooms and no
+Grundriss). The photo is also the only amenity evidence you'll get: it confirmed the *Badewanne*
+nice-to-have outright, and its fit-out age brackets the missing Baujahr. Generic captions
+(`image.jpg`, `IMG_####`, bare numerals) mean phone-original, i.e. **more** trustworthy than a
+titled marketing caption — always `curl` + `dwebp` + Read them (the `fullImageUrl` is WebP; `dwebp` is
+installed).
+**Why:** taking the "these have 0 real photos" line at face value would have capped D at 3,0 for the
+wrong reason and thrown away the only verified amenity and the only Baujahr clue in the whole exposé.
+
 **The #504 "`n` = unset, not absent" rule applies to Mieternetzwerk ads a fortiori.** The tenant form
 never touches the Ausstattung mask, so you get `obj_balcony/cellar/garden/lift/hasKitchen = n` with
 **zero positive flags** and `obj_condition`/`obj_interiorQual`/`obj_petsAllowed`/`obj_typeOfFlat` all
@@ -65,11 +78,39 @@ contact question #1. Also: the `RELOCATION` / services deep-links contain `floor
 **Why (#552):** reading the `n`s as facts would have booked E = 1,0 and dropped a 3,9 listing to ~3,8
 on invented evidence, and reading the "831–919 €" range as the price would have missed the exact 875 €.
 
+**`obj_livingSpace` on these ads is TYPED BY THE TENANT and is sometimes plain wrong — cross-check it
+against EUR/m² *and* NK/m² before scoring Block C.** Nothing in the payload validates the m² field
+(no Grundriss, no photos, no ATTRIBUTE_LIST), and the auto-generated TITLE just repeats it, so a typo
+propagates into the title and looks confirmed. The two-line arithmetic that catches it:
+`obj_baseRent / obj_livingSpace` = EUR/m² kalt, and `(obj_totalRent − obj_baseRent) / obj_livingSpace`
+= NK EUR/m². **A NK figure below ~2,00 EUR/m² is the tell** — even the cheapest Potsdam stock lands
+2,50–3,50 incl. Heizung, so an impossibly low NK/m² indicts the *denominator*, not the rent. Test the
+digit-slip hypothesis (180→80, 120→20) and check which reading lands inside a real Mietspiegel column
+band; also sanity-check m²/Zimmer (>40 m²/room for a plain 4-Zi flat is a red flag). Seen on #555
+(expose 169929725, Babelsberg Nord): 180 m² @ 840 € = 4,67 EUR/m² kalt + 2,00 EUR/m² NK, below the
+Unterwert of every Baualtersklasse in Spalte E, while the 80-m² reading (10,50 / 4,50) sits mid-band.
+Scoring consequences:
+- **Block C carries the ambiguity** — don't score the stated figure at face value and don't silently
+  substitute your hypothesis. #555: C 3,5 (5,0 if it's really 80 m², ~2,5–3,0 if 180 m² is real,
+  since 180 is 50 % over `max_m2` 120), with the note that C isn't final until the tenant confirms.
+- **Do NOT let it fire the "price >20 % below Mietspiegel" High scam signal** — it is a data-entry
+  artefact, and these ads carry no `priceBar` to confirm an address-precise band anyway. Report it as
+  a data-quality warning in its own section, and make "Wohnfläche laut Mietvertrag?" contact
+  question #1, ahead of the usual Balkon/Keller ask.
+**Why:** taking 180 m² at face value scores a 4,67-EUR/m² Babelsberg bargain that almost certainly
+doesn't exist; silently "correcting" it to 80 m² invents a measurement. The NK/m² check is what turns
+"these numbers feel odd" into a defensible statement about which field is wrong.
+
 On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese Wohnung wurde von der:dem aktuell Mietenden eingestellt" / "Interesse bekunden" (not "Kontaktieren"). These are NORMAL permanent rentals (NOT Tauschwohnung — do not discard; see [[project-nachvermietung-not-filtered]]), but:
 - **Kaltmiete is a RANGE** (e.g. "498–552 €") and the title price is provisional — the listing states "Die Miete wird sich eventuell anpassen". Score price with a caveat, don't treat the low number as final.
 - **Möbelübernahme**: tenant often wants to discuss taking over furniture = possible extra cost. Flag it.
 - **Sparse data**: usually NO Energieausweis, NO Baujahr, NO floor, NO amenity table, and **usually 0 real photos** (on the API often literally `MEDIA.media: []` + `obj_picturecount: "0"`; on the web page the gallery imgs are all SVG icons/maps) → then cap Block D at 3.0. **But decide the cap on the evidence, not on the listing class:** the tenant can upload phone shots — #554 (expose 169223897, Karl-Liebknecht-Str., Babelsberg Nord) had `obj_picturecount: "2"` with camera-original captions `20241022_175533.jpg` / `20210520_164012.jpg`. A bare `YYYYMMDD_HHMMSS.jpg` caption = a real photo, so **no cap fires**; the other real-photo caption forms are a bare **30-digit numeric id** (#553, expose 169501712) and a generic **`image.jpg`** (#556, expose 169924185) — all three are phone snaps, NOT stock/render tells, so never let a boring caption trigger the render/Symbolbild cap. **Actually download `fullImageUrl` and look:** on #553 the 2 photos were a laundry-covered Loggia and a bare wall (no living room → D still capped 2,5), but photo 1 **proved a Balkon exists** and overturned `obj_balcony: n`, moving Block E from "both must-haves unconfirmed" to "Balkon ✓, Keller unconfirmed". Looking at the pixels is the only way to confirm a must-have on a tenant ad; **and even when it confirms no must-have it can still fix Block A** — #556 had `obj_picturecount: 1` (a kitchen corner) with Baujahr absent, and the visible **außenliegender Raffstore + flacher Kompaktheizkörper + Dreh-Kipp-Fenster** dated the building to modern stock, which is exactly what picks the Mietspiegel Baualtersklasse row. On a Mieternetzwerk ad Baujahr is never stated, so bracket it: score the Mietpreisbremse against BOTH the photo-implied row and the conservative older row, and report compliance only if it holds under the conservative one (#556: 10,86 EUR/m² vs. zulässig 10,90 under 1991–2008 · Größenklasse E — compliant by 4 EUR, and 12 % under ortsüblich if 2013–2020); D still lands ~3,0 anyway because Baujahr/Objektzustand/Energieausweis are all empty and there is no Grundriss. Count `MEDIA[]` entries of `type:"PICTURE"` only — skip the `type:"AD"` entries, they inflate the length. Treat must-haves (Balkon/Keller) as unconfirmed → Block E ≈ 2,5 (not 2,0/1,0 — the Ausstattung mask is demonstrably untouched: every `obj_*` amenity is `n` while `obj_condition`/`obj_interiorQual`/`obj_petsAllowed` are `no_information`, same false-negative rule as the private-Nachmietergesuch class below). There is no `<dl>` criteria table — `dt/dd` extraction returns empty; read fields out of `document.body.innerText` instead.
 - **The TAG_LIST move-in hint can CONTRADICT the description's explicit date — the description wins.** #560 (expose 169821748, Drewitz) tagged "Nachvermietung ab August" while the tenant's own TEXT_AREA said "Der Bezug ist ab dem 1. November 2026 möglich" (~3 months out = exactly the profile's ideal lead time, i.e. the difference flips Block F). The tag is a coarse bucket the tenant picks once and rarely updates; always read the description tail for a concrete date before scoring F, take the explicit date, and put the contradiction in the contact questions. **Exception — if the description's date is already in the PAST, the tag wins:** #554 said "ab dem 11. Juli 2026 bezugsfrei" (evaluated 2026-08-11) while the tag said "ab September", i.e. the stale half is the free text this time. Rule: take whichever of the two is still in the future; if both are, take the description. Never score F off a date that has already passed — that reads as "sofort" and wrongly books the double-rent penalty. **Third case: BOTH dates already past while `publicationState: active`** (#553, expose 169501712 — tag "Nachvermietung ab Juni" + "ab dem 16. Juni 2026", evaluated 2026-08-11, ~2 months stale). Then there is no future date to rescue: score F = 3,5 (de-facto sofort under a flexible window) **and** treat it as a staleness signal — make "is it still free, and from when?" the FIRST next step, ahead of any document work, since an active-but-2-months-overdue tenant ad is often simply left lying around. Same pass: the Mieternetzwerk description sometimes names the **street** in plain text ("Die Wohnung befindet sich in der …straße"), which independently corroborates the `obj_telekomInternetUrlAddition` base64 address — quote both when they agree.
+- **The tenant's TEXT_AREA m² can contradict `obj_livingSpace`/TOP_ATTRIBUTES — the structured field wins, the delta becomes contact question #1.** #559 (expose 169875653, Gerlachstr. Drewitz): field/TOP_ATTRIBUTES/`shareMessage` all said **116 m²** while the tenant's own description opened with "eine Wohnfläche von 130 Quadratmetern". Same family as the TAG_LIST-vs-description date clash above, but the resolution is **inverted**: the m² field is what the tenant typed into the form and what the search index, the €/m² and the `priceBar` percentile are computed from, so it is the consistent number — the prose figure is unanchored. Score Block C on the field, but note the conflict explicitly, because it can straddle the profile's `max_m2` (116 is inside 60–120, 130 is 8 % over) and it silently moves €/m² (11,47 vs 10,23).
+  **Why:** taking the prose number would have pushed an in-range flat out of range and mispriced the Mietspiegel comparison by more than a euro per m².
+- **Before scoring a data-thin tenant ad, grep the tracker for the decoded street — a same-building exposé you already evaluated supplies Baujahr, Verwalter and amenity priors for free.** `grep -i {Strasse} data/listings.md reports/` — on #559 that surfaced #293 and #361 (same Gerlachstraße Hochhaus): **Baujahr 1998** (→ picks the Mietspiegel field 1991–2008 × >90 m² = 9,91 EUR/m², instead of guessing Drewitz-Plattenbau 6,26), **talyo. Property Services** as the actual Verwalter (→ Block H, no Eigenbedarf), the house's asking level 13,00 EUR/m² (→ quantifies the "Miete wird sich eventuell anpassen" risk), and the fact that neither prior exposé documented Balkon or Keller (→ a negative prior on the two must-haves). Mieternetzwerk ads carry **no** Baujahr/Verwalter/Ausstattung of their own, so this is usually the only way to get them.
+  **Why:** without it Block A is scored against the wrong Baualtersklasse (a ~3,7 EUR/m² error, i.e. "way over Mietspiegel" vs "inside the Spanne") and Block D/H are pure guesses.
+- **Photo-verification also runs in the useful direction on a NON-must-have: it can prove the mask is untouched.** #559 had exactly 1 photo — the kitchen — showing a full Einbauküche while `obj_hasKitchen: n`. That single contradiction is hard evidence that the whole Ausstattung mask is unset, which is what licenses reading `obj_balcony`/`obj_cellar` as *unconfirmed* rather than *absent* (Block E 2,5, not 2,0/1,0). So look at the pixels even when the photo obviously won't show a Balkon.
 - You're only *proposed* to the landlord, not directly accepted → extra friction, Block H ~3.0.
 - Below-Mietspiegel price here is the existing tenant's old contract, NOT a scam signal on its own.
 - **The `TITLE` of a Mieternetzwerk exposé is tenant-typed free text and can name a completely different CITY than the flat.** #557 (expose 169889489) was titled "4-Zimmer-Wohnung in **Brandenburg an der Havel**" while `MAP.addressLine2` = "14469 Bornim, Potsdam", `geo_ot: bornim`, `obj_regio3: Potsdam_Nord`, `obj_regio4: Bornim`, `geo_krs: potsdam`, the Preisentwicklung link pointed at `/potsdam/potsdam-nord/nedlitz` and the `zipCodeShapes` polygon was the PLZ-14469 outline. Rule: on TENANT_NETWORK listings the title's place name is **noise** — Block B comes from the geo cluster (`MAP.addressLine2` + `geo_ot`/`obj_regio3/4` + `obj_zipCode`) plus the decoded `obj_telekomInternetUrlAddition`. (Unlike the Kauf case at line ~229, there is no Objektbeschreibung Lage sentence to lose to — these descriptions are 3 generic sentences with no location text at all.)
@@ -98,6 +139,43 @@ On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese
   **Why:** a past Bezugsdatum on a fresh ad looks like a dead listing, and there is no `onlineSince`
   in the mobile API to refute it (date it from the scan-history first-seen + the Scout-ID band).
 - **A Mieternetzwerk description can embed a Suche line = it's a SWAP, not a plain Nachvermietung.** When the tenant's own description ends with something like "Wir suchen eine 3-4 Zimmer Wohnung in {Stadt/Bezirk}", treat the listing as a swap and run the two-sided match (don't score it as a normal rental). Seen on #340 (expose 169179239, Berliner Vorstadt): their flat scored 4.3 for us but Suche was "3-4 Zi in Berlin-Neukölln" → Side 2 fails vs our 2-Zi Golm offer → DISCARDED swap-mismatch. The AGENTS_INFO `title` is "Aktuelle:r Mieter:in" (tenant-posted) exactly like a normal Nachvermietung, so the ONLY swap tell is the Suche sentence in the TEXT_AREA description — always scan the description tail for it before defaulting to the plain-rental path.
+
+**The Mieternetzwerk Kaltmiete range is DERIVED FROM the Warmmiete — the Kalt/NK split is fabricated.**
+The tenant enters only the **current Warmmiete**; IS24 back-computes the Kaltmiete band from it. The tell
+is `TOP_ATTRIBUTES` → the *Warmmiete* attribute carrying `additionalInfo.title = "Geschätzte Kalt- und
+Warmmiete"` / `description = "…Diese Schätzung basiert auf der aktuellen Warmmiete."`, plus
+`obj_totalRent` being the round number and `obj_baseRent` exactly 70 % of it (#561: 1.200 → 840, bands
+1.140–1.260 / 798–882 = ±5 %). So: **only `obj_totalRent` is a real figure.** Never quote the Kaltmiete
+or a computed Nebenkosten residual as fact, never run a Kaution-legality check on it, and score the
+EUR/m² comparison with that caveat stated. Ask for the real Netto/NK/Heiz split in Next steps.
+**Why:** the residual reads like a concrete Nebenkosten figure (#561: "≈360 EUR = 5,00 EUR/m², high for
+EEK B") and would otherwise be reported as an Anbieterangabe rather than as arithmetic on an estimate.
+
+**On a Mieternetzwerk exposé there is NO Baujahr — resolve the address, then look the BUILDING up
+externally, before touching the Mietspiegel table.** These ads have no ATTRIBUTE_LIST, so the
+Baualtersklasse (the single biggest lever in the Potsdam table) is missing and the Ortsteil's dominant
+building type is a trap. Path that works, no browser: decode `obj_telekomInternetUrlAddition` (base64,
+URL-decode the trailing `%3D` first) → `{ort,strasse,hausnummer,plz}`, cross-check it against the street
+named in the TEXT_AREA, then **WebSearch `"{Strasse} {Nr}" {PLZ} {Ort} Baujahr Energieausweis`** — the
+Energieausweis of a Neubau is published and gives Baujahr + class + kWh + Heizung in one hit. On #561
+(Ziolkowskistr. 2, Am Stern) that turned a presumed 1971–1990 Plattenbau (field 5,82 EUR/m²) into a
+**Neubau 2021, 77 WE, EEK B, 56 kWh, Fußbodenheizung** (field 15,72) — a 2,7× swing that inverted the
+verdict from "+100 % over Mietspiegel, Mietpreisbremse massively exceeded" to "−26 % under, § 556f
+exempt". Feed the found EEK into Block D too (the exposé has none).
+**Why:** without the lookup you score the Ortsteil's stereotype instead of the building, and on a
+Mieternetzwerk ad there is no field anywhere that would correct you.
+
+**`priceBar` at the 93rd percentile / above `maxSimilarPrice` is NOT an overpricing finding when the
+building is younger than its Ortsteil.** The band is Ortsteil-wide, so in a Plattenbau-dominated
+Großsiedlung (Am Stern, Drewitz, Waldstadt, Schlaatz) a Neubau necessarily lands at the top —
+#561: offer 11,67 EUR/m², similar band 5,70–9,50, overall 4,40–12,20, position 0,93, yet the
+building-correct Mietspiegel field says the rent is 26 % *cheap*. Rule: the `priceBar` outranks the
+Mietspiegel only for the **scam** signals (that is its documented job); for **Block A / Mietpreisbremse**
+the Baualters-correct table field wins. Report all three anchors and say explicitly that the percentile
+is the building type, not the price. (Mirror image of the existing "billig gegen 13 EUR ist bloß der
+Gebäudetyp" note in `potsdam-mietspiegel.md`.)
+**Why:** reading the 93rd percentile as "overpriced for the address" would have cost Block A ~1,5 points
+on a listing that is actually below the ortsübliche Vergleichsmiete.
 
 ### Sibling class: **plain private Nachmietergesuch** (`isTenantNetwork: false`) — the checkbox fields are FALSE NEGATIVES
 Not every "Nachmieter gesucht" ad is a Mieternetzwerk one. The other, commoner form is an ordinary
