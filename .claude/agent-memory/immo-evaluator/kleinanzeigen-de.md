@@ -205,6 +205,22 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   "14469 Potsdam" is decorative — nothing concrete is for sale.
 
 ## Triage
+- **Dedupe on the AD-ID, not the URL.** A poster can re-title an ad; Kleinanzeigen then serves it under a
+  brand-new slug (`/s-anzeige/{new-slug}/{same-id}-203-7966`) while the numeric ad-ID before `-203-` stays
+  constant. Price and title in the search hint change too, so URL-based dedup lets the same ad re-enter the
+  pipeline as "new". **First action on any Kleinanzeigen eval: `grep -rn "{ad-id}" data/`** — if
+  `pipeline.md` / `scan-history.tsv` already carry it, say so and re-apply the earlier verdict.
+  *Why:* #547 ("WG für zwei in Golm", 1.500 EUR) was ad-ID 3464538575 = the ad already discarded
+  2026-07-22 as "WG Zimmer in Potsdam-Golm oder Verkauf von Eigentumswohnung" (610 EUR) — a full
+  re-evaluation that the ID check would have short-circuited.
+- **WG / room-share ads look like whole-flat rentals in the spec list.** `#viewad-details` shows the FULL
+  flat (81 m², 3,5 Zi, Etage, Balkon) and the search hint copies it, so the ad reads like a 3,5-Zi
+  Wohnung. Only `#viewad-description-text` reveals it's per-room ("Die beiden Schlafzimmer kosten jeweils
+  600 oder 650 Euro", "Wohnzimmer und der Balkon dürfen **mitbenutzt** werden"). Fifth price variant:
+  heading (1.500 €) ≠ Warmmiete field (1.250 €) and the **per-room sum in the prose decides** which is
+  real (600+650 = 1.250). Also check the `Möbliert/Teilmöbliert` checktag + a prose "befristet" — WG ads
+  are usually both → two hard blockers. *Why:* on #547 the structured data alone scored a 3,4 whole-flat
+  rental; the prose turned it into a furnished, befristete Zimmervermietung.
 - "Nachmieter gesucht" / "Suche Nachmieter" titles are normal long-term rentals (the existing tenant
   is leaving) — NOT sublets. Score normally unless the text says befristet / Untermiete / auf Zeit.
 - "Das könnte dich auch interessieren" sidebar is full of Tauschwohnung ads — ignore it; it is not
