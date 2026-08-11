@@ -26,4 +26,9 @@ Detail page: `/angebot/{uuid}`. Listings platform that re-lists from source port
 - **But keep the AIZ cache — it is the best post-mortem record.** It is a much fatter cache than Süddeutsche's (which has no date/Baujahr/energy/street) and is what lets you state *what changed* between an old report and a re-list. Curl it even when the source is already dead.
 - Transient `curl` exit 35 (SSL) happens occasionally; a plain retry succeeds. Not a block.
 
+## Dedup (aggregator twins)
+- **Dedup on the `Quelle` expose ID, never on the price.** The AIZ headline price is the **Kaltmiete** ("Kaltmiete zzgl. Nk"), while sibling aggregators (Süddeutsche) often cache the same-numbered **Warmmiete** of a *different* flat. *Why:* #571 came in as "1.650 EUR / 3 Zi / Potsdam" with a strong prior that it was #539's warm rent (1.250 kalt / 1.650 warm); the grepped source ID `26XFJFHH69IZ` proved it was #538 instead (1.650 **kalt** / 1.790 warm, Jägervorstadt). One grep beats the numeric coincidence.
+- AIZ titles are frequently the generic placeholder **"Immobilie in Potsdam"** — no title signal for dedup; go by source ID + street in the Objektbeschreibung.
+- **AIZ silently DROPS fields the source expose has.** #571 rendered no Keller and `Energieausweisart: Nicht angegeben`, but the Immowelt source had Keller confirmed. Never score a must-have as *missing* from the AIZ page alone — check the source expose first.
+
 Stable so far (first eval 2026-06-17, report #174). If the curl-renders-fully behaviour holds across more evals, promote to evaluate.md as "Ab ins Zuhause detail pages are static-fetchable".
