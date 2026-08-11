@@ -46,7 +46,8 @@ that doesn't exist, and priceBar substitutes for the missing Mietspiegel data.
 On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese Wohnung wurde von der:dem aktuell Mietenden eingestellt" / "Interesse bekunden" (not "Kontaktieren"). These are NORMAL permanent rentals (NOT Tauschwohnung — do not discard; see [[project-nachvermietung-not-filtered]]), but:
 - **Kaltmiete is a RANGE** (e.g. "498–552 €") and the title price is provisional — the listing states "Die Miete wird sich eventuell anpassen". Score price with a caveat, don't treat the low number as final.
 - **Möbelübernahme**: tenant often wants to discuss taking over furniture = possible extra cost. Flag it.
-- **Sparse data**: usually NO Energieausweis, NO Baujahr, NO floor, NO amenity table, and **0 real photos** (gallery imgs are all SVG icons/maps). Cap Block D at 3.0 (no photos) and treat must-haves (Balkon/Keller) as unconfirmed → Block E penalty. There is no `<dl>` criteria table — `dt/dd` extraction returns empty; read fields out of `document.body.innerText` instead.
+- **Sparse data**: usually NO Energieausweis, NO Baujahr, NO floor, NO amenity table, and **0 real photos** (on the API often literally `MEDIA.media: []` + `obj_picturecount: "0"`; on the web page the gallery imgs are all SVG icons/maps). Cap Block D at 3.0 (no photos) and treat must-haves (Balkon/Keller) as unconfirmed → Block E ≈ 2,5 (not 2,0/1,0 — the Ausstattung mask is demonstrably untouched: every `obj_*` amenity is `n` while `obj_condition`/`obj_interiorQual`/`obj_petsAllowed` are `no_information`, same false-negative rule as the private-Nachmietergesuch class below). There is no `<dl>` criteria table — `dt/dd` extraction returns empty; read fields out of `document.body.innerText` instead.
+- **The TAG_LIST move-in hint can CONTRADICT the description's explicit date — the description wins.** #560 (expose 169821748, Drewitz) tagged "Nachvermietung ab August" while the tenant's own TEXT_AREA said "Der Bezug ist ab dem 1. November 2026 möglich" (~3 months out = exactly the profile's ideal lead time, i.e. the difference flips Block F). The tag is a coarse bucket the tenant picks once and rarely updates; always read the description tail for a concrete date before scoring F, take the explicit date, and put the contradiction in the contact questions. Same pass: the Mieternetzwerk description sometimes names the **street** in plain text ("Die Wohnung befindet sich in der …straße"), which independently corroborates the `obj_telekomInternetUrlAddition` base64 address — quote both when they agree.
 - You're only *proposed* to the landlord, not directly accepted → extra friction, Block H ~3.0.
 - Below-Mietspiegel price here is the existing tenant's old contract, NOT a scam signal on its own.
 - **A Mieternetzwerk description can embed a Suche line = it's a SWAP, not a plain Nachvermietung.** When the tenant's own description ends with something like "Wir suchen eine 3-4 Zimmer Wohnung in {Stadt/Bezirk}", treat the listing as a swap and run the two-sided match (don't score it as a normal rental). Seen on #340 (expose 169179239, Berliner Vorstadt): their flat scored 4.3 for us but Suche was "3-4 Zi in Berlin-Neukölln" → Side 2 fails vs our 2-Zi Golm offer → DISCARDED swap-mismatch. The AGENTS_INFO `title` is "Aktuelle:r Mieter:in" (tenant-posted) exactly like a normal Nachvermietung, so the ONLY swap tell is the Suche sentence in the TEXT_AREA description — always scan the description tail for it before defaulting to the plain-rental path.
@@ -1036,9 +1037,13 @@ nor garden and pays ~1,7× the headline.
   invisible-playwright for single exposes. The custom UA header is required (plain curl UA
   gets blocked). Prefer this path FIRST for any IS24 evaluation; fall back to the stealth
   browser only when the API misbehaves.
-- **UA minor version now matters: use `_1410_35_._`, NOT `_1410_30_._`.** As of 08/2026 the `_30_`
-  variant is rejected by CloudFront with **HTTP 403 + an HTML `ERROR: The request could not be
-  satisfied` page** (~900 bytes), while `_1410_35_._` still returns the JSON. So there are THREE
+- **UA minor version: default to `_1410_35_._`, but a `_30_` 403 is TRANSIENT, not a version gate.**
+  On #510 (08/2026) `_1410_30_._` was rejected by CloudFront with **HTTP 403 + an HTML `ERROR: The
+  request could not be satisfied` page** (~900 bytes); on **#549 (2026-08-11) the very same
+  `_1410_30_._` returned the full 26 KB JSON**. So CloudFront edge-blocks minor versions
+  intermittently rather than pinning one. Practical rule: send `_1410_35_._`; if you get the 403
+  HTML, just retry (optionally with the other minor version) — do NOT conclude the API path is dead
+  or the listing is gone. So there are THREE
   distinct UA failure modes: 403+HTML (stale minor version), 200+zero bytes (wrong UA family, e.g.
   iOS-style), and 404+JSON error (listing really gone). Only the last one means EXPIRED. Seen on #510.
 - **A wrong/missing UA fails as `HTTP 200` + a ZERO-BYTE body, not as an error status.** Don't read

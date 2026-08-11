@@ -13,6 +13,25 @@ exist for this listing — fall back to the free-text Suche exactly as on Immowe
 (Keller/Baujahr/Kaution/moveInDate stay whatever IS24's ATTRIBUTE_LIST says, Suche = description).
 Budget: one grep of the REFERENCE_LIST, not 4 curls. *Why:* #526 burned 4 probes rediscovering this.
 
+Confirmed again on #549 (expose 169908691, Objekt-Nr. 443422): "Weitere Links" held only
+`is24-homepage`. Treat the generic link as the *common* case on IS24 swaps, not the exception —
+go straight to the free text.
+
+### IS24 `realEstateType: houserent` swaps are the sparsest variant — expect NO Ausstattung at all
+On #549 the whole expose carried just three ATTRIBUTE_LISTs: "Hauptkriterien" (only `Wohnfläche ca.`
++ `Grundstück ca.` — the rest are SCHUFA/Telekom ad LINKs), "Kosten" (Kaltmiete + Preis/m² +
+`Gesamtmiete: "1.900 € zzgl. Heiz- und Nebenkosten"`, i.e. **NK and Warmmiete genuinely absent, not
+zero**), and "Bausubstanz & Energieausweis" containing the single line `Wesentliche Energieträger:
+Keine Angabe`. There is **no Ausstattung block and not one CHECK attribute**, so Keller / Balkon /
+Terrasse / EBK are *unresolvable* — the one-line Objektbeschreibung is the only amenity source.
+Score the must-haves as unconfirmed (Block E ~2,5), don't read the absence as a negative.
+MEDIA was 10 PICTURE tiles **all** captioned `www.tauschwohnung.com` (+1 AD) = 0 real photos → cap D.
+`PRICE_INFO.priceBar` still works and is the only price anchor worth having, which matters doubly
+here: the **Berliner Mietspiegel excludes Ein-/Zweifamilien- und Reihenhäuser**, so for a Berlin
+`houserent` there is no Mietspiegel field to compare against at all — use the priceBar percentile
+plus a § 556g Abs. 3 BGB Auskunft note. *Why:* without this you hunt for a criteria table and a
+Mietspiegel row that cannot exist, and risk logging "keine Ausstattung" as if the flat lacked it.
+
 **The free-text Suche is often one sentence in the middle of the Objektbeschreibung, not a tail
 block** — #526: *"Ich möchte mich Ende 2026 verkleinern um weniger Miete zahlen zu müssen und suche
 daher auf diesem Weg eine 3 Zimmer Wohnung."* It carries rooms + timing + an implicit rent ceiling
