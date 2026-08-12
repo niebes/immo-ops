@@ -494,6 +494,12 @@ Grundstücksanschluss is the buyer's, **5–15 T EUR**, #406/#405) > field blank
 "im Grundstück" **except Abwasser "in der Straße"**, which is simultaneously the one cost item AND the
 proof that a public sewer exists (kills the #429 Sammelgrube/Kleinkläranlage risk). Always name which
 medium sits at which grade; "erschlossen ≠ beitragsfrei" (§ 133 Abs. 3 BauGB) survives all three.
+The worst grade has **two shapes**: the dropdown set to `no_information`, and — as on #577 — the
+`Erschließung:` row **missing from the Hauptkriterien `ATTRIBUTE_LIST` altogether** with no Erschließung
+sentence anywhere in the free text. Same handling either way (treat as ungeklärt, question #1), but don't
+read the missing row as "nothing to report". A fully built-out Anliegerstraße in the photos (asphalt, kerb,
+street lighting, houses both sides) is decent circumstantial evidence that media lie *in der Straße*, yet
+still costs the buyer the Hausanschlüsse — and on a freshly split parcel those are unavoidable.
 **Why:** collapsing the sentence to "erschlossen ✓" loses both a five-figure buyer cost and a five-figure
 risk that was ruled out.
 
@@ -520,6 +526,39 @@ Seen on #546 (expose 169793857, Premnitz, KREMSER GMBH, 647 m² / 63.000 EUR, `d
 **Why:** every structured field on #546 reads like a clean, cheap, kurzfristig bebaubare Baulücke —
 the single word „Teilungsgrundstück" is the only hint that neither the area nor the Baurecht nor the
 access is actually settled.
+
+#### The answer to most of those questions is usually an attached PDF — `REFERENCE_LIST "Weitere Dokumente"`
+The mobile-API payload can carry a **`REFERENCE_LIST` section titled „Weitere Dokumente"** with
+`type: PDF` entries on a `d2qfnj9mv71tll.cloudfront.net/...pdf` URL (no auth, plain `curl -sL`). On a
+Teilungs-plot that PDF is the **Teilungsentwurf/Flurkarte** and it outranks the whole free text — always
+fetch it before scoring C/E/G. Recipe, because these scans have **no text layer** (`pdftotext` returns
+nothing at all, which is not an error): `pdftoppm -png -r 110 file.pdf out` → Read the PNG.
+What #577 (expose 169725742, Maulbeerweg 5, Werder OT Derwitz) got out of one page that the exposé never said:
+- the **parent Flurstück number + the full three-way split** (3 × ca. 666 m² out of 1.998 m²) and, critically,
+  that the exposé **does not say which Teilfläche is being sold** — the map shows they differ (edge vs. middle
+  vs. corner-at-junction). Make that contact question #1 alongside Erschließung.
+- **the Baurecht rung, stated as Ortsrecht:** hatched Geltungsbereich labels „**im Zusammenhang bebauter
+  Ortsteil, § 34 Abs. 4 u. (5) BauGB**" / „**Ergänzungssatzung § 34 Abs. 4 Nr. 3 BauGB**". That is rung 2
+  of the ladder (binding Satzung), i.e. *better* than the usual asserted § 34 — so a Teilungs-plot is not
+  automatically capped at E ≈ 3,0; credit the Satzung, then dock separately for what is still open
+  (`obj_buildingPerm: n`, and whether the Satzung carries **three** EFH where there was one).
+- **encumbrance symbols the photos can't show:** a circled „**ND**" = Naturdenkmal, and a dotted/black-dot
+  row along the frontage = protected tree line. Cross-read it with the description: #577's "Maulbeerbaum-Allee
+  von Friedrich dem Großen" is a **gesetzlich geschützte Allee (§ 17 BbgNatSchAG)** → every new Zufahrt needs
+  an Ausnahmegenehmigung + Ersatzpflanzung. Neither word appears in the exposé text.
+**Why:** without the PDF, #577 scores as a plain "asserted § 34, unknown boundaries" plot; with it, the
+Baurecht is provably stronger AND a genuine access-permit risk appears that the seller never mentions.
+
+#### `obj_demolition: y` + "noch vorhandenes Gebäude" vs. an empty lawn in the photos — the mirror of the #504 trap
+The known trap is `obj_demolition: n` contradicting text/photos. #577 is the reverse: flag `y` and
+„Ein Abrißangebot für das dort noch vorhandene Gebäude liegt bereits vor", while both drone shots show a
+mown, completely cleared lawn and the Teilungsentwurf draws no Bestand (the pink rectangles are **Baufenster
+sketches, one per Teilfläche — not existing buildings**; don't misread them). Three readings, all live:
+already demolished / the building sits on one of the *other* Teilflächen / stale text. Never resolve it
+yourself in either direction — quote both, keep the 15.000–30.000 EUR plus Bauschutt-/Altlasten exposure
+open in Block D and the cost-bearer question in Block G.
+**Why:** believing the photos books a free cleared plot; believing the text books a phantom 30 T EUR — the
+contradiction itself is the finding.
 
 ### Read the plot photos for ENCUMBRANCES the text omits (Freileitung, Masten, Schächte, Wege)
 On a Grundstück the gallery is evidence, not decoration — and sellers describe the vegetation, not the
