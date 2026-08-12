@@ -208,6 +208,29 @@ from the TEXT_AREA only, mark unmentioned must-haves as *unconfirmed* (not missi
 first contact question.** Unlike Mieternetzwerk ads these usually DO have real photos (camera-original
 `IMG_####` captions) → no Block-D photo cap, but Baujahr/Objektzustand/Energieausweis are typically all
 empty → D stays ~3,0 and the missing Energieausweis is a Low signal, not a scam tell.
+
+⚠ **A photo-RICH ad is exactly where you stop looking — don't.** The "download and Read the
+pixels" discipline above is written for 0–2-photo tenant ads; on a 12-photo ad it is tempting to
+count captions, conclude "Zustand bildlich belegt, kein Cap", and never open a single file. That
+produced **two false statements on #568** (expose 169903105, Hermann-Kasack-Str. 7):
+1. **"kein Grundriss"** — the caption `IMG_5784` was read as a camera-original room photo (per the
+   `IMG_####` heuristic one line above). It is **the Grundriss**. An `IMG_####` caption says the
+   file came off a phone, *not* what is depicted — a floor plan photographed or exported from a
+   PDF carries the same caption shape.
+2. **"Balkon … auf keinem der 12 Fotos zu sehen"** — asserted from the caption list (no photo
+   captioned *Balkon*). The Grundriss labels a **Balkon** ~3 × 3 m, and the very first Wohnzimmer
+   photo shows the balcony door with railing and treetops at floor level.
+**Rules:** (a) *"No photo captioned X" is never evidence that X is absent* — a Balkon is usually
+visible through a living-room window, never as its own captioned tile. If a must-have hangs on it,
+open the photos. (b) **Always Read the odd-one-out caption** — the one file whose caption is not a
+room name (`IMG_####`, a bare number, `image.jpg`) is disproportionately the Grundriss or an
+exterior. (c) Galleries **mix capture dates**: #568 interleaves the current tenant's furnished
+summer shots with older empty-flat winter shots whose windows are *französische Balkone*. Judge
+amenities from the newest set and say so, rather than averaging contradictory frames.
+**Why:** the wrong claims survived into the tracker, the viewing checklist and a calendar event as
+"verification point #1", and would have had the user walk in tomorrow to check something the
+listing already documented — while the real open question (exact post-Index Kaltmiete) is what
+decides the flat.
 **Why:** reading `obj_balcony=n` as fact would have deleted a must-have that the listing text explicitly
 grants (Block E 1,0 instead of 2,5) — and reading `obj_cellar=n` as fact would have booked a *proven*
 missing Keller when it is merely unasked.
