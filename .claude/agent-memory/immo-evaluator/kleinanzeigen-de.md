@@ -26,6 +26,12 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
       Private posters often close the text with one line that settles it outright — #575:
       "**Der angegebene Preis ist die aktuelle Warmmiete.**" Patterns to grep:
       `angegebene[nr]? Preis|Preis ist|Miete ist|alles inklusive|warm pro Monat|inkl\. NK|zzgl\.`.
+      **Second, very common form: a labelled bullet inside an "Eckdaten:" list** — `* Warmmiete:
+      1.442,67 €` (#580). Grep `Warmmiete\s*:` / `Kaltmiete\s*:` in the description, not just prose
+      sentences; the bullet is more precise than the heading (cents vs rounded euro) and confirms
+      which figure the heading is. *Why:* on #580 the heading/detail field both said "1.443 €" with
+      no NK field — the #356 ambiguity rule would have applied, but the Eckdaten bullet settles it
+      outright as Warmmiete.
       When present it OVERRIDES the conservative default: score the figure as Warmmiete, say the
       Kaltmiete/NK are unstated, and estimate the split (Potsdam Neubau w/ Fußbodenheizung+Aufzug+TG
       ≈ 3,00–3,50 EUR/m² NK incl. heating) instead of treating the number as Kaltmiete.
@@ -127,6 +133,16 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     Read BOTH; the title states what they seek, the description/spec-list what they offer — the
     search-result metadata (m²/rooms/price) refers to the OFFERED flat despite the "Suche…" title.
     *Why:* on #317 the hint said "4 rooms" (their Suche) while the offered flat was 3,5 Zi.
+    - **Title sub-pattern "Biete X – Suche Y"** ("TAUSCHWOHNUNG **Biete 4** – **Suche 3 Zimmer mit
+      Altbau-Deckenhöhe für Hochbett**", #579): same both-sides-in-one-title shape as "gg"/"gegen"
+      below — first number = OFFERED, number after "Suche" = the Suche — and the description held
+      nothing but Tauschwohnung boilerplate + `# Weitere Angaben`. Two consequences: (a) the
+      **search-result hint copies the Suche's room count** (hint said "3 Zi", spec list said
+      **Zimmer 4**) — always take rooms from `#viewad-details`, never from the hint on a swap;
+      (b) the clause AFTER the room number is a real Suche criterion, not decoration —
+      "mit Altbau-Deckenhöhe für Hochbett" is a categorical side-2 fail (see `tauschwohnung.md`).
+      *Why:* on #579 reading the hint would have logged a 3-Zi flat, and stopping the Suche parse at
+      the room count would have made a physically impossible swap look like a one-room near-miss.
     - **Title sub-pattern "X gg Y" / "X gegen Y"** ("Tauschen **3 Raum** Wohnung **gg 4 Raum**", #541):
       one title carries BOTH sides — the first number is the OFFERED flat, the number after
       `gg`/`gegen`/`→` is the **Suche**. Parse it that way and the Suche is a hard, structural
@@ -167,6 +183,17 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     "Suche unknown", use their own flat as the fallback yardstick, and apply the lenient rule
     (surface as Swap-candidate, "verify on contact"). *Why:* #524 spent 3 fetches proving the route
     doesn't exist.
+  - **The Suche can be a NEGATIVE area filter plus a one-word direction, both typo'd.** #578:
+    "**Wie** wollen uns vergrößern" (sic — "Wir") + "Wir sind für alle Bereiche in Potsdam offen
+    **außer Stern, Schlaatz oder Drewitz**". Two consequences: (a) grep the description
+    typo-tolerantly — `vergrößer|vergroesser|größer|verkleiner|mehr Platz|mehr Raum` catches the
+    direction whatever the subject pronoun says, a grep for `Wir suchen|Wir wollen` does not;
+    (b) an "alle Bereiche in X außer A, B, C" clause is a **pass** for side-2 area as long as our
+    offer's Ortsteil isn't on the exclusion list — don't record it as "Suche unknown / no target area".
+    Bonus inference: the excluded Ortsteile are usually the poster's OWN neighbourhood (they want out),
+    which is the only way to narrow the Ortsteil when `#viewad-locality` shows just "{PLZ} Brandenburg -
+    Potsdam". *Why:* the pronoun typo makes the decisive upsize clause invisible to the obvious grep,
+    and an exclusion list looks like "no area stated" if you only scan for a named target.
 - **The Suche can be a bare comparative with zero numbers** — "Wir tauschen mit einer ähnliche{n} Wohnung."
   (#359). Then the yardstick for side 2 is THEIR OWN flat's figures (m², Zimmer, Kaltmiete, Ortsteil,
   Ausstattung) — score our offer against those, don't record the Suche as "unknown". *Why:* "unknown Suche"
@@ -247,6 +274,12 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   `#viewad-details` ("Nur Tausch" / "Kein Tausch"; **absent entirely on ordinary ads**), (b) the title,
   and (c) the `#viewad-contact` Anbieter name. *Why:* on #522 a keyword grep said "swap" while the ad
   was a plain Nachmieter rental — a bogus two-sided swap match was one step away.
+  - **The same sidebar poisons EVERY consequential keyword, not just Tausch** — `befristet`,
+    `möbliert`, `Untermiete`, `Eigenbedarf`, `WBS`. #580 had 10 raw-HTML hits for "befristet", all
+    from one sidebar ad ("3-Zimmer Wohnung in Teltow, auf 2 Jahre befristet"), on an unbefristete
+    Anzeige. Cheap guard: record `ti = html.find('id="viewad-title"')` once and print each match's
+    offset — anything at a higher offset is sidebar. *Why:* a bare `grep -c befristet` would have
+    fired the Zwischenmiete/Befristung hard blocker on a normal rental.
 - **Feature checktags carry a `Neubau` flag with no year attached.** It is a poster-ticked box, not
   portal-verified, and routinely contradicts the location's building stock (#522: "Neubau" on a
   Potsdam-Waldstadt Plattenbau-Ortsteil). Never let it set the Mietspiegel Baualtersklasse — run BOTH

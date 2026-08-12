@@ -19,13 +19,26 @@ scam signal. *Why:* scoring #550 off the fields would have invented a 100-m²-Ha
 kalt that does not exist, and inverted the two-sided match (their Suche read as their offer).
 
 ## Side-2 base rate: our 2-Zi/54-m² Golm offer only serves DOWNSIZERS
-#492, #505, #533, #541, #550 all failed side 2 on the same axis — the partner wants to
+#492, #505, #533, #541, #550, #578 all failed side 2 on the same axis — the partner wants to
 *enlarge* (≥3–5 Zi, 70–100 m², family households), and the Golm flat is the small end of the
 market. Side 1 kept passing (3,5–4,3/5), so the cost was a full evaluation each time.
 ⇒ Read the Suche's **direction** (vergrößern vs. verkleinern / "weniger Miete") FIRST; if they
 name ≥4 Zimmer or a 3+-person household, side 2 is a deterministic fail and the rest of the
 evaluation is only worth doing for the record. Worth proposing a triage prefilter
 ("suche … ≥4 Zi / ≥70 m²" → discard before evaluation).
+
+**But "downsizer" is NOT automatically a side-2 pass — a second, independent kill axis is a
+qualitative BAUSUBSTANZ requirement, which our 2024 Neubau can never satisfy.** #579 was the first
+genuine downsizer (offers 4 Zi/89 m², seeks 3 Zi) and still failed categorically: the Suche was
+"3 Zimmer **mit Altbau-Deckenhöhe für Hochbett**". Ceiling height, Stuck, Dielen, Altbau, "hohe
+Decken", Loft/Fabriketage are *physical building-era* criteria — no amount of side-2 leniency turns
+a Neubau 2024 with ~2,50 m standard ceilings into one; treat them exactly like an explicitly stated
+deal-breaker, not a soft must-have. Note the direction still helps on the *numeric* axes (their rent
+1.375 EUR kalt vs our 1.025,25 → budget fits), so the report must say which axis actually decided.
+⇒ Two-axis side-2 check, in this order: (1) direction/size (vergrößern → fail), (2) qualitative
+Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen → fail). Both belong in the same triage
+prefilter. *Why:* on #579 the favourable direction made the swap look promising right up to the
+last clause of the title.
 
 ## Even on IS24 the object-specific twg.click link is NOT guaranteed — check "Weitere Links" first
 Some IS24 swap exposés carry only the **generic** `https://twg.click/is24-homepage` in the
