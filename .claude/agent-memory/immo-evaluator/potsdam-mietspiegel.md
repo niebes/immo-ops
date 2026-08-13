@@ -109,6 +109,24 @@ gehört als Risiko in Block A/G, nicht als „compliant" abgehakt.
 *Why:* das Standard-Playbook für Potsdamer Großsiedlungen („zuerst das Plattenbau-Feld ziehen") ist
 für Am Stern nur die halbe Wahrheit und liefert bei diesen Adressen einen um +100 % falschen Befund.
 
+## Ortsteil-Anker: **Waldstadt II (14478) — `Zum Jagenstein` / `Saarmunder Str.` ist NICHT Plattenbau**
+Waldstadt II löst reflexhaft die Großsiedlungs-Regel oben aus (Feld 1971–1990). Für **eine** Adresse
+ist das falsch: das Quartier **Zum Jagenstein / Saarmunder Straße** ist ein **Neubauquartier der
+Wohnungsgenossenschaft „Karl Marx" Potsdam eG**, Fertigstellung **~2018/2019** — **113 WE in 5 Häusern
+(zwei viergeschossige + drei sechsgeschossige), barrierefrei, Laubengangerschließung, 113 TG-Plätze,
+Fußbodenheizung + Holzböden**, 45 × 3-Raum / 38 × 2-Raum. Der Genossenschaftssitz (Saarmunder Str. 2)
+liegt im selben Quartier, „Zum Jagenstein 3" vermietet sie als Gewerbe.
+→ Richtiges Feld ist **2013–2020**, nicht 1971–1990. Bei 79 m² (Spalte D) sind das **12,34
+(10,90–14,23)** statt 5,63 (5,13–6,10) — **Faktor 2,2**. Und: Erstbezug nach dem 01.10.2014 ⇒
+**§ 556f BGB, Mietpreisbremse nicht anwendbar**.
+Erkennungsmerkmale im Exposé, wenn „Neubau" nicht dransteht: `Etage: N von 4` bzw. `von 6` +
+**Fußbodenheizung** + Personenaufzug + Gäste-WC + „Qualität der Ausstattung: Gehoben".
+Preisniveau 2026: **13,48 EUR/m² kalt** für 79 m² (#585) — Genossenschaftsniveau, unter privatem
+Neubau, aber ~+9 % über dem ortsüblichen Mittelwert und innerhalb der Spanne.
+*Why:* der Ortsteil-Reflex hätte „+139 % über Mietspiegel, Mietpreisbremse massiv überschritten,
+§ 556g-Rüge" in den Report geschrieben — tatsächlich ist der Preis mietspiegelkonform und die
+Mietpreisbremse gilt dort gar nicht. Siehe [[wgkarlmarx-de]] für die Vermieterseite.
+
 ## Ortsteil-Anker: **Speicherstadt (14473, Teltower Vorstadt, Havelufer)**
 Groth-Gruppe-Quartier zwischen Brauhausberg und Havel, gegenüber Stadtschloss, 5–10 Gehmin. zum Hbf.
 **Zwei Bauabschnitte — und der Schnitt liegt genau auf der § 556f-Grenze:** Südteil Ende **2014**
@@ -121,6 +139,31 @@ Preisniveau: Havelufer-Neubau mit TG/Aufzug/Fußbodenheizung liegt deutlich übe
 Angebotsanker 12,60–13,50; ~18 EUR/m² kalt ist dort plausibel, >22 EUR/m² kalt nicht.
 Genutzt auf #540. *Why:* ohne das kostet jede Speicherstadt-Wohnung zwei Websuchen und man tippt
 das Mietspiegelfeld blind.
+
+## Ortsteil-Anker: **Jägervorstadt (14469) — Quartier Pappelallee/Voltaireweg, Wohnbau GmbH, Bj. 2013**
+Neubauquartier im „Villenkolonie"-Duktus zwischen Voltaireweg und Pappelallee (begrünter Innenhof mit
+altem Bergahorn, Tiefgarage unter den Häusern, Aufzug bis in die TG, Fernwärme + Fußbodenheizung,
+Eichenparkett, EBK, bodengleiche Duschen, Videogegensprechanlage). Vermieter **Wohnbau GmbH**
+(Bonn/München, IS24 3,9★ / 1.297 Bewertungen, verifiziert), Objektreferenzen im Schema `1.1503.4.NN`
+→ **Portfolio-Quartier, es kommen weitere Einheiten in den Scan**; Bewerbung läuft immer über
+**immomio** (`tenant.immomio.com/apply/…`), nie über ein Kontaktformular.
+Fixe Werte, die man nicht neu recherchieren muss: **Baujahr 2013**, Objektzustand *vollständig
+renoviert*, **Verbrauchsausweis Klasse B / 65 kWh(m²·a)** (PDF liegt am Exposé), Kaution exakt
+3 NKM, keine Provision, **TG-Stellplatz optional 80,00 EUR/mtl.** (nicht Pflicht — nicht in die
+Warmmiete rechnen, aber als Variante nennen). Preisniveau 2026: **~15,4 EUR/m² kalt**,
+NK 1,76 + Heizkosten 2,09 = 3,85 EUR/m² warm-Aufschlag.
+**Die eigentliche Falle ist das Baujahr 2013 an der § 556f-Grenze:** erstmals bezugsfertig **vor dem
+01.10.2014** ⇒ die Neubauausnahme greift **nicht**, die **Mietpreisbremse ist anwendbar** — obwohl
+sich das Quartier wie ein Neubau liest. Mietspiegelfeld **2013–2020 · alle EEK**; bei >90 m² Spalte E
+= 12,39 (10,31–14,00) ⇒ 15,4 liegt +24 % über dem Mittel und +10 % über dem Oberwert; zulässig am
+Mittelwert 13,63, am Oberwert 15,40 — d. h. **nur bei maximaler Spanneneinordnung gerade zulässig**.
+Die wohnwerterhöhenden Merkmale (FBH, Parkett, Aufzug, EBK, oft **zwei** Balkone, G-WC, Wanne +
+bodengleiche Dusche, EEK B, Fernwärme) sind genau die Begründung dafür → im Report als
+**§ 556g Abs. 3 Auskunft (Vormiete + Spanneneinordnung)** formulieren, nicht als Verstoß und nicht
+als „compliant". Angebotsseitig ist es unauffällig: IS24-`priceBar` adressgenau 10,50–15,70,
+64. Perzentil. Genutzt auf #584 (expose 169976631, Pappelallee 49, 90,93 m², 4,75/5).
+*Why:* „Neubauquartier ⇒ § 556f, Mietpreisbremse egal" ist hier falsch (ein Jahr zu früh), und ohne
+den Anker kostet jede weitere Einheit dieses Quartiers erneut Baujahr-, EEK- und Vermieterrecherche.
 
 ## Ortsteil-Anker: **Fahrland (14476, Nördliche Ortsteile) — Ketziner Str. = Bauträger Holger Behnke**
 Dorf-Ortsteil ~11 km nördlich der Innenstadt an der B2 Richtung Ketzin/Nauen. **Kein Bahn-/Tram-,

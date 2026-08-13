@@ -336,6 +336,27 @@ four surrogates instead of guessing:
 3. **`adTargetingParameters.obj_cId`** — a low customer ID = long-standing account.
 4. **Internal date references in the TEXT_AREAs** ("Im April 2026 wurde eine neue Gasheizung eingebaut")
    + `Bezugsfrei ab` — these date the *text*.
+5. **The UNIX epoch suffix inside `MEDIA[].fullImageUrl` / every attached PDF url** — IS24 names
+   uploads `…/{uuid}-{epochSeconds}.jpg/O` and `…cloudfront.net/{uuid}-{epochSeconds}.pdf`. This is
+   the **upload** timestamp and it works when surrogate 2 fails, i.e. whenever the captions are
+   descriptive German words ("Wohnzimmer", "Badezimmer") instead of camera-original filenames — which
+   is the normal case on a professionally written ad. One `python3 datetime.fromtimestamp` per URL;
+   all photos of one ad usually share the same minute. Seen on #582 (expose 130666466): every one of
+   the 17 photos carried `-1646489403…-1646489469` = **05.03.2022, 14:10–14:11**.
+
+**The whole point of dating an ad is that it can REFUTE a scoreable claim, not just tell you the ad's
+age.** #582 advertised „Komplettmodernisierung Stand 2026" with `obj_lastRefurbish: 2026`, while the
+photos (05.03.2022) already showed the finished modernised bath and the attached Grundriss was a
+„Vorabzug 2021-05-20" (`pdfinfo` CreationDate 20.05.2021). So `Letzte Modernisierung:` is a
+landlord-editable field that gets refreshed to the current year without any new work. On a **rental**
+that is score-deciding, because **§ 556f BGB (umfassende Modernisierung) only exempts the FIRST
+letting after the modernisation** — if the works were 2021/22 and the flat has been let since, the
+Mietpreisbremse applies in full and the landlord's whole price justification collapses. Rule: on any
+rental claiming a modernisation year, cross-date it against surrogates 2/5 + the Grundriss
+`CreationDate` before accepting a § 556f exemption, and put the § 556g Abs. 3 Auskunft (Vormiete +
+Modernisierungskosten + Zeitpunkt) in Next steps.
+**Why:** the dating surrogates read like listing-hygiene trivia, so they get skipped on a listing
+that is obviously live — but they are the only evidence that decides whether the rent cap applies.
 Seen on #507 (expose **85752568**, Burgunderweg 5 Schönwalde-Glien): ID + photos from 12/2015, but
 `freemiumSettings.dateStarted = 2026-08-01`, `publicationState: active`, `obj_highDemand: true`, text
 referencing 04/2026, and `data/scan-history.tsv` first-seen = today ⇒ the private landlord **recycled his
@@ -1374,6 +1395,19 @@ Wohnungsnummer WE 58"). `curl` it and `pdftotext` it: it confirms Zimmerzahl/Fl�
 *this* unit (and often reveals the Bauträger's Haftungsausschluss = "Planmaße", i.e. the m² are
 plan figures, not a WoFlV-Aufmaß). Seen on #537 (expose 169858137).
 
+**The Grundriss header is also a third address leak** (next to the Telekom base64 param and the MEDIA
+captions), and it fires when the other two don't: `obj_street/obj_houseNumber: no_information`, MAP
+says "Die vollständige Adresse … erhältst du vom Anbieter", no Telekom param anywhere — yet line 1 of
+the PDF reads the full street + Ortsteil and line 2 the unit („Wohnung 3 · 1. Obergeschoss rechts").
+One `pdftotext -layout` gets it. It converts an unverifiable Ortsteil-level Block B into a real
+micro-location check. And **`Read` the PDF as an image even when `pdftotext` succeeded** — the text
+layer gives room *names*, the rendering gives the topology: #582 (expose 130666466,
+Paul-Neumann-Str. 20) only revealed in the image that „Kind 1" is reachable **solely through
+„Kind 2"** and „Schlafen" only through the living room (Durchgangszimmer-Altbau), plus that no
+Balkon/Loggia exists anywhere on the plan — which independently confirmed `obj_balcony: n` and cost
+Block C a full point. Also read the bath: wanne + separate bodenebene Dusche are visible there long
+before any attribute list mentions them.
+
 #### The Grundriss PDF is the ONLY check on the advertised Zimmerzahl — and it is often a bare image
 Three additions from #565 (expose 150385816, Graf-von-Schwerin-Str. 3 Nauener Vorstadt, Trend Immobilien):
 1. **`pdftotext` can return nothing but the label** (here literally `WE38`) because the plan is a scanned/
@@ -1398,6 +1432,23 @@ Three additions from #565 (expose 150385816, Graf-von-Schwerin-Str. 3 Nauener Vo
    `curl` + one `pdfinfo`.
 **Why:** every structured field said "3 Zimmer, 87,39 m², in budget, both must-haves" — the attached plan
 is the only place in the whole record where the flat's actual room count exists.
+
+5. **Read the plan's TITLE BLOCK too, not just the room schedule — it names the building PROGRAMME, which
+   is a Block-G fact the exposé often omits entirely.** #583 (expose 169989948, Friedrich-Wolf-Str. 10B
+   Waldstadt I, Kirsch & Drechsler): the exposé text never says it, but the Grundriss header reads
+   **"WOHNANLAGE FÜR ALTERSGERECHTES WOHNEN"** — which reframes Aufzug/stufenloser Zugang/kompaktes Bad
+   from "nice extras" into a possible **Zielgruppen- oder Förderbindung** (Mindestalter, Belegungsrecht,
+   Servicepauschale) and makes it contact question #1 rather than a footnote. Grep the extracted text for
+   `altersgerecht|betreutes Wohnen|seniorengerecht|Servicewohnen|gefördert|WBS|Belegungsbindung`.
+   On a **Neubau under construction** the same two PDFs are the only hard data there is: the Grundriss
+   confirms the balcony COUNT and each balcony's m² (the exposé's `Balkon/Terrasse:` CHECK is one bit),
+   and the attached (usually "Vorschau / rechtlich nicht gültig") **Energieausweis** carries Baujahr,
+   Wohnungsanzahl, Energieträger and Primär- vs Endenergie — here Baujahr **2026** against the exposé's
+   **2027**, i.e. Bauantrags- vs Fertigstellungsjahr. `pdftotext -layout` worked on both (vector PDFs,
+   no Read-the-image detour needed).
+**Why:** an allocation/target-group restriction is the kind of thing that voids the whole application,
+and on a pre-completion Neubau there are no photos and no viewing — the two attached PDFs are the entire
+evidence base for C, E and G.
 
 #### `obj_telekomInternetSpeed` is a scoreable Block-B negative, not just an ad
 `adTargetingParameters.obj_telekomInternetSpeed` is an **address-precise** Telekom availability figure
@@ -1529,6 +1580,26 @@ Seen on #366 (expose 165446870, Babelsberg Nord Denkmal-Weberhaus).
    **Why:** the Denkmal rule above, applied blindly, exculpates a listing that is actually
    withholding legally required energy data on a 62-year-old gas-heated house — exactly the case
    where the class (realistically G–H) drives the renovation budget.
+
+   **Rental counterpart of the same string — it picks the MIETSPIEGEL ROW, which is worth far more
+   than the scam call.** On a `apartmentrent` exposé there is often **no `Denkmalschutzobjekt:`
+   CHECK at all**; the Denkmal status lives only in the TITLE/Objektbeschreibung („Denkmal am Park",
+   „Trotz Denkmalauflagen…"). Don't treat the missing CHECK as the #372 red flag when the text
+   plainly says Denkmal and the Baujahr is pre-war — but *do* draw the rental consequence:
+   **`Energieausweis: laut Gesetz nicht erforderlich` ⇒ score the Potsdam Mietspiegel against the
+   `kein EA` row, not against an assumed EEK row.** For „bis 1948 / 60–75 m²" that is 7,49
+   (5,72–9,19) vs. 9,54 for A/B — a ~27 % swing on the permissible rent, and it is the row the
+   landlord cannot argue up, because he has chosen not to produce an Ausweis. Report both rows
+   (the `kein EA` one as the operative figure, the A/B one as the landlord's best case) so the
+   § 556g Abs. 3 demand is bulletproof. Two side-effects to score: the ad's energy claims
+   („mit Energieeffizienz", „hoher energetischer Standard") are **unbelegt** → no Block D EEK
+   adjustment in either direction; and Denkmal + `Heizungsart: Gas-Heizung` + „Innendämmung" in the
+   Ausstattung is a real Block D negative (GEG-65-%-Austauschpflicht → § 559 Modernisierungsumlage
+   risk, plus moisture/mould at the thermal bridges an Innendämmung creates). Seen on #582
+   (expose 130666466, Paul-Neumann-Str. 20, Babelsberg Süd, Bj. 1928).
+   **Why:** the Kauf note above stops at "not a scam signal / not a D omission", so on a rental the
+   field gets ticked off as benign and the evaluator then guesses an EEK row — which is precisely
+   the choice that decides whether a Mietpreisbremse breach is +110 % or +228 %.
 
 6. **`Etagenzahl: 1` can contradict the Grundriss set — trust the MEDIA captions.** On #372 the
    Hauptkriterien said `Etagenzahl: 1` while MEDIA carried Grundrisse for *Erdgeschoss*,
@@ -3075,3 +3146,19 @@ How to handle:
 **Why:** taking `Gesamtmiete` at face value silently understates the monthly cost by 100–250 EUR and can
 flip a listing from "over the Warmmiete cap" to "in budget" — and the exclusion is never in the cost
 table's headline, only in the `Heizkosten in Nebenkosten enthalten: Nein` sub-line plus one prose sentence.
+
+## The headline `Wohnfläche` can INCLUDE the Balkonanteil — the Grundriss states both figures
+IS24's `Wohnfläche ca.` is whatever the lister typed, and on new-builds that is routinely the WoFlV
+figure **including 25–50 % of the balcony area**. The architect's Grundriss (the real
+Ausführungsplan, recognisable by ventilation ducts / `RR-A 0x DN 70` rainwater risers, not a
+marketing schematic) carries a title block with **both** numbers, e.g. #585 (expose 169969806,
+Zum Jagenstein): *„WOHNUNG 8 · 75,12 m² · inkl. Balkon 78,45 m²"* — 78,45 − 75,12 = 3,33 = **50 %**
+of the two balconies (2,48 + 4,18), and IS24 showed **79 m²**.
+Consequences: quote the EUR/m² on the advertised figure (13,48) but name the inner-area figure too
+(14,18 on 75,12 m²); Block C scores the range fit, so it rarely moves — but it changes which
+Mietspiegel **column** you land in near a band edge (75 m² is exactly the C/D boundary).
+Bonus: the same title block confirms the Balkon must-have with an **area**, and the room schedule
+(Wohnen/Essen/Kochen vs. two ~13 m² Zimmer) tells you whether "3 Zimmer" means 2 rooms + open plan.
+**Why:** without reading the plan you either take 79 m² as inner area (overstating what the
+household gets) or "correct" it to 75 m² and invent a measurement — and a band-edge m² figure can
+flip the Mietspiegel column.

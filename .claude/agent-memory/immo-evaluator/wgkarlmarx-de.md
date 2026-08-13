@@ -18,6 +18,25 @@ Portal-family match: `wgkarlmarx.de`. Genossenschaft's own site, expose URLs lik
 - **No classic Kaution.** Instead requires refundable **Genossenschaftsanteile** (equity
   share, ~2.000 EUR for a 3-Raum). Treat as legal/modest in Block G — NOT a hard blocker,
   NOT a deposit >3-NKM violation.
+- **Official membership terms (from `/fuer-wohnungssucher`, checked 2026-08-13):** Beitritt =
+  **3 Geschäftsanteile für 615,00 EUR**, PLUS **wohnungsbezogene Geschäftsanteile nach Satzung
+  § 17 Abs. 2 (Anlage)** — that second figure is NOT on the website, always ask. All refundable.
+  Hard gate: *„zurzeit grundsätzlich keine Neuaufnahme von Mitgliedern **ohne konkrete
+  Wohnraumüberlassung**"* → you cannot join first and queue; membership only comes with an
+  allocation. Required docs: Personalausweis, 3 Einkommensnachweise (explicitly accepts a
+  **Bewilligungsbescheid vom Arbeits-/Sozialamt** — fits Amanda), Bestätigung des vorherigen
+  Vermieters über pünktliche Mietzahlungen (→ Arztberg reference).
+- **Their stock reaches us mostly via PRIVATE Nachmieter ads on IS24, not via their own site.**
+  #585 (IS24 expose 169969806, Zum Jagenstein, private tenant „Herr S. F.", 1.500 EUR Möbel-Ablöse)
+  was NOT dual-listed by the coop — `/fuer-wohnungssucher` carried only Gewerbe. So the CLAUDE.md
+  "pursue the landlord channel to dodge the Ablöse" move does **not** work here; the coop simply
+  doesn't advertise flats. Still verify with one `curl -sL https://wgkarlmarx.de/fuer-wohnungssucher`
+  (plain curl + tag-strip works, page lists Mietwohnung + Gewerbe together).
+- **Vergabe risk:** the outgoing tenant can only *propose* a Nachmieter — the coop decides. Make
+  that contact question #1 and score it in Block G, not H.
+- **Their buildings:** Zum Jagenstein / Saarmunder Str. (Waldstadt II, ~2018/19, 113 WE — see
+  [[potsdam-mietspiegel]] anchor), Zum Kahleberg, Ahornstr. 20, Potsdamer Mitte (Alter Markt 5a /
+  Erika-Wolf-Str. / Friedrich-Ebert-Str. 1). ~7.500 Wohnungen total.
 - **Zero Eigenbedarf risk** — cooperative can't terminate for personal use → Block H = 5.0
   for the coop itself (established, ~7.500 Wohnungen). Rents to non-members too (no WBS by
   default).
