@@ -268,6 +268,17 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   real (600+650 = 1.250). Also check the `Möbliert/Teilmöbliert` checktag + a prose "befristet" — WG ads
   are usually both → two hard blockers. *Why:* on #547 the structured data alone scored a 3,4 whole-flat
   rental; the prose turned it into a furnished, befristete Zimmervermietung.
+  - **Sixth price variant, and the one that fakes a scam: the heading can be a PER-ROOM price while
+    the m² belongs to the whole flat.** #595 (same ad-ID re-listed): heading 650 € == "Warmmiete"
+    field 650 €, spec list 81 m² / 3,5 Zi → 8 EUR/m², which reads as ">30 % below Mietspiegel" i.e.
+    the classic bait profile. It is not: the prose says "Die beiden Schlafzimmer kosten jeweils 600
+    oder 650 Euro", so 650 € buys ONE bedroom and the flat as a whole is 1.250 € warm = 15,43 EUR/m²
+    — *above* market. **Rule: before firing the "price >20 % below Mietspiegel" High scam signal on a
+    Kleinanzeigen ad whose title or description contains WG / Zimmer / Mitbewohner, check whether the
+    heading is a per-room price; divide the per-room sum, not the heading, by the m².** *Why:* on
+    #595 the naive EUR/m² would have produced a "Likely Scam" verdict on an honest 4-year-old
+    private account with 6 real photos — and, in the other direction, would have hidden that the
+    flat is actually expensive.
 - "Nachmieter gesucht" / "Suche Nachmieter" titles are normal long-term rentals (the existing tenant
   is leaving) — NOT sublets. Score normally unless the text says befristet / Untermiete / auf Zeit.
 - "Das könnte dich auch interessieren" sidebar is full of Tauschwohnung ads — ignore it; it is not
