@@ -350,6 +350,18 @@ four surrogates instead of guessing:
    is the normal case on a professionally written ad. One `python3 datetime.fromtimestamp` per URL;
    all photos of one ad usually share the same minute. Seen on #582 (expose 130666466): every one of
    the 17 photos carried `-1646489403…-1646489469` = **05.03.2022, 14:10–14:11**.
+   ⚠ **Sanity-check the decoded date — the suffix is NOT always an epoch.** On #591 (expose 160189185)
+   the six photos carry `-1918070251…-1918070734`, which decodes to **October 2030**, i.e. impossible.
+   There the suffix is a plain sequential picture ID, not a timestamp. Rule: if the decode lands in the
+   future (or absurdly early), discard surrogate 5 and fall back to 6 — don't report the bogus date.
+6. **Calibrate the Scout-ID band against the repo's own reports** — the cheapest surrogate and it needs
+   no network call: `grep -o "expose/1[0-9]\{8\}" reports/*.md`, sort by ID, and read the month off each
+   report's filename date. That yields an ID→month ladder (e.g. ~167,4 M ≈ May 2026, ~168,5 M ≈ mid-Jun,
+   ~169,0 M ≈ early Jul, ~169,9 M ≈ Aug 2026, i.e. roughly **0,5 M IDs/month in 2026**), so any ID can be
+   dated to ±1–2 months. Regenerate the ladder each time rather than memorising numbers — it drifts.
+   Used on #591: ID 160.189.185 ⇒ the exposé has been online since ~2024 (~1,5–2 years), which is both a
+   negotiating lever and a demand signal. **Plots sit far longer than flats** — #497 (159,6 M) was the
+   same shape — so a low ID on a `livingbuysite` is normal, not a red flag.
    **⚠ Sanity-check the epoch before believing it — the suffix is NOT always a timestamp.** On #588
    (expose 170031691, Alt Nowawes 55b) all 10 photos carried `-20753415 95…604`, i.e. **ten
    consecutive integers**; read as an epoch that is 2035, which is impossible. So IS24 uses at least
