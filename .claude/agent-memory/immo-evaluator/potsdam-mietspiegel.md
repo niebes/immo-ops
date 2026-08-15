@@ -103,6 +103,19 @@ Bekannte Neubau-Adressen (Bj. 2021), fortschreiben wenn neue auftauchen:
   ~14,0 EUR/m² kalt (2-Zi 62,54 m² zu 876 EUR). Gegenüber (Parkplatz Newton-/Ziolkowskistraße)
   geplant: 6-Geschosser mit bis zu 109 WE → mehrjährige Baustelle als Lage-Con nennen. (#561)
 - **Schwarzschildstr. 28** — Bj. 2021, Max Müller Immobilien GbR. (#523)
+
+**14480 ist außerdem nicht nur Am Stern/Drewitz — es umfasst KIRCHSTEIGFELD (Bj. 1993–1998).** Damit
+hat die PLZ *drei* Baualtersklassen (1971–1990 Platte · **1991–2008** Kirchsteigfeld/90er-Ergänzungs-
+bauten · ab 2021 Neubauriegel) und der Plattenbau-Reflex ist dort nur eine von drei Hypothesen.
+Erkennungsmerkmale einer 90er-Anlage in 14480, wenn keine Adresse dransteht (#593): Bj. im Fließtext
+genannt, "parkähnlich angelegte" Anlage aus **zwei Wohnhäusern** in ruhiger Seitenstraße, Fernwärme-
+Zentralheizung, Terrassen-/Wintergartenwohnungen, Sterncenter fußläufig, A 115 in 5 Min. Feld
+**1991–2008 · D,E,F,G · Spalte E (>90 m²) = 10,28 (7,91–13,71)** — Spalte E ist auffällig weit, ein
+Aufruf von 13,02 EUR/m² liegt +27 % über dem Mittel und trotzdem **unter** dem Oberwert, also über die
+Spanneneinordnung deckbar. Und: Bj. vor dem 01.10.2014 ⇒ **§ 556f greift nicht, Mietpreisbremse gilt**
+(anders als bei den 2021er Riegeln nebenan).
+*Why:* für 14480 hätte der Ortsteil-Reflex Feld 1971–1990 × Spalte E = 6,26 gezogen → "+108 %,
+massiver Mietpreisbremsen-Verstoß" statt "innerhalb der Spanne".
 Neubau ab 2021 heißt außerdem **§ 556f BGB: Mietpreisbremse dauerhaft nicht anwendbar** (auch bei
 Wiedervermietung) — eine angekündigte „Mietanpassung" hat dort *keine* gesetzliche Obergrenze; das
 gehört als Risiko in Block A/G, nicht als „compliant" abgehakt.

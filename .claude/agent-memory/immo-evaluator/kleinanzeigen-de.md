@@ -59,6 +59,19 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     which one the arithmetic + market level favour, and put "Kalt/Warm klären" first in next steps.
     *Why:* on #540 (a) implied 26,6 EUR/m² warm — impossible for Potsdam; declaring it a pure tie
     would have thrown away decidable evidence.
+  - **Sixth price variant — the CLEAN one, and it still hides a trap: heading ≠ Warmmiete field, NO
+    Nebenkosten field, and the prose names the total** (#593: heading 1.250 €, Warmmiete 1.600 €, kein
+    NK-Feld; Beschreibung: "Die Gesamtmiete für die Wohnung **inkl. Stellplatz** und Betriebskosten-
+    vorauszahlungen beträgt 1.600,00 €"). Two different numbers ⇒ no #356-style ambiguity: heading =
+    Kaltmiete, derive NK = warm − kalt and say it's derived. **The trap is the "inkl. Stellplatz":** a
+    separately-let Stellplatz is NOT Wohnraummiete, so if the heading already contains it the true
+    Wohnungs-Kaltmiete (and thus EUR/m² and the whole Mietpreisbremse rechnung) is lower. Always ask
+    which side of the 1.250 the Stellplatz sits on and put it in next steps. *Why:* silently treating
+    the heading as pure Wohnraummiete over-states EUR/m² by ~0,5 EUR and hands away a real negotiating
+    lever the ad itself created.
+  - Posting date + view count: `#viewad-extra-info` (e.g. "14.08.2026") and the counter right after it
+    ("6" Aufrufe). Useful for "how fresh / how contested is this ad" in next steps — there is no
+    "Anzeige online seit N Tagen" string to grep.
   - **The Ablöse is often NOT called "Ablöse".** #540 used "**Abschlagszahlung** von 1500€" for a
     tenant-installed Geschirrspüler + Kochinsel; a grep for `Ablöse` returns 0 hits. Grep for
     `Abschlag|Ablös|Abstand|übernehmen|Übernahme` when checking a Nachmieter ad for the
