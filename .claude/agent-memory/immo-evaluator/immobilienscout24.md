@@ -12,6 +12,13 @@ Kaltmiete and m² (Vonovia in Potsdam-Kirchsteigfeld sits at ~10,3–10,6 EUR/m�
 identity question on fields the estate does NOT share: **Etage + Aufzug, EBK yes/no, Balkon vs
 Balkon+Terrasse, the Nebenkosten structure (split NK/Heizkosten vs one all-in figure), Anbieter, and the
 Objekt-Nr. in `OBJECT_INFO`**. All of those come out of the mobile-API JSON, so the check costs nothing.
+Corroborated on **#586** (expose 170034758) vs **#576** (169939883): same Vonovia estate, both
+exactly **10,51 EUR/m²**, same Baujahr 1995 / EEK C / Fernwärme, availability one day apart
+(12. vs 13.09.2026) — and still two different flats (Anni-von-Gottberg-Str. **5** vs **7**,
+78,29 vs 75,58 m², 1. vs 3. Etage, 93 vs 81 kWh). The cheapest discriminator is the **Vonovia
+Objekt-Nr. in `OBJECT_INFO`, which encodes the building**: `82-1301070005` vs `82-1301080008` —
+differing digits before the trailing unit counter mean a different house, so two ads with the same
+prefix-block are worth a real duplicate check while differing ones are settled immediately.
 **Why:** #576 was routed as a re-list of the #302 Tauschwohnung purely on 820≈822 EUR / 80≈78 m²; the
 JSON showed 1. OG w/ Aufzug + no EBK + split 197/177 NK vs 4. OG DG + EBK + 390 all-in — a *different*
 flat, i.e. a normal Vonovia rental rather than the landlord channel of a swap. Getting this backwards
@@ -1313,6 +1320,15 @@ data, producing a confidently wrong report with no error anywhere.
   MISSING even when "Energieausweis: liegt vor" — note it (low-reliability scam signal).
 - `TEXT_AREA` blocks: Objektbeschreibung / Ausstattung / Lage / Sonstiges (full description text).
 - `MEDIA`: count PICTURE entries for real-photo count (captions like Wohnzimmer/Küche = real).
+  **Two counting traps, both seen on #586 (expose 170034758, Vonovia):** (a) the LAST `media[]`
+  entry is often `type: "AD"` — `len(media)` overcounts by one; filter on `type == "PICTURE"`.
+  (b) Bulk landlords upload without captions, so `caption` is a **sort index** (`"0"`,`"1"`,…) with
+  **`"99999"` as the "unsorted / append last" sentinel** — NOT a room label and NOT a
+  render/placeholder marker. Cross-check the total against `adTargetingParameters.obj_picturecount`,
+  which counts every PICTURE (99999 ones included) and excludes the AD. So the Block-D photo rule
+  ("no real photos → cap at 3.0") must not fire just because captions are numeric.
+  **Why:** reading `"99999"` as a placeholder image (or counting the AD as a photo) shifts the photo
+  count in both directions and can wrongly cap Block D on a listing that does have real photos.
 - `AGENTS_INFO`: company, name, rating {value, numberOfStars=#reviews}, verifiedBy (identity),
   Impressum inside `references[].url` (is24://imprint?text=...).
 - `OBJECT_INFO`: "Scout-ID … | Objekt-Nr. …".

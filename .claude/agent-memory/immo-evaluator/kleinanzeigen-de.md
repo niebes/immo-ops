@@ -248,7 +248,11 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   `pipeline.md` / `scan-history.tsv` already carry it, say so and re-apply the earlier verdict.
   *Why:* #547 ("WG für zwei in Golm", 1.500 EUR) was ad-ID 3464538575 = the ad already discarded
   2026-07-22 as "WG Zimmer in Potsdam-Golm oder Verkauf von Eigentumswohnung" (610 EUR) — a full
-  re-evaluation that the ID check would have short-circuited.
+  re-evaluation that the ID check would have short-circuited. **Same ID came back a THIRD time**
+  (#595, 2026-08-15, "WG in der Nähe vom Unicampus Potsdam Golm", 650 EUR) with the description text
+  **wordfor-word identical** to #547 — only title, slug and price heading changed. So: a re-list is
+  not a one-off, the same ad can cycle indefinitely, and comparing the **description text** against
+  the earlier report is the fastest confirmation once the ID matches.
   - **It cuts the other way too — use the ad-ID to REFUTE a wrong dupe-skip.** Grab the ad-ID from
     the earlier report's `**URL:**` line and compare. #575 was auto-skipped as a re-list of #357;
     the IDs (3481658144 vs 3461620807) plus `Tauschangebot: Kein Tausch` vs `Nur Tausch` proved two
