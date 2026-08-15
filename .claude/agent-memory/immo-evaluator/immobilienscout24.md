@@ -553,6 +553,65 @@ massa Haus nach Wunsch."* followed by the rep's mobile + `@massa-haus.de` addres
 **Why:** with a published price, the full area, EFH-Nutzung and 0 % Provision, nothing in the structured
 data flags the tie-in — scored from the fields alone it reads as the cleanest plot in the batch.
 
+### Fourth variant: the TITLE actively DENIES the Bindung — „Grundstück zur **freien** Bebauung"
+Nastiest rung of the family so far, because it inverts the #546 rule (a „bauträgerfrei" claim *can* be
+confirmed). #592 (expose 170023133, FIBAV Immobilien GmbH, Groß Kreutz (Havel), 830 m² / 99.600 EUR /
+120 EUR-m², scored 3,2) is titled **"Grundstück zur freien Bebauung"** while `Lage` and `Sonstiges` both
+carry the Baubindung sentence. So:
+- **Never take a "frei/bauträgerfrei" title at face value — run the body grep first.** The #546 confirmation
+  rule only applies when the grep comes back EMPTY. Title ≠ evidence; the body text wins (this is the plot
+  version of the general "trust the LIVE listing, not the cached title" doctrine).
+- **Seller and tied Bauträger can be the same corporate group under near-identical names**
+  (`AGENTS_INFO.company` = "FIBAV **Immobilien** GmbH", Bindung runs to "FIBAV **Massivhaus Immobilien**
+  GmbH", same Königslutter address). Then the 7,14 % Käuferprovision is paid to the party that afterwards
+  sells you the Werkvertrag — worth calling out separately in Block G, and it makes the **einheitliches
+  Vertragswerk** GrESt near-certain (6,5 % BB on land+house ≈ 26–31 T EUR instead of ~6,5 T; quantify it).
+- Scoring calibration for this rung: **G 2,0** (vs 2,5 for a plainly-disclosed Bauträgerbindung, #483) —
+  tie-in + denying title + double commission to the tied party + unvermessener Kaufgegenstand.
+**Why:** graded off the structured fields plus the title, this reads as a cheap, freely buildable,
+B-Plan-secured plot at half budget — i.e. a 4,5. The two body sentences are the whole difference.
+
+### On a plot, ALWAYS read `ATTRIBUTE_LIST "Kosten" → Provisionshinweis` — it can carry the REAL area
+The Provisionshinweis is normally boilerplate arithmetic, but on Teilungsgrundstücke it is where the
+seller's internal parcel label leaks. #592: header/`obj_lotArea` = **830 m²**, while the Provisionshinweis
+*opens* with **"Teilfläche B 614m²"** before quoting the commission on the same 99.600 EUR. That is a 26 %
+area spread = **120 vs 162 EUR/m²**, i.e. the whole distance between "clear discount to the local BRW" and
+"exactly at BRW". The commission arithmetic is computed off the *price*, so it never adjudicates which area
+is right — you must ask. Make it contact question #1 alongside the Erschließung, and score Block C on both
+readings. Corroborator that a split is underway: plural wording in the free text (*"Diese Grundstücke",
+"Die Grundstücke sind beräumt"*) + a letter-suffixed Teilfläche + `Objekt-Nr.` in a series (HDB-033-0**27**)
+⇒ look for sibling exposés A/C/D from the same agent.
+**Why:** `obj_lotArea` is normally the one plot number you can trust; here it silently disagreed with a
+field inside the same payload, and the profile's `max_price_per_m2`/`min_m2` checks both hang off it.
+
+### A single real phone photo can still be ZERO plot photos — grade by CONTENT, not by "is it a render?"
+The existing caption fingerprints catch catalogue renders (`{Typ}-bild-N`, `MA{jj}_..._EG_01_01`,
+"Beispielplanung"). #592 passes all of those and is still bildlich unbelegt: `obj_picturecount: 1`, caption
+**`PXL_20250609_090849441~3`** (a genuine Pixel-phone shot, dated), content = **a decorative close-up of
+poppies in a wheat field** — no boundary, no street, no kerb, no neighbouring building, no horizon. It
+identifies nothing and could be anywhere in Brandenburg. Rule: **open the image and ask "does this locate
+or bound the parcel?"** — atmosphere shots (Blüten, Feld, Sonnenuntergang, Baumkrone) count as 0 real plot
+photos → **cap D at 3,0** and list "kein einziges Foto des Kaufgegenstands" as an explicit ✗ con. A `PXL_`/
+`IMG_` caption is evidence of authenticity, not of relevance.
+**Why:** the "is it a render?" test returns *not a render* here and would have let D through at ~4,0 on the
+"beräumt, keine Baumfällung erforderlich" claim — a claim the gallery cannot corroborate.
+
+### Groß Kreutz (Havel) / RE1 corridor west of Werder — area + BRW anchors
+Recurring geography in the plot searches (#518 Schmergow, #529 named it as the nearest station, #592).
+- **Bahnhof Groß Kreutz sits on KBS 201 (Berlin–Magdeburg) and is served by RE 1 direct** — next stop
+  Werder (Havel), **Potsdam Hbf ≈ 15–20 min, no change**. That is the best ÖPNV of any out-of-area plot
+  in this corpus, so **do not reflex to the flat out-of-area B 2,0**. Calibration used: **B 2,5**
+  (#529 Damsdorf 2,0 no station · #546 Premnitz 1,5 RB51+Umstieg · an acceptable area ≈ 4,0).
+- **BRW anchor: Gemeindemittel-Aggregator ~103 EUR/m² (Spanne 35–190, Stichtag 01.01.2024) understates**
+  per the usual Acker-blend bias. Bracket it instead: Damsdorf/Borkheide **140** (Gutachterausschuss PM,
+  01.01.2026) below, **Werder 400–600** / Schwielowsee 360–500 / Kleinmachnow 450–1.250 above (PM
+  Pressemitteilung „Bodenrichtwerte 2026") ⇒ working band for erschlossenes Wohnbauland in der Ortslage
+  **~140–170 EUR/m²**. The PM press release does NOT list Groß Kreutz or Kloster Lehnin by name — don't
+  spend a second fetch looking for them.
+- Groß Kreutz is **not** in the plot search's `acceptable_areas`, while the *house* search was extended
+  along the RE7 corridor in 08/2026 for exactly this kind of case. Worth raising with the user as a
+  next-step rather than silently pinning the whole corridor at ~3,3.
+
 ### Erschließung has THREE grades, and the preposition is the whole difference
 Extends the #406 title-vs-dropdown rule with the positive end of the scale. Grade the
 `TEXT_AREA` Erschließung sentence by preposition, not by the `Erschließung:` dropdown:
@@ -1795,6 +1854,51 @@ Seen on #366 (expose 165446870, Babelsberg Nord Denkmal-Weberhaus).
    property" signal.
    **Why:** read as trap 5 it costs only −0,25 and the report would call a 28-year-old *occupied*
    house "gepflegt" on the seller's word, with its post-tenancy interior wholly unseen.
+
+   **Sub-variant 5b — the disclaimer can be BURNED INTO THE PIXELS and appear NOWHERE in the
+   JSON: a corner watermark reading "KI-bearbeitet" / "KI-möbliert".** THE GROUNDS' newer
+   Fahrland exposés (#590, expose 170002729, An den Leddigen 24, Objekt-Nr. 14476-35) ship
+   interior shots whose bottom-right corner says `KI-bearbeitet` (living room) and
+   **`KI-möbliert`** (kitchen). Nothing in `sections`, `tracking` or `obj_*` hints at it —
+   `obj_picturecount` just says 9. **So on any exposé where D hinges on photo evidence, actually
+   *open* two or three images** (`fullImageUrl` → `curl` → PIL → Read); captions alone lie.
+   Two consequences:
+   - `KI-möbliert` means the **furniture and appliances are AI-inserted staging**. On #590 the
+     pictured Einbauküche (oven, dishwasher, washing machine, Ceran hob) is NOT promised anywhere
+     in the Ausstattung text ⇒ write "EBK not confirmed" in Block E and make it a viewing
+     question, instead of crediting an EBK that may not exist.
+   - It stacks with, and is confirmed by, the "Musterhaus" tail sentence — same D ≤ 3,0 cap, same
+     exculpatory reading in the scam check (the seller declares it on the image itself).
+   **Why:** #590's gallery decodes to 2 AI-processed interiors + 1 stock aerial of a *different*
+   settlement + 5 Potsdam tourist tiles + 1 Grundriss = **zero real photos, not even an
+   Außenansicht** — but a JSON-only reading sees "9 Bilder" and would score condition on the
+   captions.
+
+14. **On this Fahrland/THE GROUNDS portfolio the exposé's own PDF + Grundriss image hand you the
+   street address and the true room count, both of which the listing withholds or misstates.**
+   `REFERENCE_LIST "Weitere Dokumente"` carries the **Energieausweis PDF** (`pdftotext -layout`
+   → "An den Leddigen 24, 14476 Fahrland" + Registriernummer + AN-Fläche + Baujahr), and the
+   `Grundriss` MEDIA entry is an object-specific sheet headed **"5-ZIMMER-REIHENMITTELHAUS, An
+   den Leddigen 24"** with the Objektnummer, every room in m², and a **site plan highlighting
+   which house in the row it is**. On #590 that sheet said **5 Zimmer** while the IS24 attribute
+   and Ausstattung text said **6** (they count the kitchen), and it showed the 25,66 m²
+   Dachzimmer is the *Nutzfläche* room. Read both before scoring B, C and G.
+   **Why:** it converts an "Adresse unveröffentlicht" listing into an exactly locatable one, and
+   it catches a room-count contradiction that decides whether the object is inside the 4–5 target.
+
+15. **"Grundstück ca. {N} m²" on a Reihenhaus can be the WEG's TOTAL plot, not the unit's.**
+   #590 shows `obj_lotArea = 2067` in TOP_ATTRIBUTES while the Objektbeschreibung says
+   "das **zur WEG gehörende** Grundstück eine Gesamtfläche von ca. 2.067 m²" — i.e. the common
+   property of the whole Wohnungseigentümergemeinschaft. The sister unit #379 (An den Leddigen 14,
+   same row) was listed with 264 m². **Grep the description for `WEG|Gemeinschaftseigentum|
+   Teilungserklärung|Gartenanteil` before quoting the plot as the buyer's land**, and treat
+   "Gartenanteil" as a probable **Sondernutzungsrecht of unstated size** (the must-have `garten`
+   is still met, but note the caveat). It also flips Block G: a WEG unit with **no
+   Teilungserklärung / Hausgeld / Instandhaltungsrücklage / Beschlusssammlung** disclosed is a
+   real gap (G 3,0 on #590), and the missing Hausgeld belongs in Block A as an undisclosed
+   recurring cost.
+   **Why:** taken at face value, 2.067 m² reads as a huge private plot and inflates B/C/E on a
+   mid-terrace house whose actual garden is an unquantified usage right.
 
 11. **`Vermietet:` CHECK with NO Mieteinnahmen ANYWHERE is a real gap, not a lookup failure.**
    Trap 4 says to check the "Kosten" ATTRIBUTE_LIST before logging Mieteinnahmen as missing —
