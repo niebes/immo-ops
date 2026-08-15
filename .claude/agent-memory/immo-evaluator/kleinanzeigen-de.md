@@ -72,6 +72,20 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   - Posting date + view count: `#viewad-extra-info` (e.g. "14.08.2026") and the counter right after it
     ("6" Aufrufe). Useful for "how fresh / how contested is this ad" in next steps — there is no
     "Anzeige online seit N Tagen" string to grep.
+  - **Sixth price variant — heading reads "Zu verschenken" on a RENTAL** (#594). This is NOT a
+    giveaway and NOT a Verschenk-Anzeige: the raw markup carries `<meta itemprop="price" content=""/>`
+    (empty) and Kleinanzeigen renders its free-of-charge fallback for an empty price field. The h1 also
+    gets `data-soldlabel="Verschenkt"` instead of the usual "Nicht mehr verfügbar" — do NOT read that
+    as sold/expired either. Recovery: the only stated cost is the `Warmmiete` field in `#viewad-details`
+    (repeated in the description), and **Kaltmiete = `Kaution / 3`** whenever the Kaution field is an
+    exact multiple of a plausible rent (#594: Kaution 2.625 = 3 × 875 → kalt 875, NK = warm − kalt =
+    210 = 2,96 EUR/m², plausible). Sanity-check the other direction: a 2-NKM reading would put the
+    Kaltmiete *above* the Warmmiete → impossible, which is what makes the 3-NKM derivation safe. Say
+    "derived" in the report, and note the circularity — if the true Kaltmiete is lower, the Kaution
+    would be illegal (>3 NKM), so it doubles as a contact question. *Why:* the heading looks like a
+    data-entry joke and the obvious move (treat the heading as the price) yields "0 EUR"; without the
+    Kaution ÷ 3 route the ad has no Kaltmiete at all and the whole Mietspiegel/Mietpreisbremse check
+    is unrunnable on an otherwise 4,1/5 flat.
   - **The Ablöse is often NOT called "Ablöse".** #540 used "**Abschlagszahlung** von 1500€" for a
     tenant-installed Geschirrspüler + Kochinsel; a grep for `Ablöse` returns 0 hits. Grep for
     `Abschlag|Ablös|Abstand|übernehmen|Übernahme` when checking a Nachmieter ad for the
@@ -100,8 +114,34 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     refundable cooperative shares, NOT a deposit and NOT an advance-fee scam signal; the low rent is
     the coop structure, not too-good-to-be-true. *Why:* otherwise you'd wrongly flag scam + illegal Kaution.
   - Feature `list`: Terrasse/Balkon, Einbauküche, Badewanne, Keller, Aufzug, Haustiere erlaubt, etc.
+    - **An ad can carry ZERO checktags** (`li.checktag*` returns nothing at all, #594) — then the
+      must-haves are undecidable from structured data and you must **download the gallery images and
+      Read them**. It is cheap and decisive: `curl "{data-imgsrc base}?rule=\$_57.JPG"` per deduped
+      UUID, then Read the files. On #594 photo 1 was the **Grundriss**, which alone gave the exact
+      Wohnfläche (71,50 m² vs "71" in the spec list), the unit number ("Whg. 1.07" — the only
+      identifier in the whole ad), and a **confirmed Balkon**; further photos confirmed an
+      unadvertised Einbauküche and a bodengleiche Dusche (⇒ no Badewanne). Also cross-check the
+      photo-derived Baualter against the Mietspiegel field (see [[potsdam-mietspiegel]]) — an ad with
+      no Baujahr and no Energieausweis is otherwise unscoreable on A and D.
+      *Why:* judging E from the empty checktag list would have recorded "Balkon missing" and fired the
+      missing-must-have penalty on a flat whose floor plan plainly shows one.
   - Anbieter block: name + "Privater Nutzer" + "Aktiv seit {date}" (account age = scam signal).
+    - **Positive-feedback badges are load-bearing in the other direction**: "TOP Zufriedenheit" /
+      "Besonders freundlich" / "Besonders zuverlässig" come from real transaction feedback, so the
+      "new account, single listing" Medium scam signal does **not** fire even on an otherwise
+      anonymous private poster (#594: no name, no address, no phone, but active since 09/2024 with
+      all three badges).
   - Photo count: gallery shows "/13" style counter.
+  - **Photos can be phone SCREENSHOTS of another listing's gallery** — tell-tales: black bars down the
+    left/right of most images (phone screen capture) and, on at least one, baked-in app chrome such as
+    a "**12 Fotos**" overlay badge and greyed UI text below the picture. The images are still real
+    photos of one consistent property (so Block D is NOT capped), but the material was re-captured
+    from a parent Exposé that exists elsewhere. Fire the **Medium** "photos from different properties /
+    re-used marketing material" scam signal, dock **Block H** (provenance, ~2,5), and make "who is
+    letting, and which Exposé are these from" the first contact question. Frequent companions on the
+    same ad: a content-free machine-generated-sounding description that only paraphrases the spec
+    fields, no address, no Baujahr, no Energieausweis. *Why:* on #594 this was the only reason to
+    doubt an otherwise clean 4,1/5 ad — and none of it is visible unless you actually Read the images.
 
 ## EXPIRED / deleted detection (important)
 - A deleted or reserved ad still renders the FULL cached listing — it does NOT 404 or show

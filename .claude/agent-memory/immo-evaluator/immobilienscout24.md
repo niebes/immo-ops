@@ -1456,6 +1456,18 @@ is the only place in the whole record where the flat's actual room count exists.
    from "nice extras" into a possible **Zielgruppen- oder Förderbindung** (Mindestalter, Belegungsrecht,
    Servicepauschale) and makes it contact question #1 rather than a footnote. Grep the extracted text for
    `altersgerecht|betreutes Wohnen|seniorengerecht|Servicewohnen|gefördert|WBS|Belegungsbindung`.
+   **This is an Anbieter signature, not a one-off: both Kirsch & Drechsler exposés that carried a
+   Grundriss had it** — #583 "WOHNANLAGE FÜR ALTERSGERECHTES WOHNEN" and #587 (expose 170018671,
+   Großbeerenstr. 313 "Wohnen am Waldpark") **"EIGENTUMSWOHNANLAGE FÜR BARRIEREFREIES UND
+   ALTERSGERECHTES WOHNEN"** with the unit itself stamped **"ALTERSGERECHT"** — while neither exposé
+   text mentions it. On any K&D listing (#105/#185/#337/#583/#587), pull the Grundriss and read the
+   stamp before writing Block G. **Weigh the two cases differently, though:** a *freifinanzierte
+   Eigentums*wohnanlage makes a Förder-/Belegungsbindung much less likely than a subsidised project —
+   score it as an open contact question (G ≈ 4,0), not as a probable blocker.
+   **The word `Eigentumswohnanlage` in the same stamp is a separate Block-H fact:** the units are
+   individually owned condos, so the Vermieter in the contract may be a private Kapitalanleger even
+   though the Anbieter is the Bauträger GmbH → § 566 BGB protects the lease but private-owner
+   Eigenbedarf becomes conceivable. Ask "wer ist der Vermieter im Mietvertrag" in the first contact.
    On a **Neubau under construction** the same two PDFs are the only hard data there is: the Grundriss
    confirms the balcony COUNT and each balcony's m² (the exposé's `Balkon/Terrasse:` CHECK is one bit),
    and the attached (usually "Vorschau / rechtlich nicht gültig") **Energieausweis** carries Baujahr,
@@ -1535,6 +1547,17 @@ tenants' privacy). Two independent calls:
   photo series (the marketer's reference-flat shoot) mixed with `{YYMMDD}_{bautraeger}_{projekt}-WE…`
   project renders (#537: `180704_tricon_luisenpark-WE…` = 04.07.2018, i.e. pre-completion marketing
   material re-used years later).
+- **Second caption fingerprint, cheaper than #537's:** a gallery of `Musterfoto_{Raum}` captions
+  (`Musterfoto_Küche/_Wohnzimmer/_Flur/_Badezimmer/_Balkon`) with **no disclaimer sentence anywhere in
+  the TEXT_AREAs** — the disclaimer is **burned into the image pixels** („Bei diesem Foto handelt es
+  sich um ein Musterfoto zur Veranschaulichung der Ausstattung (Fliesen, Parkett, etc.). Leichte
+  Abweichungen sind möglich!"). Downloading one image confirms it in seconds and settles the scam call
+  (openly disclosed ⇒ exculpatory) as well as the D-cap. Seen on #587 (170018671, Kirsch & Drechsler).
+- **Check the house number in the ONE apparently-real exterior photo.** #587's only real photo is
+  captioned **"Hausansicht GB317"** on a **Großbeerenstr. 313** listing — the neighbouring building of
+  the same type. So even the exterior is not of this building; say so rather than crediting it as
+  photo evidence. Reading MEDIA captions for the *object number* costs nothing and is the only place
+  this surfaces.
 Seen on #537 (169858137, Luisenhof 16 / Neubau "Luisenpark" Potsdam, Müller Merkle Immobilien).
 **Why:** `obj_picturecount: 20` + Neuwertig + Baujahr 2018 reads as a fully documented flat, and the
 Neubau exception looks like it applies — scoring D at 5,0 would have hidden that nothing about *this*
@@ -3170,9 +3193,16 @@ Ausführungsplan, recognisable by ventilation ducts / `RR-A 0x DN 70` rainwater 
 marketing schematic) carries a title block with **both** numbers, e.g. #585 (expose 169969806,
 Zum Jagenstein): *„WOHNUNG 8 · 75,12 m² · inkl. Balkon 78,45 m²"* — 78,45 − 75,12 = 3,33 = **50 %**
 of the two balconies (2,48 + 4,18), and IS24 showed **79 m²**.
+The split is not always in a title block — it can sit **in the Balkon room label itself**, e.g. #587
+(expose 170018671, WE 110): *„Balkon A: 10,19 m² / 50 %: 5,10 m²"*, and summing the eight interior
+rooms gave 83,16 m² against the advertised 88,26 m². So: always sum the room schedule and compare.
 Consequences: quote the EUR/m² on the advertised figure (13,48) but name the inner-area figure too
 (14,18 on 75,12 m²); Block C scores the range fit, so it rarely moves — but it changes which
 Mietspiegel **column** you land in near a band edge (75 m² is exactly the C/D boundary).
+**And it can flip the profile's `max_price_per_m2` verdict outright**, which *is* score-relevant in
+Block A: #587 advertised **17,50 EUR/m² (under the 18,00 cap)** but is **18,57 EUR/m² on the 83,16 m²
+interior (over the cap)** — the whole difference is the 5,10 m² Balkonanteil. State both numbers and
+score A on the real one.
 Bonus: the same title block confirms the Balkon must-have with an **area**, and the room schedule
 (Wohnen/Essen/Kochen vs. two ~13 m² Zimmer) tells you whether "3 Zimmer" means 2 rooms + open plan.
 **Why:** without reading the plan you either take 79 m² as inner area (overstating what the
