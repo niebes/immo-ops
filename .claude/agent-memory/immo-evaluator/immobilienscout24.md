@@ -523,8 +523,12 @@ publishes a **concrete price for the whole parcel**, `Empfohlene Nutzung: Einfam
 `obj_courtage: n` / **`Provision für Käufer: Nein`** — so every structured field reads like an ordinary
 private-buyer plot. The tie-in exists only as the Sonstiges opener *"Das Grundstück wird bebaut mit einem
 massa Haus nach Wunsch."* followed by the rep's mobile + `@massa-haus.de` address. Rules:
-- **Grep `TEXT_AREA "Sonstiges"` for `wird bebaut mit|Hausbindung|Bauträgerbindung|{Hausmarke}` on EVERY
-  plot** — the word "Bauträgerbindung" is the *least* common phrasing of it.
+- **Grep `TEXT_AREA "Sonstiges"` for `wird bebaut mit|Hausbindung|Bauträgerbindung|**Baubindung**|{Hausmarke}`
+  on EVERY plot — and grep `Lage` too, not just `Sonstiges`** — the word "Bauträgerbindung" is the *least*
+  common phrasing of it. On #592 the phrasing was **„Für diese Grundstücke besteht eine Baubindung durch
+  die {Bauträger} GmbH"** and it stood in `Lage` **and** `Sonstiges` (plus a third hint in
+  `Objektbeschreibung`: *"Diese Bauvorhaben werden durchgeführt von der …"*). A Sonstiges-only grep with
+  the old word list would have missed it completely.
 - **Inverse case — a title claiming „bauträgerfrei" CAN be confirmed, and it is worth score + money.**
   Run the same grep over the WHOLE json (`Bauträger|Hausbindung|wird bebaut mit|massa|Town & Country|
   Danwood|Scanhaus`); zero hits **plus** an `AGENTS_INFO.company` that is a real **Makler-GmbH with HRB +
