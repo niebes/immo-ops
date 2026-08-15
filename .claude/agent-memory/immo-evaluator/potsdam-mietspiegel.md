@@ -129,6 +129,24 @@ Kontaktfrage setzen.
 Mietpreisbremsen-Verstoß angedichtet — und der Report empfiehlt einen § 556g-Rügehebel, den es
 gar nicht gibt.
 
+### Baujahr HARD bekommen, wenn das Exposé keins nennt: **Wikipedia „Liste der Baudenkmale in Potsdam/{Anfangsbuchstabe}"**
+Ein Foto liefert nur eine Baualtersklasse; die Denkmalliste liefert **Baujahr + Architekt + Denkmal-ID
+hausnummerngenau** und ist in einem WebFetch da (Seiten sind nach Straßen-Anfangsbuchstabe geteilt,
+z. B. `/wiki/Liste_der_Baudenkmale_in_Potsdam/S`). Trifft nur bei denkmalgeschützten Häusern — aber
+genau dort fehlt das Baujahr im Exposé am häufigsten, weil der Vermieter stattdessen
+**„Ein Energieausweis ist für diesen Gebäudetyp nicht notwendig"** anklickt (§ 79 Abs. 4 GEG,
+Baudenkmal-Ausnahme). **Diese Formulierung ist also selbst der Hinweis: Denkmal → Baualtersklasse
+`bis 1948` → EEK-Zeile `kein EA`.**
+Seen on #596 (Stiftstraße 8a, Brandenburger Vorstadt, 117 m², 11,97 EUR/m²): Exposé nennt weder
+Baujahr noch EEK; Liste ergab **Stiftstraße 8, 8a — Mietwohnhaus, 1896, Otto Kerwien, ID 09156593**
+→ Feld **bis 1948 · kein EA · Spalte E (>90 m²) = 8,17 (5,90–9,40)** → zulässig 8,99 EUR/m²
+(1.051 EUR), Oberwert-Decke 10,34 EUR/m² (1.210 EUR) → Ist 1.400 EUR = **+33 % über der Mittelwert-,
++16 % über der Oberwert-Grenze**, Mietpreisbremse klar überschritten, § 556f Neubau scheidet
+wegen Bj. 1896 aus. Gegenrichtung nicht vergessen: gegen den Angebotsmarkt (12,60–13,50) ist
+derselbe Preis **günstig** — beide Zahlen nennen.
+*Why:* ohne das echte Baujahr hätte man raten müssen, und zwischen `bis 1948 · kein EA` (8,17) und
+`ab 2021` (15,14 in Spalte E) liegt Faktor 1,85 — die Mietpreisbremsen-Aussage kippt komplett.
+
 ## Ortsteil-Anker: **Am Stern (14480)** — Großsiedlung MIT eingestreuten Neubauten, Baujahr immer prüfen
 Am Stern ist überwiegend Plattenbau 1971–1990 (Feld 60–75 m² = 5,82 · 6,06 EUR/m²), aber **nicht
 durchgängig** — es gibt Neubauriegel von ~2021, die im selben PLZ-Band stehen und ins Feld
