@@ -18,10 +18,47 @@ silently kills the Mietpreisbremse check. The qualified Mietspiegel (§ 558d BGB
 Official PDF: `https://www.potsdam.de/system/files/document/Mietspiegel_2026_A5_webdatei_neu.pdf`
 (Mietspiegel **2026**, in Kraft seit 25.06.2026, ersetzt Mietspiegel 2024; index page
 `potsdam.de/de/mietspiegel-0`).
-**WebFetch cannot parse it** ("corrupted/binary PDF") — but WebFetch *saves* the bytes to
-`~/.claude/projects/…/tool-results/webfetch-*.pdf` and prints the path. Then read that path with the
-**Read tool + `pages:`** (table = PDF page 6; Spanneneinordnung/Orientierungshilfe = pages 8–9;
-Begriffserläuterungen = 10–11). One WebFetch + one Read gets the whole table.
+**Cheapest fetch is `curl` + `pdftotext`, not WebFetch** (verified 2026-08-15, #589):
+`curl -sL -o ms2026.pdf "…/Mietspiegel_2026_A5_webdatei_neu.pdf" && pdftotext -f 1 -l 6 ms2026.pdf -`
+gives the whole Vorspann (Geltungsbereich, Ausnahmen, Rechtsgrundlagen) as greppable text in one
+Bash call — `pdftotext` is installed at `/usr/bin/pdftotext`. **WebFetch cannot parse it**
+("corrupted/binary PDF") — it *saves* the bytes to `~/.claude/projects/…/tool-results/webfetch-*.pdf`
+and prints the path, which you can then read with the **Read tool + `pages:`** (table = PDF page 6;
+Spanneneinordnung/Orientierungshilfe = pages 8–9; Begriffserläuterungen = 10–11). Use the Read+pages
+route only for the *table* layout; for any prose question use pdftotext.
+**Why:** the WebFetch+Read dance costs two round trips and can't be grepped; the scope/exception
+rules below were only findable by grepping the text.
+
+## **Der Mietspiegel gilt für Ein-/Zweifamilien- und REIHEN-/DOPPELHÄUSER nur eingeschränkt — das Feld ist dort eine UNTERgrenze, keine Obergrenze**
+Wörtlich im Vorspann (S. 2–3): *"Er gilt für Ein- und Zweifamilienhäuser sowie Reihenhäuser nur
+eingeschränkt, da insoweit **keine Datenerhebung** stattfand. Gemäß **BGH VIII ZR 58/08 vom
+17.09.2008** können Mieten, die im Geschosswohnungsbau üblich sind, im Ein- und Zweifamilienhaus
+**„erst recht"** verlangt werden"* (Begründung: erhöhter Wohnwert; formell reicht die Berufung auf
+den Mietspiegel auch fürs Reihenendhaus, BGH VIII ZR 54/15 v. 26.04.2016).
+→ Bei einer **Haus-Miete in Potsdam** (DHH/RH/EFH) das Feld trotzdem ziehen und nennen, aber als
+**Untergrenze** formulieren. Die Mietpreisbremse gilt weiter (§ 556d BGB erfasst Wohnraum, nicht nur
+Wohnungen), nur ist die ortsübliche Vergleichsmiete für dieses Segment über **Vergleichsobjekte**
+zu belegen → Report-Formulierung: **§ 556g Abs. 3 BGB Auskunftshebel** (Vormiete + Baujahr +
+Modernisierungen), nie "Mietspiegel nicht anwendbar → kein Check".
+Der unbezifferte "erst recht"-Zuschlag rechtfertigt aber keine beliebige Überschreitung: auf #589
+(DHH Neu Fahrland, Bj. 2002, EEK C, 94,94 m², 19,49 EUR/m²) waren es **+96,7 % über dem Mittelwert
+9,91** und **+53,5 % über dem Oberwert 12,70** — das bleibt ein echter Verhandlungshebel.
+*Why:* ohne diesen Absatz landet jede Potsdamer Haus-Miete entweder bei einem falschen
+"Mietpreisbremse nicht anwendbar" oder bei einem überzogenen Wucher-Vorwurf.
+
+**Weitere ausdrückliche Ausnahmen** (gleiche Textstelle): öffentlich geförderte Wohnungen,
+Studenten-/Jugendwohnheime, Wohnungen in Heimen mit Betreuungsleistungen; **Zuschläge für
+(teil-)möblierte Wohnungen und Untermietverhältnisse sind NICHT erfasst** (→ ein Möbel-Aufschlag
+lässt sich gegen den Mietspiegel gar nicht prüfen, vgl. #255/#311). Der Mietspiegel gilt
+ausdrücklich **auch für alle Ortsteile**: u.a. Fahrland, **Neu Fahrland**, Golm, Groß Glienicke,
+Marquardt, Satzkorn, Uetz-Paaren — dort also kein Abschlag "ist ja Dorf".
+
+## Angebotsmarkt-Anker Potsdam 2026 (zum Gegenzitieren, NICHT ortsüblich)
+**Häuser ~17,61 EUR/m² · Wohnungen ~15,51 EUR/m²** (Stand 08/2026). Beste Lagen ~17,24, günstige
+Lagen ~10,63; die Portalseiten nennen daneben 12,80–15,14 als Stadtmittel.
+→ Bei einer **Haus**-Miete immer den **Haus**-Anker nehmen, nicht den Wohnungs-Anker: #589 lag mit
+19,49 EUR/m² nur ~+11 % über 17,61, aber ~+26 % über 15,51 — die Aussage "am oberen Marktrand" vs.
+"deutlich über Markt" kippt allein an dieser Wahl.
 
 ## Grundmietentabelle 2026 — Nettokaltmiete EUR/m², Mittelwert (Spanne)
 Columns by Wohnfläche: A ≤45 · B >45–60 · C >60–75 · D >75–90 · E >90
