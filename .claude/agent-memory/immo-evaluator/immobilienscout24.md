@@ -350,6 +350,20 @@ four surrogates instead of guessing:
    is the normal case on a professionally written ad. One `python3 datetime.fromtimestamp` per URL;
    all photos of one ad usually share the same minute. Seen on #582 (expose 130666466): every one of
    the 17 photos carried `-1646489403…-1646489469` = **05.03.2022, 14:10–14:11**.
+   **⚠ Sanity-check the epoch before believing it — the suffix is NOT always a timestamp.** On #588
+   (expose 170031691, Alt Nowawes 55b) all 10 photos carried `-20753415 95…604`, i.e. **ten
+   consecutive integers**; read as an epoch that is 2035, which is impossible. So IS24 uses at least
+   two suffix schemes: a real `1[0-9]{9}` epoch, and a **sequential upload-batch ID** (`2xxxxxxxxx`,
+   consecutive across the gallery = one upload session, no date content). Rule: only accept the
+   suffix as a date if `datetime.fromtimestamp()` lands in the past; consecutive-by-one values across
+   the gallery mean it is an ID.
+6. **Season cues in the photos themselves** — the last resort when 2 and 5 both fail (descriptive
+   German captions + sequence-ID suffixes). #588 ran in **August** while the living-room and balcony
+   shots both showed **yellow autumn foliage** through the windows ⇒ photos are from an earlier
+   autumn, ≥9 months old, documenting a *previous* handover of an empty flat. Enough for a "Fotos
+   nicht tagesaktuell" ✗ con + "aktuelle Fotos anfordern" next step, without over-claiming a year.
+   *Why:* both dating surrogates silently failed on that exposé, and without the foliage cue the
+   pristine empty-flat photos would have been scored as current evidence of condition.
 
 **The whole point of dating an ad is that it can REFUTE a scoreable claim, not just tell you the ad's
 age.** #582 advertised „Komplettmodernisierung Stand 2026" with `obj_lastRefurbish: 2026`, while the

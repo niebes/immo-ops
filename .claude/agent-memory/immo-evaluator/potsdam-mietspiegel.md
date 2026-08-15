@@ -177,6 +177,29 @@ Neubau, aber ~+9 % über dem ortsüblichen Mittelwert und innerhalb der Spanne.
 § 556g-Rüge" in den Report geschrieben — tatsächlich ist der Preis mietspiegelkonform und die
 Mietpreisbremse gilt dort gar nicht. Siehe [[wgkarlmarx-de]] für die Vermieterseite.
 
+## Ortsteil-Anker: **Babelsberg Nord (14482)** — größtes systematisches Delta Angebot ↔ Mietspiegel
+Babelsberg Nord ist Gründerzeit-Weberviertel (Nowawes) **mit eingestreuten Nachwende-Neubauten** —
+Baujahr also immer aus dem Exposé nehmen, nie aus dem Ortsteil. Der Ortsteil ist gefragt (beste
+Berlin-Anbindung Potsdams), und die Angebotsmieten liegen dort **15–18 EUR/m² kalt**, während das
+Mietspiegelfeld **1991–2008 · Spalte D (>75–90 m²) = 9,10 (8,43–10,18) bzw. 9,01 (8,27–9,69)** beträgt.
+Das ist ~+95 % auf den Mittelwert und damit das größte Delta aller bisher bewerteten Potsdamer
+Ortsteile. Konsequenz: **hier ist der § 556g-Abs.-3-Hebel der Normalfall, nicht die Ausnahme** — aber
+nur, wenn das Baujahr die Ausnahmen ausschließt. Prüfreihenfolge: Baujahr < 01.10.2014 ⇒ § 556f raus;
+„umfassende Modernisierung" nur akzeptieren, wenn Jahr UND Kosten genannt sind (ein sichtbar neues Bad
+auf Fotos reicht nicht, und § 556f deckt ohnehin nur die *erste* Vermietung danach) ⇒ dann bleibt
+§ 556e (Vormiete) als einzige Rechtfertigung. Genutzt auf #588 (expose 170031691, Bj. 2001, 89 m²,
+17,75 EUR/m² = **90. Perzentil** der `priceBar`, zulässig 10,01–11,20 EUR/m² → 583–689 EUR/Monat Delta).
+
+**Mikrolage: `Alt Nowawes` ist die Hauptdurchgangsstraße mit Gleisen in der Fahrbahn** (Tram 94/99,
+Bus 694, Nachtbus N14; Haltestelle „Alt Nowawes" zwischen Rathaus Babelsberg und
+**Humboldtring/Nuthestraße** — die mehrspurige Ausfallstraße liegt am westlichen Ende, ca. lng 13,089).
+S-Bahnhof Potsdam-Babelsberg (S7) ~450 m → Potsdam Hbf ~4 Min., Berlin-Wannsee ~7 Min. Also: Block B
+in Babelsberg Nord **4,0 an Alt Nowawes/Durchgangsstraßen, 4,5 in den Seitenstraßen** — Lärm (Tram bis
+in die Nacht) als Besichtigungspunkt setzen, nicht als Abwertung ohne Beleg.
+*Why:* ohne den Anker kostet jede Babelsberg-Wohnung eine ÖPNV-Recherche, und die 15–18 EUR/m² lesen
+sich gegen den stadtweiten Angebotsanker 12,60–13,50 nur „etwas teuer" statt nach dem tatsächlichen
+Faktor 2 gegenüber der ortsüblichen Vergleichsmiete.
+
 ## Ortsteil-Anker: **Speicherstadt (14473, Teltower Vorstadt, Havelufer)**
 Groth-Gruppe-Quartier zwischen Brauhausberg und Havel, gegenüber Stadtschloss, 5–10 Gehmin. zum Hbf.
 **Zwei Bauabschnitte — und der Schnitt liegt genau auf der § 556f-Grenze:** Südteil Ende **2014**
@@ -228,6 +251,20 @@ Altblock ⇒ Feld 1991–2008 (Spalte C 9,28–9,45, zulässig ~10,4). Beide Les
 auf keiner Anzeige. Preisniveau: ~11–12 EUR/m² kalt kam dort 2026 vor (unter dem Angebotsanker).
 Genutzt auf #563. *Why:* ohne den Anker kostet jede Fahrland-Wohnung zwei Websuchen, und die
 unausgefüllte `obj_balcony: n`-Maske einer Mieternetzwerk-Anzeige bleibt unentscheidbar.
+**Nachtrag #594: es gibt in Fahrland eine dritte, mittlere Baualtersklasse — Feld 2013–2020.** Die
+bisherigen zwei Lesarten (Behnke-Erstbezug 2025 ⇒ „ab 2021" + § 556f · Altblock ⇒ 1991–2008) decken
+den Bestand nicht ab: #594 zeigte per Foto ein modernes 3-geschossiges MFH mit Satteldach, Klinker-
+sockel, Lochblech-Balkonbrüstungen, bodengleicher Dusche, Wand-WC mit Vorwandspülkasten, Vinyl-
+Dielen und integrierten Rollladenkästen, in einem jungen Quartier mit Reihenhäusern und frisch
+gepflanzten Bäumen — also **ca. 2015–2020**, nicht 1991–2008 und nicht 2025. Richtiges Feld bei
+71 m² (Spalte C) = **12,06 (11,23–12,74)**, zulässig 13,27; die Anzeige lag mit 12,32 EUR/m² kalt
+**+2 % über dem Mittelwert und innerhalb der Spanne**. Die 1991–2008-Lesart (9,28, zulässig 10,21)
+hätte daraus fälschlich „+33 %, § 556g-Rüge" gemacht. Und: Erstbezug nach dem 01.10.2014 ⇒ § 556f,
+Mietpreisbremse ohnehin nicht anwendbar. Preisniveau Fahrland 2026 damit **11–12,3 EUR/m² kalt** im
+Bestand, ~16,9 EUR/m² bei Neubau-Angeboten (Vergleich: Seeburger Chaussee 2, 75 m², 3 Zi, 1.265 EUR).
+*Why:* der Ortsteil-Anker bot nur die beiden Extremklassen an — bei einer Anzeige ganz ohne Baujahr
+und Energieausweis entscheidet allein das Bildmaterial, welches der drei Felder gilt (vgl. die
+Gegenprobe-Regel oben), und zwischen 9,28 und 15,72 liegt Faktor 1,7.
 
 ## Umland: **Falkensee/Schönwalde-Glien/Brieselang (Berliner Speckgürtel) unterliegen seit 01.01.2026 der Mietpreisbremse**
 Die neue Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung (Kabinett 25.11.2025) gilt ab
