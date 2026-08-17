@@ -35,10 +35,21 @@ Decken", Loft/Fabriketage are *physical building-era* criteria — no amount of 
 a Neubau 2024 with ~2,50 m standard ceilings into one; treat them exactly like an explicitly stated
 deal-breaker, not a soft must-have. Note the direction still helps on the *numeric* axes (their rent
 1.375 EUR kalt vs our 1.025,25 → budget fits), so the report must say which axis actually decided.
-⇒ Two-axis side-2 check, in this order: (1) direction/size (vergrößern → fail), (2) qualitative
-Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen → fail). Both belong in the same triage
-prefilter. *Why:* on #579 the favourable direction made the swap look promising right up to the
-last clause of the title.
+**Third kill axis: an explicitly NUMBERED Mindestfläche.** The Tauschwohnung-GmbH template Suche is
+frequently one fully-quantified sentence at the end of the description, in a fixed shape:
+*"Ich suche nach einem Tausch in **{Stadt}** mit **mindestens {N} Zimmern** und einer Größe von
+**mindestens {M} m²** für **maximal {P} € Miete**."* (#597, Golm). Grep `mindestens|min\.|ab \d+ ?m²|
+maximal|max\.` — when M is stated, our 54,19 m² offer **deterministically fails any M ≥ 60**, no
+leniency applies (a stated minimum is not a soft preference), and it fails *independently* of the
+direction axis: #597's poster was a downsizer on rent (1.250 → max 1.000) but a *holder* on area
+(85 → min 70). Check the rent ceiling P against BOTH our numbers — 1.025,25 kalt vs 1.214,93 warm can
+land on opposite sides of P (on #597: +2,5 % vs +21,5 %), so say which reading you used.
+⇒ Three-axis side-2 check, in this order: (1) direction/size (vergrößern → fail), (2) qualitative
+Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen → fail), (3) explicit numeric floor/ceiling
+(mindestens m² / maximal EUR → arithmetic fail). All three belong in the same triage prefilter —
+axis (3) is the cheapest to automate (regex on the description). *Why:* on #579 the favourable
+direction made the swap look promising right up to the last clause of the title; on #597 the
+favourable *rent* direction did the same, and only the stated 70-m²-Minimum settled it.
 
 ## Even on IS24 the object-specific twg.click link is NOT guaranteed — check "Weitere Links" first
 Some IS24 swap exposés carry only the **generic** `https://twg.click/is24-homepage` in the

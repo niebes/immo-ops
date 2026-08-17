@@ -284,6 +284,23 @@ Bestand, ~16,9 EUR/m² bei Neubau-Angeboten (Vergleich: Seeburger Chaussee 2, 75
 und Energieausweis entscheidet allein das Bildmaterial, welches der drei Felder gilt (vgl. die
 Gegenprobe-Regel oben), und zwischen 9,28 und 15,72 liegt Faktor 1,7.
 
+## Ortsteil-Anker: **Golm (14476)** — drei Baualtersklassen, kein Ortsteil-Reflex möglich
+Golm ist der **Top-Präferenz-Ortsteil des Profils und der Standort unseres Tauschangebots**
+(In der Feldmark 29, Bj. 2024) — es kommen laufend Golm-Anzeigen in den Scan, meist ohne Baujahr.
+Es gibt dort **keinen dominanten Gebäudetyp**: Dorfkern-/Vorkriegsbestand, 1990er-/2000er-Ergänzungs-
+bauten rund um Uni-Campus und Bahnhof, und die Neubauquartiere der 2020er (Feldmark u. a.). Der
+Mietspiegel-Befund kippt entsprechend komplett — bei 75–90 m² (Spalte D): **1991–2008 = 9,01
+(8,27–9,69)** · **2013–2020 = 12,34 (10,90–14,23)** · **ab 2021 = 16,73 (14,88–19,64)**, also Faktor
+1,9. ⇒ Immer **alle plausiblen Felder rechnen und nennen**, Baujahr als Kontaktfrage setzen, und die
+Klasse per Bildmaterial eingrenzen (vgl. die Foto-Gegenprobe oben; Wand-WC mit Vorwandinstallation +
+großformatige Fliesen + Kunststofffenster mit integrierter Jalousie ⇒ frühestens 2010er).
+Infrastruktur für Block B: Bahnhof Potsdam-Golm (RB21/RB22) ~10 Min. zum Hbf, Uni-Campus/Max-Planck
+fußläufig, Nahversorgung vorhanden aber dünn ⇒ realistisch **4,5–4,8**, nicht 5,0, solange keine
+genaue Adresse dransteht. Preisniveau 2026: 14,71 EUR/m² kalt für 85 m² kam vor (#597) — das liegt
+~5 % **unter** dem stadtweiten Angebotsanker 15,51 und ist für Golm unauffällig.
+*Why:* ohne den Anker wird für jede Golm-Wohnung neu recherchiert, und der naheliegende Reflex
+„Golm = Uni-Neubau ⇒ ab 2021 ⇒ § 556f, Bremse egal" ist bei zwei von drei Feldern schlicht falsch.
+
 ## Umland: **Falkensee/Schönwalde-Glien/Brieselang (Berliner Speckgürtel) unterliegen seit 01.01.2026 der Mietpreisbremse**
 Die neue Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung (Kabinett 25.11.2025) gilt ab
 **01.01.2026 für 36 statt bisher 19 Gemeinden** — neu dabei u. a. **Falkensee**, Blankenfelde-Mahlow,
