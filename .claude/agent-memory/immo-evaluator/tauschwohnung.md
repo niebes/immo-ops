@@ -44,6 +44,19 @@ leniency applies (a stated minimum is not a soft preference), and it fails *inde
 direction axis: #597's poster was a downsizer on rent (1.250 → max 1.000) but a *holder* on area
 (85 → min 70). Check the rent ceiling P against BOTH our numbers — 1.025,25 kalt vs 1.214,93 warm can
 land on opposite sides of P (on #597: +2,5 % vs +21,5 %), so say which reading you used.
+  - **Sub-variant: the rent ceiling P is the SOLE decider, and the Suche carries no m²/Zimmer at
+    all.** #598 (Kleinanzeigen, Zentrum Ost) had the short form — one clause inside the platform
+    boilerplate, *"Wir suchen nach einem Tausch gegen eine **kleinere** Wohnung in **Potsdam** mit
+    **maximaler Miete von 700 Euro**."* — i.e. direction ✓, Stadt ✓, Größe ✓ (54,19 < 73 m², 2 < 3 Zi)
+    and it still fails categorically on P alone (+46,5 % kalt / +73,6 % warm). So do NOT treat a
+    missing Mindestfläche as "no numeric criterion"; grep P on its own with
+    `max(imal)e[nr]? Miete|bis (zu )?\d{3,4} ?(€|Euro)|nicht mehr als|höchstens`.
+    **Diagnostic shortcut: when P is BELOW the partner's own current rent, they are downsizing *for
+    price*** (#598: 1.150 → 700, −39 %) — then no offer of ours can ever work, because our Golm flat
+    is a freifinanzierter 2024er Neubau on an **Indexmiete** that moves the wrong way over time.
+    Say in the report which axis decided; here size/city were perfect and only P mattered.
+    Frequency note: #597 and #598 both landed on the same day, so a rent cap under ~1.000 EUR is
+    currently the most common side-2 kill on the Kleinanzeigen swap flow, not a rarity.
 ⇒ Three-axis side-2 check, in this order: (1) direction/size (vergrößern → fail), (2) qualitative
 Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen → fail), (3) explicit numeric floor/ceiling
 (mindestens m² / maximal EUR → arithmetic fail). All three belong in the same triage prefilter —
