@@ -354,6 +354,40 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   fields (the Ortsteil's plausible Baualter and "ab 2021") and say the Mietpreisbremse verdict hinges on
   the unstated Baujahr. *Why:* on #522 the two fields give 5,82 vs 15,72 EUR/m² ortsüblich — the tag
   alone would have turned a +149 % overshoot into "compliant".
+- **Wohnen auf Zeit can hide with ZERO Befristung keywords — the tell is the all-inclusive
+  Pauschalmiete, not the word "möbliert".** #599: no "befristet", no Mindest-/Höchstmietdauer, no
+  end date anywhere, and the ad is filed under the ordinary rental category — yet it is plainly a
+  serviced let. The three structured tells, in order of strength:
+  1. **`Nebenkosten 0 €` AND `Heizkosten 0 €` in `#viewad-details` while `Warmmiete` == the price
+     heading**, plus a prose line listing what the Pauschale covers. When that list includes
+     **Strom, WLAN/WiFi and Rundfunkbeitrag/GEZ**, it is Wohnen auf Zeit: no landlord on an
+     open-ended Wohnraummietvertrag pays the tenant's electricity and GEZ. (Distinguish from the
+     #356 "NK empty" ambiguity — here NK is *explicitly* 0, not blank, so there is no kalt/warm
+     coin flip to report.)
+  2. The ad's **own self-description**: "Ihr **Zuhause auf Zeit**" / "Your **Home Away from Home**"
+     / "for a comfortable **stay**". Bilingual DE/EN copy + "Online-Besichtigung: Möglich" is the
+     corporate-let / relocation profile. This is the ad's word, not an inference from "möbliert" —
+     quote it and let the Zwischenmiete hard blocker fire on it.
+  3. **The real category is in the gaTagging JSON, not the breadcrumb**: grep
+     `selected_category_name` (e.g. `"Wohnung_mieten"`, cat 203) vs Kleinanzeigen's separate
+     "Auf Zeit & WG" category. A cat-203 filing is *weak counter-evidence only* — posters use the
+     bigger category for reach. Say so, cap anyway, and make "unbefristeter Wohnraummietvertrag
+     nach § 535 BGB, oder § 549 Abs. 2 Nr. 1 vorübergehender Gebrauch?" the first contact question.
+  Pricing consequence worth writing out: on a Pauschale, **the headline EUR/m² is not comparable to
+  any other listing** — subtract services (Betriebskosten+Heizung ~3,20 EUR/m², Strom ~65, WLAN ~35,
+  GEZ 18,36, Stellplatz ~55) and the Möblierungszuschlag (BGH VIII ZR 44/18: Zeitwert ÷
+  Restnutzungsdauer + ~2 % Verzinsung ≈ 120–180 EUR for a full 70-m² furnishing) to get the
+  unmöblierte Vergleichsmiete before touching the Mietspiegel. #599: 25,00 → ~17,10 EUR/m². And the
+  Mietpreisbremse is **doubly inapplicable** — § 549 Abs. 2 Nr. 1 BGB exempts vorübergehenden
+  Gebrauch, and the Potsdam Mietspiegel does not cover möblierten Wohnraum at all → no § 556g Rüge.
+  *Why:* a keyword search for befristet/Zwischenmiete/Untermiete returns nothing on these ads, so
+  the blocker is invisible unless you read the Pauschale composition; and scoring the raw 25 EUR/m²
+  against the Mietspiegel would report a 170 % overshoot on a flat whose Wohnraummiete is at market.
+- **The description is repeated ~N times BEFORE `viewad-title`, once per gallery image** (14 photos
+  → 14 copies, #599). So a raw match count in the "own ad" region is inflated by the photo count —
+  "30 hits for 'auf Zeit'" was 2 real mentions × 14 (+ meta tags). The `ti = html.find('id="viewad-title"')`
+  offset guard still correctly separates own-ad from sidebar; just never report the *count* as a
+  measure of emphasis, and dedupe contexts before reading them.
 - **"Verfügbar ab {Monat}" is a START-only field and hides Befristung.** A spec-list "Verfügbar ab
   August 2026" can actually be a 1-Monats-Zwischenmiete — the end date + "möbliert / untervermieten /
   01.08.–31.08." only appear in `#viewad-description-text`. Always read the description before deciding
