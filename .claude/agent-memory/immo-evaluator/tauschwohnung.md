@@ -86,6 +86,34 @@ description), axis (4) is the cheapest to get WRONG. *Why:* on #579 the favourab
 the swap look promising right up to the last clause of the title; on #597 the favourable *rent*
 direction did the same, and only the stated 70-m²-Minimum settled it.
 
+### The base rate is NOT a law — #608 is the first side-2 PASS. Don't pre-judge a swap as doomed.
+After a long unbroken failure run (#492, #505, #533, #541, #550, #578, #579, #597, #598, #606) it is
+tempting to treat every swap as a foregone Discard. **#608** (Kleinanzeigen, „TAUSCHWOHNUNG *Günstige
+3 Raum Wohnung **gegen 2 Raum Wohnung***", 89 m² / 980 EUR kalt, Potsdam 14469) passed both sides.
+The shape that produces a pass — spot it early, it is a *positive* triage signal:
+- **Title is "{N} Raum gegen {M} Raum" with M ≤ our offer's room count.** M is then the entire Suche,
+  and an exact hit on M is the strongest side-2 evidence available (here M = 2 = the Golm flat exactly).
+- **No m²-Minimum, no Mietobergrenze, no Ortsteil, no Ausstattungswunsch, no Personenzahl anywhere** —
+  the description is pure Tauschwohnung boilerplate. All four kill axes are then *silent*, and under
+  the lenient rule silence is a PASS, not an "unknown Suche" hedge. (Contrast #597/#598, where a
+  single stated number decided it, and #606, where the last line did.)
+- **Check the rent axis in BOTH readings before calling it.** Here their 980 kalt / 1.330 warm vs our
+  1.025,25 / 1.214,93 = **+4,6 % kalt but −8,7 % warm**, a real saving for them. A partner whose own
+  Kaltmiete is *near* ours (not the usual sub-800 Altvertrag) is the one class the Golm offer serves.
+⇒ Practical rule: run the four kill axes; if all are silent AND the room count matches, stop hunting
+for a reason to discard — write it up as a Swap-candidate with the open questions listed instead.
+
+### Swap-specific Block A caveat: the advertised rent is the partner's ALTVERTRAG, not our price
+A Mieterwechsel per Tausch needs the landlord's consent, and consent frequently comes as a **new
+contract at market rent** rather than continuation of the old one. #608 advertises 980 EUR kalt =
+11,01 EUR/m², ~29 % under the Potsdam Angebotsanker (~15,51) — at market that flat is ~1.380 EUR.
+So the most valuable question in the first contact is *"Wird der bestehende Vertrag übernommen oder
+neu abgeschlossen?"*; the answer can move Block A by ~1,5 points. Say this in the report rather than
+scoring the partner's Altvertrag price as if it were ours. Corollary: a cheap swap rent is the
+*signature* of an Altvertrag, which is why the "> 20 % unter Mietspiegel" High scam signal must not
+fire on it — it needs an address-precise band, and against the **ortsübliche** Vergleichsmiete these
+prices usually sit ABOVE the Mittelwert, not below.
+
 ## Even on IS24 the object-specific twg.click link is NOT guaranteed — check "Weitere Links" first
 Some IS24 swap exposés carry only the **generic** `https://twg.click/is24-homepage` in the
 `REFERENCE_LIST` titled "Weitere Links" (it 302s to the tauschwohnung.com front page with utm

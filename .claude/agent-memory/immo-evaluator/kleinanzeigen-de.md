@@ -72,6 +72,23 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   - Posting date + view count: `#viewad-extra-info` (e.g. "14.08.2026") and the counter right after it
     ("6" Aufrufe). Useful for "how fresh / how contested is this ad" in next steps — there is no
     "Anzeige online seit N Tagen" string to grep.
+  - **The exact street address is NOT in any `ul.addetailslist`** — it sits in a separate
+    **"Standort"** block (and once more right under the price heading) and is only reachable by
+    dumping the *visible text* of the own-ad region, e.g. `Tiroler Damm 16b, 14478 Brandenburg -
+    Potsdam` (#607). So: after parsing the spec lists, always also strip-tag the region
+    `title … sidebar` and read it — `#viewad-locality` alone gives you "{PLZ} Brandenburg -
+    {Stadt}" and nothing more. A house-number-precise address is the single highest-value field on
+    a Mieterinserat: it unlocks Baujahr/Bauvorhaben via one WebSearch (see below).
+  - **Vermieter name + exact address ⇒ settle Baujahr AND the kalt/warm reading with ONE WebSearch.**
+    On #607 the ad gave only "1.200 €" (heading == `Warmmiete` field, no NK field ⇒ the #356
+    ambiguity) plus "Der Vermieter ist die Pro Potsdam" and the Standort address. A single search
+    on `"{Straße}" {Stadt} {Vermieter} Neubau` returned the Bauvorhaben (Tiroler Damm 16 A–E,
+    ProPotsdam, fertig Q2/2019, 95 WE, 75 % belegungsgebunden) → Baujahr for the Mietspiegel field,
+    *and* it decided the price reading: 1.200 as Kaltmiete = 15,97 EUR/m² is impossible for a
+    kommunale Gesellschaft, as Warmmiete it lands on the Mietspiegel-Mittelwert. Do this BEFORE
+    falling back to the "score the conservative reading" default — it converts a coin flip into a
+    decided case. *Why:* the photo-based Baualter-Gegenprobe (see [[potsdam-mietspiegel]]) is
+    unavailable on a 0-photo ad; the address+Vermieter route is the replacement and is harder evidence.
   - **Sixth price variant — heading reads "Zu verschenken" on a RENTAL** (#594). This is NOT a
     giveaway and NOT a Verschenk-Anzeige: the raw markup carries `<meta itemprop="price" content=""/>`
     (empty) and Kleinanzeigen renders its free-of-charge fallback for an empty price field. The h1 also
