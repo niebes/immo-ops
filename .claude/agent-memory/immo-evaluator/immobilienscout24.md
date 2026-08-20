@@ -40,9 +40,20 @@ weeks of vacancy + a voluntary price cut ⇒ little competition and real room to
 **Mietbeginn** away from "sofort" (which is exactly what Block F penalises).
 Do NOT let it fire the "listing reposted with different prices" Medium scam signal when the
 advertiser is the same verified commercial one and the price went **down** — note it as observed
-and entkräftet instead.
+and entkräftet instead. (Holds for a *private* Mieternetzwerk re-poster too, as long as the
+inserent is the same person and the price fell — #621.)
 **Why:** without the Objekt-Nr.+404 pair a re-list is either scored as a brand-new flat (losing the
 price-cut leverage and re-deriving everything) or dismissed as a stale duplicate and never evaluated.
+
+**Exception — on TENANT_NETWORK ads the Objekt-Nr. is a random UUID and proves nothing.**
+`OBJECT_INFO` reads `Scout-ID: … | Objekt-Nr.: bdf4153d-7aec-4daf-8cd1-08d51d761777` — IS24
+generates that per *ad*, so a re-list gets a fresh UUID and it can never match the old one.
+Substitute identity key: **`AGENTS_INFO.name` (the outgoing tenant's real name) + `geo_ot` +
+Zimmer + ~m² + ~Miete**, then the old-scoutId **404** test to prove only one ad is live. Worked on
+#621 (170042920) vs #169 (168639887): same "Frau Katharina Jacob", same 14469 Eiche, 3 Zi,
+85→84 m², Kaltmiete 1.155→1.134 (−1,8 %), old exposé 404 → confirmed re-list.
+**Why:** applying the "identical Objekt-Nr. = same unit" rule literally here returns *no match* on
+two ads for the same flat, so a confirmed re-list gets scored as a brand-new listing.
 
 ## Mobile-API **404 `ERROR_RESOURCE_NOT_FOUND`** = removed exposé → EXPIRED (distinct from "deaktiviert")
 A 404 from `api.mobile.immobilienscout24.de/expose/{id}` returns a JSON `{"error": "... Request failed
@@ -108,10 +119,15 @@ that doesn't exist, and priceBar substitutes for the missing Mietspiegel data.
 (expose 169553135, Charlottenstr. 67, Nördliche Innenstadt) the payload had **no `PRICE_INFO` section
 at all**, so there was no priceBar band. Two workarounds:
 - **The exact, non-range rent is in the tracking blobs**: `tracking.parameters.obj_baseRent` /
-  `obj_totalRent` (and the same keys in `adTargetingParameters`) carry the **current tenant's actual
-  contract rent** — 875 / 1.250 while `TOP_ATTRIBUTES` only showed "831–919 €" / "1.187–1.313 €".
-  The displayed range is IS24 padding ±5 % around it. Quote the exact figure as the current rent and
-  the range as the landlord's re-pricing risk; derive NK as totalRent − baseRent (nothing itemises it).
+  `obj_totalRent` (and the same keys in `adTargetingParameters`) carry the exact figures the ranges
+  are padded ±5 % around — 875 / 1.250 while `TOP_ATTRIBUTES` only showed "831–919 €" / "1.187–1.313 €".
+  ⚠ **CORRECTION to the original #552 wording ("the current tenant's actual contract rent"): only
+  `obj_totalRent` is real.** Always compute `obj_baseRent / obj_totalRent` first — if it is **exactly
+  0,70**, the Kaltmiete is IS24's back-computation from the Warmmiete, not a contract figure (875/1.250,
+  665/950 on #615, 927,50/1.325 on #618 — all exactly 70 %). See the "derived from the Warmmiete"
+  block further down; the residual NK is then arithmetic on an estimate, never an Anbieterangabe.
+  **Why:** #615 (2026-08-20) quoted `obj_baseRent` 665 as "exakte Vertragsmiete" on a payload whose
+  ratio was 0,70 — the #552 sentence keeps producing that error, so run the ratio test every time.
 - With no priceBar, fall back to the Potsdam Mietspiegel field **bracketed over the unknown
   Baualter/EEK** (these ads never state Baujahr or Energieausweis) and always name the Angebots anchor
   too — see [[potsdam-mietspiegel]] / `_shared.md`.
@@ -153,6 +169,15 @@ base 3,5 −1,0 for 1-of-6 rooms + no Grundriss = **D 2,5**).
 wrong reason and thrown away the only verified amenity and the only Baujahr clue in the whole exposé —
 and treating the photo as purely confirmatory would have missed the kitchen defect entirely.
 
+**The genuine zero case does occur (`MEDIA: []` + `obj_picturecount: 0`) — and then D drops BELOW
+the 3,0 cap.** 3,0 is a ceiling, not a floor. On #621 (170042920, Eiche) there were 0 images *and*
+`obj_condition` / `obj_interiorQual` / `obj_firingTypes` = `no_information`, no Baujahr, no
+Energieausweis, no Grundriss — nothing verifiable at all → **D = 2,5**. Say in one line why it fell,
+and on a re-list quote the photo-count delta (#169 had 1 → #621 has 0) as the stated reason, so the
+lower score doesn't read as an arbitrary re-score of the same flat.
+**Why:** parking every evidence-free ad at the 3,0 cap makes "one usable phone photo" and "no data
+whatsoever" score identically, and hides from the user that the flat is simply unassessable.
+
 **The single photo is often an EXTERIOR/estate shot — that splits the evidence differently than an
 interior shot, and the Block-A half is the valuable one.** #614 (expose 170013012, Teltower Vorstadt)
 had `obj_picturecount: 1` with caption `IMG_6435.jpeg` = a courtyard view of a whole Neubau quarter,
@@ -188,9 +213,19 @@ structured field.
 **The #504 "`n` = unset, not absent" rule applies to Mieternetzwerk ads a fortiori.** The tenant form
 never touches the Ausstattung mask, so you get `obj_balcony/cellar/garden/lift/hasKitchen = n` with
 **zero positive flags** and `obj_condition`/`obj_interiorQual`/`obj_petsAllowed`/`obj_typeOfFlat` all
-`no_information`. Score both must-haves **unconfirmed** (Block E ≈ 2,0 when the description is silent
-on both), not missing → do NOT fire the "missing 2+ must-haves = 1,0" rule, and make Balkon/Keller
-contact question #1. Also: the `RELOCATION` / services deep-links contain `floor=0` — that is an
+`no_information`. Score both must-haves **unconfirmed**, not missing → do NOT fire the
+"missing 2+ must-haves = 1,0" rule, and make Balkon/Keller contact question #1.
+**Which unconfirmed value — 2,0 or 2,5? Decide it on whether a VERIFICATION PATH exists**
+(this resolves the two numbers quoted in this file, which used to read as a contradiction):
+- **`obj_picturecount: 0` / `MEDIA.media: []` AND the description silent on both → E = 2,0.**
+  There is literally nothing — no text, no pixel — that could confirm either must-have.
+  Seen on #622 (expose 170040509, Waldstadt I, 72 m², 0 Fotos).
+- **≥1 real photo (even one that can't show a Balkon) → E = 2,5.** A photo that contradicts any
+  other `n` flag (e.g. an Einbauküche vs `obj_hasKitchen: n`, #559) proves the mask is untouched,
+  which is *positive evidence* that the amenities may well exist — that's what buys the extra 0,5.
+- A photo that actually shows the must-have (#553 Balkon) leaves the unconfirmed band entirely.
+**Why:** the two numbers were being picked arbitrarily per run; tying them to "is there any way to
+check?" makes the 0,5 defensible and keeps comparable ads (#275/#553/#622) scored consistently. Also: the `RELOCATION` / services deep-links contain `floor=0` — that is an
 **unset default, not Erdgeschoss**; there is no Etage datum on these ads.
 **Stronger variant: the Ausstattung keys can be ABSENT ENTIRELY, not just `n`.** On #619 (expose
 170113761, Friedrich-W.-Murnau-Str., Drewitz) `tracking.parameters` held only 18 keys —
@@ -210,7 +245,14 @@ propagates into the title and looks confirmed. The two-line arithmetic that catc
 = NK EUR/m². **A NK figure below ~2,00 EUR/m² is the tell** — even the cheapest Potsdam stock lands
 2,50–3,50 incl. Heizung, so an impossibly low NK/m² indicts the *denominator*, not the rent. Test the
 digit-slip hypothesis (180→80, 120→20) and check which reading lands inside a real Mietspiegel column
-band; also sanity-check m²/Zimmer (>40 m²/room for a plain 4-Zi flat is a red flag). Seen on #555
+band; also sanity-check m²/Zimmer (>40 m²/room for a plain 4-Zi flat is a red flag).
+**The rule is one-directional — an abnormally HIGH NK/m² does NOT indict the m².** A too-small
+denominator would raise EUR/m² *and* NK/m² together, but on #621 (170042920, Eiche) the kalt figure
+13,50 EUR/m² was market-conform while NK ran 486 €/84 m² = **5,79 EUR/m²**, ~2× the Potsdam norm.
+That combination points at the *numerator*: the tenant's "Warmmiete" silently bundles something
+(Stellplatz, Strom, Internet, Möblierung) or the Vorauszahlung is padded. Treat it as an open cost
+question (Block A note + contact question "woraus bestehen die NK?"), never as a Block-C m² doubt.
+Seen on #555
 (expose 169929725, Babelsberg Nord): 180 m² @ 840 € = 4,67 EUR/m² kalt + 2,00 EUR/m² NK, below the
 Unterwert of every Baualtersklasse in Spalte E, while the 80-m² reading (10,50 / 4,50) sits mid-band.
 Scoring consequences:
