@@ -121,6 +121,15 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     part of the HTML **before `id="viewad-title"`** — everything after belongs to the "Das könnte dich
     auch interessieren" sidebar. *Why:* on #505 a plain grep said 8 images for an ad that actually has 4
     (Block D photo-evidence judgement was about to be made on a doubled number).
+    - **Do not substitute a whole-page grep on the bare CDN path** (`img.kleinanzeigen.de/api/v1/
+      prod-ads/images/…`) for that recipe: each sidebar ad emits its own `<script type="application/
+      ld+json">` **ImageObject** with a `contentUrl`, so the page carries ~10 foreign UUIDs on top of
+      the ad's own. On #608 that read **11 images for a 1-photo ad** — an 11× overcount, far worse than
+      the 2× duplication above, and exactly the range where the 0-/1-photo Block-D cap is decided.
+      Those JSON-LD blocks are also *not* a counting route: there is only **one per ad**
+      (`representativeOfPage: true`), so they identify the ad's lead photo, never its gallery size.
+      Useful side effect: each sidebar ImageObject carries the neighbour ad's full `title` +
+      `description`, which is why keyword greps for "Tauschangebot" false-positive (see below).
   - Kaution field may read **"Kaution / Genoss.-Anteile"** → for a Genossenschaftswohnung this is
     refundable cooperative shares, NOT a deposit and NOT an advance-fee scam signal; the low rent is
     the coop structure, not too-good-to-be-true. *Why:* otherwise you'd wrongly flag scam + illegal Kaution.

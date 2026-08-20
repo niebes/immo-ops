@@ -248,6 +248,22 @@ oberen Rand der Vergleichsangebote und die Mietpreisbremse wird zum realen Thema
 Für die Bewertung im Süden zusätzlich: ÖPNV-Anbindung ist gleich gut (S7 Babelsberg/Griebnitzsee,
 Tram 94/99), plus Lindenpark und Filmpark fußläufig → Block B 4,5, ohne Adresse keine 5,0.
 
+## Ortsteil-Anker: **Babelsberg Süd (14482)** — Villen-/EFH-Rand, nicht Nowawes
+Südlich der Bahn Richtung Park Babelsberg/Griebnitzsee: durchgrünte, ruhige Bebauung (Kiefern/Eichen,
+niedrige Sattel-/Ziegeldächer) mit **Nachwende-Neubauten der 1990er/2000er**, oft DG-Maisonetten mit
+Wendeltreppe + Galerie. Angebotsniveau wie Babelsberg Nord (15–18 EUR/m²), ÖPNV S7 Babelsberg/
+Griebnitzsee (Hbf 4–6 Min., Wannsee ~7 Min.) + Tram 94/99 nur auf der Nordseite. **Block B 4,5**
+(ruhige Lage, ohne Adresse nicht feiner auflösbar; 4,0 bei Nuthestraßen-/Bahnnähe).
+Mietspiegel-Feld für die typischen 90-m²-DG-Maisonetten: **1991–2008 · Spalte E (>90 m²) = 9,91
+(8,71–12,70) bei EEK A+–C bzw. 10,28 (7,91–13,71) bei D–G** → zulässig 10,90–11,31 EUR/m².
+**Nachmieter-Altverträge liegen hier regelmäßig 5–10 % UNTER dem ortsüblichen Mittelwert** und damit
+~40 % unter dem Angebotsmarkt (#609: 860 EUR / 92 m² = 9,35 EUR/m²). Das ist der Altvertragseffekt —
+das High-Signal „>20 % unter Mietspiegel" darf daran nicht gefeuert werden. Umgekehrt gilt: der neue
+Vertrag darf auf ortsüblich +10 % (~1.000–1.040 EUR bei 92 m²) angehoben werden, und § 556e hilft dem
+Vermieter nicht, wenn die Vormiete niedriger war → gehört als Deckelrechnung in Block A, nicht als
+Preisrisiko „unbegrenzt". *Why:* ohne den Anker wird eine Babelsberg-Nachmieteranzeige entweder als
+Scam-Schnäppchen oder als „Miete kann beliebig steigen" fehlgelesen.
+
 ## Ortsteil-Anker: **Speicherstadt (14473, Teltower Vorstadt, Havelufer)**
 Groth-Gruppe-Quartier zwischen Brauhausberg und Havel, gegenüber Stadtschloss, 5–10 Gehmin. zum Hbf.
 **Zwei Bauabschnitte — und der Schnitt liegt genau auf der § 556f-Grenze:** Südteil Ende **2014**
@@ -330,6 +346,31 @@ genaue Adresse dransteht. Preisniveau 2026: 14,71 EUR/m² kalt für 85 m² kam v
 ~5 % **unter** dem stadtweiten Angebotsanker 15,51 und ist für Golm unauffällig.
 *Why:* ohne den Anker wird für jede Golm-Wohnung neu recherchiert, und der naheliegende Reflex
 „Golm = Uni-Neubau ⇒ ab 2021 ⇒ § 556f, Bremse egal" ist bei zwei von drei Feldern schlicht falsch.
+
+## Umland: **Beelitz-Heilstätten** — eigener Mietanker + die 20-Minuten-Lüge der Exposés
+Der Scan liefert laufend Neubau-**Reihenhäuser zur Miete** aus dem QUARTIER BEELITZ-HEILSTÄTTEN
+(#207, #326, #336, #486, #611). Zwei Dinge, die sonst jedes Mal neu recherchiert werden:
+- **Kein qualifizierter Mietspiegel** (Stadt Beelitz, Potsdam-Mittelmark); Beelitz steht **nicht** auf
+  der Liste der 36 seit 01.01.2026 regulierten Brandenburger Gemeinden. Und die Häuser dort sind
+  durchweg Bj. 2022/2023 ⇒ **§ 556f BGB, Mietpreisbremse ohnehin nicht anwendbar**. Trotzdem beide
+  Begründungen in den Report schreiben (siehe Havelland-Abschnitt: nie bloß „not applicable").
+- **Unser eigener Angebotsanker Neubau-Reihenhaus/DHH (Kaltmiete EUR/m²):** #336 12,49 (127,29 m²) ·
+  #326 12,88 (144,76) · #486 13,00 (144,76) · #207 14,95 (106,97) · **#611 17,02 (105,16)**. Klarer
+  Größeneffekt — die ~105-m²-Häuser liegen 15–30 % über den ~145-m²-Häusern. Adressgenaue Gegenprobe
+  bleibt die IS24-`priceBar`: #611 lag mit 1.790 € im **58. Perzentil** des Bandes 990–1.870 €, also
+  marktkonform trotz des hohen EUR/m².
+- **Pendelzeit: die Exposés behaupten regelmäßig „Potsdam 20 min mit dem ÖPNV" — das ist falsch.**
+  Der RE7 hält am Bahnhof Beelitz-Heilstätten (im Quartier) und fährt Richtung **Wannsee/Berlin**,
+  nicht über Potsdam Hbf; realistisch **~34 min bis Potsdam Hbf mit Umstieg Wannsee** (so bereits auf
+  #336/#486 recherchiert), Auto ~25 min / 24 km. Berlin Hbf ~38 min direkt stimmt dagegen.
+  Block B deshalb nie auf die Exposé-Angabe stützen.
+- **Block-B-Kalibrierung:** vor der Profiländerung vom 2026-08-11 bekam Beelitz 2,0–2,5 (#336, #486).
+  Seitdem ist Beelitz Teil des vom Nutzer akzeptierten **RE7-Korridors** (bislang nur in der
+  *Hauskauf*-Suche, sinngemäß aber auf Haus-**Mieten** übertragbar) mit der Vorgabe „unter
+  Werder/Teltow, aber nicht mehr außerhalb des Suchgebiets" ⇒ **3,0** ist der aktuelle Wert (#611).
+  Bei Wohnungen (nicht Häusern) bleibt es beim alten, niedrigeren Ansatz.
+*Why:* fünf Beelitz-Bewertungen haben denselben Mietspiegel-, Pendel- und Block-B-Streit je einzeln
+neu ausgefochten, und die 20-Minuten-Angabe aus dem Exposé hätte Block B um ~1 Punkt zu hoch gesetzt.
 
 ## Umland: **Falkensee/Schönwalde-Glien/Brieselang (Berliner Speckgürtel) unterliegen seit 01.01.2026 der Mietpreisbremse**
 Die neue Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung (Kabinett 25.11.2025) gilt ab

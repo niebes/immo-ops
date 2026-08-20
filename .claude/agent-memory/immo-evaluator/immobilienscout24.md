@@ -254,7 +254,7 @@ On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese
 The tenant enters only the **current Warmmiete**; IS24 back-computes the Kaltmiete band from it. The tell
 is `TOP_ATTRIBUTES` → the *Warmmiete* attribute carrying `additionalInfo.title = "Geschätzte Kalt- und
 Warmmiete"` / `description = "…Diese Schätzung basiert auf der aktuellen Warmmiete."`, plus
-`obj_totalRent` being the round number and `obj_baseRent` exactly 70 % of it (#561: 1.200 → 840, bands
+`obj_totalRent` being the round number and `obj_baseRent` exactly 70 % of it (#561: 1.200 → 840; re-confirmed #612: 1.000 → 700, bands 950–1.050 / 665–735 — so the 70 % ratio is a fixed formula, not a coincidence, and the derived "Nebenkosten" residual can land at a perfectly plausible 3,30 EUR/m² and still be pure arithmetic; bands
 1.140–1.260 / 798–882 = ±5 %). So: **only `obj_totalRent` is a real figure.** Never quote the Kaltmiete
 or a computed Nebenkosten residual as fact, never run a Kaution-legality check on it, and score the
 EUR/m² comparison with that caveat stated. Ask for the real Netto/NK/Heiz split in Next steps.
@@ -653,6 +653,48 @@ massa Haus nach Wunsch."* followed by the rep's mobile + `@massa-haus.de` addres
 **Why:** with a published price, the full area, EFH-Nutzung and 0 % Provision, nothing in the structured
 data flags the tie-in — scored from the fields alone it reads as the cleanest plot in the batch.
 
+### Fourth/mildest rung: tie-in **offered but EXPRESSLY WAIVABLE** — „auch ohne Hausvertrag erwerbbar"
+Below #528. The Hausmarke sells a **whole real parcel** and ships a Hausentwurf (Visualisierungen,
+`Grundrissvorschlag` PDF, virtual tours), but the Objektbeschreibung itself says the plot *"kann auf
+Wunsch auch **separat, ohne Hausvertrag**, erworben werden"*. Recurring seller in this repo:
+**Freie Handelsvertretung der Hanse Haus GmbH — Margit Dossmann / Dossmann Immobilien, Eckenerweg 5,
+13591 Berlin** — #075 (Lichtenrade, `Provision: Nein`) and #602 (expose 167058657, Seddin/Seddiner See,
+1.821 m², "Auf Anfrage", **3,75 % Käuferprovision**, 2,0 capped / 3,15 uncapped). **The same rep runs both
+commission models**, so never infer the tie-in strength from the Provision field.
+- **Block G ~3,0, not the 2,0/2,5 of the harder rungs** — the Bindung is *offered*, not imposed, and the
+  disclaimer stands in the exposé, so it is enforceable: require the „ohne Hausvertrag"-Option in the
+  notarial contract.
+- **The GrESt-einheitliches-Vertragswerk risk SURVIVES the disclaimer** — it triggers on the factual
+  package, not on the wording. Still quantify 6,5 % BB on land+house and say "keep Kaufvertrag and any
+  Werkvertrag legally *and temporally* separate".
+- **A lead-gen funnel can be fully verified:** TNS „Identität verifiziert" + Gold ImmoPartner + complete
+  § 34c/34i-Impressum (StNr., IBAN, Widerrufsbelehrung) ⇒ **H ~3,5** (above the #519 Einzelunternehmen
+  3,0) and scam stays **Legitimate** — but the ad's commercial purpose is still the house contract, so
+  next-step #1 is "ask for the plot price in writing *before* discussing the Entwurf".
+- **Media tell:** 5–6 images of which all but one are captioned `Vorschlag_NN_Ansicht` /
+  `Ansicht_{Terrasse|Garten|Strasse}_Grundrissvorschlag`, plus `threed.vi-bim.cloud` /
+  `panorama.vi-bim.cloud` tours — all of the *imaginary* house, none of the land ⇒ cap D at 3,0.
+- Harmless small-shop artefacts on this seller, do NOT read as the #401 multi-identity pattern: the same
+  mobile filed as both `Mobilfunknummer` and `Festnetznummer`, and two own-name mailboxes
+  (`@hanse-haus.de` in the manufacturer Impressum vs a gmx address in the own-agency block).
+**Why:** the three existing rungs all assume the Bindung *exists*; scored with their rules, an exposé that
+openly waives it gets punished twice for a tie-in the seller already offered to drop.
+
+### „Auf Anfrage" on a plot: compute the **budget-fit €/m² threshold** (cap ÷ Fläche) — it makes the derived price blocker defensible
+`max_kaufpreis / Grundstücksfläche` = the €/m² an unquoted ask would have to hit to be scoreable at all;
+express it as a % of the amtlichen BRW. #602: 200.000 / 1.821 = **109,83 EUR/m²** against the amtliche
+270 EUR/m² for Seddiner See ⇒ the parcel would have to sell **~60 % below BRW**, so the "price 40 %+ over
+target" hard blocker fires on a *derived* band with the whole reasoning visible. Always pair it with the
+**uncapped weighted score** ("2,0 capped, 3,15 uncapped") so the user sees exactly what a surprise price
+would unlock, and with a 3-row anchor scenario table (rural floor / old BRW / current BRW) incl. ~12,25 %
+Nebenkosten (GrESt 6,5 + Notar 2 + Provision).
+**A large parcel can blow the ABSOLUTE cap while passing the €/m² cap** — at 1.821 m² even a perfect
+200 EUR/m² is 364.200 EUR = 1,8× a 200.000 cap. Write "the size IS the price problem" and name **Teilung**
+(two Baufenster under the B-Plan) as the only lever that can bridge it — it is the same abtrennbare-Parzelle
+optionality noted on #543/#544, here as the sole rescue rather than a bonus.
+**Why:** without the threshold the report either refuses to judge an unpriced listing or asserts a blocker
+it cannot show its work for; with it, a one-line division settles both.
+
 ### Fourth variant: the TITLE actively DENIES the Bindung — „Grundstück zur **freien** Bebauung"
 Nastiest rung of the family so far, because it inverts the #546 rule (a „bauträgerfrei" claim *can* be
 confirmed). #592 (expose 170023133, FIBAV Immobilien GmbH, Groß Kreutz (Havel), 830 m² / 99.600 EUR /
@@ -695,6 +737,30 @@ photos → **cap D at 3,0** and list "kein einziges Foto des Kaufgegenstands" as
 `IMG_` caption is evidence of authenticity, not of relevance.
 **Why:** the "is it a render?" test returns *not a render* here and would have let D through at ~4,0 on the
 "beräumt, keine Baumfällung erforderlich" claim — a claim the gallery cannot corroborate.
+
+### `obj_picturecount` counts SLOTS, not distinct images — dedupe before the photo rules, and read a *beräumtes* plot's soil
+Two things that only show up once you actually download a plot gallery. Both from #601 (expose 168664972,
+PlanetHome, Niemegk, 930 m² / 180.000 EUR, scored 3,3):
+- **The same file can be uploaded twice under two captions.** `obj_picturecount: 4`, captions
+  `Lage` / `Erschließung` / `Ansicht 1` / `Lageplan` — but "Lage" and "Lageplan" are **byte-identical**
+  (same cadastral map, different `fullImageUrl`, so a URL-string dedupe does NOT catch it; compare the
+  downloaded bytes/size). Effective gallery = 2 real plot photos + 1 map. Rule: **dedupe by content
+  before deciding whether the "0 real photos → cap D at 3,0" rule fires**, and quote the deduped count
+  in the report, not `obj_picturecount`. Bare-plot exposés are exactly where this bites — the padding is
+  cheap because a plot gallery is small to begin with.
+- **On an already-cleared plot the cadastral Lageplan still shows the demolished building's footprint,
+  and `obj_demolition` stays `n`.** That flag means "no demolition *duty* pending", not "nothing was ever
+  demolished" — so it is *consistent* with, not contradicted by, a beräumte Parzelle. Don't read the
+  footprint inside the red outline as buildings still standing; it's the normal Katasternachlauf.
+  **Instead, zoom the ground in the photos:** #601's two real shots show brick rubble/Bauschutt worked
+  through the topsoil, i.e. the Abriss was **graded flat, not excavated** → Altlasten / Auffüllung /
+  Gründungs-Mehrkosten, and neither Baugrundgutachten nor Altlastenauskunft is ever in the payload.
+  Score it in Block D (3,5 rather than 4,0+) and make the Altlastenauskunft beim Landkreis a Next step.
+  Second thing the photos carry on a cleared village-core parcel: a **freigelegte Nachbar-Brandwand**
+  (the predecessor was angebaut) → Anbaurecht/-pflicht + Abdichtung to clarify, never in the text.
+**Why:** taking `obj_picturecount` at face value overstates the evidence base, and the Katasterumriss
+looks like a "text says beräumt, map says built" contradiction when it is nothing of the sort — while the
+*real* five-figure risk (Bauschutt in der Aufschüttung) is visible only in the photo the count inflated.
 
 ### Groß Kreutz (Havel) / RE1 corridor west of Werder — area + BRW anchors
 Recurring geography in the plot searches (#518 Schmergow, #529 named it as the nearest station, #592).
@@ -3310,6 +3376,15 @@ with Caution" on the very feature that makes it the best-value plot in the searc
   built out. Two caveats survive the tick and belong in Block A every time: **"in der Straße" ≠ "am
   Haus"** (Grundstücksanschlüsse are the buyer's, **5–15 T EUR**, more if the house is set back), and
   **"erschlossen" ≠ "beitragsfrei"** (ask for the Erschließungsbeitragsbescheinigung § 133 Abs. 3 BauGB).
+  **Stronger form: the structured tick can be flatly WRONG, not merely under-specified — the free text
+  wins.** #602 has `Erschließung: Erschlossen` in `Hauptkriterien` while the Objektbeschreibung says
+  *"Die Ver- und Entsorgungsmedien befinden sich **straßenseitig**; die zum Bau erforderliche
+  Grundstücks-Erschließung ist **vom Erwerber herzustellen**"* ⇒ actually grade 2 of 5. Grep every plot's
+  free text for `straßenseitig|vom Erwerber herzustellen|liegen an der Straße|Anschlüsse in der Straße`
+  before crediting the tick. Silver lining worth naming: *"Ver- **und Entsorgungs**medien"* implies a
+  Schmutzwasserkanal in the street ⇒ the Kleinkläranlage unknown is off the table (confirm in writing).
+  And because the Beitrag is apportioned by **Grundstücksfläche**, a big parcel carries a
+  disproportionate open exposure — 1.821 m² × 20–60 EUR/m² = **36–109 T EUR** on #602.
 - **A gewachsener Baumbestand is a Block-D LIABILITY, and its POSITION matters.** Mirror of #404's
   "keine Bäume, kein Abriss" credit. #405's trees are *"im vorderen Bereich"* — exactly where a house
   would go to keep the garden at the rear, so it is a design constraint, not decoration: Fällgenehmigung

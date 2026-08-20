@@ -38,7 +38,43 @@ depending purely on which aggregator you open first — one anchor alone decides
 | Gemeinde/OT | Wohnbauland EUR/m² | Source & confidence |
 |---|---|---|
 | Roskow (inkl. OT Weseram, Lünow, Riewend) | Gemeindemittel ~49, Spanne 20–55 | Aggregator (understating family) → the **55 Oberwert** is the realistic Wohnbauland anchor. Not in the Kreis-PM. Used on #591. |
+| Niemegk (PM, SW-Rand, 14823) | Gemeindemittel 32–44, Spanne 10–50 | Aggregator (understating family) → **50 Oberwert** = realistic Wohnbauland-Ortslage anchor. Stichtag 01.01.2024/2025, y-o-y unverändert. Not in the Kreis-PM (Speckgürtel only). Used on #601. |
+
+**Second usable anchor found: `aktuelle-grundstueckspreise.de/deutschland/brandenburg/{kreis}/{gemeinde}`
+gives BOTH families on one page** — an explicit *Angebotspreis* mean+range with the sample size and radius,
+AND the amtlicher BRW mean+range with its Stichtag, and it labels which is which ("Bei allen Preisen handelt
+es sich um Angebotspreise"). For Niemegk: Angebot **142 EUR/m² (31–250, 112 Objekte / 24 Monate, 19-km-Radius)**
+vs amtlich **32 (10–50)**. One WebFetch replaces the two-aggregator dance — but note the Angebots figure
+silently widens the radius when the Gemeinde has too few listings, so it is a *regional* anchor, not a local one.
+**Why (#601):** a 194-EUR/m² plot reads as "in budget, fine" against the profile caps alone; against these two
+anchors it is ~3,9× the amtlicher Oberwert and +36 % over the regional Angebotsmittel — which is the entire
+Block-A story and the only real negotiating lever.
 Speckgürtel values above are from the Kreis-PM and are the *official* ones.
 
+## Land-/forstwirtschaftliche Flächen — a separate BRW class, split by **two regional zones**
+The table above and the `_shared.md` one are **Wohnbauland only**. A Grünland/Acker/Wald parcel is
+valued off a completely different, much simpler BRW set — and Brandenburg publishes it in **two
+zones**, which is the part that gets missed:
+
+| Nutzungsart | Berliner Umland | **Weiterer Metropolenraum** |
+|---|---|---|
+| Ackerland | 1,30 | 1,10 |
+| Grünland | 1,00 | **0,90** |
+| Forst ohne Aufwuchs | 0,33 | **0,24** |
+
+(EUR/m², Potsdam-Mittelmark, Stichtag 01.01.2026, `gutachterausschuss.brandenburg.de/.../GA_PM_BRW_26.pdf`;
+described as stable year-on-year.) **Kloster Lehnin / Nahmitz and the whole northwest of PM sit in the
+*weiterer Metropolenraum*, not the Umland** — using the Umland column overstates by ~11–38 %.
+
+**Value the parcel by its Nutzungsart mix, not by one blended rate.** BLB/state exposés give the
+m² split per Wirtschaftsart, so use it: on the Nahmitz plot (#535/#600) a flat 0,90 × 6.997 m²
+gave 6.297 EUR and the verdict "price is ~12 % *under* BRW"; weighting 5.625 m² Grünland × 0,90 +
+429 m² Nadelholz × 0,24 + 943 m² naturnahe Fläche × ~0,24 gives ~5.390 EUR, i.e. the 5.500 EUR ask
+is at **~102 % of BRW** — market-conform, not a discount. Opposite sign from one shortcut.
+**Why it matters:** a state seller (BLB, BVVG, BBG) is bound by Haushaltsrecht to the Verkehrswert,
+so "at BRW" is the *expected* result — an apparent deep discount is nearly always your own
+blended-rate artefact, not a bargain, and it must never be talked into the ">20 % below market"
+High scam signal.
+
 **Review cadence:** Potsdam-Mittelmark publishes each March for the 01.01. Stichtag; re-check every
-spring. Roskow was reported unchanged year-on-year.
+spring. Roskow was reported unchanged year-on-year; the agrarian rates likewise.
