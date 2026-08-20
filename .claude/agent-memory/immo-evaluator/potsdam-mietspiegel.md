@@ -211,6 +211,26 @@ Report geschrieben, statt „marktkonform".
 § 556g-Rüge" in den Report geschrieben — tatsächlich ist der Preis mietspiegelkonform und die
 Mietpreisbremse gilt dort gar nicht. Siehe [[wgkarlmarx-de]] für die Vermieterseite.
 
+## Ortsteil-Anker: **Waldstadt I (14478) — `Tiroler Damm 16 A–E` ist ProPotsdam-Neubau 2019, kein Plattenbau**
+Gleiche Falle wie Waldstadt II, andere Adresse. Waldstadt I ist überwiegend Großsiedlung 1960er/70er
+(Feld 1971–1990), aber **Tiroler Damm 16 A–E** ist ein Neubauquartier der **ProPotsdam**:
+5 fünfgeschossige Häuser auf ~11.000 m², **95 WE, Fertigstellung 2. Quartal 2019**, GALANDI SCHIRMER
+Architekten, 16 Mio. EUR (8,5 Mio. Landesdarlehen + 2 Mio. Zuschuss), **komplett barrierefrei, Aufzug
+in allen fünf Häusern, alle Wohnungen mit Balkon**, Fahrradabstellräume (Keller **nirgends dokumentiert**
+— immer nachfragen), Wohnungen ~50–95 m², überwiegend 2–3 Zi.
+→ Richtiges Feld ist **2013–2020 · alle**, nicht 1971–1990: bei 75,12 m² (Spalte D) **12,34
+(10,90–14,23)** statt 5,63 (5,13–6,10) — **Faktor 2,2**. Erstbezug 2019 ⇒ **§ 556f BGB,
+Mietpreisbremse dauerhaft nicht anwendbar** (auch bei Wiedervermietung; also auch **keine gesetzliche
+Deckelung künftiger Mietanpassungen** — als Risiko in Block A/G nennen, nicht als „compliant" abhaken).
+**Belegungsstruktur (entscheidet über den Preis-Plausibilitätscheck): 75 % miet- und belegungsgebunden**
+(Bindungsmieten **5,50 EUR/m² mit WBS**, **7,00 EUR/m² WBS+40**), nur **25 % freifinanziert** zu ~12–13
+EUR/m² kalt. Deshalb: eine Tiroler-Damm-Anzeige mit „keine WBS Wohnung" ist plausibel, aber der
+WBS-/Bindungsstatus ist die **einzige** wirklich entscheidende Kontaktfrage; und Preise ≫ 13 EUR/m²
+kalt sind dort unplausibel → sie zeigen an, dass die genannte Zahl die **Warmmiete** ist (#607).
+*Why:* der Waldstadt-Reflex hätte 5,63 gezogen → „+125 % über Mietspiegel, § 556g-Rüge" auf einem
+markt- und mietspiegelkonformen Preis, und hätte zusätzlich die kalt/warm-Frage falsch entschieden.
+Siehe [[kleinanzeigen-de]] für die Adress-/WebSearch-Route, die das Baujahr auf einer 0-Foto-Anzeige liefert.
+
 ## Ortsteil-Anker: **Babelsberg Nord (14482)** — größtes systematisches Delta Angebot ↔ Mietspiegel
 Babelsberg Nord ist Gründerzeit-Weberviertel (Nowawes) **mit eingestreuten Nachwende-Neubauten** —
 Baujahr also immer aus dem Exposé nehmen, nie aus dem Ortsteil. Der Ortsteil ist gefragt (beste

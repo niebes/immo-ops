@@ -145,7 +145,13 @@ Budget: one grep of the REFERENCE_LIST, not 4 curls. *Why:* #526 burned 4 probes
 
 Confirmed again on #549 (expose 169908691, Objekt-Nr. 443422): "Weitere Links" held only
 `is24-homepage`. Treat the generic link as the *common* case on IS24 swaps, not the exception —
-go straight to the free text.
+go straight to the free text. **But always look: it is roughly a coin flip, not a dead end.** #610
+(expose 170120501) carried BOTH `is24-homepage` and a working object link `twg.click/is24-401260-899`
+(note the **3-digit** tail, not the `-NN` two-digit form) → 302 to the tauschwohnung.com detail page,
+full `__NUXT_DATA__`, structured `search` + `housing`. When the object link is there it is worth the
+one curl: it delivered `market: "free"` (= no WBS, otherwise unknowable), `constructionYear`/
+`energyEfficiency`/`moveInDate`/`deposit` as explicit nulls (so "unstated" is *proven*, not assumed),
+and the `search.radius` field that decided side 2.
 
 ### IS24 `realEstateType: houserent` swaps are the sparsest variant — expect NO Ausstattung at all
 On #549 the whole expose carried just three ATTRIBUTE_LISTs: "Hauptkriterien" (only `Wohnfläche ca.`
