@@ -45,6 +45,39 @@ inserent is the same person and the price fell — #621.)
 **Why:** without the Objekt-Nr.+404 pair a re-list is either scored as a brand-new flat (losing the
 price-cut leverage and re-deriving everything) or dismissed as a stale duplicate and never evaluated.
 
+#### Re-list variant: **privat → Makler, Kaltmiete RUNTER + Nebenkosten HOCH, Warmmiete gleich = Mietpreisbremsen-Umgehung prüfen**
+Two extensions to the rule above, both from **#626** (expose 170130580) vs **#495** (169626249),
+Gartenstraße 17 Fahrland:
+- **When the Objekt-Nr. is a Makler hash (`7612#MNCBtJ`) it identifies nothing** — it is not the
+  landlord's unit key like the Vonovia/ProPotsdam ones. Settle identity on **exact address + exact
+  m² + room count + the full amenity SET + floor**, then the 404 on the old scoutId. Watch the
+  floor notation: **"3. von 3" (Obergeschosse) and "4 von 4" (Etagen inkl. EG) are the SAME top
+  floor** — read them as identical, not as evidence of two different buildings.
+- **The real finding is usually the price RESTRUCTURING, not the price level.** Here KM
+  1.223 → 893 EUR (−27 %) while NK 300 → 600 EUR (+100 %) and the **Warmmiete stayed put
+  (1.523 → 1.553)**. Always diff KM/NK/warm separately across the two ads; a constant Warmmiete
+  with a collapsed Kaltmiete is the signature. Then check both sides against the Mietspiegel:
+  the old 13,01 EUR/m² was **+19 % over zulässig**, the new 9,50 EUR/m² is **under** it — i.e. the
+  Kaltmiete was engineered into compliance by parking ~330 EUR/month in the Betriebskosten-
+  vorauszahlung. Cross-check the NK against ~3,00–3,80 EUR/m² for Potsdam incl. Fernwärme; 600 EUR
+  on 94 m² = 6,38 EUR/m² ≈ 2×. Score it as **Block A −0,5** (not a hard blocker) and put
+  **§ 556g Abs. 3 BGB (Vormiete) + letzte Betriebskostenabrechnung** into Next steps. Note the
+  genuine upsides for the tenant too: Kaution follows the lower KM (3.669 → 2.679 EUR) and future
+  § 558-Erhöhungen compute off the lower base.
+- **Scam signal:** "reposted with different prices" (Medium) fires here on paper — a *different*
+  advertiser and a *higher* total. Still entkräften it when the new advertiser is verified, the
+  address is exact and the Warmmiete is flat: it is a Neuvermarktung, not a Lockangebot. Verdict
+  stays **Legitimate** (0 high, 1 rebutted medium).
+- The Makler ad is usually the **better-documented** one (Baujahr + Energieausweis appear because
+  the Makler is liable for them) but the **worse-photographed** one (10 vs 20 photos, kitchen shot
+  gone) — carry the private ad's kitchen/Ablöse facts forward as open questions rather than
+  assuming they lapsed. Expect contradictions between the two ads (Fernwärme vs Etagenheizung,
+  3 Schlafzimmer/1 Bad vs 1 Schlafzimmer/2 Bäder) → list them as viewing checks, don't pick a winner.
+**Why:** scored naively, the new ad reads as a bargain ("Kaltmiete 53 % unter Budget, unter dem
+Mietspiegel") and Block A gets 5,0 — while the household actually pays the same Warmmiete as the
+ad that was 19 % over the Mietpreisbremse, and the single strongest negotiating lever of the whole
+evaluation goes unmentioned.
+
 **Exception — on TENANT_NETWORK ads the Objekt-Nr. is a random UUID and proves nothing.**
 `OBJECT_INFO` reads `Scout-ID: … | Objekt-Nr.: bdf4153d-7aec-4daf-8cd1-08d51d761777` — IS24
 generates that per *ad*, so a re-list gets a fresh UUID and it can never match the old one.

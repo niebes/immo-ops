@@ -110,6 +110,28 @@ per `Wohnberechtigung`-Keyword prüfen, nicht aus dem Preis erschließen. *Why:*
 liest man −30 % als Scam-/WBS-Verdacht und übersieht, dass tatsächlich der Mieter den
 § 556g Abs. 3 BGB-Auskunftshebel in der Hand hat.
 
+**Die Regel hängt am BAUALTER, nicht an der Großsiedlung — sie gilt genauso im ländlichen Ortsteil.**
+#627 (expose 170096870, Ulrich-Steinhauer-Str. 1d, **Groß Glienicke**, Bj. 1985, EEK C, 60,1 m²,
+**397 EUR = 6,61 EUR/m²**) kam mit dem Auftrag "397 EUR für 60 m² ist weit unter Mietspiegel — prüfe
+hart auf Genossenschaft/Sozialwohnung/WBS/Extraktionsfehler/Scam" herein. Keiner dieser Verdachte traf
+zu: gegen den Angebotsanker (15,51) sind es −57 %, gegen das Feld 1971–1990 × C,D × Spalte C
+= **5,82 (5,23–6,25)** aber **+13,6 % über dem Mittelwert / +5,8 % über dem Oberwert**, zulässig
+6,40 → Bremse um **+3,2 % (12,24 EUR/Mon.)** überschritten. Ein 1985er Geschosswohnungsbau kostet in
+**jedem** Potsdamer Randortsteil (Groß Glienicke, Fahrland, Satzkorn, Marquardt …) 5,5–7 EUR/m² — die
+Ortsteilliste oben ist nur die häufigste Fundstelle, nicht die Bedingung. Erste Frage ist immer
+`obj_yearConstructed`, nicht der Ortsteil.
+*Why:* mit der engen Lesart hätte die Ortsteil-Prüfung "keine Großsiedlung" ergeben und der
+−57-%-Befund wäre erneut als Scam-/WBS-Verdacht durchgegangen.
+
+**Spaltengrenzen-Sensitivität: bei m² dicht an einer Spaltenkante beide Felder rechnen.** Die
+Wohnflächenspalten sind eng geschnitten (B >45–60, C >60–75), und benachbarte Felder unterscheiden
+sich um ~8 %. #627 lag mit **60,1 m² genau 0,1 m² in Spalte C** (5,82 → zulässig 6,40 →
+**überschritten**); in Spalte B wäre es 6,30 (5,76–6,87) → zulässig 6,93 → **konform** gewesen. Bei
+≤1 m² Abstand zur Kante also beide Werte nennen und die Überschreitung entsprechend relativieren
+(dazu kommen ohnehin § 556e/§ 556f).
+*Why:* eine Mietpreisbremsen-"Verletzung", die an 100 cm² Wohnfläche hängt, darf nicht als harter
+Befund in den Report — die Wohnfläche selbst ist ja nur "ca." angegeben.
+
 ### Gegenprobe zur Großsiedlungs-Regel: **das Baualter aus den FOTOS verifizieren, bevor man das Plattenbau-Feld nimmt**
 Der Ortsteil-Reflex ("Waldstadt/Drewitz/Schlaatz → 1971–1990") ist eine *Vermutung*, und weil
 zwischen den Baualtersklassen bis zu **Faktor 1,4** liegt, dreht eine falsche Klasse das
