@@ -450,6 +450,20 @@ Gebäudetyp" note in `potsdam-mietspiegel.md`.)
 **Why:** reading the 93rd percentile as "overpriced for the address" would have cost Block A ~1,5 points
 on a listing that is actually below the ortsübliche Vergleichsmiete.
 
+**Converse — when BOTH anchors point the same way, the percentile is real and it is the one thing that
+separates "over the Mietspiegel like everything else" from "genuinely overpriced".** Test the building
+age against the Ortsteil first: only if the flat is *older than or typical for* its Ortsteil does a
+top-percentile `priceBar` corroborate rather than explain away. #625 (expose 170145682, Kunersdorfer
+Str. 22a, Teltower Vorstadt): Bj. **1954** — i.e. the plain Bestandstyp of that street — asking
+15,00 EUR/m² against a similar-band of **7,10–12,00** (position 0,93, *above* `maxSimilarPrice`) AND
++128,7 % over the Baualters-correct field (1949–1970 × B,C × Spalte D = 6,56). Practical use: our
+Potsdam precedents (#570 +59 %, #619 +54 %, #558) all stayed **inside** their local band and were
+scored Block A **4,5**; a listing that is over the Mietspiegel *and* over the band earns a further
+step down (#625 → **4,0**). That is the only defensible way to rank Mietspiegel overshoots against
+each other, since the ±0,5 rubric adjustment alone cannot distinguish +54 % from +129 %.
+**Why:** without the converse the note reads as "a high percentile never means overpriced", and every
+overshoot collapses onto the same 4,5.
+
 ### Sibling class: **plain private Nachmietergesuch** (`isTenantNetwork: false`) — the checkbox fields are FALSE NEGATIVES
 Not every "Nachmieter gesucht" ad is a Mieternetzwerk one. The other, commoner form is an ordinary
 private inserat the outgoing tenant posts herself: `header.isTenantNetwork: false`, `obj_privateOffer: true`,
