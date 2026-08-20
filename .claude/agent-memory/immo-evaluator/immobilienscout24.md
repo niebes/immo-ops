@@ -3863,6 +3863,19 @@ ist. `dateStarted` ist damit der beste verfügbare Veröffentlichungszeitpunkt.
 **Why:** sonst bleibt „unverifizierter Privatanbieter" ein Bauchgefühl statt eines zählbaren Signals,
 und man hat gar kein Einstellungsdatum für die Einschätzung „wie lange steht das schon".
 
+⚠ **`freemiumSettings` allein trägt das Medium-Signal NICHT — es zählt nur als Teil des kompletten
+Clusters.** Das Gratis-Fenster ist die Standard-Schaltung *jedes* Privatvermieters, auch des
+seriösen. Das Signal „New portal account, single listing" darf erst feuern, wenn die *übrigen*
+Cluster-Merkmale mitkommen (leeres `phoneNumbers`, Anruf-Button `inactive`, keine Adresse im
+Freitext, dünne Attributliste). Gegenbeispiel #625 (170145682, Kunersdorfer Str. 22a): 72-h-Freemium
++ `verifiedBy: []`, aber **aktiver Anruf-Button mit echter Mobilnummer, volle Straße/Hausnummer,
+Baujahr, Energieausweis, aufgeschlüsselte Kosten und legale Kaution** → als **Low** geführt,
+Gesamturteil *Legitimate*. Zweitens ist die Fensterlänge variabel (**72 h** hier vs. 96 h oben) →
+`duration` auslesen, nicht annehmen; `dateEnding` gehört als **Kontaktfrist** in die Next Steps
+(danach verschwindet die Anzeige bzw. der freie Kontaktweg).
+**Why:** mechanisch angewandt macht die Regel jedes Privatinserat zu „Proceed with Caution" — und
+genau die Privatinserate sind die provisionsfreien Direktkontakte, die wir wollen.
+
 ### Die `MEDIA`-Sektion kann komplett FEHLEN (nicht nur `media: []`)
 Bei 0 Bildern liefert der Payload teils gar keine `MEDIA`-Sektion — ein Parser, der auf
 `MEDIA.media` zugreift, läuft ins Leere statt eine leere Liste zu sehen. Verlässlich ist immer
