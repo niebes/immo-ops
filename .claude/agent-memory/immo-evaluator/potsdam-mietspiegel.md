@@ -244,6 +244,20 @@ auf Fotos reicht nicht, und § 556f deckt ohnehin nur die *erste* Vermietung dan
 § 556e (Vormiete) als einzige Rechtfertigung. Genutzt auf #588 (expose 170031691, Bj. 2001, 89 m²,
 17,75 EUR/m² = **90. Perzentil** der `priceBar`, zulässig 10,01–11,20 EUR/m² → 583–689 EUR/Monat Delta).
 
+**Die richtige Zeile ist im Weberviertel meist NICHT 1991–2008, sondern `bis 1948`.** Der Ortsteil ist
+Gründerzeit — Baujahre um 1900–1912 sind der Normalfall, die Nachwende-Neubauten die Ausnahme. Und
+weil diese Altbau-Inserate typischerweise **gar keinen Energieausweis** angeben, greift die Zeile
+**„bis 1948 · kein EA"**: Spalte D (>75–90 m²) = **7,83 (6,51–9,24)**, also zulässig **8,61 €/m²**
+(Mittelwert +10 %) bzw. max. **10,16 €/m²** am Oberwert. Das ist noch einmal ~14 % unter dem
+1991–2008-Feld und macht das Delta zum 15–18-€/m²-Angebotsniveau **noch größer**, nicht kleiner.
+Also: erst Baujahr **und** EA-Angabe aus dem Exposé ziehen, dann die Zeile wählen — der Ortsteilanker
+oben nennt bewusst nur das Neubaufeld. Gesehen auf **#631** (expose 170070873, Karl-Marx-Str.,
+Bj. 1912, kein EA, 85 m², **22,35 €/m² = ~2,9× ortsüblich**, Delta ~1.036–1.168 €/Monat) — dort
+zusätzlich ein **Souterrain**, das in der Spanneneinordnung wohnwert*mindernd* wirkt, den Vergleich
+also Richtung **Unterwert** (6,51) statt Mittelwert schiebt.
+*Why:* mit dem 1991–2008-Feld (9,10) wirkt derselbe Altbau-Preis „nur" 2,5× statt 2,9× ortsüblich,
+und die Verhandlungs-/§-556g-Rechnung im Report ist um mehrere hundert Euro zu niedrig.
+
 **Mikrolage: `Alt Nowawes` ist die Hauptdurchgangsstraße mit Gleisen in der Fahrbahn** (Tram 94/99,
 Bus 694, Nachtbus N14; Haltestelle „Alt Nowawes" zwischen Rathaus Babelsberg und
 **Humboldtring/Nuthestraße** — die mehrspurige Ausfallstraße liegt am westlichen Ende, ca. lng 13,089).
@@ -296,6 +310,29 @@ Preisniveau: Havelufer-Neubau mit TG/Aufzug/Fußbodenheizung liegt deutlich übe
 Angebotsanker 12,60–13,50; ~18 EUR/m² kalt ist dort plausibel, >22 EUR/m² kalt nicht.
 Genutzt auf #540. *Why:* ohne das kostet jede Speicherstadt-Wohnung zwei Websuchen und man tippt
 das Mietspiegelfeld blind.
+
+## Quartiers-Anker: **"Wohnen am Brauhausberg", Max-Planck-Str. 14–16 / 15A (14473, Südliche Innenstadt)**
+Neubauquartier mit **107 Mietwohnungen**, Baujahr **2026**, Erstbezug **ab 01.04.2027**, Fernwärme,
+Ausstattung "gehoben", **EBK inklusive**, Aufzug, Keller; vermarktet von **locals Real Estate GmbH**
+(Potsdam, IS24 4,5★/26, verifiziert) — der **Bauträger/Vermieter wird nirgends genannt**.
+Landingpage `wohnen-am-brauhausberg.com`, Objekt-Nr.-Schema **`H{Haus}-{Etage}-{WE}`** (H1-00-02,
+H2-02-09, H3-02-09, H5-01-06) → **es kommen laufend weitere Einheiten in den Scan**, und jede ist auch
+auf **Immowelt** doppelt gelistet (dort ohne Objekt-Nr. → über Kaltmiete+m²+Etage zuordnen).
+Fixwerte, die man nicht neu recherchieren muss: **§ 556f BGB — Mietpreisbremse nicht anwendbar**
+(Erstbezug 2026); Mietspiegelfeld **ab 2021**, bei 75–90 m² = **16,73 (14,88–19,64)**;
+IS24-`priceBar` adressgenau **11,20–18,50 EUR/m²** (Gesamtband 8,70–23,90).
+Preisniveau des Quartiers **21,0–22,2 EUR/m² kalt** (1.550/71,17 · 1.650/78,52 · 1.670/78,48 ·
+1.800/85,5 · 1.880/84,59) — also durchweg **~25–33 % über der ortsüblichen Vergleichsmiete** und über
+dem lokalen Angebotsband; Block A landet dort realistisch bei **4,0**, nicht 4,5+.
+**Zwei wiederkehrende Fallen:** (1) **"Heizkosten in Nebenkosten enthalten: Nein"** — die ausgewiesene
+Warmmiete ist unvollständig, real +60–90 EUR/Monat; (2) **keine Fotos/Grundrisse der konkreten Einheit**,
+nur Musterwohnung + Außen-Visualisierungen (Neubau-Ausnahme greift, Block D also nicht deckeln).
+Lage: Potsdam Hbf **~400–500 m / 5–7 Gehmin.** (RE1 Berlin ~25 Min., S7 Wannsee ~10 Min.) → Block B 4,8.
+Nicht mit **#430 (Havel Quartier / MIRU, Bj. 2022, allod)** verwechseln — gleicher Ortsteil, anderes
+Quartier, andere Vertragsfakten (dort Indexmiete + 12 Mon. Mindestlaufzeit). Genutzt auf #624.
+*Why:* fünf Geschwistereinheiten (#624/#628/#629/#630/#632) laufen als Einzel-Evaluationen; ohne den
+Anker recherchiert jede Mietspiegelfeld, § 556f, Anbieter und Lage neu — und übernimmt womöglich #430s
+Indexmiete-Fakten, die für dieses Quartier unbelegt sind.
 
 ## Ortsteil-Anker: **Jägervorstadt (14469) — Quartier Pappelallee/Voltaireweg, Wohnbau GmbH, Bj. 2013**
 Neubauquartier im „Villenkolonie"-Duktus zwischen Voltaireweg und Pappelallee (begrünter Innenhof mit

@@ -3699,3 +3699,44 @@ Bonus: the same title block confirms the Balkon must-have with an **area**, and 
 **Why:** without reading the plan you either take 79 m² as inner area (overstating what the
 household gets) or "correct" it to 75 m² and invent a measurement — and a band-edge m² figure can
 flip the Mietspiegel column.
+
+## `obj_typeOfFlat: half_basement` (Souterrain) — eigene Objektklasse, drei Score-Folgen
+Gesehen auf **#631** (expose 170070873, Karl-Marx-Str., Babelsberg Nord: 85 m², 3 Zi., Bj. 1912,
+saniert 2023, 1.900 € kalt = 22,35 €/m²). Der Wohnungstyp steht in `ATTRIBUTE_LIST "Hauptkriterien"`
+als `Wohnungstyp: Souterrain` und im Tracking als `obj_typeOfFlat: half_basement`. Was daran zu
+tun ist:
+- **`obj_cellar: n` ist hier KEIN False Negative** (anders als bei den Mieternetzwerk-/Privatgesuch-
+  Klassen weiter oben, wo eine unangetastete Ausstattungsmaske alles auf `n` stehen lässt): die
+  Wohnung *ist* das Untergeschoss, ein separater Keller existiert real nicht. Must-have `keller`
+  fällt aus, ohne dass man das Foto braucht.
+- **Block C nicht voll punkten**, auch wenn m²/Zimmer nominal im Zielkorridor liegen: wie viel der
+  Wohnfläche als **Aufenthaltsraum** (BbgBO: lichte Höhe, Fensterflächenanteil/natürliche
+  Belichtung) anrechenbar ist, steht nie im Exposé. −0,5 und als Besichtigungsfrage notieren.
+- **Block A: Souterrain ist in der Mietspiegel-Spanneneinordnung wohnwert*mindernd*** (Belichtung,
+  Feuchte, Deckenhöhe) → der Vergleichswert gehört Richtung **Unterwert** der Spanne, nicht Richtung
+  Mittel-/Oberwert. Ein Aufschlag auf den Mittelwert ist bei dieser Klasse nie zu rechtfertigen.
+- **Formulierung „Wohnung/ Archiv/ Studio" o. ä. = offene Vertragsart-Frage (Block G).** Wird
+  Wohnraum oder Gewerbe-/Lagerraum vermietet? Ein Gewerbemietvertrag hätte weder Kündigungsschutz
+  noch Mietpreisbremse — das ist oft die *einzige* Erklärung für einen Preis weit über Mietspiegel.
+  Als Block-G-Abzug + Contact-Frage #1 setzen, nicht als Scam-Signal.
+**Why:** ohne diese Klasse liest sich das Inserat als ganz normale 85-m²-3-Zimmer-Altbauwohnung in
+Top-Lage; tatsächlich fallen beide Must-haves weg, die Fläche ist unbelegt und der Preisvergleich
+kippt in die falsche Richtung.
+
+### `contact.freemiumSettings` = kostenlose 4-Tage-Testschaltung → stützt das Medium-Scam-Signal
+`{"duration": 96, "dateStarted": …, "dateEnding": …, "freemiumPeriodActive": true}` heißt: das
+Inserat läuft in IS24s Gratis-Fenster (96 h) eines Privatanbieters. Zusammen mit `verifiedBy: []`,
+leerem `rating: {}`, leerem `phoneNumbers: []` (Anruf-Button `inactive`) und fehlender
+`AGENTS_INFO.address` ist das die belastbare Version von „New portal account, single listing"
+(Medium) — und es datiert das Inserat, wenn `PREMIUM_ADDITIONAL_INFO.onlineSince` (wie meist) `null`
+ist. `dateStarted` ist damit der beste verfügbare Veröffentlichungszeitpunkt.
+**Why:** sonst bleibt „unverifizierter Privatanbieter" ein Bauchgefühl statt eines zählbaren Signals,
+und man hat gar kein Einstellungsdatum für die Einschätzung „wie lange steht das schon".
+
+### Die `MEDIA`-Sektion kann komplett FEHLEN (nicht nur `media: []`)
+Bei 0 Bildern liefert der Payload teils gar keine `MEDIA`-Sektion — ein Parser, der auf
+`MEDIA.media` zugreift, läuft ins Leere statt eine leere Liste zu sehen. Verlässlich ist immer
+`adTargetingParameters.obj_picturecount` (hier `"0"`). Ebenso fehlt bei minimalen Inseraten die
+`PRICE_INFO`-Sektion (also keine `priceBar`) und die Kautionszeile in „Kosten"
+(`obj_depositLink: n`) → Kaution als offene Frage in den Report, Preisvergleich über Mietspiegel +
+Ortsteilanker statt über das Vergleichsband.
