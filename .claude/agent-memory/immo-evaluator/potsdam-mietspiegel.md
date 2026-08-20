@@ -386,6 +386,17 @@ Bestand, ~16,9 EUR/m² bei Neubau-Angeboten (Vergleich: Seeburger Chaussee 2, 75
 *Why:* der Ortsteil-Anker bot nur die beiden Extremklassen an — bei einer Anzeige ganz ohne Baujahr
 und Energieausweis entscheidet allein das Bildmaterial, welches der drei Felder gilt (vgl. die
 Gegenprobe-Regel oben), und zwischen 9,28 und 15,72 liegt Faktor 1,7.
+**Nachtrag #626/#495: vierter Fixpunkt = `Gartenstraße 17` (MFH im Fahrlander Ortskern, Bj. 1996,
+Verbrauchsausweis C / 83 kWh, Fernwärme, 4 Etagen mit Personenaufzug, Tiefgarage, 94-m²-DG-Wohnungen
+mit Balkon + Keller + Gäste-WC).** Feld **1991–2008 · A+/A/B/C · Spalte E (>90 m²) = 9,91
+(8,71–12,70), zulässig 10,90**; IS24-`priceBar` adressgenau **8,60–12,50 EUR/m²** (Gesamtband
+7,10–15,20). Baujahr steht hier ausnahmsweise im Exposé — nicht raten. **Block B für diese Adresse:
+3,8, nicht die 3,5 des Ketziner-Str.-Ankers** — Gartenstraße liegt im gewachsenen Ortskern mit
+Nahversorgung/Kita/Schule fußläufig, während Ketziner Str. am Ortsrand hängt; #495 und #626 (dieselbe
+Wohnung) sind beide mit 3,8 gescort, das ist der Referenzwert für den Ortskern.
+*Why:* der Fahrland-Anker bot bisher nur Ortsrand-Neubau und „Bestand ohne Baujahr" an — dieses Haus
+ist der einzige belegte 1990er-Fixpunkt, und ohne die B-Differenzierung schwankt derselbe Ortsteil
+zwischen 3,5 und 3,8 je nachdem, welcher Anker zuerst gelesen wird.
 
 ## Ortsteil-Anker: **Golm (14476)** — drei Baualtersklassen, kein Ortsteil-Reflex möglich
 Golm ist der **Top-Präferenz-Ortsteil des Profils und der Standort unseres Tauschangebots**
