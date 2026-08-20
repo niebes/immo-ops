@@ -169,6 +169,22 @@ base 3,5 −1,0 for 1-of-6 rooms + no Grundriss = **D 2,5**).
 wrong reason and thrown away the only verified amenity and the only Baujahr clue in the whole exposé —
 and treating the photo as purely confirmatory would have missed the kitchen defect entirely.
 
+**Fourth real-photo caption form: a bare UUID/GUID** (`2F014BF8-9C41-4104-9FDC-A290A4`) — that is the
+iOS Photos export name, i.e. a phone-original exactly like `YYYYMMDD_HHMMSS.jpg`, a 30-digit numeric id
+and `image.jpg`. Never read it as a stock/catalog id (contrast the *Kauf* Planung case where numeric
+`1555066-131917-1-g` captions ARE renders — there the tell is the Planung listing class, not the
+caption shape). Seen on #620 (expose 170050119, Bornstedt): one iOS-UUID shot of the living room,
+camera-real, no cap fired.
+**Why:** an unfamiliar caption shape is the only thing standing between "download and look" and a
+wrongly-fired render cap.
+
+**`PRICE_RATING.fairPrice` is the fallback price sanity check when `PRICE_INFO`/`priceBar` is absent.**
+Mieternetzwerk payloads often ship a `PRICE_RATING` section (`status: FAIR_OFFER`, `label: "Geprüfte
+Miete"`, `level: 3`) even with no priceBar. It is IS24's own coarse verdict on the asking price. Quote
+it as a corroborator in the scam section; it is **not** strong enough to fire or suppress the "20 %
+below Mietspiegel" High signal on its own (that still needs a real address-precise band). Seen on #620.
+**Why:** without it, a priceBar-less tenant ad has literally zero address-adjacent price anchor.
+
 **The genuine zero case does occur (`MEDIA: []` + `obj_picturecount: 0`) — and then D drops BELOW
 the 3,0 cap.** 3,0 is a ceiling, not a floor. On #621 (170042920, Eiche) there were 0 images *and*
 `obj_condition` / `obj_interiorQual` / `obj_firingTypes` = `no_information`, no Baujahr, no
@@ -271,6 +287,8 @@ On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese
 - **Kaltmiete is a RANGE** (e.g. "498–552 €") and the title price is provisional — the listing states "Die Miete wird sich eventuell anpassen". Score price with a caveat, don't treat the low number as final.
 - **Möbelübernahme**: tenant often wants to discuss taking over furniture = possible extra cost. Flag it.
 - **Sparse data**: usually NO Energieausweis, NO Baujahr, NO floor, NO amenity table, and **usually 0 real photos** (on the API often literally `MEDIA.media: []` + `obj_picturecount: "0"`; on the web page the gallery imgs are all SVG icons/maps) → then cap Block D at 3.0. **But decide the cap on the evidence, not on the listing class:** the tenant can upload phone shots — #554 (expose 169223897, Karl-Liebknecht-Str., Babelsberg Nord) had `obj_picturecount: "2"` with camera-original captions `20241022_175533.jpg` / `20210520_164012.jpg`. A bare `YYYYMMDD_HHMMSS.jpg` caption = a real photo, so **no cap fires**; the other real-photo caption forms are a bare **30-digit numeric id** (#553, expose 169501712), a generic **`image.jpg`** (#556, expose 169924185) and **`IMG_####.png`** (#618, expose 170153489) — all four are phone snaps, NOT stock/render tells, so never let a boring caption trigger the render/Symbolbild cap. **Actually download `fullImageUrl` and look:** on #553 the 2 photos were a laundry-covered Loggia and a bare wall (no living room → D still capped 2,5), but photo 1 **proved a Balkon exists** and overturned `obj_balcony: n`, moving Block E from "both must-haves unconfirmed" to "Balkon ✓, Keller unconfirmed". Looking at the pixels is the only way to confirm a must-have on a tenant ad; **and even when it confirms no must-have it can still fix Block A** — #556 had `obj_picturecount: 1` (a kitchen corner) with Baujahr absent, and the visible **außenliegender Raffstore + flacher Kompaktheizkörper + Dreh-Kipp-Fenster** dated the building to modern stock, which is exactly what picks the Mietspiegel Baualtersklasse row. On a Mieternetzwerk ad Baujahr is never stated, so bracket it: score the Mietpreisbremse against BOTH the photo-implied row and the conservative older row, and report compliance only if it holds under the conservative one (#556: 10,86 EUR/m² vs. zulässig 10,90 under 1991–2008 · Größenklasse E — compliant by 4 EUR, and 12 % under ortsüblich if 2013–2020); D still lands ~3,0 anyway because Baujahr/Objektzustand/Energieausweis are all empty and there is no Grundriss. Count `MEDIA[]` entries of `type:"PICTURE"` only — skip the `type:"AD"` entries, they inflate the length. Treat must-haves (Balkon/Keller) as unconfirmed → Block E ≈ 2,5 (not 2,0/1,0 — the Ausstattung mask is demonstrably untouched: every `obj_*` amenity is `n` while `obj_condition`/`obj_interiorQual`/`obj_petsAllowed` are `no_information`, same false-negative rule as the private-Nachmietergesuch class below). There is no `<dl>` criteria table — `dt/dd` extraction returns empty; read fields out of `document.body.innerText` instead.
+- **A `.png` caption + a ~0,46 portrait aspect ratio with black letterbox bars = the tenant uploaded a phone SCREENSHOT of her own photo, not a render — and the image is rotated 90°.** #618 (expose 170153489, Babelsberg Süd) served both pictures as 462×1000 JPEG (`file` after the `format/jpg` swap) with `IMG_5259.png` / `IMG_5261.png` captions; 462/1000 ≈ the iPhone screenshot ratio, and the black bands are the screenshot's letterboxing. Read them anyway — the content is a normal room photo lying on its side, and it still carried the two decisive facts of that evaluation (a full Einbauküche against `obj_hasKitchen: n`, and a Dachschräge over the bathtub = attic flat + Badewanne nice-to-have). Rule: `file`-check the dimensions once, expect the rotation, do **not** treat `.png`/letterboxing as a screenshot-of-another-listing scam tell — a screenshot of a *portal page* would show UI chrome, which these do not.
+  **Why:** the odd aspect ratio and the `.png` extension look like a scraped/second-hand image and could wrongly fire a Medium "photos from a different property" signal on an otherwise clean tenant ad.
 - **The TAG_LIST move-in hint can CONTRADICT the description's explicit date — the description wins.** #560 (expose 169821748, Drewitz) tagged "Nachvermietung ab August" while the tenant's own TEXT_AREA said "Der Bezug ist ab dem 1. November 2026 möglich" (~3 months out = exactly the profile's ideal lead time, i.e. the difference flips Block F). The tag is a coarse bucket the tenant picks once and rarely updates; always read the description tail for a concrete date before scoring F, take the explicit date, and put the contradiction in the contact questions. **Exception — if the description's date is already in the PAST, the tag wins:** #554 said "ab dem 11. Juli 2026 bezugsfrei" (evaluated 2026-08-11) while the tag said "ab September", i.e. the stale half is the free text this time. Rule: take whichever of the two is still in the future; if both are, take the description. Never score F off a date that has already passed — that reads as "sofort" and wrongly books the double-rent penalty. **Third case: BOTH dates already past while `publicationState: active`** (#553, expose 169501712 — tag "Nachvermietung ab Juni" + "ab dem 16. Juni 2026", evaluated 2026-08-11, ~2 months stale). Then there is no future date to rescue: score F = 3,5 (de-facto sofort under a flexible window) **and** treat it as a staleness signal — make "is it still free, and from when?" the FIRST next step, ahead of any document work, since an active-but-2-months-overdue tenant ad is often simply left lying around. Same pass: the Mieternetzwerk description sometimes names the **street** in plain text ("Die Wohnung befindet sich in der …straße"), which independently corroborates the `obj_telekomInternetUrlAddition` base64 address — quote both when they agree.
 - **The tenant's TEXT_AREA m² can contradict `obj_livingSpace`/TOP_ATTRIBUTES — the structured field wins, the delta becomes contact question #1.** #559 (expose 169875653, Gerlachstr. Drewitz): field/TOP_ATTRIBUTES/`shareMessage` all said **116 m²** while the tenant's own description opened with "eine Wohnfläche von 130 Quadratmetern". Same family as the TAG_LIST-vs-description date clash above, but the resolution is **inverted**: the m² field is what the tenant typed into the form and what the search index, the €/m² and the `priceBar` percentile are computed from, so it is the consistent number — the prose figure is unanchored. Score Block C on the field, but note the conflict explicitly, because it can straddle the profile's `max_m2` (116 is inside 60–120, 130 is 8 % over) and it silently moves €/m² (11,47 vs 10,23).
   **Why:** taking the prose number would have pushed an in-range flat out of range and mispriced the Mietspiegel comparison by more than a euro per m².
@@ -282,7 +300,7 @@ On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese
 - **The `TITLE` of a Mieternetzwerk exposé is tenant-typed free text and can name a completely different CITY than the flat.** #557 (expose 169889489) was titled "4-Zimmer-Wohnung in **Brandenburg an der Havel**" while `MAP.addressLine2` = "14469 Bornim, Potsdam", `geo_ot: bornim`, `obj_regio3: Potsdam_Nord`, `obj_regio4: Bornim`, `geo_krs: potsdam`, the Preisentwicklung link pointed at `/potsdam/potsdam-nord/nedlitz` and the `zipCodeShapes` polygon was the PLZ-14469 outline. Rule: on TENANT_NETWORK listings the title's place name is **noise** — Block B comes from the geo cluster (`MAP.addressLine2` + `geo_ot`/`obj_regio3/4` + `obj_zipCode`) plus the decoded `obj_telekomInternetUrlAddition`. (Unlike the Kauf case at line ~229, there is no Objektbeschreibung Lage sentence to lose to — these descriptions are 3 generic sentences with no location text at all.)
   **Why:** the caller's cached title said "Brandenburg an der Havel" (a different Kreisfreie Stadt, ~40 km away, outside preferred_areas) — scoring that would have wrongly tanked Block B on a Potsdam flat.
 - **On a Mieternetzwerk exposé the decoded Telekom address is the ONLY address you get — sanity-check WHAT the building is, not just where it is.** With `media: []` / `obj_picturecount: 0` there is no photo to corroborate it (contrast the photo-verification corollary further down). On #557 it decoded to Lerchensteig 49, 14469 Potsdam — publicly documented as the AWO "Wohnanlage Bornim", a Gemeinschaftsunterkunft in Modul-/Containerbauweise that the Landeshauptstadt rents from AWO Bezirksverband Potsdam e.V. A privately posted 4-Zi-/75-m²-Nachvermietung there does not obviously fit. One WebSearch on "{Strasse} {Hausnr} {PLZ} {Ort}" costs little and belongs in the workflow whenever the exposé is photo-less; report it as a **data-integrity flag + contact question #1**, not as a scam signal (the price sat *above* the priceBar band, so no bait pattern).
-  - **But `obj_telekomInternetUrlAddition` is NOT always there — when it is missing there is NO address path at all, so stop hunting.** #612 (expose 168700892, Drewitz 14480) carried only `obj_telekomInternetUrlBase` (the generic Telekom tariff URL, present on every exposé) with **no** `…UrlAddition`, plus `obj_street`/`obj_houseNumber` = `no_information`, `MAP.addressLine1` = "Die vollständige Adresse der Immobilie erhältst du vom Anbieter.", `TRAVELTIME.isBlocked: true`, and a description that names no street. Confirm the absence with one `grep -c telekomInternetUrlAddition {payload}` → `0`. Consequences to write into the report rather than re-derive: the flat is only **PLZ-genau** locatable, the tracker-grep-by-street trick and the WebSearch building lookup (Baujahr/EEK/Verwalter) are both **unavailable**, so Block B falls back to the Ortsteil prior and the Mietspiegel row must be **bracketed** over the plausible Baualtersklassen (Drewitz: 1971–1990 field ~6,26/6,88 vs. 1991–2008 field ~9,91 — a swing that flips the Mietpreisbremse verdict from "+12–23 % darüber" to "−22 % darunter"). Make "Straße/Hausnummer?" a first-contact question.
+  - **But `obj_telekomInternetUrlAddition` is NOT always there — when it is missing there is NO address path at all, so stop hunting.** #612 (expose 168700892, Drewitz 14480) carried only `obj_telekomInternetUrlBase` (the generic Telekom tariff URL, present on every exposé) with **no** `…UrlAddition`, plus `obj_street`/`obj_houseNumber` = `no_information`, `MAP.addressLine1` = "Die vollständige Adresse der Immobilie erhältst du vom Anbieter.", `TRAVELTIME.isBlocked: true`, and a description that names no street. Confirm the absence with one `grep -c telekomInternetUrlAddition {payload}` → `0`. (Same shape again on **#618** (expose 170153489, Babelsberg Süd 14482) — i.e. this is a recurring Mieternetzwerk variant, not a #612 one-off; the "decoded Telekom address is the ONLY address you get" line above must be read as "…when it is present at all".) Consequences to write into the report rather than re-derive: the flat is only **PLZ-genau** locatable, the tracker-grep-by-street trick and the WebSearch building lookup (Baujahr/EEK/Verwalter) are both **unavailable**, so Block B falls back to the Ortsteil prior and the Mietspiegel row must be **bracketed** over the plausible Baualtersklassen (Drewitz: 1971–1990 field ~6,26/6,88 vs. 1991–2008 field ~9,91 — a swing that flips the Mietpreisbremse verdict from "+12–23 % darüber" to "−22 % darunter"). Make "Straße/Hausnummer?" a first-contact question.
   **Why:** the sentence above reads as if the Telekom param is always available; spending a search pass on an address that simply is not in the payload wastes the evaluation, and silently picking one Baualtersklasse fakes precision the listing does not support.
 - **IS24 AUTO-GENERATES both the title and the description on Mieternetzwerk ads, and the title's
   room count can be flat WRONG.** #562 (expose 169624466, Marquardt) is live-titled *"**1-Zimmer**
@@ -332,6 +350,23 @@ verdict from "+100 % over Mietspiegel, Mietpreisbremse massively exceeded" to "�
 exempt". Feed the found EEK into Block D too (the exposé has none).
 **Why:** without the lookup you score the Ortsteil's stereotype instead of the building, and on a
 Mieternetzwerk ad there is no field anywhere that would correct you.
+
+**The address path can fail completely — then BRACKET the Baualtersklasse and say so, don't guess.**
+`obj_telekomInternetUrlAddition` is **not always present**: on #620 (expose 170050119, Bornstedt) the
+payload carried only `obj_telekomInternetUrlBase` + `obj_telekomInternetSpeed`, with
+`obj_street`/`obj_houseNumber` = `no_information`, `MAP.addressLine1` = "Die vollständige Adresse der
+Immobilie erhältst du vom Anbieter." and `TRAVELTIME.isBlocked: true` / "Adresse vom Anbieter
+unveröffentlicht" — i.e. the advertiser actively withheld it and there is **no** decode to run, no
+street in the description, and no photo of a facade. Recognise the trio (isBlocked + addressLine1
+placeholder + missing UrlAddition) as "address unrecoverable" instead of hunting for a base64 blob
+that isn't there. Then the report must present the Mietspiegel as a **bracket table over all plausible
+Baualtersklassen** (in Bornstedt/Bornstedter Feld the stock runs ~2001–2024, so the span was
+9,28→15,72 EUR/m², a factor 1,7) and state plainly that the Mietpreisbremse is **not determinable**,
+rather than picking a row. Pair it with the Ortsteil's own evaluated comparables from the tracker
+(#216/#539/#564/#575 for Bornstedt) — that at least anchors the *Angebots* level.
+**Why:** without the "unrecoverable" recognition you burn the whole WebSearch/decode routine on an
+address that was never in the payload, and then quietly settle on one Baualtersklasse — which on a
+1,7× spread is the difference between "8 % über zulässig" and "26 % darunter".
 
 **`priceBar` at the 93rd percentile / above `maxSimilarPrice` is NOT an overpricing finding when the
 building is younger than its Ortsteil.** The band is Ortsteil-wide, so in a Plattenbau-dominated
@@ -1671,6 +1706,33 @@ real shot of the same room. Rules:
 **Why:** applying the description-level rule to a per-image label would have capped D at 3,0 on a
 listing with 14 genuine photos plus three floor plans, costing ~0,07 of the global score and, worse,
 telling the user the property was unverifiable when it is one of the better-documented exposés seen.
+
+#### `MEDIA[].caption` is hard-truncated at **30 Zeichen** — keyword-match on PREFIXES
+Captions come back cut mid-word at exactly 30 chars: `"Außenansicht - Visualisierung"` survives but
+`"Hausaufteilung - Visualisierun"`, `"Interaktive 3D-Tour - Musterwo"`, `"Schlafzimmer / Digital-Home-St"`
+and `"Wohnzimmer - Schlafzimmer / Di"` do not. A regex on the full words
+`Visualisierung|Musterwohnung|Digital-Home-Staging` therefore **misses part of the gallery** and
+undercounts the render/staging share. Match on stems instead:
+`Visualisierun|Musterwo|Digital-Home|Renderin|Symbolb|KI-generier`. Seen on #624 (expose 170152491).
+**Why:** the render-vs-real classification above decides whether Block D is capped — classifying on a
+half-matched caption set silently flips that call.
+
+### Bauträger-Quartier ads: **NO Objektbeschreibung/Ausstattung/Lage TEXT_AREA at all**
+A Vermarkter selling a whole Neubauquartier (107 WE, one ad per unit) can ship an exposé whose ONLY
+`TEXT_AREA` is `title == "Sonstiges"` — and that block is pure Bewerbungsprozess-Boilerplate
+(Selbstauskunft/SCHUFA/Gehaltsnachweise/Mietschuldenfreiheit), zero words about the flat. Everything
+substantive lives in `ATTRIBUTE_LIST` + `MEDIA` captions + an external Landingpage in
+`REFERENCE_LIST`. Consequences:
+- The mandatory **`Staffel|Index|Mindestmietdauer|Kündigungsausschluss` grep has nothing to grep.**
+  Do NOT read that as "keine Staffel-/Indexmiete" — for Bauträger-Neubau it is common. Score Block G
+  at ~4,5 (unknown), not 5,0, and put the Vertragsart as question #1 in Next steps.
+- Same for Badewanne/Gäste-WC/Stellplatz: absent from both the attribute mask and any text → open
+  questions, not "nicht vorhanden".
+- The **actual Vermieter/Bauträger is never named** (only the Makler in `AGENTS_INFO`) → Block H
+  ceiling ~4,2 even for a well-rated agency.
+Seen on #624 (expose 170152491, locals Real Estate, "Wohnen am Brauhausberg").
+**Why:** the existing rule says Staffel/Index live in `Sonstiges`; when `Sonstiges` is process
+boilerplate, a clean grep result reads as a confirmed absence and Block G gets a free 5,0.
 
 ### Always curl to an expose-ID-specific filename — the scratchpad is SHARED
 Write to `expose-{scoutId}.json`, never a generic `e.json`/`expose.json`. Parallel evaluator
