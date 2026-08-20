@@ -1707,6 +1707,32 @@ real shot of the same room. Rules:
 listing with 14 genuine photos plus three floor plans, costing ~0,07 of the global score and, worse,
 telling the user the property was unverifiable when it is one of the better-documented exposés seen.
 
+**Mirror case — a HUGE gallery on a not-yet-built Neubau can still contain zero images of the
+advertised unit.** #628 (expose 170074174, "Wohnen am Brauhausberg", Max-Planck-Str. 15A Potsdam,
+locals Real Estate GmbH, bezugsfrei 04/2027) had **63 PICTUREs + a Matterport tour** and *none* of
+them showed unit H5-01-06: interiors captioned `Musterwohnung` / `… / Digital-Home-Staging`,
+~10 exteriors `Außenansicht - Visualisierung`, and **all three Grundrisse + the 3D-Tour labelled
+"Musterwohnung"**. Rules for this class (project exposés selling N units off one media set):
+- The Neubau/Erstbezug exception still holds → **do not cap D** on renders. But bucket by caption and
+  ask "how many depict *this* unit?"; when the answer is 0, surface it explicitly as a ✗ con
+  ("keine Fotos und kein Grundriss der konkreten Einheit") and make "einheitsspezifischen Grundriss
+  + Fotos anfordern" a Next step. Big picture counts read as "well documented" and hide this.
+- These exposés often have **no Objektbeschreibung/Ausstattung `TEXT_AREA` at all** — only a
+  "Sonstiges" application boilerplate. Then every nice-to-have (Badewanne, Stellplatz) is
+  **unverifiable and must NOT be credited in Block E**; the Musterwohnung bathroom photo is not
+  evidence about the advertised flat. Check the `REFERENCE_LIST "Weitere Dokumente"` first (see
+  below) — on #628 it did not exist, so the gap was real.
+- Sibling units of the same project appear as separate exposés with near-identical everything;
+  quote the **EUR/m² of all siblings side by side** in the report — it is the only field that
+  separates them and it moved 21,02→22,22 across five units of one quarter.
+- **locals Real Estate GmbH (Potsdam)** advertises 3D tours + digital home staging as standard
+  services on locals.de → expect staged interiors on *every* locals exposé, same as the premium
+  brands above. Externally it checks out well (Trustlocal 4,7/5 aus 140), so this is marketing
+  polish, not a scam signal.
+**Why:** the per-image rule above protects the score, but says nothing about the *reporting* duty;
+without this, a 63-photo exposé gets written up as thoroughly documented while the user actually has
+no picture, no floor plan and no description of the flat they would be signing for.
+
 #### `MEDIA[].caption` is hard-truncated at **30 Zeichen** — keyword-match on PREFIXES
 Captions come back cut mid-word at exactly 30 chars: `"Außenansicht - Visualisierung"` survives but
 `"Hausaufteilung - Visualisierun"`, `"Interaktive 3D-Tour - Musterwo"`, `"Schlafzimmer / Digital-Home-St"`
@@ -1847,6 +1873,26 @@ The same list also carries the **einheitsgenauen Grundriss**, labelled with the 
 Wohnungsnummer WE 58"). `curl` it and `pdftotext` it: it confirms Zimmerzahl/Fläche/Etagenlage of
 *this* unit (and often reveals the Bauträger's Haftungsausschluss = "Planmaße", i.e. the m² are
 plan figures, not a WoFlV-Aufmaß). Seen on #537 (expose 169858137).
+
+#### Bauträger-Vorvermietung: no "Weitere Dokumente" list at all → the data sits on the **project landing page** in "Weitere Links"
+On a **multi-unit Neubau pre-letting** (one exposé per unit, `OBJECT_INFO` Objekt-Nr. = the unit key
+like `H1-00-02`, `Bezugsfrei ab` a year+ out) there is frequently **no `REFERENCE_LIST "Weitere
+Dokumente"` section whatsoever** — so the check above returns nothing and `Energieausweis: liegt zur
+Besichtigung vor` is a genuine gap in the API. Before logging it as unobtainable, read
+`REFERENCE_LIST "Weitere Links"`: alongside the Makler's own content-marketing links it carries the
+**Bauträger project landing page** (#630: `https://wohnen-am-brauhausberg.com`), plus an
+**interaktive Lagekarte** (`realestateos.deepimmo.com/shared-suite/...`) and the **Matterport
+3D-Tour of the Musterwohnung** (`my.matterport.com/show/?m=...`). The landing page is where
+Baubeschreibung, Energieausweis and the per-unit Grundrisse actually live. Put it in Next steps
+rather than writing "Energieausweis nicht verfügbar" — and keep the missing-Energieausweis scam
+signal at **Low/benign**: for a building not yet finished, no final Ausweis can exist yet.
+Corollary for Block D: on these listings **no image shows the advertised unit** — interiors are the
+`Musterwohnung`, exteriors are captioned `Visualisierung`, and even the Grundriss is
+`Grundriss - Musterwohnung`. The `_shared.md` Neubau exception means D is *not* capped, but say
+explicitly in the report that the unit itself is undocumented. Seen on #630 (expose 170074104) and
+its siblings #624/#628/#629 in the same Quartier.
+**Why:** without this you either conclude the Energieausweis is being withheld (wrong — it cannot
+exist yet) or you hunt for a "Weitere Dokumente" list that this listing class simply never has.
 
 **The Grundriss header is also a third address leak** (next to the Telekom base64 param and the MEDIA
 captions), and it fires when the other two don't: `obj_street/obj_houseNumber: no_information`, MAP
@@ -3740,3 +3786,46 @@ Bei 0 Bildern liefert der Payload teils gar keine `MEDIA`-Sektion — ein Parser
 `PRICE_INFO`-Sektion (also keine `priceBar`) und die Kautionszeile in „Kosten"
 (`obj_depositLink: n`) → Kaution als offene Frage in den Report, Preisvergleich über Mietspiegel +
 Ortsteilanker statt über das Vergleichsband.
+
+## Miet-Neubau-**Vorvermarktung** eines Mehrfamilien-Quartiers: EIN `TEXT_AREA "Sonstiges"` mit reiner Bewerbungs-Boilerplate — Vertragskonditionen sind ABWESEND, nicht "nicht vorhanden"
+Bei der Vorvermarktung ganzer Quartiere (Projektentwickler + beauftragter Vermietungsdienstleister,
+Bezug 1–2 Jahre in der Zukunft) hat der Payload **keine `TEXT_AREA` für Objektbeschreibung,
+Ausstattung oder Lage** — es existiert genau *eine* `TEXT_AREA`, `title == "Sonstiges"`, und die
+enthält ausschließlich „Kontaktformular → dann schicken wir Exposé + digitale Mieterselbstauskunft"
+plus die Unterlagenliste. Konsequenzen:
+- **Der Staffel-/Index-/Mindestlaufzeit-Grep über `Sonstiges` (siehe die #611-Regel oben) liefert hier
+  systematisch NICHTS — und das ist kein Entlastungsbeweis.** Bei Projektentwicklern sind Index- oder
+  Staffelklauseln Standard (vgl. #430 allod: Indexmiete + 12 Monate Mindestlaufzeit). Block G darf
+  deshalb **nicht** auf 5,0 gehen: als „Vertragskonditionen vollständig undisclosed" werten (≈4,5) und
+  die vier Fragen (Index/Staffel, Mindestlaufzeit/Kündigungsausschluss, Kaution = 3× **Netto**kaltmiete,
+  Heizkostenvorauszahlung) in die Next Steps schreiben.
+- **Alle Sachdaten kommen aus `ATTRIBUTE_LIST` + `MEDIA`-Captions + `TITLE`.** Der `TITLE` trägt hier
+  ungewöhnlich viel Substanz (Etage, Zimmerzahl, Balkonausrichtung) — auslesen, nicht überspringen.
+- **`Energieausweis: "liegt zur Besichtigung vor"`** ist bei dieser Klasse der Normalfall → kein
+  +0,5-EEK-Bonus vergeben, obwohl Baujahr 2026 + Fernwärme faktisch A+/A bedeuten dürfte; als Low-Signal
+  „Energieausweisdaten fehlen" und als Next Step führen (§ 87 GEG wäre eigentlich Pflichtangabe).
+- **Galerie:** Innenaufnahmen = **Musterwohnung** (teils als „Digital-Home-Staging" beschriftet),
+  Außenansichten = „Visualisierung", Grundrisse = „Grundriss/3D-Grundriss – **Musterwohnung**" +
+  Matterport-Tour. Die angebotene Einheit selbst ist **nirgends** abgebildet. Da das Gebäude noch nicht
+  existiert, greift die `_shared.md`-Neubau/Erstbezug-Ausnahme → **D NICHT auf 3,0 kappen** (anders als
+  der #537-Fall „Bestandswohnung in einem Neubau**projekt**", wo das Gebäude fertig ist und D auf 3,0 gekappt wird). Aber „Wohnung selbst
+  unfotografiert, kein einheitsgenauer Grundriss" als ✗ con nennen und Block C um ~0,2 drücken.
+- **Bauverzugsrisiko gehört in Block F, nicht in die Summary-Fußnote:** flexibles Zeitfenster ⇒ 4,5-Basis,
+  −0,2 weil ein 2027er Übergabetermin an einem unfertigen Bau regelmäßig rutscht → 4,3, plus Next Step
+  „erst nach schriftlicher Terminzusage kündigen".
+
+### Die `OBJECT_INFO`-Objekt-Nr. dekodiert die Einheit — Dedup-Schlüssel für Geschwister UND Cross-Posts
+Format `H{Haus}-{Etage 2-stellig}-{Whg 2-stellig}`, z. B. `H2-02-09` = Haus 2, 2. OG, Whg 09; bestätigt
+gegen `Etage:` bei H1-**00**-02 (EG), H5-**01**-06 (1. OG), H3-**02**-09 / H2-**02**-09 (2. OG). Damit:
+- Geschwisterinserate desselben Quartiers sind **sofort** als verschiedene Einheiten belegbar (kein
+  Duplikatverdacht nötig, vgl. die Vonovia-Objekt-Nr.-Regel oben).
+- Der Immowelt-Cross-Post derselben Einheit trägt dieselbe Kaltmiete/m²-Kombination → Dedup über
+  (Kaltmiete, m², Etage) ist hier **ausnahmsweise sicher**, weil die Objekt-Nr. die Etage mitliefert.
+- **Der m²-Preis ist eine Quartiers-, keine Einheitseigenschaft**: das ganze Projekt wird aus einer
+  m²-Tabelle bepreist (Max-Planck-Str.: 21,01 / 21,28 / 21,78 EUR/m² über drei Einheiten). Den
+  Block-A-Overshoot deshalb als Projekteigenschaft formulieren und die Geschwister im Report
+  nebeneinanderstellen, statt jede Einheit isoliert „zu teuer" zu nennen.
+Gesehen auf **#629** (expose 170074138, „Wohnen am Brauhausberg", Max-Planck-Str. 15, 14473 Potsdam
+Südliche Innenstadt, locals Real Estate GmbH), Geschwister #624/#628/#630/#632.
+**Why:** ohne die erste Regel wird das Fehlen jeder Vertragsklausel als „saubere unbefristete Miete,
+Block G 5,0" gelesen, und ohne die zweite kostet jedes Geschwisterinserat einen vollen Duplikat-Check.
