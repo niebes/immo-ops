@@ -25,6 +25,25 @@ flat, i.e. a normal Vonovia rental rather than the landlord channel of a swap. G
 either invents an Ablöse-free "landlord channel" that does not exist, or drops a genuinely new listing
 as a duplicate.
 
+**The positive case — CONFIRMING a re-list, and what it is worth.** Two cheap checks settle it and
+both come from the same mobile-API path: (1) `OBJECT_INFO` Objekt-Nr. is the landlord's own stable
+unit key and usually names the unit outright (`Stein124 WE32-1` ↔ the "Grundriss WE32" PDF quoted in
+the older report) — identical Objekt-Nr. = same unit, full stop; (2) then **curl the OLD scoutId**:
+a **404** means the previous ad was withdrawn (genuine re-list, only one live ad), a **200** means
+both are live in parallel (duplicate ads, different question). Seen on #617 (170133922) vs #337
+(169320905), Steinstraße 124 Am Stern.
+Score it as a re-list, not as a fresh listing: quote the **price delta** in the report header
+(1.617,10 → 1.575,64 EUR, −2,6 %; Kaution follows at 3× the new rent) and keep the block scores
+aligned with the earlier report unless a field actually changed — an unexplained re-score of the
+same flat reads as inconsistency. The delta is also the two most useful *facts for the user*:
+weeks of vacancy + a voluntary price cut ⇒ little competition and real room to negotiate the
+**Mietbeginn** away from "sofort" (which is exactly what Block F penalises).
+Do NOT let it fire the "listing reposted with different prices" Medium scam signal when the
+advertiser is the same verified commercial one and the price went **down** — note it as observed
+and entkräftet instead.
+**Why:** without the Objekt-Nr.+404 pair a re-list is either scored as a brand-new flat (losing the
+price-cut leverage and re-deriving everything) or dismissed as a stale duplicate and never evaluated.
+
 ## Mobile-API **404 `ERROR_RESOURCE_NOT_FOUND`** = removed exposé → EXPIRED (distinct from "deaktiviert")
 A 404 from `api.mobile.immobilienscout24.de/expose/{id}` returns a JSON `{"error": "... Request failed
 with 404 ... ERROR_RESOURCE_NOT_FOUND"}` — the record is **gone entirely**, not merely deactivated (the
