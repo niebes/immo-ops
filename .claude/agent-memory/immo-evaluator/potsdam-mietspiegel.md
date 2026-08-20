@@ -191,6 +191,22 @@ Erkennungsmerkmale im Exposé, wenn „Neubau" nicht dransteht: `Etage: N von 4`
 **Fußbodenheizung** + Personenaufzug + Gäste-WC + „Qualität der Ausstattung: Gehoben".
 Preisniveau 2026: **13,48 EUR/m² kalt** für 79 m² (#585) — Genossenschaftsniveau, unter privatem
 Neubau, aber ~+9 % über dem ortsüblichen Mittelwert und innerhalb der Spanne.
+**Der Anker trägt auch OHNE Adresse** (#606, Kleinanzeigen-Tauschanzeige: nur „14478 Brandenburg -
+Potsdam", kein Ortsteil, kein Baujahr, kein Energieausweis). Sechs Merkmale zusammen identifizieren
+das Quartier: PLZ 14478 · **Etage 4** (die zwei viergeschossigen Häuser) · Fußbodenheizung ·
+Personenaufzug **+ „stufenloser Zugang"** (barrierefrei/Laubengang) · **Tiefgaragen-Stellplatz** ·
+3-Raum/75 m² (45 der 113 WE sind 3-Raum) — plus als siebte Probe das Preisniveau: 13,33 EUR/m² kalt
+gegen die 13,48 aus #585. Gegenprobe über die Fotos (Pflicht, s. o.): weiße glatte Türen, groß-
+formatige graue Badfliesen, wandhängendes WC mit UP-Spülkasten, Wanne **und** separate Glasdusche,
+Fertigparkett, feuerverzinktes Stahl-Balkongeländer, Blick von oben ins Baumkronendach (Waldlage
+Ravensberge) ⇒ Feld **2013–2020**, Plattenbau ausgeschlossen. Bei 75 m² ist das Spalte **C**
+(„>60–75"), nicht D: **12,06 (11,23–12,74)** → zulässig 13,27 EUR/m², d. h. der Quartierspreis liegt
+punktgenau auf der 10-%-Grenze — und § 556f (Erstbezug nach 01.10.2014) hebt sie ohnehin auf.
+Zusatz für Block G/H: Vermieter ist eine **Genossenschaft** → Mitgliedschaft + Genossenschaftsanteile
+statt/neben Kaution, zweites Zustimmungsgremium, Eigenbedarfsrisiko praktisch null.
+*Why:* ohne diesen adressfreien Erkennungssatz ist eine 14478-Anzeige ohne Baujahr unbewertbar — der
+Ortsteil-Reflex hätte 5,82 EUR/m² gezogen und „+129 %, Mietpreisbremse massiv überschritten" in den
+Report geschrieben, statt „marktkonform".
 *Why:* der Ortsteil-Reflex hätte „+139 % über Mietspiegel, Mietpreisbremse massiv überschritten,
 § 556g-Rüge" in den Report geschrieben — tatsächlich ist der Preis mietspiegelkonform und die
 Mietpreisbremse gilt dort gar nicht. Siehe [[wgkarlmarx-de]] für die Vermieterseite.
@@ -217,6 +233,20 @@ in die Nacht) als Besichtigungspunkt setzen, nicht als Abwertung ohne Beleg.
 *Why:* ohne den Anker kostet jede Babelsberg-Wohnung eine ÖPNV-Recherche, und die 15–18 EUR/m² lesen
 sich gegen den stadtweiten Angebotsanker 12,60–13,50 nur „etwas teuer" statt nach dem tatsächlichen
 Faktor 2 gegenüber der ortsüblichen Vergleichsmiete.
+
+### **Babelsberg SÜD (ebenfalls 14482) ist NICHT Babelsberg Nord — Anker getrennt halten**
+Gleiche PLZ, völlig anderes Preisbild: die adressgenaue IS24-`priceBar` in Babelsberg Süd liegt bei
+**6,10–9,60 EUR/m² „ähnliche Angebote"** (Gesamtspanne 4,90–12), also praktisch **auf
+Mietspiegel-Niveau** statt auf dem 15–18-EUR/m²-Angebotsniveau von Babelsberg Nord. Das Umfeld ist
+älterer, günstiger Bestand. Praktische Folge: hier kippt der Vergleich in die *andere* Richtung — ein
+Angebot mit 11,08 EUR/m² landet im **87. Perzentil** und ist gegenüber dem stadtweiten Angebotsanker
+(12,60–13,50) trotzdem „billig". Immer die `priceBar` ziehen und nicht den Babelsberg-Nord-Anker
+übertragen. Gesehen auf #615 (expose 169985362, 60 m², 3 Zi., Nachvermietung).
+*Why:* mit dem Nord-Anker sieht dieselbe Wohnung nach ~30 % unter Markt aus (Kaufsignal, im Extremfall
+sogar das „>20 % unter Mietspiegel"-Scam-Signal); mit dem echten Süd-Band ist sie 15 % über dem
+oberen Rand der Vergleichsangebote und die Mietpreisbremse wird zum realen Thema.
+Für die Bewertung im Süden zusätzlich: ÖPNV-Anbindung ist gleich gut (S7 Babelsberg/Griebnitzsee,
+Tram 94/99), plus Lindenpark und Filmpark fußläufig → Block B 4,5, ohne Adresse keine 5,0.
 
 ## Ortsteil-Anker: **Speicherstadt (14473, Teltower Vorstadt, Havelufer)**
 Groth-Gruppe-Quartier zwischen Brauhausberg und Havel, gegenüber Stadtschloss, 5–10 Gehmin. zum Hbf.

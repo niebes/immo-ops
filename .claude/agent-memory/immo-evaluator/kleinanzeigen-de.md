@@ -101,6 +101,17 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     ("Küche muss übernommen werden") and a hard move-in date the landlord listing doesn't have.
     *Why:* on #521 that match turned a would-be full evaluation into a DUPE of #516 and revealed the
     Ablöse as avoidable.
+  - **Read the WHOLE gallery, not the first 3–4 images — the Grundriss is often the LAST one.**
+    #609 had it at position 7 of 8, and it was the only source for: the maisonette split
+    (untere Ebene 2 Zimmer + Bad + Küche, obere Ebene = **offene Galerie** as the "3rd room" →
+    Block C caveat), Balkon *and* Terrasse as two distinct Freisitze (text said only "2 Balkone"),
+    and the unit id "WE 13". The captioned slides ("Grundriss unten (Zimmer 1 und 2)") show the
+    poster built their own mini-Exposé — a screenshot-looking image with white margins + a German
+    room caption is self-made material, **not** the re-captured foreign-Exposé pattern, so do NOT
+    fire the "photos from different properties" Medium signal on it. Also use the photos to date the
+    building when Baujahr is absent (verputzte Fassade + Dachflächenfenster + Rollläden + Glasbaustein
+    + Wendeltreppe ⇒ Nachwende-Neubau 1990er/2000er, i.e. Mietspiegel-Feld 1991–2008).
+    *Why:* stopping at image 4 would have missed both the layout caveat and the Baualtersklasse.
   - **0 gallery images happens on ordinary private ads too**, not just Tauschwohnung ads — cap Block D
     at 3,0 when it's 0.
   - **Counting photos: DEDUPE the `data-imgsrc` URLs — the raw grep count is 2× the real photo count.**
@@ -151,6 +162,14 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
 - **"Gelöscht" = deleted → EXPIRED. Do NOT score the still-visible cached numbers.** *Why:* the page
   looks fully populated, so without checking the heading/badges you'd wrongly produce a full score for
   an ad the Anbieter has already taken down (typically because a Nachmieter was found).
+- **Third state, between active and gone: the SOFT-CLOSED ad.** Title/description shout
+  "**Nicht mehr Schreiben!**" / "BITTE KEINE ANFRAGEN MEHR SENDEN!!! Die bisherigen Anfragen werden
+  sortiert und dann Termine vergeben" (#609), while the page carries **no** "Gelöscht"/"Reserviert"
+  badge and the flat is still free. This is **NOT EXPIRED** — the *applicant channel* is closed, not
+  the tenancy. Score it normally and put the closed channel in the Summary + Next Steps (one short
+  "falls jemand abspringt" message + hunt for the landlord-channel twin), never as an early exit.
+  *Why:* the phrase reads like "gone" and would have thrown away a 4,3/5 flat; conversely, scoring it
+  without flagging the closed channel would send the user into a stack that is no longer being read.
 - **Beware hidden badge templates:** EVERY listing page (also active ones) carries display:none
   elements containing "Gelöscht"/"Reserviert" (matched by `[class*="reserved"]`-style selectors),
   and the h1 always has `data-soldlabel="Nicht mehr verfügbar"` as an ATTRIBUTE — a grep for
@@ -259,6 +278,13 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   There is then no second list — compute Warmmiete yourself and say so.
 - Tauschwohnung spec lists are frequently **self-contradictory** (e.g. "Etage 3" + Wohnungstyp
   "Erdgeschosswohnung"). Report both, don't pick one — these are tenant-entered fields.
+  - **The contradiction that actually costs points is the ZIMMER count.** #606: `Zimmer 3` in
+    `#viewad-details` vs. the poster's own description "Zwei Zimmer / **Wohnküche** mit Balkon / ein
+    Bad / kleine Abstellkammer" — i.e. 2 Zi + Wohnküche, the eat-in kitchen counted as the third
+    room. Always diff the spec-list room count against the room-by-room enumeration in the
+    description (`Wohnküche|Abstellkammer|Kammer|Diele|halbes Zimmer`) before scoring Block C
+    against `min_rooms`. *Why:* the structured "3" satisfies min_rooms: 3 on paper while the flat
+    has no third separable room — worth ~1,0 on C and belongs in the Summary as an explicit con.
 
 ## Kauf / Haus listings + ohne-makler cross-posts
 - **Haus/Kauf ads carry a different `#viewad-details` set** than rentals: Wohnfläche, Zimmer,

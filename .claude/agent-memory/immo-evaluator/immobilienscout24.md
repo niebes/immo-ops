@@ -69,6 +69,24 @@ A pulled listing still serves a 200 page (h1 stub title + coarse address + m² s
 
 **Why:** the page returns 200 with a real-looking title/address, so without testing the deactivation phrases you'd try to score a listing that has no data left.
 
+## Mietverträge: Staffelmiete / Mindestmietdauer stehen NUR im `TEXT_AREA "Sonstiges"` — und "Zwischenvermietung vorbehalten" ist KEIN Zwischenmietverhältnis
+Zwei Fallen im selben Textblock, beide auf **#611** (expose 169975256, Reihenmittelhaus Obstplantage 7,
+Beelitz-Heilstätten, VERIMAG) gesehen:
+- **Es gibt kein ATTRIBUTE_LIST-Feld für Staffelmiete, Indexmiete, Mindestmietdauer oder
+  Kündigungsausschluss.** Die "Kosten"-Liste enthält nur Kaltmiete/NK/Gesamtmiete/Kaution — ein
+  **Staffelmietvertrag mit 2 Jahren Mindestmietdauer** stand ausschließlich als zwei Sätze im
+  `TEXT_AREA` mit `title == "Sonstiges"`. → Auf JEDER Miete das Sonstiges-Feld greppen auf
+  `Staffel|Index|Mindestmietdauer|Mindestlaufzeit|Kündigungsausschluss|Mietanpassung`, bevor Block A
+  (Finanzrisiko) und Block G (Bindung) gescored werden. Die Staffelhöhe wird dabei praktisch nie
+  genannt → als Next Step "Staffeln schriftlich anfordern" in den Report.
+- **`Änderungen und Zwischenvermietung bleiben vorbehalten` ist Freibleibend-Boilerplate**, d. h. der
+  Vermieter kann das Objekt zwischenzeitlich anderweitig vergeben — es ist **kein** Zwischenmiet-/
+  Untermietverhältnis für uns. Ein Keyword-Scan auf `Zwischenmiete|Zwischenvermietung` würde hier den
+  Hard Blocker (Cap ≤ 2,0) auslösen und ein 4,1-Listing vernichten. Nur feuern, wenn sich das Wort auf
+  **unser** Mietverhältnis bezieht (befristete Überlassung/Untermiete), nicht auf den Angebotsvorbehalt.
+**Why:** ohne die erste Regel wird ein Staffelmietvertrag komplett übersehen (Block G käme fälschlich
+auf 5,0), ohne die zweite wird derselbe Absatz zum falschen Hard Blocker.
+
 ## Mieternetzwerk / Nachvermietung listings (tenant-posted)
 **Cheapest detection is the top-level `header.isTenantNetwork: true` boolean** (also mirrored in
 `contact.contactData.isTenantNetwork` and `tracking.parameters.obj_TenantNetwork`) — one field, no
@@ -126,6 +144,38 @@ fallback if a URL shape ever resists the swap. Verified on #558.
 **Why:** taking the "these have 0 real photos" line at face value would have capped D at 3,0 for the
 wrong reason and thrown away the only verified amenity and the only Baujahr clue in the whole exposé.
 
+**The single photo is often an EXTERIOR/estate shot — that splits the evidence differently than an
+interior shot, and the Block-A half is the valuable one.** #614 (expose 170013012, Teltower Vorstadt)
+had `obj_picturecount: 1` with caption `IMG_6435.jpeg` = a courtyard view of a whole Neubau quarter,
+zero interior. Read it for three things the payload otherwise lacks entirely:
+- **Baualtersklasse** (render/fabric age, tree size — young staked trees ≈ quarter <10 y). This is the
+  ONLY way to pick the Mietspiegel field on ads that state neither Baujahr nor EEK, and it also decides
+  the **§ 556f** question (Erstbezug after 01.10.2014 = Mietpreisbremse exempt). Say "consistent with",
+  never assert the estate's identity from a photo.
+- **Estate-wide amenity evidence:** "a balcony on every visible unit" makes the Balkon must-have
+  *likely* but still unconfirmed for the unit → E ≈ **2,5**, not the bare 2,0 of the both-unknown case.
+- **Block D:** base off the visible fabric (modern, well-kept, occupied → ~4,5, no EEK bonus without a
+  class) then **−1,0 for zero interior** → 3,5. Do NOT let an exterior shot buy interior condition.
+
+**A Mieternetzwerk rent far BELOW the Ortsteil's Neubau Angebots level is the sitting tenant's old
+contract, not a bargain and not a scam signal — quote the re-priced market rent against the budget
+caps.** #614: 13,06 EUR/m² kalt in 14473 vs the ~18 EUR/m² Havelufer-Neubau anchor (see
+[[potsdam-mietspiegel]]). It was still *above* the ortsübliche Vergleichsmiete (12,34, Spalte D
+2013–2020), so the "20 % unter Mietspiegel" High signal must not fire — and these ads carry no
+`priceBar` to confirm an address-precise band anyway. The actionable output is the **re-let estimate**:
+Ortsteil-Anker × m² (here ≈ 1.420–1.600 kalt vs the 1.162 headline), tested against `max_kaltmiete` /
+`max_warmmiete`, because IS24's "Die Miete wird sich eventuell anpassen" is not boilerplate when the
+gap is this large.
+**Why:** without the re-let line, Block A scores a rent the user will never sign; with the scam signal
+fired, a perfectly normal below-market Altvertrag reads as fraud.
+
+**`TEXT_AREA.text` can be a single sentence that is the most consequential fact in the exposé — read
+it even when it looks empty.** #614's entire description: *"Wir dürfen keine Nachmieter suchen."* —
+i.e. the **landlord has not authorised a successor search at all**, so the IS24 proposal route is the
+only channel and the flat may simply be re-let on the open market. That is a Block-G/H deduction
+(G 3,5, H 3,0 with the landlord unnamed) and the first contact question, and it is invisible in every
+structured field.
+
 **The #504 "`n` = unset, not absent" rule applies to Mieternetzwerk ads a fortiori.** The tenant form
 never touches the Ausstattung mask, so you get `obj_balcony/cellar/garden/lift/hasKitchen = n` with
 **zero positive flags** and `obj_condition`/`obj_interiorQual`/`obj_petsAllowed`/`obj_typeOfFlat` all
@@ -174,6 +224,8 @@ On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese
 - **The `TITLE` of a Mieternetzwerk exposé is tenant-typed free text and can name a completely different CITY than the flat.** #557 (expose 169889489) was titled "4-Zimmer-Wohnung in **Brandenburg an der Havel**" while `MAP.addressLine2` = "14469 Bornim, Potsdam", `geo_ot: bornim`, `obj_regio3: Potsdam_Nord`, `obj_regio4: Bornim`, `geo_krs: potsdam`, the Preisentwicklung link pointed at `/potsdam/potsdam-nord/nedlitz` and the `zipCodeShapes` polygon was the PLZ-14469 outline. Rule: on TENANT_NETWORK listings the title's place name is **noise** — Block B comes from the geo cluster (`MAP.addressLine2` + `geo_ot`/`obj_regio3/4` + `obj_zipCode`) plus the decoded `obj_telekomInternetUrlAddition`. (Unlike the Kauf case at line ~229, there is no Objektbeschreibung Lage sentence to lose to — these descriptions are 3 generic sentences with no location text at all.)
   **Why:** the caller's cached title said "Brandenburg an der Havel" (a different Kreisfreie Stadt, ~40 km away, outside preferred_areas) — scoring that would have wrongly tanked Block B on a Potsdam flat.
 - **On a Mieternetzwerk exposé the decoded Telekom address is the ONLY address you get — sanity-check WHAT the building is, not just where it is.** With `media: []` / `obj_picturecount: 0` there is no photo to corroborate it (contrast the photo-verification corollary further down). On #557 it decoded to Lerchensteig 49, 14469 Potsdam — publicly documented as the AWO "Wohnanlage Bornim", a Gemeinschaftsunterkunft in Modul-/Containerbauweise that the Landeshauptstadt rents from AWO Bezirksverband Potsdam e.V. A privately posted 4-Zi-/75-m²-Nachvermietung there does not obviously fit. One WebSearch on "{Strasse} {Hausnr} {PLZ} {Ort}" costs little and belongs in the workflow whenever the exposé is photo-less; report it as a **data-integrity flag + contact question #1**, not as a scam signal (the price sat *above* the priceBar band, so no bait pattern).
+  - **But `obj_telekomInternetUrlAddition` is NOT always there — when it is missing there is NO address path at all, so stop hunting.** #612 (expose 168700892, Drewitz 14480) carried only `obj_telekomInternetUrlBase` (the generic Telekom tariff URL, present on every exposé) with **no** `…UrlAddition`, plus `obj_street`/`obj_houseNumber` = `no_information`, `MAP.addressLine1` = "Die vollständige Adresse der Immobilie erhältst du vom Anbieter.", `TRAVELTIME.isBlocked: true`, and a description that names no street. Confirm the absence with one `grep -c telekomInternetUrlAddition {payload}` → `0`. Consequences to write into the report rather than re-derive: the flat is only **PLZ-genau** locatable, the tracker-grep-by-street trick and the WebSearch building lookup (Baujahr/EEK/Verwalter) are both **unavailable**, so Block B falls back to the Ortsteil prior and the Mietspiegel row must be **bracketed** over the plausible Baualtersklassen (Drewitz: 1971–1990 field ~6,26/6,88 vs. 1991–2008 field ~9,91 — a swing that flips the Mietpreisbremse verdict from "+12–23 % darüber" to "−22 % darunter"). Make "Straße/Hausnummer?" a first-contact question.
+  **Why:** the sentence above reads as if the Telekom param is always available; spending a search pass on an address that simply is not in the payload wastes the evaluation, and silently picking one Baualtersklasse fakes precision the listing does not support.
 - **IS24 AUTO-GENERATES both the title and the description on Mieternetzwerk ads, and the title's
   room count can be flat WRONG.** #562 (expose 169624466, Marquardt) is live-titled *"**1-Zimmer**
   Wohnung in Potsdam mit 80 m² Wohnfläche"* while `TOP_ATTRIBUTES.Zimmer`, `obj_noRooms` (3.5),
@@ -1452,6 +1504,30 @@ nor garden and pays ~1,7× the headline.
   the 200 as success — always `wc -c` the output. (An iOS-style UA like `ImmoScout24_2.0_iOS` also
   yields the empty 200; only the `ImmoScout24_1410_35_._` Android form returns JSON.) Seen on #377.
   **Why:** a `-w "%{http_code}"` check alone says 200 and looks like the listing has no data.
+  Corollary (#603, 08/2026): the UA string handed down in an orchestrator prompt is NOT
+  automatically the working one — a plausible-looking `ImmoScout24_2.6.1_10.2.1_._` produced the
+  same silent 200 + 0 bytes. Always send the Android form from this file, never a UA quoted
+  elsewhere.
+
+### `MEDIA` captions can flag AI-staging **per image** — the render rule is per-gallery, don't over-cap D
+`_shared.md`'s render/Visualisierung keyword scan is written against the *description*, so it reads
+as an all-or-nothing gallery verdict ("labels the images as non-real → cap Block D at 3.0"). On
+**IS24 the label lives in the `MEDIA` caption instead**, and it is applied to **individual images**:
+#603 (expose 170143427, DAHLER Potsdam DHH Eiche) had 21 PICTUREs = **14 real photos + 3 Grundrisse
++ 4 captioned exactly `"KI-generierte Visualisierung"`** — virtual homestaging interleaved after the
+real shot of the same room. Rules:
+- **Classify captions, don't just keyword-hit the description.** Bucket the PICTURE captions into
+  real / Grundriss / render, and score Block D on the *real* count. The 3,0 cap fires only when the
+  real count is 0 — a minority of AI images on an otherwise photographed exposé must NOT trigger it.
+- **A caption that self-declares "KI-generiert" is transparency, not deception** → it is not the
+  "photos from different properties" Medium scam signal, and not the "stock/example photos" flag.
+- Still surface it as an explicit ✗ con and a viewing task ("compare the staged rooms against the
+  real ones on site") — AI staging systematically flatters surfaces and room proportions.
+- Expect this from **premium-brand Makler** (DAHLER & Co. and peers), where it is now standard
+  marketing, i.e. it will recur rather than being a one-off.
+**Why:** applying the description-level rule to a per-image label would have capped D at 3,0 on a
+listing with 14 genuine photos plus three floor plans, costing ~0,07 of the global score and, worse,
+telling the user the property was unverifiable when it is one of the better-documented exposés seen.
 
 ### Always curl to an expose-ID-specific filename — the scratchpad is SHARED
 Write to `expose-{scoutId}.json`, never a generic `e.json`/`expose.json`. Parallel evaluator
