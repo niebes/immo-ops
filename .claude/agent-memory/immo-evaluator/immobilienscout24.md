@@ -141,8 +141,17 @@ titled marketing caption — always download + Read them. **Skip `dwebp` entirel
 ends in `.../format/webp/quality/80`; edit that path segment to `format/jpg` and the CDN serves a
 JPEG the Read tool opens directly** (one `curl -sL`, no conversion step). `dwebp` is installed as a
 fallback if a URL shape ever resists the swap. Verified on #558.
+**The single photo cuts BOTH ways — read it for evidence against the ad too.** #619 (170113761,
+Drewitz, 4 Zi / 85 m²): the one image (`19642.jpg`, kitchen) showed a **Pantry-Kochnische with a
+two-plate hob and no oven** — a hard, documented Ausstattung *negative* in an otherwise data-free
+4-room ad, worth a Block-E point on its own and a named contact question ("is this the main
+kitchen?"). Same frame simultaneously settled the Baualter (flush unprofiled door leaves + low
+ceiling + speckled lino = Plattenbau confirmed → 1971–1990 Feld, cf. [[potsdam-mietspiegel]]) and
+dated the fit-out (cherry-look fronts + chrome knobs ≈ early 2000s → "gepflegt but ~20 y old", so
+base 3,5 −1,0 for 1-of-6 rooms + no Grundriss = **D 2,5**).
 **Why:** taking the "these have 0 real photos" line at face value would have capped D at 3,0 for the
-wrong reason and thrown away the only verified amenity and the only Baujahr clue in the whole exposé.
+wrong reason and thrown away the only verified amenity and the only Baujahr clue in the whole exposé —
+and treating the photo as purely confirmatory would have missed the kitchen defect entirely.
 
 **The single photo is often an EXTERIOR/estate shot — that splits the evidence differently than an
 interior shot, and the Block-A half is the valuable one.** #614 (expose 170013012, Teltower Vorstadt)
@@ -183,6 +192,13 @@ never touches the Ausstattung mask, so you get `obj_balcony/cellar/garden/lift/h
 on both), not missing → do NOT fire the "missing 2+ must-haves = 1,0" rule, and make Balkon/Keller
 contact question #1. Also: the `RELOCATION` / services deep-links contain `floor=0` — that is an
 **unset default, not Erdgeschoss**; there is no Etage datum on these ads.
+**Stronger variant: the Ausstattung keys can be ABSENT ENTIRELY, not just `n`.** On #619 (expose
+170113761, Friedrich-W.-Murnau-Str., Drewitz) `tracking.parameters` held only 18 keys —
+`obj_commissionsettings/ityp/privateOffer/TenantNetwork/scoutid/baseRent/totalRent` + ga_* — with **no
+`obj_balcony`/`obj_cellar`/`obj_condition`/`obj_picturecount`/`obj_livingSpace` at all**. Don't read a
+missing key as a missing amenity, and don't conclude the curl truncated: m²/rooms then come only from
+`TOP_ATTRIBUTES` and the picture count only from `len(MEDIA.media)` minus the `type: AD` entries
+(the gallery always carries an `AD` tile — counting the raw array overstates the photo count by one).
 **Why (#552):** reading the `n`s as facts would have booked E = 1,0 and dropped a 3,9 listing to ~3,8
 on invented evidence, and reading the "831–919 €" range as the price would have missed the exact 875 €.
 
