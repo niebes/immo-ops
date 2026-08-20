@@ -11,7 +11,17 @@ Bot-blocks headless Playwright. **invisible-playwright (stealth Firefox) works**
 
 Aggregator of the same source pool as Süddeutsche → heavy overlap (cross-portal dedup collapses twins).
 
-## Detail page = thin re-list → resolve to source
+## **The URL's id FORM tells you whether you need the source at all — check it first**
+Three id forms appear, with very different data completeness:
+- **Bare numeric id, `/{region}/mieten/wohnung/{9 Ziffern}/`** (e.g. `072625535`) → **FULL exposé inline, no source hop needed.** Everything is server-rendered on the aggregator: Kosten (Nettokaltmiete/Nebenkosten/"Heizkosten enthalten"/**Kaution**/Stellplatzmiete), Allgemeine Informationen (Objektart, Wohnungstyp, **Baujahr**, Zustand, "Wohnobjekt auf Zeit: ja/nein" ⇒ Zwischenmiete-Check), Ausstattung, Flächen/Räume, **Energieausweis komplett** (Art, Kennwert, Träger, Klasse, Jahrgang), "weitere Informationen" (Verfügbar ab, Denkmalschutz), Lage-Text, "sonstige Angaben" (Anbieter-Kontaktmail + Plattform-Disclaimer) und der Objekt-ID-Footer. There is **no `data-href`** on these pages (only `data-href=""`) — do not go hunting for one. Source is usually **ohne-makler.de**-Syndikation (Text-Disclaimer im Tail, Kontakt-Mail des Eigentümers im Klartext, provisionsfrei, "Makleranfragen nicht erwünscht"). Seen on #605.
+- **`wgXXXXXXXX`** (Wohnglück) → mostly inline, but Nebenkosten/Kaution/Verfügbarkeit/WBS fehlen (siehe unten).
+- **`imXXXXXXX`** → echte Dünn-Re-Listung, Quelle nötig (siehe unten).
+
+**Photo count without a browser:** either the `Bild N / {total}` caption in the body text or `grep -oE 'src="[^"]*images/immo/[^"]*"'` — Objektfotos liegen auf `bilder.regionalimmobilien24.de/get-file/img/images/immo/{maklerHash}/{objektId}/…`, Anbieterlogos unter `images/makler/`, alles andere ist `system_ri24/` (Banken-/Team-Deko). Der Energieausweis-Balken ist ein API-PNG `\/api\/epass\/lg\/{hash}-{Kennwert}.png` — der Dateiname trägt den kWh-Wert.
+
+**Dieselbe Wohnung läuft unter zwei Region-Slugs UND zwei id-Formen** (#605: `/vogtland/…/072625535/` = `/havelland/…/wg16917407/`, identischer Preis). Das ist ohne-makler-Mehrfachausspielung → im Scam-Check ausdrücklich **kein** "reposted with different prices"; im Report als Dublette benennen und beide Pipeline-Zeilen mit einem Bericht abdecken.
+
+## `imXXXXXXX` detail page = thin re-list → resolve to source
 The `imXXXXXXX/` detail page only carries title, location, Kaltmiete, m², rooms, description, often a single photo. NO Nebenkosten/Warmmiete/Kaution/Energieausweis/Baujahr/Anbieter/floor. Must go to the source for those.
 - **Source link**: the visible "zum Objekt" / "Immobilie anfragen" are `<div>`s with no href; the real link is on a hidden `<span data-href="...">` — selector: `[...document.querySelectorAll('span')].map(e=>e.getAttribute('data-href'))`. For the immobilien.de pool it is `https://www.immobilien.de/wohnen/{id}` (same numeric id as `imXXXXXXX`).
 - Gallery photo `<img>` src also reveals the source host (e.g. `immobilien.de/srv/obs/.../estate_attachments/{id}/...`).

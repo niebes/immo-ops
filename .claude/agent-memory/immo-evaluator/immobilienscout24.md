@@ -131,6 +131,31 @@ Beelitz-Heilstätten, VERIMAG) gesehen:
 **Why:** ohne die erste Regel wird ein Staffelmietvertrag komplett übersehen (Block G käme fälschlich
 auf 5,0), ohne die zweite wird derselbe Absatz zum falschen Hard Blocker.
 
+### Beim Blocker-Grep über das JSON: **`Genossenschaft` ist ein garantierter Falsch-Treffer**
+Die Kosten-`ATTRIBUTE_LIST` trägt auf **jeder** IS24-Miete das Standardlabel
+**"Kaution oder Genossenschaftsanteile:"**. Ein `grep -i genossenschaft` über den Payload feuert
+also immer — und zwar genau dann am verführerischsten, wenn man wegen eines auffällig niedrigen
+Preises nach Genossenschafts-/Sozialbindung sucht. Nur werten, wenn der Begriff **außerhalb** dieses
+Labels steht (Objekt-/Ausstattungstext, Anbietername). Verlässlich negativ ist dagegen das Fehlen
+von `WBS` / `Wohnberechtigung` im gesamten Payload — dafür gibt es kein Standardlabel.
+Seen on #627 (expose 170096870, Groß Glienicke, 397 EUR / 6,61 EUR/m²): einziger Treffer im ganzen
+29-KB-Payload war das Kautionslabel; die Wohnung ist eine völlig normale freifinanzierte Vermietung.
+**Why:** der Falsch-Treffer hätte die These "billig, weil Genossenschaftswohnung" scheinbar bestätigt
+und damit die eigentliche Erklärung (Baujahr 1985 → Mietspiegelfeld, s. [[potsdam-mietspiegel]]) verdeckt.
+
+### Bei maschinell erzeugten Massen-Exposés: **strukturierte Felder schlagen den Fließtext**
+Große Verwaltungen inserieren generierten Text. Auf #627 (ZBVV, ~33.000 WE) widersprach die
+Objektbeschreibung dem Datenfeld gleich doppelt: sie nannte *"verfügbar ab dem 01. August 2026"*,
+während `Bezugsfrei ab` **16.09.2026** sagte (und die Immowelt-Parallelanzeige bestätigte 16.09.);
+und die Galerie zeigte ein Foto "Küche", obwohl `obj_hasKitchen: n` steht (EBK gehört dem
+abziehenden Mieter). Die Lagebeschreibung nannte nicht einmal den Ortsteil. Erkennungsmerkmale:
+generischer Fließtext ohne Eigennamen, Grammatikfehler wie *"das Hauptenergie für die Heizung"*.
+→ Für Block F/E/A immer die `ATTRIBUTE_LIST` + `adTargetingParameters` nehmen, den Fließtext nur für
+Dinge, die es als Feld nicht gibt (Staffel/Index/Mindestlaufzeit, s. o.) — und die Widersprüche als
+Kontaktfragen in den Report schreiben. **Kein Scam-Signal**, nur Datenqualität.
+**Why:** das Fließtextdatum lag in der Vergangenheit — als Bezugstermin gelesen hätte es Block F
+grundlos auf "sofort"-Niveau gedrückt und die Anzeige nebenbei wie eine Altleiche aussehen lassen.
+
 ## Mieternetzwerk / Nachvermietung listings (tenant-posted)
 **Cheapest detection is the top-level `header.isTenantNetwork: true` boolean** (also mirrored in
 `contact.contactData.isTenantNetwork` and `tracking.parameters.obj_TenantNetwork`) — one field, no
@@ -276,13 +301,25 @@ never touches the Ausstattung mask, so you get `obj_balcony/cellar/garden/lift/h
 **Why:** the two numbers were being picked arbitrarily per run; tying them to "is there any way to
 check?" makes the 0,5 defensible and keeps comparable ads (#275/#553/#622) scored consistently. Also: the `RELOCATION` / services deep-links contain `floor=0` — that is an
 **unset default, not Erdgeschoss**; there is no Etage datum on these ads.
-**Stronger variant: the Ausstattung keys can be ABSENT ENTIRELY, not just `n`.** On #619 (expose
-170113761, Friedrich-W.-Murnau-Str., Drewitz) `tracking.parameters` held only 18 keys —
-`obj_commissionsettings/ityp/privateOffer/TenantNetwork/scoutid/baseRent/totalRent` + ga_* — with **no
-`obj_balcony`/`obj_cellar`/`obj_condition`/`obj_picturecount`/`obj_livingSpace` at all**. Don't read a
-missing key as a missing amenity, and don't conclude the curl truncated: m²/rooms then come only from
-`TOP_ATTRIBUTES` and the picture count only from `len(MEDIA.media)` minus the `type: AD` entries
-(the gallery always carries an `AD` tile — counting the raw array overstates the photo count by one).
+**READ THE MASK FROM `adTargetingParameters`, NOT FROM `tracking.parameters` — they are two different
+blobs and only the first one is complete.** `tracking.parameters` is a stripped ~18-key blob
+(`obj_commissionsettings/ityp/privateOffer/TenantNetwork/scoutid/baseRent/totalRent` + `ga_*`/`geo_*`)
+that carries **no** `obj_balcony`/`obj_cellar`/`obj_condition`/`obj_picturecount`/`obj_livingSpace`.
+The sibling top-level key **`adTargetingParameters` holds the full ~51-key mask** — every amenity flag,
+`obj_picturecount`, `obj_yearConstructed`, `obj_newlyConst`, `obj_depositLink`, `obj_serviceCharge`,
+`obj_street`/`obj_houseNumber` and `geo_ot`. Verified 2026-08-20 across #619 (170113761), #622
+(170040509) and #623 (170022149): all three show 18 tracking keys vs 51 adTargeting keys.
+⚠ This **corrects the earlier "the Ausstattung keys can be ABSENT ENTIRELY" note**, which was written
+off `tracking.parameters` alone — the keys were never absent, they were being read from the wrong blob.
+So: a truly missing amenity key is *not* a thing you should expect; if you see one, you are looking at
+`tracking.parameters`. (Still never read an `n` as a fact on a private/Mieternetzwerk ad — the
+untouched-mask rule above governs.) Where the other fields come from when a section is missing: m²/rooms
+from `TOP_ATTRIBUTES`, picture count from `obj_picturecount` (preferred) or `len(MEDIA.media)` minus the
+`type: AD` entries (the gallery carries an `AD` tile — counting the raw array overstates it by one).
+**Why:** on #623 the stripped tracking blob made the flat look like it had *no* Ausstattung data at all;
+`adTargetingParameters` showed the real signature — every flag `n`, zero positives, `obj_condition`/
+`interiorQual`/`petsAllowed`/`typeOfFlat`/`firingTypes` = `no_information` — which is what actually
+justifies scoring both must-haves "unconfirmed" instead of guessing.
 **Why (#552):** reading the `n`s as facts would have booked E = 1,0 and dropped a 3,9 listing to ~3,8
 on invented evidence, and reading the "831–919 €" range as the price would have missed the exact 875 €.
 
@@ -3815,7 +3852,12 @@ und man hat gar kein Einstellungsdatum für die Einschätzung „wie lange steht
 ### Die `MEDIA`-Sektion kann komplett FEHLEN (nicht nur `media: []`)
 Bei 0 Bildern liefert der Payload teils gar keine `MEDIA`-Sektion — ein Parser, der auf
 `MEDIA.media` zugreift, läuft ins Leere statt eine leere Liste zu sehen. Verlässlich ist immer
-`adTargetingParameters.obj_picturecount` (hier `"0"`). Ebenso fehlt bei minimalen Inseraten die
+`adTargetingParameters.obj_picturecount` (hier `"0"`).
+Umgekehrt gilt: **ein vorhandenes `{"type":"MEDIA","media":[]}` ist ein ECHTER Nullbefund, keine
+API-Auslassung** — 2026-08-20 gegen bebilderte Exposés kontrolliert (170152491, 169985362, 170050119
+liefern alle ein gefülltes `media`-Array mit `previewImageUrl`/`caption`), und `obj_picturecount`
+stimmte in jedem Fall überein. Die Kontrollabfrage muss also nicht wiederholt werden; `media: []` +
+`obj_picturecount: "0"` = 0 Fotos, Block-D-Deckel greift. Ebenso fehlt bei minimalen Inseraten die
 `PRICE_INFO`-Sektion (also keine `priceBar`) und die Kautionszeile in „Kosten"
 (`obj_depositLink: n`) → Kaution als offene Frage in den Report, Preisvergleich über Mietspiegel +
 Ortsteilanker statt über das Vergleichsband.

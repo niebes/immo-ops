@@ -454,6 +454,18 @@ Der Scan liefert laufend Neubau-**Reihenhäuser zur Miete** aus dem QUARTIER BEE
   nicht über Potsdam Hbf; realistisch **~34 min bis Potsdam Hbf mit Umstieg Wannsee** (so bereits auf
   #336/#486 recherchiert), Auto ~25 min / 24 km. Berlin Hbf ~38 min direkt stimmt dagegen.
   Block B deshalb nie auf die Exposé-Angabe stützen.
+- **Anker für WOHNUNGEN in Beelitz (nicht Häuser), 2026:** Angebotsmarkt-Gemeindeschnitt
+  **13,37–13,48 EUR/m²** (günstige Lagen ~12,27, gefragte ~14,96) — nur Angebotsmieten. Als
+  ortsüblicher Proxy mangels Mietspiegel das gleichaltrige **Potsdamer** Feld ziehen und als
+  solchen kennzeichnen (#605: Bj. 1999, EEK D, 65 m² ⇒ 1991–2008 · D–G · Spalte C = 9,45
+  (8,20–11,51) ⇒ 12,25 EUR/m² lagen +30 % über dem Mittel und über dem Oberwert, während sie
+  gegen den Beelitzer Angebotsanker *unter* Markt liegen). Beide Zahlen nennen — sonst liest sich
+  derselbe Preis entweder als Schnäppchen oder als Wucher.
+- **Ortsteil `Fichtenwalde` (14547) ist NICHT Beelitz-Heilstätten:** ~20–22 km SW von Potsdam,
+  ~25 km von Golm, **kein Bahnhof im Ortsteil** (RE7 erst in Beelitz-Heilstätten, ~5 km, und
+  Richtung Wannsee), Bus nur **Stundentakt** nach Potsdam, A9-AS Beelitz-Heilstätten vor der Tür
+  ⇒ autoabhängig, Stellplatz faktisch Pflicht. Nahversorgung/Kita/Grund- und Oberschule im Ort,
+  Naturpark Nuthe-Nieplitz. **Wohnungs-Block B = 2,0** (#605).
 - **Block-B-Kalibrierung:** vor der Profiländerung vom 2026-08-11 bekam Beelitz 2,0–2,5 (#336, #486).
   Seitdem ist Beelitz Teil des vom Nutzer akzeptierten **RE7-Korridors** (bislang nur in der
   *Hauskauf*-Suche, sinngemäß aber auf Haus-**Mieten** übertragbar) mit der Vorgabe „unter
