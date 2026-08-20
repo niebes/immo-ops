@@ -77,14 +77,31 @@ Three things to take from that shape:
   *Why:* on #606 the numeric axes all passed (rent +2,5 % kalt / −6,5 % warm, area covered by the
   openness clause) and a room-count match on "2 Zimmer" would have surfaced a Swap-candidate the
   partner can never accept — a four-person household downsizing by 20,8 m² and one room.
-⇒ Four-axis side-2 check, in this order: (1) direction/size (vergrößern, "mehr Platz", "für N
+**Fifth kill axis: `search.radius == 0` together with NAMED Ortsteile — the machine-readable
+"no commuter-belt leniency" flag.** The lenient area rule ("surface a city's commuter belt") only
+applies when the Suche names a *city* loosely. When the NUXT `search` dict carries
+`selectedGeos: [{name:"Westend"},{name:"Charlottenburg"}]` **and `radius: 0`**, the poster has
+actively excluded everything outside those Ortsteile — treat it as an explicit exclusion, not a soft
+target, and do NOT surface Golm for such a "Berlin" seeker. Read `radius` before applying leniency:
+one field, settles the area axis outright. Seen on #610 (expose 170120501, Kladow EFH): free text
+"mindestens 3 Zimmern und 80 m² in Charlottenburg bzw. Westend bis maximal 1800 Euro" + structured
+`radius 0 / roomsMin 3 / sizeMin 80 / rentMax 1800` — the two sources agreed on every axis, which is
+what made the verdict robust (contrast #454, where they contradicted each other).
+⇒ Five-axis side-2 check, in this order: (1) direction/size (vergrößern, "mehr Platz", "für N
 Personen zu klein" → fail), (2) qualitative Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen →
 fail), (3) explicit numeric floor/ceiling (mindestens m² / maximal EUR → arithmetic fail), (4)
-Wohnkonstellation (zwei Wohnungen / Gemeinschaft → fail, we can only offer one unit). All four
-belong in the same triage prefilter — axis (3) is the cheapest to automate (regex on the
-description), axis (4) is the cheapest to get WRONG. *Why:* on #579 the favourable direction made
-the swap look promising right up to the last clause of the title; on #597 the favourable *rent*
+Wohnkonstellation (zwei Wohnungen / Gemeinschaft → fail, we can only offer one unit), (5) `radius: 0`
++ named Ortsteile (→ area fail, leniency does not apply). All five belong in the same triage
+prefilter — axis (3) is the cheapest to automate (regex on the description), axis (5) the cheapest to
+read (one NUXT field), axis (4) is the cheapest to get WRONG. *Why:* on #579 the favourable direction
+made the swap look promising right up to the last clause of the title; on #597 the favourable *rent*
 direction did the same, and only the stated 70-m²-Minimum settled it.
+
+**Both sides can fail at once — score side 1 anyway and say so.** #610 was the first swap where
+side 1 *also* missed the 3,5 gate (3,3 — a 160 m²/6-Zi EFH is +33 % over `max_m2` and one room over
+`max_rooms`, plus out-of-area and no Baujahr/Energieausweis/NK/Kaution). The habitual Next-steps line
+"side 1 passed, grab it if it ever reappears as a normal Vermietung" then does NOT apply and would be
+a wrong recommendation — check the side-1 number before writing that follow-up.
 
 ### The base rate is NOT a law — #608 is the first side-2 PASS. Don't pre-judge a swap as doomed.
 After a long unbroken failure run (#492, #505, #533, #541, #550, #578, #579, #597, #598, #606) it is

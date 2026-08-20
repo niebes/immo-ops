@@ -440,6 +440,16 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   "30 hits for 'auf Zeit'" was 2 real mentions × 14 (+ meta tags). The `ti = html.find('id="viewad-title"')`
   offset guard still correctly separates own-ad from sidebar; just never report the *count* as a
   measure of emphasis, and dedupe contexts before reading them.
+  - **On a 0-image ad the `offset < ti` form of that guard is WRONG and hides the description.**
+    With no gallery there are no pre-title copies at all, so the only copy of
+    `#viewad-description-text` sits *after* the title (#607: title @76.000, description @81.900) and a
+    "own-ad = everything before `viewad-title`" filter reports **zero** hits for WBS/befristet/möbliert
+    on an ad whose description contains them. Correct guard in both shapes: own-ad region =
+    `html[ti : html.find('interessieren')]` (the "Das könnte dich auch interessieren" sidebar is the
+    real boundary; `#viewad-contact` sits inside it and is fine). Sanity-check by printing the offsets
+    of `viewad-title`, `viewad-description-text` and `interessieren` once per page.
+    *Why:* on #607 the pre-title filter said "WBS: own-ad-region=0" while the description literally
+    reads "Die Wohnung ist keine WBS Wohnung" — the guard would have flipped a decisive hard-blocker field.
 - **"Verfügbar ab {Monat}" is a START-only field and hides Befristung.** A spec-list "Verfügbar ab
   August 2026" can actually be a 1-Monats-Zwischenmiete — the end date + "möbliert / untervermieten /
   01.08.–31.08." only appear in `#viewad-description-text`. Always read the description before deciding

@@ -569,6 +569,25 @@ a scam signal.
 **Why:** applying the #214 rule mechanically would have moved this flat from Bornstedt to Nauener
 Vorstadt and credited it with an S-Bahn connection it does not have.
 
+### When only the STREET is known: a street directory beats every IS24 geo channel
+On PLZ-only exposés IS24 derives the Ortsteil from the postcode, and **both of its Ortsteil channels
+can be wrong at once and contradict each other**: `MAP.addressLine2` prints a district name and the
+`REFERENCE_LIST` "Preisentwicklung" deeplink carries a `geocodes=/de/…/{ortsteil}` slug. #613
+(expose 170020657) showed `addressLine2` = "14478 **Schlaatz**, Potsdam" against
+`geocodes=…/potsdam-sued/**teltower-vorstadt**` — while the Objektbeschreibung named the street
+("**Julius-Posener-Straße**"), which onlinestreet/potsdamer-stadtplan/Das Örtliche unanimously place
+in **Waldstadt I** (14478; Teltower Vorstadt isn't even in that PLZ). So: **if any free text names a
+street, resolve the Ortsteil by street directory** (`WebSearch "\"{Straße}\" {Stadt} {PLZ}"`, one
+call) instead of by majority-vote over the geo channels — a street name is a hard fact, the geo tags
+are both PLZ-derived guesses from the same bad input and therefore not independent votes.
+- The **street's own naming date brackets the Baujahr** when no Baujahr field exists — a street named
+  after someone who died in 1996 cannot carry 1970s Plattenbau. That plus "verkehrsberuhigter
+  Bereich/Spielstraße" (a 2000s+ layout feature) is often the only Baualter evidence a
+  Mieternetzwerk ad offers, and Baualter is the single biggest lever in the Potsdam Mietspiegel.
+**Why:** "Schlaatz" vs "Waldstadt I" is a real Block-B difference (different quarter reputation), and
+the Baujahr bracket flipped #613's Mietpreisbremse verdict between "market-conform" and "+70–90 % über
+ortsüblich" — both were decided by the street name, not by any IS24 field.
+
 **Why:** these tenant-network exposés (seen on #169/#170/#171/#172) lack the standard structured fields and have a provisional price; scoring the headline number as final or expecting a criteria `<dl>` both mislead. Stable pattern — candidate for promotion to evaluate.md if it keeps recurring.
 
 ## Bare **Grundstück** exposé sold WITH **Bauträgerbindung** (cheap plot, tied builder)
