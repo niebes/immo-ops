@@ -70,6 +70,10 @@ A pulled listing still serves a 200 page (h1 stub title + coarse address + m² s
 **Why:** the page returns 200 with a real-looking title/address, so without testing the deactivation phrases you'd try to score a listing that has no data left.
 
 ## Mieternetzwerk / Nachvermietung listings (tenant-posted)
+**Cheapest detection is the top-level `header.isTenantNetwork: true` boolean** (also mirrored in
+`contact.contactData.isTenantNetwork` and `tracking.parameters.obj_TenantNetwork`) — one field, no
+section walk, available before you parse `sections[]`. Test it FIRST and let the `TAG_LIST` below
+supply the move-in hint. Confirmed #615 (expose 169985362, Babelsberg Süd).
 **Detect from the mobile API in one step:** a `TAG_LIST` section with `tags[].id == "TENANT_NETWORK"`
 (the `tag` text carries the move-in hint, e.g. "Nachvermietung ab Oktober" — often the ONLY
 availability data, since there's no `Bezugsfrei ab` attribute). Corroborators: `AGENTS_INFO.title`
@@ -93,6 +97,19 @@ at all**, so there was no priceBar band. Two workarounds:
 - With no priceBar, fall back to the Potsdam Mietspiegel field **bracketed over the unknown
   Baualter/EEK** (these ads never state Baujahr or Energieausweis) and always name the Angebots anchor
   too — see [[potsdam-mietspiegel]] / `_shared.md`.
+
+**A separate `PRICE_RATING` section (`fairPrice.status: FAIR_OFFER`, `label: "Geprüfte Miete"`,
+`level`) is IS24's own badge and is NOT evidence of Mietspiegel/Mietpreisbremse compliance — it can
+directly contradict the `priceBar` in the same payload.** #616 (expose 169984152, Zeppelinstr.,
+Brandenburger Vorstadt) carried `FAIR_OFFER` while its own `priceBar` put the offer at
+`priceIndicatorPositionInPercent: 0.88` — 9,86 €/m² **above** the similar band 6,30–8,80. Rule: score
+Block A off the priceBar percentile/band, mention `PRICE_RATING` only as the portal's label.
+Corollary worth remembering: **the priceBar on a Mieternetzwerk ad is not always "far below" — it can
+sit ABOVE the band**, which flips the analysis from "suspiciously cheap" to "Mietpreisbremse
+probably breached" (9,86 €/m² exceeds ortsüblich +10 % for every pre-1991 Baualtersklasse in Spalte C)
+and explicitly **prevents** the "price >20 % below Mietspiegel" High scam signal from firing.
+**Why:** quoting "Geprüfte Miete" as reassurance would have written a false Mietpreisbremse-compliant
+verdict on a listing whose own address-precise band says the opposite.
 
 **"0 real photos" is the norm for Mieternetzwerk ads, NOT a rule — check `obj_picturecount` and
 download.** #563 (expose 169557244, Ketziner Str. 100 Fahrland) had `obj_picturecount: 1` and a single
@@ -1288,7 +1305,38 @@ Fahrland offer; and the "one of two dwellings" line is the Block-G/E shared-buil
   "Erst BAUEN – dann ZAHLEN"): 4-fache Baufertigstellungs-Bürgschaft + 75.000 EUR
   Baugewährleistungs-Bürgschaft + TÜV-geprüfte Vorschriften — it covers the Bauträger-insolvency
   risk these catalog offers otherwise carry. Credit it; but note Festpreisgarantie is only
-  **12 months** against a 2027 Bezug, i.e. it expires before completion.
+  **12 months** against a 2027 Bezug, i.e. it expires before completion. (Not a fixed number:
+  #367 had 15 months, **#604 had 14** — read it off the Ausstattung list, don't assume 12.)
+- **The Sonstiges extra-cost figure can be a SINGLE round number with no range and no breakdown,
+  gated behind a sales meeting** — #604: *"etwa 150.000 € (inkl. der von Immoscout oben
+  angegebenen) Bau- und Erwerbsnebenkosten … Gern erläutere ich Ihnen die Zusammensetzung in einem
+  persönlichen Gespräch!"* Same inclusive parenthetical as #364/#388 (so still `Kaufpreis + 150 T`,
+  never `totalCosts + 150 T`), but a **transparency regression** vs. the 120–150 T range those
+  offered: Erschließung, Hausanschlüsse, Vermessung, Baugenehmigung, Außenanlagen all stay
+  unbeziffert. Score it in Block A prose and make "Aufschlüsselung schriftlich vor dem Termin"
+  Next step #2 — a round 150 T with no components is a negotiating anchor, not a costing.
+- **Check the "Blick aufs Grundstück" caption's PLACE NAME against `geo_ot`/`obj_zipCode`.**
+  #604 is geo-tagged 14478 Teltower Vorstadt, Potsdam, but its one and only plot photo is captioned
+  `"Blick aufs Grundstück Michendo"` (truncated *Michendorf*, ~12 km away). So the exposé has **zero**
+  object evidence even though the gallery appears to contain a real-world shot. Consequences:
+  don't credit it in Block D (score like #395's zero-evidence case), dock Block B for
+  unverifiability when the address is also withheld, and list it as one **Medium** "photos from a
+  different property" scam signal — explained by gallery recycling across the builder's parcels, so
+  with 0 High it still lands on **Legitimate** (0 High + ≤1 Medium).
+  **Why:** the caption is the only place this surfaces; counted naively it reads as a genuine plot
+  photo and lifts both D and B on a listing whose plot is completely unverifiable.
+- **A `(N/M)` counter in the TITLE is the Anbieter's own marker for competing house types on ONE
+  parcel** — #604's title starts "(1/2)". Same structure as the #364/#395 address-key finding, but
+  self-declared: it means there is a sibling exposé and the Kaufgegenstand is not yet fixed
+  (corroborated in #604 by "Es sind auch andere Haustypen auf dem Grundstück baubar"). Treat as a
+  Block-G negative, and make "das (2/2)-Inserat identifizieren + EINE kombinierte Anfrage" a Next
+  step instead of reporting the two as independent options.
+- **The same operative T&C contact appears under DIFFERENT registered firms** — Franz Schäfer
+  (Am Mühlenberg 2, 14548 Schwielowsee/Geltow, 0157 8037 1471) was the contact under
+  "Liane Berger, T&C Franchise-Partnerin" (#388, §34i-Reg. D-W-183-B1VL-42) and is the AGENTS_INFO
+  company himself on #604 ("Town & Country Haus - Franz Schäfer Immobilienservice",
+  D-W-183-YYMJ-90). Key the Anbieter cross-reference on the **phone number / Geltow address**, not
+  the company string, or a known-history Anbieter reads as a first-time unknown in Block H.
 - **MEDIA captions can name a DIFFERENT house type than the one being sold** — #388 offers 118 m²
   while every interior caption reads `Flair_110_Küche` / `flair110-schlafen-lifestyle` /
   `Einfamilienhaus-Flair-110-Stra`. Neubau exception still means no D cap, but score D down and

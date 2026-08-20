@@ -57,12 +57,34 @@ land on opposite sides of P (on #597: +2,5 % vs +21,5 %), so say which reading y
     Say in the report which axis decided; here size/city were perfect and only P mattered.
     Frequency note: #597 and #598 both landed on the same day, so a rent cap under ~1.000 EUR is
     currently the most common side-2 kill on the Kleinanzeigen swap flow, not a rarity.
-⇒ Three-axis side-2 check, in this order: (1) direction/size (vergrößern → fail), (2) qualitative
-Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen → fail), (3) explicit numeric floor/ceiling
-(mindestens m² / maximal EUR → arithmetic fail). All three belong in the same triage prefilter —
-axis (3) is the cheapest to automate (regex on the description). *Why:* on #579 the favourable
-direction made the swap look promising right up to the last clause of the title; on #597 the
-favourable *rent* direction did the same, and only the stated 70-m²-Minimum settled it.
+**Fourth kill axis: the WOHNKONSTELLATION Suche — they want MULTIPLE units, or a household size
+that no single flat of ours serves.** #606 (Kleinanzeigen, 14478 Potsdam): *"Am liebsten in einem
+Haus **ZWEI Wohnungen mit 2 Zimmern**, oder 2,5 oder 3 oder 4… Auch eine **Gemeinschaft** wäre
+schön. Alles was mehr Platz bietet. **Für vier Personen** ist unsere Wohnung inzwischen zu klein."*
+Three things to take from that shape:
+  - **The "2 Zimmer" in such a sentence is a TRAP for the room-count matcher.** Read literally it
+    reads as an exact match for our 2-Zi Golm flat — but the quantifier in front (`ZWEI Wohnungen`)
+    means two such units under one roof. `swap_offer` holds exactly one flat (Königsallee is
+    gekündigt), so a multi-unit Suche is a fail by arithmetic, not by leniency. Grep
+    `zwei Wohnungen|2 Wohnungen|Gemeinschaft|WG|Mehrgeneration|zwei Einheiten` before matching rooms.
+  - **The household-size clause is the strongest direction signal there is, and it sits at the very
+    END of the description — after the tauschwohnung.com boilerplate paragraph.** "Für {N} Personen
+    ist unsere Wohnung zu klein" with N ≥ 3 is a deterministic upsize fail. Read the description to
+    the last line; grep `für (drei|vier|fünf|\d) Personen|zu klein|Familie|Nachwuchs|Kind`.
+  - **Positive-form area clause: "Bevorzugt A, B, C … aber bietet gern alles an" = lenient PASS**,
+    the mirror image of #578's "alle Bereiche außer A, B, C". A named preference list that ends in an
+    openness clause never fails side 2 on area — do not record it as "our Ortsteil not on their list".
+  *Why:* on #606 the numeric axes all passed (rent +2,5 % kalt / −6,5 % warm, area covered by the
+  openness clause) and a room-count match on "2 Zimmer" would have surfaced a Swap-candidate the
+  partner can never accept — a four-person household downsizing by 20,8 m² and one room.
+⇒ Four-axis side-2 check, in this order: (1) direction/size (vergrößern, "mehr Platz", "für N
+Personen zu klein" → fail), (2) qualitative Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen →
+fail), (3) explicit numeric floor/ceiling (mindestens m² / maximal EUR → arithmetic fail), (4)
+Wohnkonstellation (zwei Wohnungen / Gemeinschaft → fail, we can only offer one unit). All four
+belong in the same triage prefilter — axis (3) is the cheapest to automate (regex on the
+description), axis (4) is the cheapest to get WRONG. *Why:* on #579 the favourable direction made
+the swap look promising right up to the last clause of the title; on #597 the favourable *rent*
+direction did the same, and only the stated 70-m²-Minimum settled it.
 
 ## Even on IS24 the object-specific twg.click link is NOT guaranteed — check "Weitere Links" first
 Some IS24 swap exposés carry only the **generic** `https://twg.click/is24-homepage` in the
