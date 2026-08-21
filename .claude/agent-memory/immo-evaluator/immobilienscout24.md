@@ -481,6 +481,31 @@ first contact question.** Unlike Mieternetzwerk ads these usually DO have real p
 `IMG_####` captions) → no Block-D photo cap, but Baujahr/Objektzustand/Energieausweis are typically all
 empty → D stays ~3,0 and the missing Energieausweis is a Low signal, not a scam tell.
 
+**"Usually DO have real photos" is a tendency, not a rule — the private class has its own zero case,
+and it is a private LANDLORD ad, not a Nachmietergesuch.** #635 (expose 170170158, Kastanienallee 2
+Potsdam-West, 89 m² / 1.600 EUR) carried the full private signature (`obj_privateOffer: true`,
+`isTenantNetwork: false`, real Kosten-`ATTRIBUTE_LIST` incl. `Kaution 4.800`, untouched Ausstattung mask)
+with **`obj_picturecount: "0"` + `MEDIA.media: []`** and no "Nachmieter"/"Tausch" framing anywhere —
+a normal Vermietungsinserat that simply contains nothing. Two consequences:
+- **Block D takes the #621 zero-case treatment, not the ~3,0 of this class**: 0 Bilder *and* no Baujahr
+  *and* no Energieausweis (here not even `obj_firingTypes` — the whole *Bausubstanz & Energieausweis*
+  section was the single row "Wesentliche Energieträger: Keine Angabe") *and*
+  `obj_condition: no_information` *and* no Grundriss → **D = 2,5**. A "Sanierter Altbau" asserted in a
+  three-line TEXT_AREA must not lift it.
+- **Block E splits, so don't reach for the 2,0/2,5 unconfirmed pair**: that pair is for *both* must-haves
+  unknown. Here the TEXT_AREA explicitly granted one ("2 Balkone (Ost & West)", "Großes Bad inklusive
+  Badewanne") while Keller stayed silent with **no verification path at all** (0 photos, no Grundriss)
+  → **E = 3,0**, between "all must-haves + 1 nice-to-have" (4,0) and "1 must-have missing" (2,0).
+- Anbieter form to expect: **`AGENTS_INFO.name` = "Herr {Vorname} {Initial}"** (surname abbreviated) with
+  `address: ""`, `verifiedBy: []`, `phoneNumbers: []` and `callButtonState: inactive` → contact is
+  IS24-form-only and the lister is **unrecherchierbar** → Block H ≈ 2,5 (not the 3,5 "unknown" default).
+  Pair it with `contact.freemiumSettings.dateStarted/dateEnding` for the scam section: a window opened
+  today = brand-new unverified private listing (one **Medium** signal, not enough on its own to leave
+  "Legitimate"), and `dateEnding` is a real **contact deadline** worth putting in Next steps.
+**Why:** the "these usually have photos" line reads as permission to skip the zero-case check on a
+private ad, which would have parked an entirely unverifiable flat at D 3,0 / H 3,5 and scored it ~4,1
+instead of 3,9 — i.e. "strong candidate" for a listing with literally nothing to inspect.
+
 ⚠ **A photo-RICH ad is exactly where you stop looking — don't.** The "download and Read the
 pixels" discipline above is written for 0–2-photo tenant ads; on a 12-photo ad it is tempting to
 count captions, conclude "Zustand bildlich belegt, kein Cap", and never open a single file. That
