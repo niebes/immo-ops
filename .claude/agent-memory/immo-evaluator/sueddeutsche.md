@@ -16,7 +16,9 @@ Aggregator. The detail page is thin and links out to the real source (Immowelt /
 
 ## Dedup FIRST — before spending any effort on the listing
 After grepping the source expose URL out of the raw HTML (above), grep that expose ID against `data/pipeline.md` **before** extracting/scoring. SZ re-lists flats that were already scored under their source portal, and the SZ slug shares no token with the source URL, so slug-based dedup never catches it. Example: `.../helle-3-zimmer-wohnung-altbau-potsdam-babelsberg-GZFMWR` turned out to be `immowelt.de/expose/26nvt9lyf6y1` = already report **#334**, plus DUPE rows for the IS24 and Ab-ins-Zuhause copies of the same flat — a 4-way cross-post.
-`grep -i "{exposeId}" data/pipeline.md` (case-insensitively — SZ's HTML carries the ID uppercase, the pipeline row may hold it lowercase).
+`grep -i "{exposeId}" data/pipeline.md data/listings.md` (case-insensitively — SZ's HTML carries the ID uppercase, the pipeline row may hold it lowercase).
+
+**Grep `data/listings.md` too — the matching ID often lives ONLY in a report row's Notes column, never in `pipeline.md`.** Seen 2026-08-21 (H35WSF): `grep b0eab6d0 data/pipeline.md` → 0 hits, while `data/listings.md` row #228 carried "…DUPE Immowelt b0eab6d0". The reason is structural: when the *source* portal (IS24) was the one evaluated, the cross-post's ID was only ever written into the report/tracker note, so it never became a pipeline URL. *Why:* a pipeline-only grep declares a known flat "novel" and the whole re-list-vs-echo distinction below collapses.
 
 **Why:** without this, a duplicate burns a fresh report number and produces a second, divergent score for one flat.
 
@@ -25,6 +27,17 @@ After grepping the source expose URL out of the raw HTML (above), grep that expo
 **A route-level "re-list of #NNN" auto-skip is not a dedup — always re-derive it from the source expose ID.** Seen 2026-08-11: the router skipped this SZ URL as a re-list of #357 (a *Discarded Tauschwohnung* in a different Ortsteil); the ID grep showed it was actually #538, an ordinary rental in Jägervorstadt. Two unrelated failure modes hide here — a wrong skip target, and skipping against a `Discarded` swap (which should never suppress a normal rental at all). *Why:* accepting the router's guess would have both mis-linked the flat and lost the "already scored 4,2/5" fact.
 
 **But an expose-ID grep does NOT catch a re-list of an already-Expired flat.** When a landlord re-offers a unit it gets a **brand-new** source expose ID (and a new SZ slug), so the ID search comes back clean even though the flat has its own old report. Second dedup pass, cheap: grep `data/listings.md` for the **exact price+m² tuple** from the SZ price block (`grep "577,61\|66,24"`) — those figures survive a re-list unchanged even when dates and IDs don't. Seen #542: new Immowelt ID `8ef25270-…`, zero ID hits, but the price tuple matched #227 (Vonovia Waldstadt I) instantly. *Why:* without it you re-derive a whole evaluation from scratch and lose the "what changed since last time" comparison, which is the only real value a re-list has.
+
+## Re-list vs. syndication echo: the **source exposé ID** decides it, not the SZ slug
+A caller ("this is almost certainly a re-list of #NNN") cannot tell the two apart; you can, in one grep:
+- **New source exposé ID** (never seen in `pipeline.md`/`listings.md`) ⇒ the landlord really did re-offer the flat. Then chase what changed (frei-ab, price, Anbieter) — that comparison is the report's whole value. Seen #542.
+- **Same ID that is already logged (often as an old report's DUPE)** ⇒ pure **syndication echo**: SZ re-emitted its cache of the *original* ad months later. Nothing is back on the market. Seen #636/H35WSF (Immowelt `b0eab6d0` = #228's DUPE, byte-identical price block, source now "Anzeige gelöscht", IS24 twin still 404) → **EXPIRED**, state plainly that it is NOT a re-list.
+
+*Why:* both shapes arrive with the identical prompt "identical numbers → the flat is back". Confirming that framing on an echo tells the user to act on a flat that has been gone for two months.
+
+Two corrections worth harvesting even from a dead echo (cheap, and they pre-empt the *next* appearance):
+1. **Re-add the price block.** SZ's arithmetic is self-consistent, older reports' often are not — #228 recorded Warmmiete 766,82 where 517,82 + 170 + 115 = **802,82**.
+2. **Re-run the Mietspiegel anchor.** Old Waldstadt/Drewitz reports routinely scored Block A 5,0 off an Angebotsmieten anchor (9,01 / 12,60–13,50); against the qualified 2026 table the same flat is usually *above* the ortsübliche Vergleichsmiete (#228: 8,50 vs 6,46 EUR/m² = +31,6 %, Bremse überschritten). Same fix already applied to #227/#542.
 
 ## SZ's price block is a *subset* — pull the Ab-ins-Zuhause twin before concluding "nothing changed"
 The SZ detail page carries **no availability date, no Baujahr, no Energieausweis, no street, no description**. On #542 that made a genuine re-offer look like a stale syndication echo: SZ's numbers were byte-identical to the old report, but the AIZ twin of the *same* source expose showed `Frei ab 02.09.2026` (two months later than the original), the street name, and `Energieausweis C / 78,00 kWh/(m²a) / gültig bis 09.07.2030` — none of it visible on SZ. So on any suspected re-list: curl the AIZ twin (`ab-ins-zuhause.de/angebot/{uuid}`) even when the source expose is already dead — it is a much fatter cache of the same ad and is what lets you say *what changed*.
