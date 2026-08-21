@@ -1654,6 +1654,18 @@ Fahrland offer; and the "one of two dwellings" line is the Block-G/E shared-buil
   offered: Erschließung, Hausanschlüsse, Vermessung, Baugenehmigung, Außenanlagen all stay
   unbeziffert. Score it in Block A prose and make "Aufschlüsselung schriftlich vor dem Termin"
   Next step #2 — a round 150 T with no components is a negotiating anchor, not a costing.
+  - **Cross-check that round number against the SAME builder's other exposés for the SAME
+    Haustyp — it is not stable.** Franz Schäfer quoted **150 T** for "Raumwunder 90" on #604
+    (Kaufpreis 484.620) but **100 T** for the identical "Raumwunder 90" on **#634** (expose
+    170143039, Marquardt, Kaufpreis 310.720). Only ~15 T of the 50 T gap is the price-scaled
+    GrESt/Notar/Grundbuch — ~35 T is unexplained, i.e. the figure tracks the *Kaufpreis*, not
+    the actual build. Consequence: back out the true Baunebenkosten as `Sonstiges − IS24
+    additionalCosts` (#604: ~109 T · #634: ~74 T for the same house) and report Block A as a
+    **band** (#634: 410–450 T), never as a point estimate. Key the lookup on the Haustyp name in
+    the MEDIA captions + the Anbieter phone number, and put "why did you quote X on expose Y?"
+    into Next steps — it is the single question that can move the score.
+  **Why:** taken at face value the 100 T made #634 look 18 % under budget on a hard number; it is
+  actually the optimistic end of a band, and the comparison is only visible across exposés.
 - **Check the "Blick aufs Grundstück" caption's PLACE NAME against `geo_ot`/`obj_zipCode`.**
   #604 is geo-tagged 14478 Teltower Vorstadt, Potsdam, but its one and only plot photo is captioned
   `"Blick aufs Grundstück Michendo"` (truncated *Michendorf*, ~12 km away). So the exposé has **zero**
