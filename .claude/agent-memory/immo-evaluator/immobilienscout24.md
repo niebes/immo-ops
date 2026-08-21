@@ -1130,6 +1130,57 @@ meaningless here; and a Bauwagen may be a **Scheinbestandteil (§95 BGB)** = not
 the 200k budget" — a clean pass — while the object can never be lived in, half of it is public-access forest,
 and the correct budget cap is a third of the price.
 
+### Second instance (#633) — the search-group trap is now confirmed twice; two new sub-variants
+#633 (expose 170159519, Am Gemeindewald 43 / Flurstück 450, Havelsee OT Briest, 506 m², 119.000 EUR VB)
+reproduced the trap exactly: scanned into `property: grundstueck` (200k), type-correct is
+`freizeitgrundstueck` (60k) → +98,3 % over cap → hard blocker, 2,82 uncapped → 2,0. Same tells:
+`obj_immotype: grundstueck_wohnen_kauf`, `obj_buildingPerm: n`, `obj_shortTermBuild: n`,
+`obj_constAfter: no_information`, `obj_development: developed_partially`, Hauptkriterien = only
+Vermarktungsart/Grundstück/Erschließung/Verfügbar ab. **Always score both readings in the scenario table** —
+here the charitable Bauland reading still only reached 2,95, which is what makes the verdict safe.
+Two things #518 did not have:
+1. **The absence of `bestandsgeschützt` is WORSE than its presence, and the missing `Baujahr` is the tell.**
+   #518 at least claimed Bestandsschutz. #633 claims nothing and gives **no Baujahr anywhere** (exposé *and*
+   seller site) — so legal erection before **01.08.1990** cannot even be argued, and Nutzungsuntersagung/
+   Rückbau stays fully open. Rule: on a Wochenendhaus, `Baujahr` missing = Block G question #1, not a
+   data gap to shrug at. Ask for the **Bauakte/Baugenehmigung**, not for "Bestandsschutz ja/nein".
+2. **The "Entwicklungsperspektive" pricing variant: the ask prices in a PENDING vorhabenbezogener B-Plan.**
+   Description sells a running §12-BauGB plan (here „Altes Gutshaus Briest und Ferienhausgebiet am
+   Gemeindewald", Karg-Stiftung, 10,5 ha, 50 Bestandshäuser + 30 geplante Ferienhäuser) while disclaiming it
+   in the same breath. Score it as **zero value and a two-sided risk**: a *vorhabenbezogener* B-Plan is bound
+   to the Vorhabenträger via **Durchführungsvertrag**, so a third-party owner inside the Geltungsbereich has
+   **no claim** on it; and "städtebauliche Neuordnung bestehender Bereiche" can mean Umlegung, Auflagen or a
+   fresh Erschließungsbeitrag for the existing parcels. A planned **Ferienhausgebiet (SO §10 BauNVO) still
+   bars Dauerwohnen even if it passes** — so the "perspective" cannot ever convert the plot to the profile's
+   Bauland use. Quantify what the hope costs: Bodenanteil vs. Restkaufpreis (#633: land 10–35 TEUR against a
+   119k ask ⇒ ~84–110 TEUR for a simple hut + the plan).
+Also reconfirmed: **no Energieausweis on a Wochenend-/Ferienhaus is a legitimate GEG exemption** (<4 months
+annual use) — log it *Low*, never as a scam signal; and the "Finanziere ab N EUR/Monat" tile stays meaningless
+because banks barely lend on Erholungsgrundstücke (#633: EK 50k vs 129.115 EUR all-in ⇒ ~80k gap).
+**Erschließung on this class: read for what is NOT named.** #633 listed Strom/Zufahrt/Müllabfuhr/
+"geregelte Fäkalienentsorgung" (= abflusslose Grube, worst rung) and **never mentions Trinkwasser at all**,
+although the photos show a Bad and a Küchenzeile. Absence of the word is the finding — same shape as the
+"Abwasser kommt im Exposé gar nicht vor" tell on #546/#592.
+*(This whole Wochenend-/Freizeit section has now held across two listings and is stable — candidate for
+promotion into `modes/_shared.md` next to the Bauland block, together with the type-correct-search rule.)*
+
+### Private exposés: when `TEXT_AREA "Sonstiges"` names the seller's OWN domain, fetch it — it carries what the exposé omits
+#633's Sonstiges ended with "…stehen unter: www.havelgrundstueck.de zur Verfügung". That one-object site
+supplied, none of it in the IS24 payload: the **Flurstücksnummer (450)** and the old house number, the
+Nutzungsart ("Gebäude- und Freifläche"), a **Lage- und Höhenplan with a April-2026 Vermessungsstand** plus its
+own disclaimer ("keine örtliche Grenzuntersuchung, Markierung nicht grenzgenau"), the **B-Plan figures**
+(10,5 ha / 50 Bestands- / 30 geplante Häuser), interior photos, the fact the price is **"VB"** (negotiable —
+IS24 shows a bare number), and an **Impressum with the seller's real name and address** (here Elxleben,
+Thüringen, ~300 km from the object → Block H + a contact-logistics note). Cost: one fetch.
+**Transport gotcha:** `WebFetch` on `https://www.havelgrundstueck.de` died with
+`SSL routines:OPENSSL_internal:TLSV1_ALERT_INTERNAL_ERROR`; a plain `curl -sL` on the **apex without `www`**
+returned the page fine. So on any TLS failure, retry apex-vs-www over curl before declaring the site dead.
+(Related: `WebFetch` on `geoportal-amt-beetzsee.de/auslegungen.php?id=36` **ignores the `id=` param** and
+returns whatever is currently on display — useful to confirm a plan procedure exists at that Amt, useless
+for pulling one specific Verfahren.)
+**Why:** without the own-domain fetch the report would have missed that the price is negotiable, that the
+parcel is identified and freshly surveyed, and who the seller actually is.
+
 ## "Kauf in die Zukunft" / Verkauf gegen lebenslanges Wohnrecht (Leibrenten-/Nießbrauch-Modell) → cap 2,0
 An *existing* Kauf/Haus exposé (`Bauphase: Haus fertig gestellt`, real Baujahr, provisionsfrei) where the
 Objektbeschreibung says the buyer acquires only the **bare ownership** subject to the sellers' **lifelong

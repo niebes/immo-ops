@@ -39,6 +39,14 @@ depending purely on which aggregator you open first — one anchor alone decides
 |---|---|---|
 | Roskow (inkl. OT Weseram, Lünow, Riewend) | Gemeindemittel ~49, Spanne 20–55 | Aggregator (understating family) → the **55 Oberwert** is the realistic Wohnbauland anchor. Not in the Kreis-PM. Used on #591. |
 | Niemegk (PM, SW-Rand, 14823) | Gemeindemittel 32–44, Spanne 10–50 | Aggregator (understating family) → **50 Oberwert** = realistic Wohnbauland-Ortslage anchor. Stichtag 01.01.2024/2025, y-o-y unverändert. Not in the Kreis-PM (Speckgürtel only). Used on #601. |
+| Havelsee (PM, NW-Kreis, 14798, inkl. OT Briest/Pritzerbe) | amtlich **44** (Spanne 20–70), Stichtag 01.01.2024 · Angebot **93** (23–207, 108 Objekte / 26-km-Radius) | `aktuelle-grundstueckspreise.de` in one fetch (both families). Not in the Kreis-PM. Used on #633. |
+
+**On a Wochenend-/Erholungsgrundstück the Wohnbauland-BRW is a CEILING, not the anchor.** Every value in
+this table is Wohnbauland; Erholungs-/Wochenendflächen are a separate, materially lower BRW class. So on a
+Freizeitgrundstück, state the Wohnbauland figure as the generous upper bound and say the true land value sits
+below it — then split the ask into land vs. building/hope. #633: 506 m² even at the Wohnbauland **Oberwert 70**
+is only 35.420 EUR against a 119.000 EUR ask ⇒ ~84–110 TEUR pays a simple hut plus a pending B-Plan. Without
+that split the 235 EUR/m² reads as merely "5,3× BRW" and the report never says what the money actually buys.
 
 **Second usable anchor found: `aktuelle-grundstueckspreise.de/deutschland/brandenburg/{kreis}/{gemeinde}`
 gives BOTH families on one page** — an explicit *Angebotspreis* mean+range with the sample size and radius,
