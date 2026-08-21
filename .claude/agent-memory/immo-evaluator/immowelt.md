@@ -8,7 +8,9 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   - **CiC entry sequence that works (stable — 4th clean run 2026-08-20 #632; a full rental expose costs ~6 `javascript_tool` calls):** `tabs_context_mcp{createIfEmpty:true}` (a bare `tabs_create_mcp` errors with "No tab group exists for this session yet") → `tabs_create_mcp` → `navigate{tabId}` → `javascript_tool`. The 2026-07 "first navigate lands on chrome://newtab" no-op has NOT recurred in two runs; one navigate loads the expose. A full rental expose is only ~4,3 k chars of `innerText` ⇒ **4–5 `javascript_tool` calls total** (900-char head, 2–3 body slices, one combined regex sweep). *Promotion candidate: this CiC-first-on-Immowelt rule has been stable since 2026-07-20 — worth moving into `evaluate.md` / `portals.yml` notes.*
 - **When CiC is DOWN ("Browser extension is not connected"), do NOT fall back to the invisible-playwright *MCP* — drive the same stealth Firefox from a script instead. It does not hang.** The wedge above is a property of the MCP server path (`new_page`), not of the browser. Spawn the driver exactly the way `scripts/scan.mjs` does and send one eval command on stdin:
   `spawn('bash', ['scripts/invisible-venv.sh','scripts/invisible-driver.py'], {cwd: ROOT, env:{...process.env, IP_HEADLESS:'true', IP_LOCALE:'de-DE', IP_TIMEZONE:'Europe/Berlin', IP_STORAGE_STATE:'tmp/browser-state.json'}, stdio:['pipe','pipe','inherit']})` → wait for the `{ready:true}` line → write `JSON.stringify({cmd:'eval', url, snippet})+'\n'` → the reply is `{ok, result, blocked}`.
-  Re-verified 2026-08-21 (#636) — and it is now the cheapest *first* move, not just a CiC fallback: one `node` script (spawn driver → wait for `{ready:true}` → one `eval` cmd) answered liveness in ~40 s with no MCP round trip and no permission prompt. A **deleted** expose comes back as `title:"Immowelt"`, `L:542`, "Anzeige gelöscht" — i.e. this path alone settles the aggregator-EXPIRED question.
+  Re-verified 2026-08-21 (#636, #637 — #637 returned `title` + 4.879-char `innerText` + the full
+  685 KB `innerHTML` in a **single** eval, ~60 s end-to-end, so one call covers liveness AND the whole
+  extraction) — and it is now the cheapest *first* move, not just a CiC fallback: one `node` script (spawn driver → wait for `{ready:true}` → one `eval` cmd) answered liveness in ~40 s with no MCP round trip and no permission prompt. A **deleted** expose comes back as `title:"Immowelt"`, `L:542`, "Anzeige gelöscht" — i.e. this path alone settles the aggregator-EXPIRED question.
   Verified 2026-08-15 (#596): expose fetched in well under a minute, `blocked=false`, **no truncation** — one call returned `innerText` + the whole 632 KB `documentElement.innerHTML`. Wrap it with your own `setTimeout` kill so a stall fails fast. Two passes is the cheapest shape: pass 1 = `{title, innerText, imgs}` for liveness + fields, pass 2 = raw `innerHTML` to disk for the offline keyword/JSON mining below. *Why:* CiC is not always available, and without this the doctrine's only remaining tier is the one that wedges.
 - **Cheap liveness test — one `javascript_tool` call.** A deleted exposé still returns HTTP 200 and a normal-looking shell; the tell is that `document.body.innerText` collapses to **~540 chars** (nav + footer only) and contains **"Anzeige gelöscht — Diese Anzeige wurde bereits gelöscht"**, with `document.title` a bare `"Immowelt"` instead of the listing headline. So the standard first call (`{L, title, head:t.slice(0,900)}`) already answers liveness: `L < ~1000` ⇒ dead, stop, mark EXPIRED. Confirmed #542. *Why:* arriving from an aggregator you don't yet know if the ad is alive; this costs nothing and avoids extracting a phantom.
 - **invisible-playwright works first-try** (2026-07-11, #310): `new_page` → title already shows price/m²/address; `document.body.innerText` returns the FULL expose in one `evaluate_script` (no truncation), incl. Merkmale, Mietkosten, Sonstiges, Anbieter name + rating. No consent wall. Real gallery `<img>`s ARE present in the DOM here (filter out `/shared/images/` placeholders) — the "photos absent from DOM" note below was observed under CiC only.
@@ -48,8 +50,20 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   looked like "no media data" when 35 classified entries were present.
 - That payload gives a **per-image classification histogram** — `FLOORPLAN`, `INTERIOR`-type values
   (`LIVING_ROOM`, `BATHROOM`, `KITCHEN`, `BEDROOM`, `CLOSET`, `HALLWAY`, `STAIRCASE`, `EMPTY_ROOM`),
-  `HOUSE_FACADE`, `TERRACE`, `BALCONY`, `YARD`. This separates **real photos from Grundrisse exactly**,
+  `HOUSE_FACADE`/`BUILDING_FACADE`, `EXTERIOR_VIEW`, `TERRACE`, `BALCONY`, `COURTYARD`, `YARD`,
+  `SWIMMING_POOL`. This separates **real photos from Grundrisse exactly**,
   which is what the `_shared.md` "cap D at 3.0" rule actually needs — better than the mms-URL count.
+  - ⚠ **`LOGO` and `GMAP` are also classifications and must be subtracted from the photo count.**
+    #637: 62 classified entries vs. a headline "Alle 60 Bilder ansehen" — 11 `LOGO` (Anbieter
+    marketing) + 4 `GMAP` (map tiles) + 3 `FLOORPLAN` ⇒ **~44 real object photos**. Counting the
+    histogram naively overstates the gallery by a third. *Why:* the photo count drives the Block-D
+    "no real photos" cap, so an inflated count silently hides an unverifiable listing.
+  - The classification keys appear in **both** shapes in the wild — escaped
+    (`\"classification\":{\"name\":\"X\"`) and plain (`"classification":{"name":"X"`). Try the plain
+    regex as a fallback when the escaped one returns nothing (#637 matched plain).
+  - `"floorplans":[]` being empty does **not** mean no Grundriss: #637 had `floorplans:[]` yet
+    3 `FLOORPLAN`-classified media and a rendered `Grundrisse 1 / 3` carousel. Trust the media
+    classifications over the `floorplans` array.
 - **Hidden Merkmale:** the "Alle N Merkmale anzeigen" control does **not** expand via `.click()`
   (React handler not triggered). Don't fight it — grep `innerHTML` for the feature keywords you care
   about (Keller, Sauna, Kamin, Terrasse, Loggia, Aufzug, Einliegerwohnung, vermietet…) and read the
