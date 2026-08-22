@@ -385,6 +385,21 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     (89 m² / 3 Zi / Bornstedt-Volkspark alone covers #351, #360 and #575) — **m² + rooms + Ortsteil
     never identify a flat; Etage + exact rent + ad-ID do.** *Why:* a same-numbers heuristic silently
     drops live listings.
+- **Monteur-/Projektwohnungen sit in the ordinary `c203 "Wohnung mieten"` category and never use the
+  words "auf Zeit", "Zwischenmiete" or "befristet".** The category is no guarantee of a long-term let.
+  Tells, all from `#viewad-description-text`: "komplett möbliert" + **hotel-style inventory**
+  ("Handtücher und Bettwäsche sind vorhanden", "Waschmaschine steht kostenlos zur Verfügung",
+  Kaffeemaschine/Wasserkocher/Mikrowelle aufgezählt) + an **employer-shaped target audience**
+  ("Top für Berufstätige oder Mitarbeiter der {Werk}", "Expats", "Projektmitarbeiter") + car/airport
+  distances instead of Schule/Kita/Nahversorgung. Corroborating structure: `#viewad-details` carries
+  **`Schlafzimmer` + `Badezimmer` counts** (a Ferienwohnungs-style field set) while **Nebenkosten,
+  Warmmiete, Kaution, Etage, Baujahr and Energieausweis are ALL absent** — the ad describes a product,
+  not a Mietvertrag. Two consequences: (a) fire the furnished/auf-Zeit hard blocker per `evaluate.md`
+  even without the keyword; (b) **the price may be per bed, not per flat** — count the beds in the
+  photos (#640: 2 Einzelbetten im Schlafzimmer + 1 im Wohnraum, no Doppelbett ⇒ 3 Schlafplätze, so
+  690 € could mean ~2.070 € for the unit). Say the price scope is undefined instead of assuming.
+  *Why:* on #640 keyword-grepping for "auf Zeit"/"befristet" returned zero hits on a textbook
+  Monteurwohnung, and the unqualified 690 € looked like a bargain.
 - **WG / room-share ads look like whole-flat rentals in the spec list.** `#viewad-details` shows the FULL
   flat (81 m², 3,5 Zi, Etage, Balkon) and the search hint copies it, so the ad reads like a 3,5-Zi
   Wohnung. Only `#viewad-description-text` reveals it's per-room ("Die beiden Schlafzimmer kosten jeweils

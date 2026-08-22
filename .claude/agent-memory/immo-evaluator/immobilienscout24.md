@@ -4059,3 +4059,29 @@ Gesehen auf **#629** (expose 170074138, „Wohnen am Brauhausberg", Max-Planck-S
 Südliche Innenstadt, locals Real Estate GmbH), Geschwister #624/#628/#630/#632.
 **Why:** ohne die erste Regel wird das Fehlen jeder Vertragsklausel als „saubere unbefristete Miete,
 Block G 5,0" gelesen, und ohne die zweite kostet jedes Geschwisterinserat einen vollen Duplikat-Check.
+
+## Block H: `AGENTS_INFO.name` can be the HOLDING — the reputation record lives under the operating subsidiary
+The Anbieter string is whatever legal entity booked the ad, and for corporate landlords that is often
+the **Holding**, which has no tenant-facing footprint at all: searching it returns press releases and
+portfolio news ("erweitert Objektbestand", "160 Mitarbeiter, 200 Objekte") and reads as a clean,
+reputable Block H ~4,0. The tenant reviews sit under the **Verwaltungstochter** with a different name.
+Rule: when `AGENTS_INFO.name` ends in *Holding/Group/Beteiligungs-/Invest* and `verifiedBy: []`,
+run a **second search for the group's Hausverwaltung/Immobilienmanagement arm** (same address in the
+Impressum is the confirmation) before scoring H. On #638 "EB Group Holding GmbH" looked solid, while
+the operating **EB IMMOBILIENMANAGEMENT GmbH** (same Berlin address, Kaiserin-Augusta-Allee 113) sits
+at **ca. 1,6/5 aus ~500 Bewertungen, 0 % Weiterempfehlung** (unbeantwortete Mängel, Wasserschäden/
+Schimmel, Heizungsausfälle) → H = 2,0, i.e. "Known problematic", a two-point swing.
+Note the resulting risk profile is inverted vs. a private landlord: Eigenbedarf risk is LOW, but the
+**Instandhaltungs-/Erreichbarkeitsrisiko is the expensive one** — say that explicitly and turn it into
+a Next step (feste Ansprechperson, Reaktionsfrist, Übergabeprotokoll mit Mängelliste vor Unterschrift).
+**Why:** scored on the holding alone, the single most decisive negative of the listing never appears
+in the report — the user would apply to a 20 EUR/m² Altbau under a verwalter with 0 % recommendation.
+
+### `pictures.immobilienscout24.de/...png/ORIG/resize` can be a 25–45 MB, 4284×5712 PNG — always downscale before Read
+Private/small-lister ads increasingly carry uncompressed phone PNGs at full sensor resolution
+(#638: four images = 133 MB). `curl` them, then **PIL `thumbnail((900,900))` → save as JPEG q80 →
+Read** the small file, never the original. Bonus signal: PNG at exact phone dimensions with amateur
+framing is positive evidence of **authentic, self-shot photos** (as opposed to agency marketing
+material) — it argues *against* the "photos from different properties" / "stock photos" scam flags.
+**Why:** the existing `fullImageUrl → curl → PIL → Read` recipe says nothing about size; handing a
+45 MB original to Read wastes the budget several images can otherwise fill.

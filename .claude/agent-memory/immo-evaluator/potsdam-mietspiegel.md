@@ -498,6 +498,32 @@ Energieklasse E, 1 Vollbad. Angebotsmieten sind nach oben verzerrt; ein High-Sig
 AUCH die `priceBar` das Angebot unter `minSimilarPrice` drückt.
 **Why:** ohne diese Notiz wird für jede Falkensee-Miete erneut recherchiert — und die naheliegende
 Annahme „Brandenburger Kleinstadt → keine Mietpreisbremse" ist seit 2026 schlicht falsch.
+
+### Die **vollständige** 36-Gemeinden-Liste (ab 01.01.2026), damit sie nicht jedes Mal neu gesucht wird
+`_shared.md` nennt bisher nur „u. a. Falkensee, Blankenfelde-Mahlow, Eichwalde, Glienicke/Nordbahn"
+plus die drei Havelländer. Hier die ganze Liste (Quelle: MIL Brandenburg / Kabinettbeschluss
+25.11.2025; „(neu)" = ab 2026 erstmals erfasst):
+- **Dahme-Spreewald:** Bestensee (neu), Eichwalde, Königs Wusterhausen (neu), Schönefeld (neu),
+  Schulzendorf, Wildau (neu), Zeuthen (neu)
+- **Havelland:** Brieselang (neu), Falkensee, Schönwalde-Glien (neu)
+- **Märkisch-Oderland:** Altlandsberg (neu), Fredersdorf-Vogelsdorf (neu), Rehfelde (neu),
+  Strausberg (neu)
+- **Oberhavel:** Birkenwerder, Glienicke/Nordbahn, Leegebruch (neu), Mühlenbecker Land,
+  Oranienburg (neu)
+- **Oder-Spree:** Erkner (neu), **Grünheide (Mark) (neu)**, Woltersdorf
+- **Potsdam-Mittelmark:** Kleinmachnow, Nuthetal (neu), Stahnsdorf, Teltow, Werder (Havel) (neu)
+- **Teltow-Fläming:** Blankenfelde-Mahlow, Großbeeren, Ludwigsfelde (neu), Zossen (neu)
+- (+ Potsdam selbst und die übrigen Altfälle der 19er-Liste)
+
+**Nicht auf der Liste** und daher regelmäßig als Gegenprobe gebraucht: **Beelitz**, Michendorf,
+Borkheide, Brück, Nauen, Ketzin, Brandenburg an der Havel.
+**Merke außerdem:** § 549 Abs. 2 Nr. 1 BGB nimmt **Wohnraum zum vorübergehenden Gebrauch**
+(möbliert/auf Zeit/Monteur) ohnehin aus den §§ 556d ff. heraus — bei solchen Anzeigen also
+beide Begründungen nennen (Gemeinde reguliert ja/nein **und** § 549), nie nur eine.
+*Why:* #640 (Grünheide) kostete eine WebSearch nur, um festzustellen, dass die Gemeinde seit 2026
+reguliert ist; die Verordnung wird jährlich neu erlassen → **jeden Januar gegenprüfen**.
+→ **Promotion-Vorschlag:** diese Liste gehört in `modes/_shared.md`, Abschnitt „Brandenburg
+Umland — regulated since 01.01.2026", der bisher nur „u. a." schreibt.
 Stabile Jahresdaten → **Kandidat zur Promotion nach `modes/_shared.md`** (Mietpreisbremse-Abschnitt),
 wenn der Mietspiegel 2026 sich bewährt; Neuauflage voraussichtlich 2028.
 
