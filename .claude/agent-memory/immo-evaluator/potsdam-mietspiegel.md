@@ -253,6 +253,49 @@ kalt sind dort unplausibel → sie zeigen an, dass die genannte Zahl die **Warmm
 markt- und mietspiegelkonformen Preis, und hätte zusätzlich die kalt/warm-Frage falsch entschieden.
 Siehe [[kleinanzeigen-de]] für die Adress-/WebSearch-Route, die das Baujahr auf einer 0-Foto-Anzeige liefert.
 
+## Quartiers-Anker: **Brunnen Viertel, `Brunnenallee` (14478, Waldstadt I / Teltower Vorstadt)**
+Dritte Waldstadt-Falle, gleiche Bauart wie die zwei oben: PLZ 14478 löst den Plattenbau-Reflex aus,
+die Brunnenallee ist aber ein **Neubauquartier der KW-Development** auf dem ehemaligen
+**Plattenwerksareal** südlich der Waldstadt I (Architekt Gregor Fuchshuber, 11 Stadthäuser,
+49.700 m² Gesamtfläche, Häuser mit Nummern nach dem Schema `Haus {röm. Ziffer} – WE {n}`).
+Fixwerte, die man nicht neu recherchieren muss:
+- **Wohnteil Brunnenallee 9–13 fertiggestellt 2016–2018, seit Frühjahr 2019 vollständig bezogen**
+  ⇒ Mietspiegelfeld **2013–2020 · alle EEK**; bei 60–75 m² (Spalte C) **12,06 (11,23–12,74)**,
+  bei 75–90 m² (Spalte D) **12,34 (10,90–14,23)**.
+- **Erstbezug nach dem 01.10.2014 ⇒ § 556f BGB, Mietpreisbremse dauerhaft nicht anwendbar**, auch bei
+  jeder Wiedervermietung. Also **kein § 556g-Abs.-3-Hebel**, so formulieren. Gegenrichtung als
+  Stabilitätsplus nennen: weil die Miete ~38 % *über* der ortsüblichen Vergleichsmiete liegt, ist der
+  § 558-Erhöhungsspielraum im laufenden Vertrag faktisch null — sofern keine Indexmiete vereinbart ist.
+- **Preisniveau des Quartiers: 16,68–16,70 EUR/m² kalt**, zwei unabhängige Belege — #510
+  (Brunnenallee 3A, Bj. 2018, 76,84 m², 16,68) und #642 (Haus I/WE 8, 74,84 m², 16,70). Das ist
+  ~+38 % über ortsüblich und nur **+7,7 %** über dem stadtweiten Angebotsanker 15,51 ⇒ quartiersüblich,
+  Block A landet realistisch bei **4,3**, nicht darunter. Ein Aufruf ≫ 18 EUR/m² kalt wäre dort neu.
+- **Energieausweis-Anker: Bedarfsausweis B / 52 kWh(m²·a), Fernwärme** (#510, Brunnenallee 3A, Bj. 2018).
+  Für Nachbarhäuser plausibel, aber **unbestätigt — keinen EEK-Bonus daraus vergeben**, sondern als
+  Kontaktfrage setzen.
+- **Block B = 4,5.** Bhf **Potsdam-Rehbrücke ~350 m** (RE 7 / RB 33 nach Berlin) + **Tram 91**
+  Rehbrücke – Heinrich-Mann-Allee – **Hbf ~11 Min.** – Neues Palais – Eiche – **Wissenschaftspark Golm**
+  (= direkte Tram zur jetzigen Wohnung des Profils). Kita (2020) und Gymnasium (2025) im Quartier,
+  Spielplätze, Templiner See, begrünter parkähnlicher Innenhof. Minus: ehem. Industrieareal, direkte
+  Nähe zur **Wetzlarer Bahn**, Zufahrt über die stark befahrene **Heinrich-Mann-Allee**, und der
+  **Gewerbe-Bauabschnitt (8 Bürohäuser, Bauzeit 2019–2025/26, 4 davon + Kita fertig)** läuft noch.
+
+**Die operativ wichtigste Eigenschaft des Quartiers: es hat ZWEI Eigentümerschichten, und die
+deduplizieren nie gegeneinander** — **240 Mietwohnungen im institutionellen Bestand
+(BUWOG / Vonovia-Gruppe)** *und* **129 Eigentumswohnungen einzelner Privateigentümer**. Folge für die
+Vermieterkanal-Suche bei einem Nachmietergesuch: eine gleichzeitig auf Immowelt/IS24 laufende
+Brunnenallee-Anzeige (gesehen: Nr. 3, 3a, 5, 7a) ist **fast immer eine der 240 BUWOG-Mietwohnungen und
+damit eine ANDERE Wohnung** — kein Landlord-Channel-Twin, auch wenn Straße, m² und Zimmerzahl passen.
+Ein privater ETW-Eigentümer inseriert typischerweise gar nicht selbst. Der einzige belastbare Hebel ist
+dann die **Objektidentität aus dem Grundriss** (`Haus {N} – WE {n}` + Etage + exakte m²), mit der man
+beim Erstkontakt gezielt nach dem Eigentümer fragt. Konsequenz auch für Block H: institutionell
+(#510, Eigenbedarfsrisiko niedrig) vs. privater Einzeleigentümer (#642, **Medium**) — im selben
+Quartier, bei identischem Preis.
+*Why:* der Waldstadt-Reflex hätte Feld 1971–1990 × Spalte C = 5,82 gezogen → „+187 %, Mietpreisbremse
+massiv überschritten, § 556g-Rüge" auf einem markt- und mietspiegelkonform bepreisten Neubau, bei dem
+die Bremse gar nicht gilt; und die Zwei-Schichten-Regel ist das, was eine ergebnislose
+Landlord-Channel-Suche von einem übersehenen Twin unterscheidet.
+
 ## Ortsteil-Anker: **Babelsberg Nord (14482)** — größtes systematisches Delta Angebot ↔ Mietspiegel
 Babelsberg Nord ist Gründerzeit-Weberviertel (Nowawes) **mit eingestreuten Nachwende-Neubauten** —
 Baujahr also immer aus dem Exposé nehmen, nie aus dem Ortsteil. Der Ortsteil ist gefragt (beste

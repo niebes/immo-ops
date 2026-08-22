@@ -69,6 +69,26 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     which side of the 1.250 the Stellplatz sits on and put it in next steps. *Why:* silently treating
     the heading as pure Wohnraummiete over-states EUR/m² by ~0,5 EUR and hands away a real negotiating
     lever the ad itself created.
+  - **THE VARIANT THAT ENDS THE GUESSING — the SELF-COMPOSING description. Grep for it FIRST, before
+    running any of the heading-vs-Warmmiete heuristics above.** (Naming note: the ordinal labels above
+    have collided — there are three "Sixth price variant"s. Stop numbering new ones; name them by
+    their tell.) Some posters spell the whole split out in one line, e.g. #642: *"die Miete setzt sich
+    wie folgt zusammen: EUR 1250 Nettokaltmiete, EUR 300 Nebenkostenvorauszahlungen + EUR 110
+    Tiefgaragenstellplatz"*. Greps that catch it: `setzt sich .{0,40}zusammen|Nettokaltmiete|
+    zzgl\.|Betriebskostenvorauszahlung|Nebenkostenvorauszahlung`. Two consequences:
+    1. It **overrides the #356 ambiguity even when heading == the `Warmmiete` field** — #642 had
+       heading 1.660 € AND `Warmmiete 1.660 €` AND `Nebenkosten 300 €`, which by the rules above is a
+       coin flip; the sentence settles it outright (1.250 + 300 + 110 = 1.660).
+    2. **The heading can be MORE than the Warmmiete — it can be the all-in Gesamtbelastung including a
+       compulsory Stellplatz.** This is the #593 Stellplatz trap in its worst form: there the
+       Stellplatz was hidden inside the *Kaltmiete*, here it sits on top of the *Warmmiete*, so the ad
+       has three price levels (kalt 1.250 · Wohnraum-warm 1.550 · Gesamt 1.660). Always split the
+       Stellplatz out before computing EUR/m² and before touching the Mietspiegel — and check for
+       "**muss mit gemietet werden**": a compulsory Stellplatz is an unavoidable monthly cost (Block A
+       con) even though it is not Wohnraummiete.
+    *Why:* on #642 the search hint's naive `heading ÷ m²` gave **22,13 EUR/m²**, over the profile's
+    18-EUR/m² cap and heading for a rejection; the real figure is **16,70 EUR/m²**, comfortably under
+    it — a 32 % error that flipped the whole verdict, on an ad that states the answer in one sentence.
   - Posting date + view count: `#viewad-extra-info` (e.g. "14.08.2026") and the counter right after it
     ("6" Aufrufe). Useful for "how fresh / how contested is this ad" in next steps — there is no
     "Anzeige online seit N Tagen" string to grep.
@@ -149,6 +169,20 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     building when Baujahr is absent (verputzte Fassade + Dachflächenfenster + Rollläden + Glasbaustein
     + Wendeltreppe ⇒ Nachwende-Neubau 1990er/2000er, i.e. Mietspiegel-Feld 1991–2008).
     *Why:* stopping at image 4 would have missed both the layout caveat and the Baualtersklasse.
+    - **Find the Grundriss for free with `file -b` instead of Reading the gallery one by one.** Phone
+      photos come off the CDN at a uniform **900×1600 portrait**; the Grundriss is a scan/PDF export
+      and has a different aspect ratio (#642: **873×978**, and it was image 4 of 14, not the last).
+      So: download all deduped UUIDs, run `for f in *.jpg; do echo "$f $(file -b $f)"; done`, and Read
+      the odd one out first. On #642 that one image carried more than the rest of the ad combined:
+      unit id **"Haus I – WE 8"**, the exact **74,84 m²** (spec list said "75"), the room-by-room split
+      that proved three *real* rooms plus a separate Essen/Kochen (killing the Wohnküche-as-3rd-room
+      doubt raised by the structured field `Schlafzimmer: 1`), the Balkon at 8,61 m² (4,31 angerechnet),
+      a separate HWR, and a **compass rose** giving the orientation. The unit id is also what lets you
+      chase the landlord channel on an ad with no house number.
+      Gotcha in the download loop: `'\n'.join(urls)` has no trailing newline, so a
+      `while read -r url` loop silently **drops the last URL** — check the file count against the
+      unique-UUID count.
+      *Why:* Reading 14 images to find one costs ~14× the tokens, and the ratio test is one Bash call.
   - **0 gallery images happens on ordinary private ads too**, not just Tauschwohnung ads — cap Block D
     at 3,0 when it's 0.
   - **Counting photos: DEDUPE the `data-imgsrc` URLs — the raw grep count is 2× the real photo count.**
