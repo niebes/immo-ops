@@ -25,6 +25,28 @@ flat, i.e. a normal Vonovia rental rather than the landlord channel of a swap. G
 either invents an Ablöse-free "landlord channel" that does not exist, or drops a genuinely new listing
 as a duplicate.
 
+##### Cross-portal "re-list" claims: **normalise the RENT TYPE before you believe the delta**
+When the suspected earlier ad sits on another portal (typically a Kleinanzeigen Nachmieter post),
+the two prices are often **not the same quantity**. Private Kleinanzeigen ads routinely quote only
+the **Warmmiete** and never state a Kaltmiete, while the IS24 headline/`obj_baseRent` is the
+**Kaltmiete** — so a router that diffs the two numbers manufactures a small, plausible-looking
+"+N EUR ask" out of thin air. Always re-read the older report for which figure it captured, then
+compare warm-to-warm. On **#639** (expose 170185708) vs **#313** the flagged "+50 EUR" was
+1.700 EUR **warm** against 1.750 EUR **kalt**; warm-to-warm it is 1.700 → 2.200 = **+29,4 %**,
+which alone refutes the match.
+Cheapest discriminators in a Neubau-Quartier (Bornstedter Feld runs several hundred WE of the same
+class, so Ortsteil + 3 Zi + ~90 m² separate nothing): **Etage**, **Freisitz-ART** (Dachterrasse vs
+Balkon — a DG-Terrasse cannot become a 2.-OG-Balkon), **Heizungsart** (Fußbodenheizung vs Fernwärme),
+and **Vermarktungskanal** (privater Nachmieter vs gewerbliche Hausverwaltung). Note also that a
+Kleinanzeigen private ad has **no Objekt-Nr. at all**, so the Objekt-Nr. test below cannot run
+cross-portal — and the old-scoutId-404 test only works IS24↔IS24.
+Landmark aliasing will *support* a false positive: "BUGA-Blick" and "am Volkspark Potsdam" are the
+same park (Volkspark = ehem. BUGA-Gelände 2001), so both ads legitimately describe one quarter while
+being different buildings. Treat a shared landmark as zero evidence.
+**Why:** #639 arrived pre-labelled "CONFIRMED match, +50 EUR ask". Taken at face value it would have
+been written up as a re-list with a trivial price rise — inheriting #313's Dachterrasse/DG facts into
+a 2.-OG-Balkon flat and hiding a 500-EUR warm-rent gap that is the whole story of Block A.
+
 **The positive case — CONFIRMING a re-list, and what it is worth.** Two cheap checks settle it and
 both come from the same mobile-API path: (1) `OBJECT_INFO` Objekt-Nr. is the landlord's own stable
 unit key and usually names the unit outright (`Stein124 WE32-1` ↔ the "Grundriss WE32" PDF quoted in
@@ -2294,6 +2316,24 @@ Seen on #366 (expose 165446870, Babelsberg Nord Denkmal-Weberhaus).
    **Why:** the Kauf note above stops at "not a scam signal / not a D omission", so on a rental the
    field gets ticked off as benign and the evaluator then guesses an EEK row — which is precisely
    the choice that decides whether a Mietpreisbremse breach is +110 % or +228 %.
+
+   **Third variant — the Energieausweis row is MISSING ENTIRELY and the word "Denkmal" never
+   appears.** `ATTRIBUTE_LIST "Bausubstanz & Energieausweis"` can contain nothing but
+   `Baujahr` + `Qualität der Ausstattung` + `Wesentliche Energieträger: Keine Angabe` — no
+   `Energieausweis:` label at all, no `Denkmalschutzobjekt:` CHECK, and no Denkmal mention in
+   Titel/Objektbeschreibung/Ausstattung/Lage. Neither of the two rules above then fires, and the
+   default reading ("Missing Energieausweis" Low scam signal + a real disclosure gap) can be wrong.
+   Resolve it from **Baujahr + the address against the Denkmalliste**, not from the exposé:
+   pre-1948 Baujahr inside a Potsdam Denkmalbereich (Nauener Vorstadt is one since 2001) or with a
+   listed neighbouring house number is enough to call the § 79 Abs. 4 GEG exemption *plausible* →
+   report it as the likely explanation, do NOT fire the scam signal, and put "Denkmaleigenschaft
+   nachweisen (sonst § 80 Abs. 3 GEG vorlagepflichtig)" into Next steps. The Mietspiegel
+   consequence is the same as above: score the **`kein EA` row** (it is the row the landlord
+   cannot argue up), quote the A/B row as his best case. Seen on #638 (expose 170187691,
+   Eisenhartstraße 24, Nauener Vorstadt, Bj. 1849, „Luxus", frisch saniert, 20,03 EUR/m²).
+   **Why:** without the external Denkmal check this listing reads either as a compliance red flag
+   (wrong — the exemption is plausible) or gets an invented EEK row (wrong in the other direction);
+   the `kein EA` row put the ask at ~+60–100 % over zulässig instead of "premium but arguable".
 
 6. **`Etagenzahl: 1` can contradict the Grundriss set — trust the MEDIA captions.** On #372 the
    Hauptkriterien said `Etagenzahl: 1` while MEDIA carried Grundrisse for *Erdgeschoss*,

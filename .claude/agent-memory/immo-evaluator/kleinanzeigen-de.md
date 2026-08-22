@@ -79,6 +79,26 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     `title … sidebar` and read it — `#viewad-locality` alone gives you "{PLZ} Brandenburg -
     {Stadt}" and nothing more. A house-number-precise address is the single highest-value field on
     a Mieterinserat: it unlocks Baujahr/Bauvorhaben via one WebSearch (see below).
+  - **The PLZ/Ort field can be flat-out WRONG — a different Gemeinde 55 km away — and `og:latitude/
+    og:longitude` inherit the error, so the map is not a second opinion.** #640 rendered
+    `#viewad-locality` "14473 Brandenburg - Potsdam" + geo `52,386116 / 13,072902` (= Potsdam
+    Südliche Innenstadt) on an ad whose title AND description say **Grünheide (Mark)** (Oder-Spree).
+    The poster simply typed their own PLZ. Resolution recipe, in order of strength:
+    1. **Triangulate the description's distance claims.** #640 gave three ("Tesla Gigafactory ca.
+       10 Min. mit dem Auto", "Müggelsee ca. 10 km", "BER ca. 35 km"); only Grünheide satisfies all
+       three, Potsdam satisfies one. Two independent distance claims that agree beat any single field.
+    2. **Pull the poster's other ads: `curl "https://www.kleinanzeigen.de/s-bestandsliste.html?
+       userId={id}"`** — the id sits in the `href` inside `#viewad-contact`. Plain-curl accessible,
+       and each row yields title + `aditem-main--top--left` (PLZ/Ort) + price + description snippet
+       via `data-href`. On #640 the sibling ad (Leipzig-Gohlis) carried the *correct* PLZ, which
+       proved the Grünheide ad's PLZ was the outlier rather than the title.
+    3. **Compare the two ads' `data-imgsrc` UUID sets** while you're there — same UUIDs across two
+       "different" flats would be the Medium "photos from different properties" signal. On #640 the
+       sets were disjoint, so it did NOT fire.
+    *Why:* the ad only reached the pipeline because the PLZ said Potsdam; scoring the field instead of
+    the text would have produced a Potsdam report for an Oder-Spree flat — and would have fired the
+    High "price >20 % below Mietspiegel" signal (10,62 EUR/m² is cheap for Potsdam, ordinary for
+    Grünheide). Whenever title-Ort ≠ field-Ort, settle it before scoring anything else.
   - **Vermieter name + exact address ⇒ settle Baujahr AND the kalt/warm reading with ONE WebSearch.**
     On #607 the ad gave only "1.200 €" (heading == `Warmmiete` field, no NK field ⇒ the #356
     ambiguity) plus "Der Vermieter ist die Pro Potsdam" and the Standort address. A single search
