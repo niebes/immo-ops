@@ -194,6 +194,27 @@ resolvable. Details in `immowelt.md`. *Why:* #521 spent two calls on the IS24-on
 returns 200 + the soft-404 body, and `twg.click/ka-{id}-01` is a hard 404. There is no housing id on the
 page, so the Suche is whatever the title + `#viewad-description-text` say — and on #524 they said nothing
 at all. Record "Suche unknown", fall back to their own flat as the yardstick, apply the lenient rule.
+**Status-code update (2026-08-22, #641, Anbieter-ID 476848): the probe now returns a HARD `404`**
+(status 404 *and* the "Seite nicht vorhanden" body), not the old 200+soft-404. So one `curl -w
+"%{http_code}"` settles it — but keep grepping the body, since 200-with-soft-404 was the behaviour for
+months and may come back. Either way it is ONE curl, not four: the ID on a Kleinanzeigen swap is never
+a housing id, so the outcome is known before you send it.
+
+### Side-2 sub-case: the TOTALLY silent Suche (no "gegen X" title, no Suche sentence at all)
+#641 (Kleinanzeigen, "TAUSCHWOHNUNG Klein aber Fein: 3-Zimmer-Wohnung in Babelsberg", 60 m² / 3 Zi /
+700 EUR): the description describes only their own flat and ends in the tauschwohnung.com boilerplate —
+**zero** Zimmer/m²/Miete/Ortsteil/Ausstattung/Personenzahl anywhere, and no `{N} Raum gegen {M} Raum`
+title either. This is NOT #608's positive shape (there M was stated and matched our 2 Zi exactly); here
+there is no matchable criterion at all. Verdict is still **lenient KEEP / Swap-candidate** — all five
+kill axes silent = pass, and "unknown Suche" must never be converted into an assumed ceiling.
+⇒ But the report must then carry the **honest economic read as an explicitly-labelled inference**, not
+as a Suche: when their flat is BOTH cheaper AND bigger than the Golm offer (700 EUR / 60 m² / 3 Zi vs
+1.025,25 / 54,19 / 2 Zi = −1 Zi, −5,81 m², +46,5 % kalt or +73,6 % warm), the partner is by construction
+in the one class our offer cannot serve, so a decline is the likely outcome — say so, cap the time
+budget at one message, and let the user decide. *Why:* without that paragraph a "Swap-candidate" with a
+100 %-unknown Suche reads as a promising lead, and with it the user gets the same recall at honest odds.
+Also state which reading of an unsplit price you used: when the ad shows a bare price heading and **no**
+NK/Warmmiete field, kalt-vs-warm is genuinely undecidable and flips the rent delta by ~27 points.
 
 ## Getting the partner's Suche (the side-2 input) — no browser needed
 The IS24 expose NEVER contains the Suche. The expose's "Weitere Links" section has an
