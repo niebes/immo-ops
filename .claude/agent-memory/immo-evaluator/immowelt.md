@@ -38,6 +38,11 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
 - **Mine the embedded JSON, not the rendered text, once you have the raw `innerHTML`.** One blob near the end of the document holds everything in clean form: `"hardFacts":{...,"facts":[{"type":"numberOfRooms"…},{"type":"livingSpace"…}],"price":{…}}`, `"sections":{"location":{"address":{"street","district","zipCode","city"},"geometry":{coordinates}}}`, the media array (`url` + `description` = the original filename + `classification.name`), and `"floorplans":[]` / `"videos"` / `"virtualTours"`. `floorplans:[]` is the definitive "no Grundriss" answer.
   - **⚠ …but that only holds for PORTAL-generated fields. In lister-written PROSE a typo silently voids the sweep.** #666: `Maisonette` returned **0** hits in 634 KB on a flat the description calls a „**Maissonette**-Wohnung" (lister's double s) — the whole two-level layout would have been missed. Same class of trap as the Ortsteil/`district` lie: the structured side is reliable, the human side is not. ⇒ For any prose-only concept (Maisonette, Souterrain, Hochparterre, Loft, Dachgeschoss), **sweep on a truncated stem** (`Maison|Maiss`, `Souter`, `Hochpart`) or just read the description — never conclude "absent" from a full-word grep over free text.
   - **A plain keyword grep returning 0 for `Balkon`/`Keller`/`Baujahr`/`Etage` really does mean the field is absent** — Immowelt does not hide them behind escaping or a different token (checked `constructionYear`, `BALCONY`, `CELLAR`, `LIFT`, `BUILT_IN_KITCHEN`: all 0 on a listing that genuinely stated none). So a 0-count sweep is trustworthy as "not stated"; it still is not "confirmed absent" (see the Keller rule below).
+    - ⚠ **Run acronym sweeps CASE-SENSITIVELY.** #667: `new RegExp('WBS','gi')` returned **2 hits** in
+      637 KB — both inside minified CSS class names (`css-…wbs…`), i.e. pure noise; the case-sensitive
+      count was **0**. Same exposure for any short uppercase profile deal-breaker (`WBS`, `EA`, `KfW`,
+      `WG`). Long German words are safe either way; 2–3-letter acronyms are not. *Why:* a phantom `WBS`
+      hit is a hard blocker — it would have capped an otherwise-fine listing at ≤2,0 on a CSS artefact.
   - **`rawData.tags` is a free re-check/dedup panel: `{"has3DVisit","hasBrokerageFee","isNew"}`.**
     `hasBrokerageFee:false` settles the Bestellerprinzip/Provision question without a keyword sweep,
     and **`isNew` flips true→false as the ad ages** — on the Stiftstr. 8a re-check (2026-08-23) it was
@@ -49,6 +54,13 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
     finding a swap partner** — a real Block-F/H signal (no urgency, no competition, but also nothing
     imminent) that `isNew:false` alone only hints at. Read them on every swap; on commercial ads they
     date the relisting.
+    ⚠ **`isNew` is NOT monotonic — it flips BACK to true when the lister touches the ad.** #667
+    (2026-08-23): `creationDate 2026-04-23`, `updateDate 2026-08-19`, `isNew:true`, and the page
+    rendered a **"Neu" badge** — on an ad that had been online **four months**. So the "flips
+    true→false as the ad ages" line above only describes the *untouched* case; `isNew` really tracks
+    `updateDate`, not `creationDate`. ⇒ **Never report ad age or "freshly listed" from `isNew`/the
+    "Neu" badge — always read `creationDate`.** *Why:* an ad that failed to find a partner for four
+    months and got bumped reads as brand-new competition-heavy, which inverts the Block-F/H signal.
     ⚠ **CORRECTION (2026-08-23, #664): the neighbouring `defaultBackToSearch` band is NOT the lister's
     own search — it is a mechanical ±20 % window around the asking price** (`priceMin=520&priceMax=780`
     on a 650 € ad = 650×0,8 / 650×1,2 exactly). It carries zero information and must never be quoted as

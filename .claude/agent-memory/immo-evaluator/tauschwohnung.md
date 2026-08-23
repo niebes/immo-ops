@@ -27,6 +27,15 @@ name ≥4 Zimmer or a 3+-person household, side 2 is a deterministic fail and th
 evaluation is only worth doing for the record. Worth proposing a triage prefilter
 ("suche … ≥4 Zi / ≥70 m²" → discard before evaluation).
 
+**The size of the downsize is IRRELEVANT — only the stated FLOOR decides.** #667 is the extreme
+datapoint: a 4 Zi / **160 m²** poster seeking `mind. 3 Zimmer / mind. 80 qm`, i.e. willing to *halve*
+their flat. On the delta axis that is by far the best a-priori swap candidate ever seen; on the floor
+axis it fails by −1 Zimmer and −32,3 % Fläche, exactly like every 95-m² poster. ⇒ Do not let a huge
+offered m² raise your prior — compare our 2 Zi / 54,19 m² against the *number they wrote down*, and
+say so explicitly in the report so the next reader does not re-litigate it. (Same lesson as #658, now
+at the top of the size range.) Corollary worth surfacing to the user: when Ort and Miete both pass and
+only size fails — repeatedly — the binding constraint is the `swap_offer` inventory, not the search.
+
 **But "downsizer" is NOT automatically a side-2 pass — a second, independent kill axis is a
 qualitative BAUSUBSTANZ requirement, which our 2024 Neubau can never satisfy.** #579 was the first
 genuine downsizer (offers 4 Zi/89 m², seeks 3 Zi) and still failed categorically: the Suche was
@@ -311,13 +320,30 @@ self-description ("TAUSCHWOHNUNG Biete 3 Raum Babelsberg mit kleinem Garten EG P
 Wohnung **ab 85 m2** mit Balkon, Terrasse oder Garten in Babelsberg, Innenstadt, Berliner- oder
 Templiner Vorstadt oder Klein Glienicke."* ⇒ **A silent TITLE is not a silent Suche** — read the
 full description down to the boilerplate before invoking the lenient-KEEP rule of the next section.
+**Richest documented form (#667): a colon-headed BULLETED Suchprofil in that same slot** — *"Ich
+suche einen Tausch mit einer Wohnung in Berlin Schöneberg, Wilmersdorf oder Charlottenburg, ggf.
+auch Potsdam:"* followed by `- mind. 3 Zimmer / - mind. 80 qm / - Balkon / - Badewanne /
+- vorzugsweise Altbau / - gerne mit Aufzug`. Note the built-in priority grammar: **`mind.` = hard
+floor, bare noun = hard must-have, `vorzugsweise`/`gerne` = soft preference** — the poster grades
+their own criteria, so score each bullet at the weight they gave it instead of treating the list as
+uniform. Here the title *also* carried the direction ("… in Potsdam **gegen Berlin**"), so title and
+body agreed; a bulleted list is the easiest Suche to read and the easiest to under-weight.
 Two sub-details from the same ad:
 - **An alternative-set Ausstattungswunsch ("Balkon, Terrasse **oder** Garten") is satisfied by our
   Golm garden** — it is the one criterion our offer routinely meets, and it never rescues a numeric
   fail. Score it ✓ in the checklist so the email row is honest, then let axis 3 decide.
+  ⚠ **Its mirror: a BARE standalone „Balkon" is an Ausstattungs-FAIL for us, not a near-miss.**
+  #667 listed „- Balkon" as its own bullet with no `oder`; our EG flat has a ~29 m² Garten and no
+  balcony, so the criterion is simply unmet. The whole difference between #664 (✓) and #667 (✗) is
+  the word `oder`. Corroborate with their own flat: a poster who already has two Balkone plus a
+  Dachterrasse wrote „Balkon" deliberately. ⇒ Read the conjunction, not just the noun.
 - **A named Ortsteil list with NO openness clause is an area FAIL** — the exact mirror of #606's
   "Bevorzugt A, B, C … aber bietet gern alles an" (lenient PASS). The presence/absence of a closing
-  openness sentence is the whole difference; on Immowelt there is no `radius` field to fall back on
+  openness sentence is the whole difference; **third documented form, #667: a trailing
+  „…, *ggf. auch Potsdam*" appended to a Berlin-Ortsteil list is a genuine openness clause ⇒ area
+  PASS on the poster's own wording, no commuter-belt leniency needed.** Grep the tail of the Ort
+  clause for `ggf|eventuell|evtl|oder Umgebung|auch in|gern auch|am liebsten` before calling an area
+  fail — the clause is usually 2–3 words and easy to read past. On Immowelt there is no `radius` field to fall back on
   (axis 5 is IS24-NUXT-only — `roomsMin`/`sizeMin`/`rentMax`/`selectedGeos` return **0 hits** in
   636 KB of Immowelt HTML, and the only price pair on the page, `defaultBackToSearch`
   priceMin/priceMax, is a mechanical ±20 % window around the asking price, see `immowelt.md`).
