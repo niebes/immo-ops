@@ -130,6 +130,15 @@ Gate the expired test on a 200 status AND the absence of "Ich bin kein Roboter" 
 **Why:** the false match would confirm EXPIRED for the wrong reason and hide a still-live listing behind
 a mere bot block.
 
+## Der Ortsteil im Suchergebnis ist ein IS24-Label, kein PLZ-Beweis (Berlin-Randlagen)
+Die Ortsteil-Angabe der Trefferliste kann eine Adresse dem *benachbarten* Ortsteil zuschlagen: #649
+(expose 170095796) lief als „Margaretenstraße 5, **Grunewald**, Berlin", der Titel hieß aber „Ruhige
+Wohnung am **Halensee**" — Halensee ist 10711 Charlottenburg-Wilmersdorf, Grunewald 14193. Bei
+PLZ-scharf gescopten Suchen (Grunewald-Suche = strikt 14193) daher **die PLZ aus dem Live-Exposé
+verifizieren**, bevor ein Treffer als in-scope gilt; das Label allein reicht nicht. Auf #649 nicht
+mehr prüfbar (Exposé entfernt) → als Prüfschritt, nicht als Befund führen.
+**Warum:** sonst wird eine Nachbarortsteil-Wohnung als Volltreffer im engen Suchgebiet gescort.
+
 ## Deactivated / expired expose signature → EXPIRED
 A pulled listing still serves a 200 page (h1 stub title + coarse address + m² survive), but ALL `.is24qa-*` criteria selectors return null and the body carries: **"Vor N Tagen deaktiviert" / "Angebot wurde deaktiviert" / "Dieses Angebot ist nicht mehr verfügbar."** Detect with `/deaktiviert|nicht mehr verf[üu]gbar/i` (add these to the not-found test — the generic "nicht gefunden" alone misses them). Mark EXPIRED, do NOT score the stub. Seen back-to-back on #259 (169062476, deaktiviert ~2d) and #260 (169028421, deaktiviert ~3d), both Potsdam.
 
