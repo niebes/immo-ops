@@ -113,6 +113,11 @@ side 1 *also* missed the 3,5 gate (3,3 — a 160 m²/6-Zi EFH is +33 % over `max
 a wrong recommendation — check the side-1 number before writing that follow-up.
 
 ### The base rate is NOT a law — #608 is the first side-2 PASS. Don't pre-judge a swap as doomed.
+**Pass roster (three known shapes, keep it current):** #608 „{N} Raum **gegen {M} Raum**" with M ≤ our
+2 Zi (the Suche IS the title) · #662 · **#672 silent-except-a-bare-city-clause** (see the „TOTALLY silent
+Suche" section below). Note the split: #608's pass is a *match against stated criteria*, #641/#672's is a
+pass *by silence*. Both are legitimate Swap-candidates, but only the first carries real odds — say which
+kind you have, so the user can budget attention accordingly.
 After a long unbroken failure run (#492, #505, #533, #541, #550, #578, #579, #597, #598, #606) it is
 tempting to treat every swap as a foregone Discard. **#608** (Kleinanzeigen, „TAUSCHWOHNUNG *Günstige
 3 Raum Wohnung **gegen 2 Raum Wohnung***", 89 m² / 980 EUR kalt, Potsdam 14469) passed both sides.
@@ -511,6 +516,29 @@ budget at one message, and let the user decide. *Why:* without that paragraph a 
 100 %-unknown Suche reads as a promising lead, and with it the user gets the same recall at honest odds.
 Also state which reading of an unsplit price you used: when the ad shows a bare price heading and **no**
 NK/Warmmiete field, kalt-vs-warm is genuinely undecidable and flips the rent delta by ~27 points.
+
+- **Variant „silent except for a bare city clause" — and the honest read can point the OTHER way.**
+  #672 (Immowelt, Anbieter-ID 474144, Eiche, 4 Zi / 94 m² / 900 kalt / ca. 1.300 warm): the only search
+  statement in the whole exposé is the sign-off „Wir freuen uns auf einen **Wohnungstausch in Potsdam**".
+  All five kill axes silent ⇒ lenient pass, and the city clause is **literally satisfied** (Golm *is* an
+  Ortsteil of Potsdam) so leniency is not even invoked — say that, it is stronger than a soft match.
+  What differs from #641: there the partner was cheaper AND bigger, so the honest read was "they will
+  decline". Here their flat is bigger (−2 Zi / −42,4 % for them) but their **warm rent is HIGHER than
+  ours** (1.214,93 vs ca. 1.300 = **−6,5 %**) even though our kalt is +13,9 %. ⇒ On a silent Suche always
+  compute **both** deltas: a partner can be worse off on space and better off on money, and that is the
+  only lever the first message has. Same duty as #641 — label it an inference, not a Suche.
+- ⚠️ **The mirror of the #666 „Du suchst …" trap: a second-person RHETORICAL OPENER that describes the
+  OFFER and reads exactly like a Suche.** #672 opens „**Bist du auf der Suche nach einer geräumigen
+  Wohnung in Potsdam?**" — same grammar family as #666's real second-person Suche, opposite meaning:
+  #666 attached the criteria to *deine Wohnung* (= what the partner owns ⇒ their Suche), #672 attaches
+  them to what the reader *wants* (= a pitch for their own listing). Taking it as a Suche would have
+  invented a floor of „geräumig … in Potsdam" and could have flipped the verdict.
+  **Test that separates them in one step: which flat do the criteria describe?** If the sentence's
+  object is the READER's flat („bietest deine 4-Zi-Wohnung", „deine Wohnung in X") ⇒ Suche. If it is the
+  POSTER's flat, restated in the next sentence with „Wir bieten …" ⇒ marketing, not a Suche. Second tell:
+  a rhetorical opener is a **question ending in „?"** followed immediately by „Wir bieten/Wir haben".
+  Same duty for the headline: #672's „**Perfekt für Familien**" describes the offer's suitability, **not**
+  the poster's household — do not read it as a household-size clause (`personen`/`kind` were 0).
 
 ## ⚠️ The SAME swap ad appears twice on Immowelt — via Wohnungsswap.de AND via Tauschwohnung GmbH
 Two competing swap platforms syndicate into Immowelt, and a tenant who registers with both gets
