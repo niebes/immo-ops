@@ -375,6 +375,17 @@ Two sub-details from the same ad:
   balcony, so the criterion is simply unmet. The whole difference between #664 (✓) and #667 (✗) is
   the word `oder`. Corroborate with their own flat: a poster who already has two Balkone plus a
   Dachterrasse wrote „Balkon" deliberately. ⇒ Read the conjunction, not just the noun.
+  ⚠ **THIRD form — „Disjunktion PLUS Konjunktion" — reads like the ✓ case and is actually a ✗.**
+  #671: „**Unbedingt mit Balkon oder Terrasse und Gartenmitbenutzung.**" The word `oder` is present,
+  so the #664 rule fires on a skim — but the `oder` only ranges over *Balkon|Terrasse*, and the
+  Garten is bolted on by `und` as a **separate, additional** requirement. Our Golm garden therefore
+  satisfies the second conjunct and **cannot substitute for the first**, which our flat fails
+  outright (no Balkon, no Terrasse). ⇒ **Parse the scope of `oder` before crediting it:** if a
+  `und {Garten…}` follows the disjunction, the garden is an extra demand, not an alternative.
+  Decision rule: `A oder B oder Garten` ⇒ ✓ · `A oder B **und** Garten` ⇒ ✗ (Garten ✓, A/B ✗) ·
+  bare `A` ⇒ ✗. The intensifier `unbedingt` (also `zwingend`, `muss`, `Bedingung`) marks the clause
+  as hard and removes any near-miss leniency. *Why:* crediting the `oder` here would have flipped a
+  correct DISCARD into a contact on a Suche that rules us out in its own words.
 - **A named Ortsteil list with NO openness clause is an area FAIL** — the exact mirror of #606's
   "Bevorzugt A, B, C … aber bietet gern alles an" (lenient PASS). The presence/absence of a closing
   openness sentence is the whole difference; **third documented form, #667: a trailing
@@ -387,7 +398,16 @@ Two sub-details from the same ad:
   narrower than Golm, yet „am besten" (+ the „auch") frames the whole clause as a *preference*, so
   it is an area **PASS** — and the follow-up „zentraler Lage in Potsdam" names our own city, which
   Golm is part of. ⇒ Add `am besten|bevorzugt|vorzugsweise|idealerweise|vor allem` to the grep and
-  check the **head** of the Ort clause too, not only its tail. *Why:* scanning only for a trailing
+  check the **head** of the Ort clause too, not only its tail.
+  **Fifth documented form, #671: the bare adverb „Gerne" opening the clause — „**Gerne** in der
+  Brandenburger Vorstadt/ Potsdam West."** Same class as „am besten"/„am liebsten", but shorter and
+  with no `auch` to help; it is easy to read as a plain statement of target. It is an openness
+  clause ⇒ area **PASS**. Note the direct contrast within the same portal and Ortsteil: **#668 wrote
+  „Wir suchen eine Tauschwohnung in Potsdam West" (bare, no adverb) ⇒ area FAIL, while #671 wrote
+  „Gerne … Potsdam West" ⇒ area PASS.** Identical Ortsteil, opposite verdict, and the entire
+  difference is one six-letter adverb. ⇒ Grep list becomes
+  `gerne|gern auch|am besten|am liebsten|bevorzugt|vorzugsweise|idealerweise|vor allem|ggf|eventuell|evtl|oder Umgebung|auch in`.
+  *Why:* scanning only for a trailing
   clause makes a leading „Am besten" invisible and converts a lenient PASS into a bogus area fail —
   which then hides *which* axis really killed the swap. On Immowelt there is no `radius` field to fall back on
   (axis 5 is IS24-NUXT-only — `roomsMin`/`sizeMin`/`rentMax`/`selectedGeos` return **0 hits** in

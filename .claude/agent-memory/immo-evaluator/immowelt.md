@@ -32,6 +32,33 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `replace(/\\\\"/g,'"')` unescape pass is NOT enough either (it strips only one level). *Why:* a
   NULL from the regex looks like "field absent" and silently downgrades PLZ/rooms/Grundriss to
   unknown. **Default to indexOf+slice; keep the regexes only as a convenience.**
+  ⚠ **…and the indexOf needle must be the BARE key, never `'"'+key+'"'`.** #671: searching
+  `'"zipCode"'` returned NOT FOUND for all 24 documented keys on a page that has every one of them,
+  because in the escaped payload they read `\"zipCode\"`. Same false "listing has no structured
+  data" verdict as the `.mjs`-vs-`node -e` trap above, one layer further in.
+  ✅ **BEST: stop slicing and parse the payload properly — it is one clean object.** The blob lives in
+  `<script id="__UFRN_LIFECYCLE_SERVERREQUEST__">window["__UFRN_LIFECYCLE_SERVERREQUEST__"]=JSON.parse("…")</script>`.
+  Three lines get the whole record, escaping level irrelevant:
+  ```js
+  const m = raw.match(/JSON\.parse\("([\s\S]*)"\)/);      // do NOT anchor with \s*$ — a ';' follows
+  const d = JSON.parse(JSON.parse('"' + m[1] + '"')).app_cldp.data.classified;
+  ```
+  `classified` then gives, fully typed and unescaped: `metadata.{legacyId,creationDate,updateDate}` ·
+  `tags.{has3DVisit,hasBrokerageFee,isNew}` · `domains.medias.{images,floorplans,videos,virtualTours}`
+  (`images.length` is the **exact** photo count — better than the `/Bild \d+/g` innerText count, which
+  returned **0** on #671's single-photo gallery because the counter renders as „1 / 1") ·
+  `sections.location.{address:{city,zipCode,district},isAddressPublished,geometry}` ·
+  `sections.hardFacts.facts[]` · `sections.price` (Kaltmiete/NK/Kaution) · `sections.key` (Online-ID +
+  Referenznummer) · `sections.description.texts[]` (the FULL prose incl. the Stichworte block) ·
+  `contactSections.contactCard.{title,subtitle,isPrivateOwner,phoneNumbers}` · `rawData`.
+  **`sections.features.details.categories` is the COMPLETE Merkmale list including the ones hidden
+  behind „Alle N Merkmale anzeigen"** — on #671 `features.preview` showed 8 chips while
+  `details.categories` held all 10, and the 2 hidden ones were `Barrierefrei` and
+  `Badezimmer: Badewanne, Bad mit Dusche` — i.e. a must-have-adjacent amenity and the Badewanne
+  nice-to-have were BOTH in the hidden tail. *Why:* the existing "expander present ⇒ list truncated ⇒
+  feature stays unconfirmed" rule can now be **resolved instead of hedged** — parse `details` and the
+  list is complete either way (`details:null` = the preview WAS everything; `details.categories`
+  populated = here is the rest).
   **⇒ Treat the node-script path as the DEFAULT first move on Immowelt, ahead of CiC.**
   Two gotchas in the harness itself: (a) set `IP_HEADLESS/IP_LOCALE/IP_TIMEZONE/IP_STORAGE_STATE` and
   `cwd: ROOT` in the spawn env (`tmp/drive.mjs` omits them); (b) the driver emits a **second** line
@@ -50,6 +77,19 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
       count was **0**. Same exposure for any short uppercase profile deal-breaker (`WBS`, `EA`, `KfW`,
       `WG`). Long German words are safe either way; 2–3-letter acronyms are not. *Why:* a phantom `WBS`
       hit is a hard blocker — it would have capped an otherwise-fine listing at ≤2,0 on a CSS artefact.
+    - ⚠ **…but the line above says "long German words are safe either way" and that is WRONG for
+      COMPOUNDS. #671: `Aufzug` (capital A) returned 0 hits in 625 KB on a flat whose Merkmale chip
+      literally reads „Personen*a*ufzug" — because a German compound lowercases its second element
+      (`Personen`+`aufzug`).** The flat has a lift to the 4. OG; a capitalized-stem sweep would have
+      written up "kein Aufzug" and cost a Block-C/E point on a DG flat where the lift is the whole
+      point. ⇒ **Split the sweep by token class:** short UPPERCASE acronyms (`WBS`, `EA`, `KfW`, `WG`)
+      case-SENSITIVE; ordinary German nouns that can appear as a compound TAIL — `aufzug`, `küche`,
+      `keller`, `balkon`, `garten`, `miete`, `wohnung`, `heizung`, `stellplatz`, `bad` — on a
+      **lowercase stem, case-INSENSITIVE**. *Why:* both errors are silent and they point in opposite
+      directions, so one blanket case policy is guaranteed to be wrong half the time.
+      ⚠ **Audit flag:** #668 concluded „kein Aufzug (`Aufzug`/`elevator` = 0 Treffer)". That evidence
+      is unsafe by this rule — the Altbau-Seitenflügel conclusion is probably still right, but it was
+      not actually established.
   - **`rawData.tags` is a free re-check/dedup panel: `{"has3DVisit","hasBrokerageFee","isNew"}`.**
     `hasBrokerageFee:false` settles the Bestellerprinzip/Provision question without a keyword sweep,
     and **`isNew` flips true→false as the ad ages** — on the Stiftstr. 8a re-check (2026-08-23) it was
