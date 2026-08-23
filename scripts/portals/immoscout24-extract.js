@@ -32,7 +32,23 @@
 // Field text therefore can never bleed across listings.
 
 (function () {
-  const cards = [...document.querySelectorAll('.listing-card')];
+  // IS24 pads ANY short result set with out-of-area listings under a
+  // "Hier schon gesucht? / Weitere Treffer in angrenzenden Regionen" heading, and
+  // `.listing-card` is document-wide — so those got harvested as in-area hits.
+  // Verified 2026-08-23 on Grunewald wohnung-mieten: stated total 4, but 24 cards
+  // scraped, 18 of them Schmargendorf/Charlottenburg/Westend/Zehlendorf. Cut at the
+  // heading. Harmless on a full page (no heading → marker null → keep everything);
+  // decisive for a tightly-scoped group, where short result sets are the norm.
+  const PAD_RE = /angrenzenden Regionen|Weitere Treffer|Umgebungstreffer|Hier schon gesucht/i;
+  let padMarker = null;
+  const _walk = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  let _n;
+  while ((_n = _walk.nextNode())) {
+    if (PAD_RE.test(_n.nodeValue || '')) { padMarker = _n.parentElement; break; }
+  }
+  const cards = [...document.querySelectorAll('.listing-card')].filter(
+    (c) => !padMarker || !(padMarker.compareDocumentPosition(c) & Node.DOCUMENT_POSITION_FOLLOWING)
+  );
   const seen = new Set();
   const listings = [];
   let corrected = 0; // cards where anchor id != gallery id (desync caught & fixed)
@@ -105,12 +121,31 @@
     (l.title || '').slice(0, 60),
     (l.location || '').slice(0, 40),
   ]);
+  // NEIGHBOUR-REGION PADDING GUARD. When a search has no hits IS24 still renders
+  // `.listing-card`s under "Weitere Treffer in angrenzenden Regionen" — and the card
+  // selector is document-wide, so those get harvested as if they were in-area. Verified
+  // 2026-08-23: Grunewald haus-mieten states "0 Häuser zur Miete in Grunewald (Berlin)"
+  // yet yielded one Westend listing. IS24's own stated total is the authority: when it
+  // says 0, every card on the page is padding. Report a clean empty state instead — a
+  // tightly-scoped group (single Ortsteil) hits this routinely.
+  const total = totalMatch ? parseInt(totalMatch[1]) : null;
+  if (total === 0) {
+    return JSON.stringify({ c: 0, n: false, total: 0, corrected: 0, empty: true, p: P, L: [] });
+  }
+
+  // Belt-and-braces after the heading cut: IS24 also slips Neubauprojekt teasers
+  // ("1 passende Wohneinheit: Mietwohnungen in Charlottenburg-West") into the block
+  // ABOVE the heading, so the pre-marker set can still exceed the stated total. The
+  // genuine hits render first, so where IS24's own count is smaller, trust it.
+  // Only ever trims — on a paginated search (total 78, 20 per page) it is a no-op.
+  const kept = total !== null && total < L.length ? L.slice(0, total) : L;
+
   return JSON.stringify({
-    c: listings.length, // count
+    c: kept.length, // count
     n: hasNextPage, // hasNextPage — for the pagination decision
-    total: totalMatch ? parseInt(totalMatch[1]) : null,
+    total,
     corrected, // # cards where the desync guard repaired the URL↔metadata pairing
     p: P, // url-prefix to pass as --url-prefix
-    L, // compact rows
+    L: kept, // compact rows (padding-trimmed)
   });
 })();

@@ -94,5 +94,18 @@
     (l.title || '').slice(0, 60),
     (l.location || '').slice(0, 40),
   ]);
+  // LEGITIMATE EMPTY STATE. The portal renders its own headline count — "0 Mietwohnungen
+  // in der Umgebung" — when a bbox has no matching inventory. That is a real result, not
+  // selector drift, but it looks identical to a block from the outside (0 cards), which is
+  // the WBG Daheim / BLB failure mode. Verified 2026-08-23 on the Grunewald bbox: page
+  // renders fully, states 0, no cards. Signal it so a tightly-scoped group scans clean.
+  // Guarded on listings.length so a mis-parsed page can never mask genuine drift.
+  if (listings.length === 0) {
+    const t = (document.body?.innerText || '').replace(/\s+/g, ' ');
+    if (/\b0\s+(?:Miet|Immobilien|Objekte|Wohnungen|Häuser)/i.test(t)) {
+      return JSON.stringify({ c: 0, n: false, empty: true, L: [] });
+    }
+  }
+
   return JSON.stringify({ c: listings.length, n: hasNextPage, L });
 })();

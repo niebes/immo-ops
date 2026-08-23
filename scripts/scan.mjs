@@ -327,7 +327,15 @@ async function scanPortal(browser, portal, groupName) {
         // shell page with no CAPTCHA text) or selector drift. Returning [] silently hides a
         // broken portal (this is exactly how Kleinanzeigen went unnoticed). Flag it so the
         // coverage report surfaces it and CiC fallback can pick it up.
-        if (pageNum === 1) {
+        // ...UNLESS the extractor positively recognised the portal's own "no results"
+        // prose and marked the returned array `.empty = true`. This mirrors the
+        // invisible-playwright path's `{ empty: true }` contract below (~line 694) and
+        // exists for the same reason: WBG Daheim and BLB Brandenburg each spent weeks
+        // as a daily false ⛔ because a real empty state reads identically to drift.
+        // Tightly-scoped groups (e.g. a single Ortsteil) make genuine zeros routine.
+        if (pageNum === 1 && pageListings.empty === true) {
+          log(`  ✓ scanned — legitimately empty (no current listings)`);
+        } else if (pageNum === 1) {
           log(`  ✗ 0 listings extracted on page 1 — probable bot-block or selector drift → flagging`);
           recordFailure(portal, groupName, 'no listings extracted (bot-block or selector drift)', 'bot_defense');
         }
@@ -421,6 +429,11 @@ function extractSnippetFile(portalName) {
 // hasNextPage=false and never reach here.
 function withPageParam(url, n) {
   if (/[?&]pagenumber=\d+/.test(url)) return url.replace(/([?&]pagenumber=)\d+/, `$1${n}`);
+  // A search_url that already declares its OWN page param keeps it. Appending
+  // `pagenumber=N` to a portal that spells it `page` would be ignored, re-serving
+  // page 1 under a new URL — the scanner would then loop over identical pages until
+  // MAX_LISTINGS, which is exactly the Immowelt failure this replaced.
+  if (/[?&]page=\d+/.test(url)) return url.replace(/([?&]page=)\d+/, `$1${n}`);
   return url + (url.includes('?') ? '&' : '?') + `pagenumber=${n}`;
 }
 

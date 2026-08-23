@@ -12,7 +12,11 @@
 // Regionalimmobilien24; cross-portal dedup in process-scan collapses the twins.
 
 export async function extract(page) {
-  return page.evaluate(() => {
+  // The `empty` flag must be re-attached HERE, in Node: page.evaluate() returns a
+  // serialized copy, so a custom property set on the array inside the browser is
+  // silently dropped. scan.mjs reads `pageListings.empty` to tell a real "no results"
+  // apart from selector drift — see the empty-state note in scan.mjs.
+  const { listings, empty } = await page.evaluate(() => {
     const cards = document.querySelectorAll('a.lr-card');
     const seen = new Set();
     const deNum = (s) => {
@@ -51,8 +55,13 @@ export async function extract(page) {
         portal: 'immobilien.de',
       });
     });
-    return out.filter(Boolean);
+    // The portal states this verbatim when a filter combination has no matches
+    // (verified live 2026-08-23 on the Grunewald plz:14193 search).
+    const isEmpty = /Keine passenden Objekte gefunden/i.test(document.body?.innerText || '');
+    return { listings: out.filter(Boolean), empty: isEmpty };
   });
+  if (empty && listings.length === 0) listings.empty = true;
+  return listings;
 }
 
 export async function nextPage(page) {
