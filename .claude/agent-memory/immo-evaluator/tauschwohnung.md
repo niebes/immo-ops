@@ -120,6 +120,18 @@ The shape that produces a pass — spot it early, it is a *positive* triage sign
 ⇒ Practical rule: run the four kill axes; if all are silent AND the room count matches, stop hunting
 for a reason to discard — write it up as a Swap-candidate with the open questions listed instead.
 
+**The `"{N} Zimmer … gegen {M} Zimmer"` title is the cheapest side-2 read there is — and it cuts BOTH
+ways.** #608 was the positive form (M ≤ our 2 Zi ⇒ pass); **#661 (Immowelt, „TAUSCHWOHNUNG Moderne
+3- Zimmer Wohnung in Bornstedt **gegen 4 -5 Zimmer**") is the negative form and was decidable from the
+title alone** — M = 4 is a *numbered absolute floor*, two rooms above our only offer, so axes 1
+(direction: they are upsizing) and 3 (explicit numeric minimum) both fire independently. The
+description's last pre-boilerplate sentence repeated it verbatim ("Wir suchen 4/5- Zimmer-Wohnung
+oder ein Haus in Potsdam, am liebsten in Drewitz."). ⇒ **Read the title's `gegen …` half first, then
+confirm against the description tail; when the two agree the verdict is robust and no A–H pass is
+needed to reach it** (still score side 1 for the record — #661's flat was 4,3/5). A named
+Wunsch-Ortsteil in that sentence ("am liebsten in Drewitz") is a *preference* riding on a hard
+"in Potsdam" — do not upgrade it to an exclusion, and do not need it: the room floor already decided.
+
 ### A `Möbliert/Teilmöbliert` flag on a swap is NOT the furnished / "auf Zeit" hard blocker
 #653 (Kleinanzeigen, Tauschwohnung GmbH, 14055 Berlin-Westend) carries the checktag
 **`Möbliert/Teilmöbliert`** next to Balkon/Terrasse/Keller. Taken at face value that fires the

@@ -125,12 +125,27 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   - `"floorplans":[]` being empty does **not** mean no Grundriss: #637 had `floorplans:[]` yet
     3 `FLOORPLAN`-classified media and a rendered `Grundrisse 1 / 3` carousel. Trust the media
     classifications over the `floorplans` array.
-- **Hidden Merkmale:** the "Alle N Merkmale anzeigen" control does **not** expand via `.click()`
-  (React handler not triggered). Don't fight it — grep `innerHTML` for the feature keywords you care
-  about (Keller, Sauna, Kamin, Terrasse, Loggia, Aufzug, Einliegerwohnung, vermietet…) and read the
-  surrounding context. *Why:* #396 the visible list showed 7 of 11 and omitted Keller; the Keller was
-  only provable from a `"unverbindlicher Grundriss Keller"` FLOORPLAN caption in the payload.
-  **A `Grundriss Keller` image caption is positive proof of a Keller** even when no Keller feature chip renders.
+- **Hidden Merkmale — SOLVED: the payload carries the COMPLETE list, so never fight the expander and
+  never fall back to keyword grepping.** In `documentElement.innerHTML` find
+  `"features":{"preview":[…],"details":{"categories":[…]}}`. `preview` = the ~8 rendered chips;
+  **`details.categories` = all N**, grouped and labelled (`Allgemeine Informationen`,
+  `Barrierefreiheit`, `Innenbereich`, `Außenbereich`) with an `icon` + `value` per element
+  (`cellar`, `balcony`, `terrace`, `parking-lots`, `bathroom-amenities`, `toilet-amenities`,
+  `kitchen`, `elevator`, `floor-covering`, `furnished`). #661: the header said "Alle 11 Merkmale
+  anzeigen", `preview` had 8, and `details.categories` returned exactly the missing 3 —
+  **Badewanne, Bodenbelag Fliesen/Parkett, and `furnished: "teilweise möbliert"`**.
+  ⚠ **The `furnished` value can be INVISIBLE in `innerText`** — a möbliert/teilmöbliert flag, i.e. a
+  hard-blocker-adjacent field, lived only in the JSON on #661. So an `innerText`-only extraction can
+  miss the furnished question entirely. Always read `details.categories` before scoring Block E or
+  ruling on the furnished blocker.
+  ⇒ This supersedes the old advice below ("don't fight it, grep `innerHTML` for keywords and read the
+  context") — grep only as a cross-check now, since it costs context-inspection and returns nothing
+  about features the lister *did* set but the chip list hid. It also makes the triple/quadruple
+  "confirmed absent" test much cheaper: an amenity missing from `details.categories` on a listing
+  with ≥3 categories really is unstated. *Why:* #396 the visible list showed 7 of 11 and omitted
+  Keller, provable then only from a `"unverbindlicher Grundriss Keller"` FLOORPLAN caption; the
+  categories payload would have answered it in one slice.
+  **A `Grundriss Keller` image caption is still positive proof of a Keller** even when no Keller chip renders.
 
 ## Zwangsversteigerung — positive test (resolves the nav-boilerplate false positive)
 The warning above ("`Zwangsversteigerung` in `innerHTML` is nav-dropdown boilerplate") only covers the
