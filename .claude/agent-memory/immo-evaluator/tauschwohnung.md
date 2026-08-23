@@ -234,6 +234,44 @@ budget at one message, and let the user decide. *Why:* without that paragraph a 
 Also state which reading of an unsplit price you used: when the ad shows a bare price heading and **no**
 NK/Warmmiete field, kalt-vs-warm is genuinely undecidable and flips the rent delta by ~27 points.
 
+## ⚠️ The SAME swap ad appears twice on Immowelt — via Wohnungsswap.de AND via Tauschwohnung GmbH
+Two competing swap platforms syndicate into Immowelt, and a tenant who registers with both gets
+**two `/expose/` pages for one flat**. Confirmed 2026-08-23: #660 (`53228bd7-…`, Anbieter
+**Wohnungsswap.de**, Herr Tobias Jonnarth, Ref **1501708**, Online-ID **26F63QCEXRZE**, headline
+`Wohnungsswap - In der Feldmark`) and #661 (`3a7cb8ce-…`, Anbieter **Tauschwohnung GmbH** c/o THE
+9TH Bonn, Herr John Weinert, Ref **427872** = the poster's Anbieter-ID, Online-ID **26AX5VKYBCHT**,
+headline `TAUSCHWOHNUNG Tausche Garten-Glück …`) are **one flat**.
+
+**Never dedupe swaps by Referenznummer/Online-ID** — both are the *syndicator's* ids, so they always
+differ and always read as "two different ads". Dedupe on a **unit fingerprint** taken from the prose:
+the description's own title line, the exact m² (`70,53`, not the portal's rounded `70`), a physical
+oddity (garden `ca. 6x8m` + Außenwasseranschluss), the occasion (`WG-Auflösung, Mitbewohner bereits
+versorgt`), and the price triple (1.280 kalt / 250 NK / 65 EUR TG-Platz). All five matched verbatim.
+
+**The Tauschwohnung.com variant is the RICHER one — fetch it before writing "confirmed missing".**
+Same flat, wildly different structured data:
+
+| | Wohnungsswap.de (#660) | Tauschwohnung GmbH (#661) |
+|---|---|---|
+| Merkmale-Chips | **1** (`Erdgeschoss`) | **7** — Erdgeschoss, **Barrierefrei**, Einbauküche, Bad mit Dusche, **Keller**, Bodenbelag, Garten |
+| Fotos | 10 | **17** |
+| `Keller` in HTML | 0 Treffer ⇒ „vierfach bestätigt kein Keller" | Chip vorhanden, Liste **nicht** abgeschnitten (`Alle N Merkmale anzeigen` = null) |
+| Anbieter-Bewertung | keine | 4,4/5 (510 Bew.), 3 Jahre Partnerschaft |
+
+⇒ The `immowelt.md` triple-negative test ("no expander + 0 HTML hits + no photo = confirmed absent")
+is **sound per page but unsound per flat**: it certified a Keller as absent that the sibling ad lists
+as a feature. **Add a fourth condition: no known sibling posting.** When a swap looks like a dupe of
+something already evaluated, fetch the other variant and let the richer one win on amenities.
+
+**The free-text Suche can also differ between the two posts** — here `mindestens 55 m²`
+(Wohnungsswap) vs `mindestens 50 m²` (Tauschwohnung). Treat a single-platform m²/EUR floor as
+approximate and score side 2 against the **more permissive** figure; a −1,5 % "near-miss" was in
+fact a +8 % pass. Constraints that are *identical* across both posts (here: the five inner-city
+Ortsteile, Must-haves EBK + Balkon, max 1.100 EUR warm) are the real, load-bearing ones.
+
+*Why:* without this, one flat burns two full evaluations and the weaker post's gaps get written into
+reports (and into `potsdam-mietspiegel.md`) as verified facts.
+
 ## Getting the partner's Suche (the side-2 input) — no browser needed
 The IS24 expose NEVER contains the Suche. The expose's "Weitere Links" section has an
 **"Original-Exposé"** link (`https://twg.click/is24-{objektNr}-NN`) that 302s to the

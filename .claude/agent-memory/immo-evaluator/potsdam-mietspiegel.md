@@ -494,10 +494,21 @@ ein Baujahr oder einen Energieausweis. Was man deshalb nicht neu recherchieren m
 - **Nebenkosten ≈ 3,50–3,55 EUR/m²** (eigene 189,68 ÷ 54,19 = 3,50; #660 250 ÷ 70,53 = 3,54).
   Deckungsgleiche NK sind zugleich der beste Beleg, dass eine Anzeige wirklich aus diesem Quartier
   stammt.
-- **Kein Kellergeschoss im Quartier** — unsere Wohnung hat keinen Keller, #660 ebenfalls nicht
-  (vollständige Merkmale-Liste ohne Keller-Chip, 0 `Keller`/`Abstellraum`-Treffer im HTML, kein
-  Kellerfoto). ⇒ Der Profil-Must-have `keller` fällt bei **jeder** Feldmark-Anzeige aus, Block E
-  landet dort systematisch bei 2,0. Kontaktfrage: gibt es überhaupt anmietbare Abstellräume?
+- **⚠ KORRIGIERT 2026-08-23 (#661): Das Quartier HAT Keller.** Die frühere Regel „kein
+  Kellergeschoss im Quartier, Block E systematisch 2,0" ist **falsch** und darf nicht mehr
+  angewandt werden. Beleg: dieselbe Wohnung wie #660, auf Immowelt ein zweites Mal über
+  **Tauschwohnung.com** inseriert (`expose/3a7cb8ce-…`), führt im **vollständigen** Merkmale-Block
+  (kein „Alle N Merkmale anzeigen" ⇒ nicht abgeschnitten) ausdrücklich den Chip **`Keller`** —
+  neben `Barrierefrei`, `Einbauküche`, `Bad mit Dusche`, `Garten`, `Erdgeschoss`,
+  `Bodenbelag: Fliesen, Parkett`. Die Wohnungsswap-Variante desselben Objekts zeigte nur **einen**
+  Chip („Erdgeschoss") und 0 HTML-Treffer für `Keller` — die Merkmale waren dort schlicht nicht
+  gepflegt, nicht abwesend.
+  ⇒ **Für Feldmark-Anzeigen den Keller als vorhanden/offen behandeln, nicht als bestätigt fehlend.**
+  Unsere eigene Wohnung (Nr. 29) hat laut `swap_offer.lacks` keinen — das ist eine Eigenschaft
+  *dieser Einheit*, nicht des Quartiers; Kellerabteile sind offenbar nicht jeder Wohnung zugeordnet.
+  Kontaktfrage bleibt: lässt sich für Nr. 29 ein Abstellraum nachmieten?
+  *Why:* die alte Regel hätte jede künftige Feldmark-Anzeige um einen ganzen Block-E-Punkt zu
+  niedrig gescort — und zwar mit dem Etikett „vierfach bestätigt".
 - **Vertragsform:** unser Vertrag ist **Indexmiete (§ 557b BGB)**; bei Nachbarwohnungen dasselbe
   annehmen und erfragen. Zusammen mit § 556f heißt das: bei Mieterwechsel ist die Miete **frei neu
   setzbar** — eine niedrige Bestandsmiete in einer Tauschanzeige ist keine Preiszusage.

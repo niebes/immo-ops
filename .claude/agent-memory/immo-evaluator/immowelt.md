@@ -16,8 +16,10 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `blocked=false`, ~60 s; the whole evaluation was again exactly **two** Bash calls — one fetch,
   one offline mine that returned innerText + address JSON + hardFacts + photo count + a 19-keyword
   sweep together) and **#658, 7th clean run** (628 KB, `blocked=false`, ~50 s; two Bash calls again)
-  and **#660, 8th clean run** (626 KB, `blocked=false`, ~60 s; two Bash calls again).
-  Eight for eight ⇒ treat it as reliable, not as a lucky path.
+  and **#660, 8th clean run** (626 KB, `blocked=false`, ~60 s; two Bash calls again)
+  and **#661, 9th clean run** (624 KB, `blocked=false`, ~60 s — one fetch + one offline mine
+  answered a whole duplicate-check).
+  Nine for nine ⇒ treat it as reliable, not as a lucky path.
   ⚠ **Mine the embedded JSON with `indexOf(key)` + a slice, NOT with a `"key":"value"` regex.** On
   #660 the payload was **triple**-escaped (`\\\"zipCode\\\":\\\"14476\\\"`), so every documented
   regex (`/"address":\{…/`, `/"hardFacts":…/`, `/"titleAdditions":…/`, `/"floorplans":…/`) returned
@@ -52,6 +54,21 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   - Tail: `Über den Eigentümer` → "Privater Anbieter" / "Keine Telefonnummer hinterlegt", `Online-ID`.
   - Tail for COMMERCIAL listings: `Über den Anbieter` → company name + address + **`{x},{y}/5 ({N} Bewertungen)`** + partnership tenure ("10 Jahre Partnerschaft", "Diamond Partner") + Ansprechpartner. This is a ready-made Block-H reputation input — grab the last ~900 chars of `innerText` for it. *Why:* saves a WebSearch for landlord reputation; the portal rating is right there.
 - **The presence/absence of the "Alle {N} Merkmale anzeigen" control tells you whether the list is truncated — test for it, it converts "unconfirmed" into "confirmed absent".** Regex `innerText` for `/Alle (\d+) Merkmale anzeigen/`: a match ⇒ the visible ~7–8 chips are a *subset* and a missing feature stays **unconfirmed**; **null ⇒ the rendered chips ARE the complete Merkmale set**. On #539 (26ephn5ffvma) null + a `Balkon|Terrasse|Loggia|Dachterrasse` sweep of `documentElement.innerHTML` returning **0 hits** + no `BALCONY`/`TERRACE` in the media-classification payload = three independent negatives ⇒ scored the `balkon_or_terrasse` must-have as *confirmed missing* (Block E 2,0) rather than the hedged in-between score. *Why:* the standing "absence of a chip does NOT mean absent" warning (below) is only true for the truncated variant; applying it blindly to short exposes hedges every must-have forever and understates a real profile violation. Run the same triple test before writing "confirmed missing" for Keller/Balkon.
+  - **⚠ The triple test is sound per PAGE but not per FLAT — add a 4th condition: no sibling posting.**
+    2026-08-23, #660 vs #661: one Golm flat listed twice on Immowelt (once via Wohnungsswap.de, once
+    via Tauschwohnung GmbH). The Wohnungsswap page had **1** Merkmal-Chip, no expander and 0
+    `Keller` hits ⇒ the triple test certified "confirmed missing Keller" (Block E 2,0). The
+    Tauschwohnung page for the **same flat** had **7** chips, also no expander, and one of them is
+    **`Keller`**. So "no expander" only proves the *rendered* list is complete, never that the
+    lister *filled it in* — a 1-chip Merkmale block is a data-quality signal, not a feature census.
+    ⇒ Below ~3 chips, downgrade "confirmed missing" to "not stated" and look for a sibling ad.
+    Cross-post fingerprinting rules: `tauschwohnung.md`.
+  - **The photo-classification regexes can return an empty histogram on a page that clearly has
+    photos** (#661: both the escaped and the plain `classification.name` forms matched 0, yet the
+    gallery header said "Alle 17 Bilder ansehen"). Fallback that worked: count `/Bild \d+/g` in
+    `innerHTML` (= 17, exact). ⇒ Treat an empty histogram as "payload shape changed", never as
+    "no photos", and cross-check against the `Alle N Bilder ansehen` headline before applying the
+    Block-D no-real-photos cap.
 - **`Merkmale` shows only ~8 entries behind an "Alle {N} Merkmale anzeigen" control — clicking it via a `[...querySelectorAll('button')]` text match does NOT expand it** (2026-07-20, #397: not a `<button>`). The visible 8 plus the description prose have carried every scoring-relevant amenity so far; don't burn calls on the expander. Note that negatives ARE stated explicitly here ("**Kein Keller**"), unlike the rental Merkmale block where absence = missing.
 - **`Alle {N} Merkmale anzeigen` often refuses to expand under automation** — clicking the leaf element and its 4 ancestors leaves `innerText` unchanged (React handler not on any clickable ancestor). Don't burn calls on it: the visible 7–8 Merkmale plus the description prose normally already confirm every must-have. To probe for a specific feature, regex `documentElement.innerHTML` for the keyword instead — but **verify the hit's context**, since Immowelt's nav dropdown contains `Zwangsversteigerung` and Ortsbeschreibungen contain `Denkmal`; both are boilerplate and will false-positive a profile deal-breaker (#398). *Why:* a naive keyword scan would have wrongly discarded a 4,4/5 house.
 - **Kauf: the header €/m² can badly understate value** — it is Kaufpreis ÷ *Wohnfläche* only. When the description names a larger `Wohn- und Nutzfläche` (e.g. voll ausgebauter Keller: 100 m² Wohnfl. but 200 m² per Energieausweis), compute the effective €/m² too and say so in Block A. Also grab `Geschätzte Gesamtkosten` + the Kaufnebenkosten breakdown (Notar/GrESt/Provision/Grundbuch) straight from `Preisdetails` — for a budget check, total cost is the load-bearing number, not the sticker price. Nearby, `Preise in der Region` gives an AVIV comparable €/m² — useful Block-A market anchor, but low-confidence in small Ortsteile. *Why:* #398 read as 30% over the €/m² cap on the header figure, ~35% under on the real one.
