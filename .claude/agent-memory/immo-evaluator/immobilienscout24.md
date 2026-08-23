@@ -2010,7 +2010,11 @@ nor garden and pays ~1,7× the headline.
   Corollary (#603, 08/2026): the UA string handed down in an orchestrator prompt is NOT
   automatically the working one — a plausible-looking `ImmoScout24_2.6.1_10.2.1_._` produced the
   same silent 200 + 0 bytes. Always send the Android form from this file, never a UA quoted
-  elsewhere.
+  elsewhere. **Recurring (2nd occurrence #650, 2026-08-23: `ImmoScout24_2.5.0_15.5_._` → 200 + 0
+  bytes).** Orchestrators keep inventing dotted iOS-looking UAs, so treat any prompt-supplied UA as
+  wrong by default. The 0-byte case is also the most dangerous one to misread on an EXPIRED check:
+  it looks like "no data" and invites the EXPIRED verdict, but the real 404 has a 221-byte JSON
+  body — so retry with the Android UA BEFORE running the control curls.
 
 ### `MEDIA` captions can flag AI-staging **per image** — the render rule is per-gallery, don't over-cap D
 `_shared.md`'s render/Visualisierung keyword scan is written against the *description*, so it reads

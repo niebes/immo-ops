@@ -56,8 +56,24 @@ liegt, ist in Berlin der **Normalfall**, nicht die Ausnahme — trotzdem jedes M
 
 ## Angebotsmarkt-Anker (Anchor 2, immer zusätzlich nennen)
 - **Westend (14052/14055), Q2 2026: 14,65 EUR/m² Mittel, Spanne 11,87–21,73, −2 % y-o-y.**
+- **Grunewald (14193), 2026: ~17–22 EUR/m²** (aus der Suchgruppen-Konfiguration, `max_price_per_m2: 22`).
 Angebotsanker sind nach oben verzerrt → dürfen **nie allein** das High-Scam-Signal
 "Preis >20 % unter Mietspiegel" auslösen. Weitere Bezirke hier ergänzen, wenn sie auftauchen.
+
+### Eine „auffällig billige" Berliner Wohnung ist fast immer ein Anker-Fehler, kein Scam
+Kommt die Aufgabe schon mit der These „X EUR/m² ist die HÄLFTE des Mietspiegels", steckt der Fehler
+praktisch immer in der Verwechslung **Angebotsmiete ↔ ortsübliche Vergleichsmiete** — und zwar
+selbst dann, wenn die Zahl in der Aufgabenstellung („Grunewald asks 17–22") sachlich stimmt: sie ist
+der **Angebots**anker. Prüfung ist billig und braucht die Live-Seite nicht: 6–12 EUR/m² ist die
+ortsübliche Bandbreite, also fällt das High-Signal erst unter ~5 EUR/m². Gegenprobe auf #650
+(Hohenzollerndamm, 882 EUR / 92 m² = **9,59 EUR/m²**, als „~½ Mietspiegel" gemeldet): passendes Feld
+**gute Wohnlage / bis 1918 / 90–110 m² = 6,60 / 8,45 / 12,99** → der Preis liegt **ÜBER** dem
+Mittelwert, Signal feuert nicht, Mietpreisbremse eingehalten. Zweitbeste Erklärung für so einen
+Preis, bevor man an Betrug denkt: **Bestandsmiete in einer Tausch-/Nachmieteranzeige** (der Inserent
+nennt seine eigene, über Jahre gewachsene Miete) oder eine **WBS-gebundene Einheit** — beides
+harmlos bzw. ein ganz anderer Blocker als Scam.
+**Warum:** ohne diese Gegenprobe wird eine völlig normale Wohnung als „Likely Scam" abgestempelt,
+und in Suchgruppen mit vielen Tauschwohnungen (Grunewald-Batch: 610–1.200 EUR) reihenweise.
 
 Review: Mietspiegel-Neuausgabe im Zweijahresrhythmus, nächste **2028** erwartet; die
 Mietenbegrenzungsverordnung läuft bis 31.12.2029 — vor 2030 nichts nachzuschlagen.
