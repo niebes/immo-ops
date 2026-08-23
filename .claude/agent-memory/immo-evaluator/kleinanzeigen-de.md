@@ -92,6 +92,32 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   - Posting date + view count: `#viewad-extra-info` (e.g. "14.08.2026") and the counter right after it
     ("6" Aufrufe). Useful for "how fresh / how contested is this ad" in next steps — there is no
     "Anzeige online seit N Tagen" string to grep.
+  - **The BOOLEAN amenities are bare labels with no value, in the SECOND `ul.addetailslist`**, right
+    after Nebenkosten/Warmmiete/Kaution — e.g. `Terrasse · Einbauküche · Badewanne · Fußbodenheizung ·
+    Altbau · Neubau · Haustiere erlaubt` (#652). They have no `addetailslist--detail--value` span, so a
+    parser that only reads label→value pairs drops them entirely. **Absence of a label is how you
+    decide a must-have is unbelegt** — on #652 there was no `Keller` label anywhere, which is what
+    pinned Block E. Note `Altbau` and `Neubau` can BOTH be set (= Erstbezug nach Sanierung im Altbau),
+    so neither one alone tells you the Baujahr — read the description for that. *Why:* without this
+    list you have to infer amenities from prose and will silently miss a must-have.
+  - **Machine-readable attribute dump: the ad-targeting JSON** (`%ENCODED_BIDDER_CUSTOM_PARAMS%` /
+    `%DFP_TARGETS%` inline in a `<script>`) repeats the ad's fields as flat keys — `Preis`,
+    `ExactPreis`, `Nebenkosten`, `Warmmiete`, `Kaution_/_Genoss._Anteile`, `Zimmer`, `Schlafzimmer`,
+    `Badezimmer`, `Etage`, `Wohnungstyp`, `Tauschangebot`, `Verkaeufer` (privat/gewerblich),
+    `Haustiere_erlaubt`, `Terrasse`, `Badewanne`, `Einbaukueche`, `Fussbodenheizung`, `Altbau`,
+    `Neubau`, `Verfuegbar_ab_Monat/_Jahr`, `posterid`. Handy cross-check, and `posterid` saves digging
+    it out of `#viewad-contact`. ⚠ **But `Wohnflaeche` in that payload is NOT the literal m²** — on
+    #652 it read `"160"` while the visible list and the description both said **83 m²** (Grundfläche
+    123 m², so 160 matches nothing on the page). Every other key matched exactly. **Always take
+    Wohnfläche from `ul.addetailslist` / the description, never from the targeting JSON.** *Why:*
+    reading 160 there would have given 12,50 EUR/m² instead of 24,10 — a 48 % error that flips the
+    Mietspiegel/Mietpreisbremse verdict and Block A.
+  - **`og:latitude`/`og:longitude` are the PLZ centroid when no street address is given**, and for a
+    PLZ that is mostly forest/water the pin lands in the middle of nowhere — #652 (14193 Grunewald)
+    pinned 52,481662 / 13,204770, i.e. inside the Grunewald-Forst. Do NOT read that as a location
+    contradiction (that's the separate, real #640 case where the poster typed the *wrong PLZ* and the
+    geo inherited it). Rule: geo disagreeing with the *description* only matters when the **PLZ/Ort
+    field itself** disagrees with the title/description too.
   - **The exact street address is NOT in any `ul.addetailslist`** — it sits in a separate
     **"Standort"** block (and once more right under the price heading) and is only reachable by
     dumping the *visible text* of the own-ad region, e.g. `Tiroler Damm 16b, 14478 Brandenburg -

@@ -13,12 +13,21 @@ umfassende Modernisierung ≈ ⅓ der Neubaukosten).
 berufen. Immer als konkreten EUR/Monat-Betrag beziffern, nicht nur "liegt über dem Mietspiegel".
 
 ## Extraction recipe (2 Aufrufe, ~1 min)
-`WebFetch` auf **`https://mietspiegel.berlin.de/wp-content/uploads/2026/05/mietspiegel2026.pdf`**
-scheitert am Parsen ("binary PDF") — **speichert die Bytes aber und nennt den Pfad**. Dann:
-`pdftotext -layout <pfad> out.txt` (ist installiert, `/usr/bin/pdftotext`) → die Tabellen kommen
-sauber spaltenweise heraus. Abschnitte: **9.1 einfache Wohnlage** (~Zeile 600), **9.2 mittlere**
-(~698), **9.3 gute** (~798), **10./11. Orientierungshilfe für die Spanneneinordnung** (~903 ff.).
-`Read`+`pages:` wie beim Potsdamer PDF geht auch, `pdftotext` ist schneller.
+**Kürzester Weg — WebFetch gar nicht erst anfassen:** plain `curl` liefert das PDF direkt
+(`200 application/pdf`, ~1,66 MB), Browser-UA genügt, kein Consent, kein Bot-Wall:
+```
+curl -sL -A 'Mozilla/5.0 (X11; Linux x86_64) …Chrome/126.0 Safari/537.36' \
+  'https://mietspiegel.berlin.de/wp-content/uploads/2026/05/mietspiegel2026.pdf' -o ms2026.pdf
+pdftotext -layout ms2026.pdf ms.txt      # /usr/bin/pdftotext ist installiert
+grep -n "1950 bis 1964" ms.txt            # 3 Treffer = 9.1 / 9.2 / 9.3, in dieser Reihenfolge
+```
+(Der alte Weg — `WebFetch` scheitert am Parsen "binary PDF", speichert die Bytes aber und nennt den
+Pfad — funktioniert weiterhin, ist nur ein Aufruf mehr.) Abschnitte: **9.1 einfache Wohnlage**
+(~Zeile 600), **9.2 mittlere** (~698), **9.3 gute** (~798), **10./11. Orientierungshilfe für die
+Spanneneinordnung** (~903 ff.). `Read`+`pages:` wie beim Potsdamer PDF geht auch, `pdftotext` ist
+schneller. **Der `grep -n "{Baualtersklasse}"`-Trick ist der eigentliche Zeitsparer:** er springt
+in einem Aufruf auf alle drei Wohnlagen-Varianten derselben Zeile, danach reicht ein
+`sed -n`/`awk`-Fenster von ~8 Zeilen pro Treffer.
 **Warum:** ohne das Rezept endet jede Berlin-Bewertung bei den Portal-„Mietspiegel"-Seiten, die
 Angebotsmieten ausweisen und die Mietpreisbremsen-Prüfung still killen.
 
@@ -46,16 +55,49 @@ gilt für **voll ausgestattete** Wohnungen (Sammelheizung + Bad + WC in der Wohn
 | 130–139 | **bis 1918** | <35 / 35–40 / 40–45 / 45–50 / 50–60 | 7,62/**11,75**/16,43 · 8,57/**11,67**/14,92 · 7,20/**9,54**/14,40 · 6,70/**9,64**/13,32 · 6,89/**9,03**/13,16 |
 | 135–139 | bis 1918 | 60–70 / **70–80** / 80–90 / 90–110 / ab 110 | 7,09/**9,46**/13,54 · 6,25/**8,97**/13,66 · 6,75/**8,80**/12,17 · 6,60/**8,45**/12,99 · 6,30/**8,84**/13,24 |
 | 140–144 | **1919–1949** | <35 / 35–40 / 40–45 / 45–65 / **ab 65** | 7,19/**9,47**/14,79 · 7,40/**9,07**/11,42 · 6,80/**8,54**/11,10 · 6,84/**8,82**/11,74 · **6,37/8,11/11,93** |
+| 145–149 | **1950–1964** *(= 1965–1972, Z. 150–154, identische Werte)* | <35 / 35–40 / 40–45 / **45–90** / ab 90 | 7,19/**9,47**/14,79 · 7,40/**9,07**/11,42 · 6,80/**8,54**/11,10 · **6,07/7,56/10,92** · 7,49/**10,00**/12,78 |
+
+⚠ Die 1950er/60er-Zeilen haben nur **fünf** Flächenstufen und die vierte ist mit **45 bis unter
+90 m²** extrem breit — 68 m² und 88 m² landen im selben Feld. Nicht reflexhaft die 60–70/70–80-
+Staffelung der „bis 1918"-Zeile unterstellen.
 
 Gegenprobe **mittlere Wohnlage (9.2)**: bis 1918 70–80 m² = 6,09/**7,90**/11,70 (Z. 72);
-1919–1949 ab 60 m² = 5,90/**7,30**/9,55 (Z. 81). **Einfache Wohnlage (9.1)**: bis 1918 70–75 m² =
-6,24/**8,46**/11,65 (Z. 9); 1919–1949 ab 60 m² = 5,78/**6,99**/9,12 (Z. 16).
+1919–1949 ab 60 m² = 5,90/**7,30**/9,55 (Z. 81); 1950–1964 **ab 45 m²** = 5,90/**7,08**/9,25 (Z. 85).
+**Einfache Wohnlage (9.1)**: bis 1918 70–75 m² = 6,24/**8,46**/11,65 (Z. 9); 1919–1949 ab 60 m² =
+5,78/**6,99**/9,12 (Z. 16); 1950–1964 **ab 60 m²** = 5,77/**6,63**/8,00 (Z. 21).
+
+**Wohnlage-Gegenprobe immer mitliefern, nicht nur behaupten.** Die Regel oben („die für den
+Vermieter günstigste Wohnlage annehmen") setzt voraus, dass man weiß, welche das *ist* — die
+m²-Stufen unterscheiden sich pro Tabelle, also ist „gut" nicht per Definition der höchste Wert.
+Ein `grep -n "{Baualtersklasse}"` liefert alle drei Zeilen in einem Aufruf; zwei Zahlen in den
+Bericht schreiben („einfach 6,63 · mittel 7,08 · gut 7,56 → gut ist auch der Höchstwert, die
+Überschreitung ist ein Mindestwert") macht die Feststellung unangreifbar. Für **1950–1964,
+45–90 m²** ist gut tatsächlich der Höchstwert — geprüft auf #647 (Königsallee, Bj 1960, 68 m²).
 → Größenordnung insgesamt: **ortsüblich meist 6–12 EUR/m²**, während Berliner **Angebotsmieten**
 2026 bei **14–22 EUR/m²** liegen. Eine Wiedervermietung, die 60–100 % über der ortsüblichen Miete
 liegt, ist in Berlin der **Normalfall**, nicht die Ausnahme — trotzdem jedes Mal beziffern.
 
 ## Angebotsmarkt-Anker (Anchor 2, immer zusätzlich nennen)
 - **Westend (14052/14055), Q2 2026: 14,65 EUR/m² Mittel, Spanne 11,87–21,73, −2 % y-o-y.**
+- **Grunewald (14193): 17–22 EUR/m²** — Spitzensegment Berlins, steht so auch als
+  `max_price_per_m2: 22` in der Suchgruppe "Berlin Grunewald flat rental" in `config/profile.yml`.
+  Ein Inserat **über 22** ist damit teuer *selbst am Angebotsmarkt*, nicht nur gegen den Mietspiegel
+  — das ist eine eigene Block-A-Aussage und ein Verhandlungsargument (#652: 24,10 EUR/m²).
+
+## § 556f-Ausnahme: der Normalfall bei "Erstbezug nach Sanierung" im Altbau
+Berliner Premium-Inserate sind oft **saniert­e Gründerzeitbauten mit "Erstbezug"** — dann liegt die
+Miete regelmäßig **100–200 % über der ortsüblichen Vergleichsmiete** (#652: 24,10 vs. Mittel 8,80
+= +174 %). Das ist **kein Scam-Signal und kein automatischer Rechtsverstoß**: der Vermieter wird
+sich auf **§ 556f Satz 2 (umfassende Modernisierung, ≈ ⅓ der Neubaukosten + Anhebung auf
+annähernd Neubaustandard)** berufen, und dann gilt die Mietpreisbremse für die Wohnung gar nicht.
+**Nie als "Mietwucher" schreiben, nie stillschweigend als legal durchwinken** — stattdessen immer:
+(1) beide Zahlen beziffern, (2) die Ausnahme als *plausibel aber unbelegt* benennen, (3) den
+**§ 556g Abs. 1a**-Hebel als konkreten EUR-Betrag ausweisen (ohne Textform-Offenlegung vor
+Vertragsschluss fällt die zulässige Miete auf ortsüblich +10 %). Rechne dabei **zwei** Obergrenzen:
+Mittelwert +10 % *und* Spannen-Oberwert +10 % — die zweite ist die für den Vermieter günstigste und
+macht die festgestellte Überschreitung unangreifbar.
+**Warum:** ohne diesen Absatz endet so ein Fall entweder in einem falschen Wucher-Vorwurf oder in
+einem kommentarlosen 4/5 — beide Male geht der einzige große Geldhebel der Wohnung verloren.
 - **Grunewald (14193), 2026: ~17–22 EUR/m²** (aus der Suchgruppen-Konfiguration, `max_price_per_m2: 22`).
 Angebotsanker sind nach oben verzerrt → dürfen **nie allein** das High-Scam-Signal
 "Preis >20 % unter Mietspiegel" auslösen. Weitere Bezirke hier ergänzen, wenn sie auftauchen.
