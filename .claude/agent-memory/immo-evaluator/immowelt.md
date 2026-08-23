@@ -8,20 +8,14 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   - **CiC entry sequence that works (stable — 4th clean run 2026-08-20 #632; a full rental expose costs ~6 `javascript_tool` calls):** `tabs_context_mcp{createIfEmpty:true}` (a bare `tabs_create_mcp` errors with "No tab group exists for this session yet") → `tabs_create_mcp` → `navigate{tabId}` → `javascript_tool`. The 2026-07 "first navigate lands on chrome://newtab" no-op has NOT recurred in two runs; one navigate loads the expose. A full rental expose is only ~4,3 k chars of `innerText` ⇒ **4–5 `javascript_tool` calls total** (900-char head, 2–3 body slices, one combined regex sweep). *Promotion candidate: this CiC-first-on-Immowelt rule has been stable since 2026-07-20 — worth moving into `evaluate.md` / `portals.yml` notes.*
 - **When CiC is DOWN ("Browser extension is not connected"), do NOT fall back to the invisible-playwright *MCP* — drive the same stealth Firefox from a script instead. It does not hang.** The wedge above is a property of the MCP server path (`new_page`), not of the browser. Spawn the driver exactly the way `scripts/scan.mjs` does and send one eval command on stdin:
   `spawn('bash', ['scripts/invisible-venv.sh','scripts/invisible-driver.py'], {cwd: ROOT, env:{...process.env, IP_HEADLESS:'true', IP_LOCALE:'de-DE', IP_TIMEZONE:'Europe/Berlin', IP_STORAGE_STATE:'tmp/browser-state.json'}, stdio:['pipe','pipe','inherit']})` → wait for the `{ready:true}` line → write `JSON.stringify({cmd:'eval', url, snippet})+'\n'` → the reply is `{ok, result, blocked}`.
-  Re-verified 2026-08-21 (#636, #637 — #637 returned `title` + 4.879-char `innerText` + the full
-  685 KB `innerHTML` in a **single** eval, ~60 s end-to-end, so one call covers liveness AND the whole
-  extraction) and again 2026-08-23 (**#655, 4th clean run**: 648 KB in one eval, `blocked=false`,
-  ~60 s; the whole evaluation needed exactly **two** Bash calls — one fetch, one offline mine of the
-  saved JSON), **#656, 5th clean run** (625 KB) and **#657, 6th clean run** (624 KB,
-  `blocked=false`, ~60 s; the whole evaluation was again exactly **two** Bash calls — one fetch,
-  one offline mine that returned innerText + address JSON + hardFacts + photo count + a 19-keyword
-  sweep together) and **#658, 7th clean run** (628 KB, `blocked=false`, ~50 s; two Bash calls again)
-  and **#660, 8th clean run** (626 KB, `blocked=false`, ~60 s; two Bash calls again)
-  and **#661, 9th clean run** (624 KB, `blocked=false`, ~60 s — one fetch + one offline mine
-  answered a whole duplicate-check)
-  and **2026-08-23 Stiftstr. 8a re-check, 10th clean run** (616 KB, `blocked=false`, ~60 s —
-  one fetch + one offline mine settled a DUPE-vs-relisting call end to end).
-  Ten for ten ⇒ treat it as reliable, not as a lucky path.
+  **Eleven for eleven clean runs, 2026-08-15 → 2026-08-23** (#596, #636, #637, #655–#658, #660, #661,
+  the Stiftstr. 8a re-check, and the Potsdamer Str. 18 dupe check): always `blocked=false`, ~50–60 s
+  end-to-end, 616–685 KB of `innerHTML`, and **no truncation** — a single eval returns `title` +
+  `innerText` (4–5 k chars) + the whole `innerHTML` together, so ONE call covers liveness AND the full
+  extraction. ⇒ Treat it as reliable, not as a lucky path. The standard shape is exactly **two Bash
+  calls**: one fetch that writes `innerText`/`innerHTML` to the scratchpad, one offline `node -e` mine
+  that prints innerText + the indexOf-sliced JSON + photo count + a keyword sweep in one go. That shape
+  has settled full evaluations, EXPIRED checks, and DUPE-vs-relisting calls alike.
   ⚠ **Mine the embedded JSON with `indexOf(key)` + a slice, NOT with a `"key":"value"` regex.** On
   #660 the payload was **triple**-escaped (`\\\"zipCode\\\":\\\"14476\\\"`), so every documented
   regex (`/"address":\{…/`, `/"hardFacts":…/`, `/"titleAdditions":…/`, `/"floorplans":…/`) returned
@@ -52,6 +46,22 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
     `isNew` merely dropped is the signature of "still the same posting, just older". *Why:* the same
     Immowelt expose reaches the pipeline repeatedly through aggregators (Ab ins Zuhause, Süddeutsche)
     and a re-listing would reset `isNew` to true and usually move a number.
+  - **On COMMERCIAL (non-swap) listings the `Referenznummer` is the LISTER's own Objekt-Nr., carried
+    verbatim across every portal they syndicate to — it is the single cheapest cross-portal dedup key,
+    and it beats everything else in the panel above.** #661 (Potsdamer Str. 18, Bornstedt): Immowelt
+    printed `Referenznummer: 10109018.100405/P18-1.OG-re`, byte-identical to the IS24 `Objekt-Nr.`
+    recorded months earlier in report #511 ⇒ same posting, settled in one field. Note the split:
+    `Online-ID` (e.g. `25111S4DS3BQ`) is Immowelt-*internal* and will NEVER match another portal, so it
+    only dedups Immowelt-vs-Immowelt; `Referenznummer` is the *lister's* id and dedups across portals.
+    (Both appear together in the `innerText` tail just under the Anbieter block, so one fetch gets them.)
+    ⚠ This inverts on SWAP ads, where `Referenznummer` is the *syndicator's* id (tauschwohnung.com
+    Anbieter-ID / Wohnungsswap 7-digit) and differs per platform — there, dedup on a prose fingerprint.
+    *Why:* an orchestrator flagged #661 as only a numeric-match candidate needing a full re-evaluation;
+    the Referenznummer turned a ~15-call scoring pass into a two-call DUPE confirmation.
+  - Minor: **the Anbieter star rating is portal-local and will not match the other portal's** (#661:
+    Immowelt 3,9/5 from 250 Bewertungen vs. IS24 3,8/5 for the same EB IMMOBILIENMANAGEMENT GmbH) —
+    a differing rating is NOT evidence against a dupe, and neither number should override the
+    independent ProvenExpert/Jacasa figures used in Block H.
   - **The `Merkmale` list can legitimately hold a single entry** (#596: only `Bezug: 2026-08-31T00:00:00Z`). That is a real, extremely sparse listing, not a failed extraction — don't keep re-fetching looking for the missing Ausstattung.
   - **Photo classifications double as an amenity probe.** 12 photos all classified as interior rooms (LIVING_ROOM/BEDROOM/KITCHEN/BATHROOM/HALLWAY/CLOSET/HOME_OFFICE) with **no** outdoor/balcony frame is decent evidence that there is no Balkon/Terrasse when the text is silent — enough to take the Block-E must-have penalty, phrased as "not evidenced" rather than "confirmed absent".
 - **Energieausweis can legitimately be absent: `"Ein Energieausweis ist für diesen Gebäudetyp nicht notwendig."`** appears in `data-testid="cdp-energy-certificate-preview"` in place of the scale. On a Baudenkmal this is the § 79 Abs. 4 GEG exemption — **do NOT fire the "Missing Energieausweis" scam signal** for it, but do note that the energy performance is then unverifiable (Block D). Such listings also omit the Baujahr; recover it from the Wikipedia Denkmalliste — see `potsdam-mietspiegel.md` → "Baujahr HARD bekommen".
