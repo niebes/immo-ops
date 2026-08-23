@@ -157,6 +157,18 @@ Mittelwert, Signal feuert nicht, Mietpreisbremse eingehalten. Zweitbeste Erklär
 Preis, bevor man an Betrug denkt: **Bestandsmiete in einer Tausch-/Nachmieteranzeige** (der Inserent
 nennt seine eigene, über Jahre gewachsene Miete) oder eine **WBS-gebundene Einheit** — beides
 harmlos bzw. ein ganz anderer Blocker als Scam.
+**Die WBS-Alternative ist aktiv falsifizierbar, nicht nur zu vermuten** — und das lohnt sich, weil
+ein unausgesprochenes WBS-Erfordernis der einzige echte Hard-Blocker in dieser Konstellation wäre.
+Keyword-Sweep über das rohe `innerHTML` (nicht nur `innerText`) auf `WBS | Wohnberechtigung |
+Sozialwohnung | sozialer Wohnungsbau | Genossenschaft`; **0 Treffer schließt sie aus**. `WBS` allein
+ist untauglich (trifft Base64 in Seiten-Tokens), `Wohnberechtigung` ist der sichere Positivbegriff.
+#657 (14059 Charlottenburg, 610 EUR / 90 m² = **6,78 EUR/m²**, gemeldet als „auffällig billig"):
+0/0/0/0/0 in 624 KB ⇒ Bestandsmiete bestätigt, Signal feuerte nicht — passendes Feld erneut
+**bis 1918 / 90–110 m² = 6,60/8,45/12,99**, der Preis liegt also **über** dem unteren Spannenwert.
+**Zweiter, gern vergessener Teil derselben Prüfung: eine niedrige Bestandsmiete ist NICHT die Miete
+des Nachfolgers.** Bei Mieterwechsel/Tausch greift die Mietpreisbremse neu (zulässig ortsüblich
++10 %) — immer den Delta beziffern (#657: 610 EUR Bestand vs. ~837 EUR zulässig = **Anhebungsrisiko
+~227 EUR/Monat**), sonst liest sich Block A als Schnäppchen, das es für uns nie gewesen wäre.
 **Warum:** ohne diese Gegenprobe wird eine völlig normale Wohnung als „Likely Scam" abgestempelt,
 und in Suchgruppen mit vielen Tauschwohnungen (Grunewald-Batch: 610–1.200 EUR) reihenweise.
 
