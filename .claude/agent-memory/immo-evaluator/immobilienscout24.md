@@ -1783,6 +1783,26 @@ answered twice, and would have scored the Ort as unverified on a listing where i
   Sie noch auf der Suche nach einem passenden Grundstück sein"). **Why:** without this, a Potsdam-Marquardt
   header could be scored as a firm preferred-area plot when the offer is really house-only lead-gen.
 
+#### Harder variant: **PLZ and geoCode contradict EACH OTHER across a Bundesland border → the PLZ + texts win**
+The rule above ("trust the PLZ/geoCode") assumes those two agree and only the Lage-text drifts. They can
+also disagree with one another. #651 (expose 170211439, HausHirsch, housebuy): `MAP.addressLine2` and the
+whole geo hierarchy say **"14089 Groß Glienicke, Potsdam"** (`geo_bln: brandenburg`, `geo_krs: potsdam`,
+`obj_regio3: Nördliche_Ortsteile`, `obj_regio4: Groß_Glienicke`, price-insights slug
+`/de/brandenburg/potsdam/noerdliche-ortsteile/gross-glienicke`, financingCalculator `city=Potsdam`),
+while `obj_zipCode: 14089` is **Berlin-Kladow (Spandau)** — Groß Glienicke is 14476. Title *and* all three
+TEXT_AREAs say "Berlin-Kladow" ("am südwestlichen Rand der Hauptstadt", Einkaufszentrum Spandau, Fähre
+Wannsee). Cause: Kladow physically abuts Groß Glienicke, so IS24's geocoder snapped a borderline address
+across the Landesgrenze — and **every** geo field inherits the wrong answer, so cross-checking geo fields
+against each other (the #613 recipe) does NOT catch it. Resolution order on a border PLZ:
+**PLZ → Objekt-/Lage-Text → geo hierarchy last.**
+- Consequence for scans: a Berlin object arrives inside a Potsdam/Brandenburg-filtered search and the
+  pipeline row shows a preferred Ortsteil. Verify the PLZ→Gemeinde mapping before scoring Block B on any
+  Groß Glienicke / Sacrow / Fahrland / Marquardt / Nördliche-Ortsteile hit — those all border Berlin.
+- With `excluded_areas: []` this is **not** an area hard blocker, only an out-of-area B (~2,5 when the
+  object still abuts a preferred Ortsteil and a direct bus reaches Potsdam Hbf — Kladow has Bus 638).
+**Why:** taking the geoCode at face value would have reported a Berlin-Spandau house as a Potsdam-Golm-
+adjacent preferred-area find, and the mis-location was the single most consequential fact in the report.
+
 #### Sub-case: **Generationenhaus / "eine von zwei Wohnungen"** — the Lage plot figure is the FULL two-unit plot
 #426 (expose 166987619, ScanHaus SH 244 "Generationenhaus", Fahrland) opens the Objektbeschreibung with
 *"Es handelt sich hier um **eine von zwei Wohnungen**"* — you buy **one unit of a two-dwelling
@@ -2831,6 +2851,25 @@ original is also present, this is a marketing aid with a built-in control — do
 `_shared.md` no-real-photos cap, do **not** log a scam signal, and treat the labelling as
 *exculpatory*. Only if the staged image is the ONLY version of a room does the trap-5 −0,25
 "surface only partly verifiable" deduction apply.
+
+##### Counter-rung — **"KI-Visualisierung – {Raum}" caption prefix + a Sonstiges disclaimer naming `renoviert`/`entrümpelt` ⇒ the D cap DOES apply**
+Do not let the Virtual-Staging exception above swallow this case; the deciding word is what the
+disclaimer says was altered. #651 (expose 170211439, HausHirsch GmbH, EFH Bj 2015 "Neuwertig/Gehoben"):
+**34 of 39 captions start with `KI-Visualisierung – `**, and `TEXT_AREA "Sonstiges"` opens with
+*"Hinweis zu KI-bearbeiteten Bildern … virtuell möbliert, **entrümpelt**, **renoviert** oder im
+Außenbereich aufbereitet … Sie geben **nicht den tatsächlichen Zustand** des Objekts wieder"*.
+- `möbliert` alone = staging (no cap). `entrümpelt`/`renoviert` = the **condition itself** is synthetic
+  ⇒ `_shared.md` no-real-photos cap fires, D → 3,0 for a Bestandsobjekt (base here would have been 4,75).
+- The #392 control-image exception needs the **unstaged original of the same room**. Check that
+  room-by-room, not gallery-wide: #651's 5–7 unlabelled captions were only Treppe / Empore ×3 /
+  Terrasse / Garten ×2 — circulation and outdoors, **no real interior of Wohnzimmer, Küche, Bäder,
+  Schlafzimmer**, and no Grundriss among 39 images. A handful of real photos is not "real photos".
+- Not a scam signal: the labelling is per-image and the disclaimer is explicit ⇒ transparency, not
+  concealment. Block D only, per `_shared.md` ("don't also dock E or H for the same gap").
+- One-liner to classify a gallery: count captions matching `^KI-Visualisierung` vs total, then grep
+  Sonstiges for `renoviert|entrümpelt|aufbereitet`.
+**Why:** the Virtual-Staging rung reads as "labelled AI imagery is exculpatory", which would have scored
+a house whose entire visible condition is machine-generated at 4,75 on the seller's word alone.
 - Same exposé shows the transparency pattern worth crediting in Block H: Sanierungsbedarf in the
   **first sentence** of Objektbeschreibung, Virtual Staging labelled, **Weitwinkel disclosed**
   ("alle Fotos im Weitwinkelformat aufgenommen" → tell the user to measure rooms on site),
