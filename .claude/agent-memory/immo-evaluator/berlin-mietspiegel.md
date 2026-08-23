@@ -48,6 +48,14 @@ gilt für **voll ausgestattete** Wohnungen (Sammelheizung + Bad + WC in der Wohn
 - Es gibt **keine Sondermerkmalzuschläge** mehr (anders als in älteren Ausgaben); die Feinjustierung
   innerhalb der Spanne läuft über die **Orientierungshilfe/Merkmalgruppen** (nicht Teil des
   qualifizierten Mietspiegels, aber BGH-anerkannt, VIII ZR 123/20).
+- ⚠ **Fehlt das Baujahr (bei Tausch-/Kleinanzeigen-Inseraten der Normalfall), NICHT eine Zeile
+  raten — die 2–3 plausiblen Felder nebeneinander ausweisen und sagen, welches das Ergebnis kippt.**
+  #653 (14055 Westend, 85 m², 826 EUR = 9,72 EUR/m², gute Wohnlage): *1973–85 West ab 85 m²* →
+  zulässig 11,43 → **eingehalten (−15 %)**; *1986–90 West 75–105* → 11,69 → eingehalten;
+  *1965–72 45–90* → 8,32 → **um +16,9 % überschritten**. Eine einzige Zeilenwahl entscheidet also
+  zwischen "unauffällig" und "§ 556g-Rüge". Das Baujahr wird damit automatisch zur benannten
+  Erstkontakt-Frage statt zu einer stillen Annahme. Fotoindizien (Fenster­teilung, Bad-Fliesen­format,
+  Loggia-Betonbrüstung, Aufzug) engen die Klasse ein, ersetzen sie aber nicht.
 
 ## Häufig gebrauchte Felder (gute Wohnlage, Tabelle 9.3) — untere / **Mittel** / obere
 | Zeile | Bezugsfertigkeit | Wohnfläche | EUR/m² |
@@ -60,6 +68,30 @@ gilt für **voll ausgestattete** Wohnungen (Sammelheizung + Bad + WC in der Wohn
 ⚠ Die 1950er/60er-Zeilen haben nur **fünf** Flächenstufen und die vierte ist mit **45 bis unter
 90 m²** extrem breit — 68 m² und 88 m² landen im selben Feld. Nicht reflexhaft die 60–70/70–80-
 Staffelung der „bis 1918"-Zeile unterstellen.
+
+⚠ **Die Flächenstufen sind „X bis unter Y" — am oberen Rand EXKLUSIV.** Eine Wohnung mit **exakt
+80 m²** fällt daher in Zeile **137 (80–90 m², Mittel 8,80)**, *nicht* in Zeile 136 (70–80 m²,
+Mittel 8,97). Klingt trivial, kostet aber real 0,17 EUR/m² und bei runden Flächenangaben (60, 80,
+90, 110) trifft es fast jedes zweite Inserat. Immer die Zeilenbeschriftung wörtlich lesen.
+(#648, Hubertusallee, 80,0 m².)
+
+### Restliche 9.3-Zeilen (gute Wohnlage), damit das PDF nicht jedes Mal gezogen werden muss
+| Zeile | Bezugsfertigkeit | Wohnfläche | untere / **Mittel** / obere |
+|---|---|---|---|
+| 155–157 | **1973–1985 West** | <50 / **50–85** / ab 85 | 6,96/**9,06**/11,98 · **7,12/9,42/12,41** · 7,98/**10,39**/13,80 |
+| 158–164 | **1986–1990 West** *(= 1991–2001, Z. 169–175, identische Werte)* | <50 / 50–60 / 60–65 / 65–75 / **75–105** / 105–125 / ab 125 | 8,33/**11,13**/14,96 · 8,26/**10,34**/14,45 · 8,74/**10,57**/12,75 · 7,52/**11,06**/13,21 · **8,40/10,63/13,96** · 8,82/**12,15**/16,10 · 8,07/**12,90**/16,77 |
+| 165–168 | **1973–1990 Ost** (inkl. Wendewohnungen) | <40 / 40–60 / **60–85** / ab 85 | 7,03/**7,79**/9,20 · 6,30/**7,07**/9,28 · **5,51/6,18/7,23** · 5,26/**6,31**/9,65 |
+| 176–179 | **2002–2009** | <75 / **75–105** / 105–125 / ab 125 | 8,62/**10,91**/13,92 · **7,88/11,85**/16,83 · 8,82/**12,15**/16,10 · 8,07/**12,90**/16,77 |
+| 180–183 | **2010–2015** | <60 / **60–85** / 85–110 / ab 110 | 8,99/**15,34**/19,32 · **9,99/15,37/17,65** · 8,89/**13,69**/19,16 · 11,26/**15,15**/17,82 |
+| 184–186 | **2016–2019** | <60 / **60–85** / ab 85 | 12,06/**17,23**/26,05 · **12,45/18,94/23,43** · 10,91/**17,47**/21,00 |
+| 187–189 | **2020–2024** | <60 / **60–85** / ab 85 | 11,31/**22,59**/27,84 · **11,25/19,54/26,69** · 10,28/**18,42**/23,49 |
+
+**Warum das mitzunehmen ist:** ab Baujahr 2010 springt der Mittelwert von ~10 auf **15–22 EUR/m²** —
+in dieser Klasse ist eine Berliner Angebotsmiete von 20 EUR/m² *innerhalb* der Spanne und die
+Mietpreisbremse **eingehalten**. Wer nur die Altbauzeilen im Kopf hat, schreibt bei jedem Neubau
+reflexhaft „+100 % über Mietspiegel" — was schlicht falsch ist. **1973–1990 Ost** ist umgekehrt die
+mit Abstand billigste Zeile der ganzen Tabelle (60–85 m²: **6,18**) und der Grund, warum die
+West/Ost-Zuordnung (Gebietsstand 02.10.1990) vor dem Nachschlagen geklärt sein muss.
 
 Gegenprobe **mittlere Wohnlage (9.2)**: bis 1918 70–80 m² = 6,09/**7,90**/11,70 (Z. 72);
 1919–1949 ab 60 m² = 5,90/**7,30**/9,55 (Z. 81); 1950–1964 **ab 45 m²** = 5,90/**7,08**/9,25 (Z. 85).
@@ -83,6 +115,12 @@ liegt, ist in Berlin der **Normalfall**, nicht die Ausnahme — trotzdem jedes M
   `max_price_per_m2: 22` in der Suchgruppe "Berlin Grunewald flat rental" in `config/profile.yml`.
   Ein Inserat **über 22** ist damit teuer *selbst am Angebotsmarkt*, nicht nur gegen den Mietspiegel
   — das ist eine eigene Block-A-Aussage und ein Verhandlungsargument (#652: 24,10 EUR/m²).
+  Konkrete Zahlen dahinter (Websuche 2026-08-23, #648): **IS24 Q2/2026 Mittel 17,46 EUR/m²,
+  −1,08 % y-o-y**; immowelt Q2/2026 **20,78**; ein dritter Aggregator 21,65 bei einer Spanne
+  **15,99–27,86**. → Für den Bericht den **17,46er IS24-Wert als Mittel** und die 15,99–27,86 als
+  Bandbreite zitieren; die 20–21er Werte sind Aggregatoren mit anderer Objektmischung. Die
+  Streuung der Quellen (17,5 vs. 21,7 = 24 % Unterschied) ist selbst ein Grund, den Anker nie
+  allein tragen zu lassen.
 
 ## § 556f-Ausnahme: der Normalfall bei "Erstbezug nach Sanierung" im Altbau
 Berliner Premium-Inserate sind oft **saniert­e Gründerzeitbauten mit "Erstbezug"** — dann liegt die

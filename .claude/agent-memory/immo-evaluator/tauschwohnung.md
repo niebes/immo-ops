@@ -120,6 +120,24 @@ The shape that produces a pass — spot it early, it is a *positive* triage sign
 ⇒ Practical rule: run the four kill axes; if all are silent AND the room count matches, stop hunting
 for a reason to discard — write it up as a Swap-candidate with the open questions listed instead.
 
+### A `Möbliert/Teilmöbliert` flag on a swap is NOT the furnished / "auf Zeit" hard blocker
+#653 (Kleinanzeigen, Tauschwohnung GmbH, 14055 Berlin-Westend) carries the checktag
+**`Möbliert/Teilmöbliert`** next to Balkon/Terrasse/Keller. Taken at face value that fires the
+furnished/Zwischenmiete cap (≤2,0) from `evaluate.md` and kills a 4,1 flat. It should not, because a
+swap is by construction a **permanent Mieterwechsel**, and the flag on these feed-imported ads means
+"furniture can be taken over", not "let furnished for a limited period".
+⇒ Decide it on the *accompanying* evidence, never on the tag alone. Fire the blocker only if at least
+one real furnished-let marker is present: `befristet` / `auf Zeit` / `Zwischenmiete` / `Untermiete`,
+a Mietende or Mindest-/Höchstmietdauer, a **Pauschalmiete** (one all-in figure with no Kalt/NK split
+*and* an explicit "inkl. alles"), or a hotel-style inventory list. On #653 all of those were absent
+and the 17 photos plainly showed the **resident family's own belongings** (toys, bunk beds, fridge
+magnets, personal pictures) — i.e. an occupied home, not a furnished rental product.
+⇒ Still raise it as an explicit open question in Block E + Next Steps ("Möbelübernahme oder möbliert
+auf Zeit?") and state the conditional: if the answer is the latter, the blocker applies and the score
+drops to ≤2,0. *Why:* the tag alone would have discarded the best Berlin swap seen so far; ignoring it
+silently would have hidden a genuine ≤2,0 risk. Watch whether it recurs across the GmbH feed — if so
+it is a systematic import artefact and belongs in `evaluate.md` next to the furnished rule.
+
 ### Swap-specific Block A caveat: the advertised rent is the partner's ALTVERTRAG, not our price
 A Mieterwechsel per Tausch needs the landlord's consent, and consent frequently comes as a **new
 contract at market rent** rather than continuation of the old one. #608 advertises 980 EUR kalt =

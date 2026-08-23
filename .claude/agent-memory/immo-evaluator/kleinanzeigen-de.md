@@ -184,6 +184,21 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     ("Küche muss übernommen werden") and a hard move-in date the landlord listing doesn't have.
     *Why:* on #521 that match turned a would-be full evaluation into a DUPE of #516 and revealed the
     Ablöse as avoidable.
+  - ⚠️ **`data-imgsrc` is NOT the only gallery markup — some ads render the gallery purely as CSS
+    `background-image: url(...)` inside `div.galleryimage-large--cover`, and then a `data-imgsrc`
+    grep returns literally ZERO for a photo-rich ad.** #653 (Tauschwohnung, 14055 Westend) has **17
+    real photos** and `grep -c data-imgsrc` on the pre-title region = **0**. The counting recipe must
+    therefore be **UUID-based, not attribute-based**: take the HTML *before* `id="viewad-title"` and
+    dedupe on the CDN path's UUID —
+    `python: len(set(re.findall(r'prod-ads/images/[0-9a-f]{2}/([0-9a-f\-]{36})', html[:html.find('id="viewad-title"')])))`.
+    That is immune to both failure modes at once: the `?rule=$_57/$_59` duplication *and* the
+    sidebar-ad JSON-LD `ImageObject` overcount (those all sit AFTER the title, so the pre-title slice
+    already excludes them). Verify the images are real by downloading 3–5 with
+    `curl ".../{pp}/{uuid}?rule=\$_57.JPG"` and Reading them — 60–120 KB at 1024×768 = genuine
+    phone photos. *Why:* on #653 the documented `data-imgsrc` recipe said "0 images" and would have
+    capped Block D at 3.0 with a "no photos, condition unverified" con in the summary — on an ad whose
+    17 photos actually **verified** the room count, the Badewanne, the Balkon/Terrasse and the
+    household composition. A false zero here is worse than an overcount: it invents a defect.
   - **Read the WHOLE gallery, not the first 3–4 images — the Grundriss is often the LAST one.**
     #609 had it at position 7 of 8, and it was the only source for: the maisonette split
     (untere Ebene 2 Zimmer + Bad + Küche, obere Ebene = **offene Galerie** as the "3rd room" →
