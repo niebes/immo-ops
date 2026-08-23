@@ -8,8 +8,9 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   - **CiC entry sequence that works (stable — 4th clean run 2026-08-20 #632; a full rental expose costs ~6 `javascript_tool` calls):** `tabs_context_mcp{createIfEmpty:true}` (a bare `tabs_create_mcp` errors with "No tab group exists for this session yet") → `tabs_create_mcp` → `navigate{tabId}` → `javascript_tool`. The 2026-07 "first navigate lands on chrome://newtab" no-op has NOT recurred in two runs; one navigate loads the expose. A full rental expose is only ~4,3 k chars of `innerText` ⇒ **4–5 `javascript_tool` calls total** (900-char head, 2–3 body slices, one combined regex sweep). *Promotion candidate: this CiC-first-on-Immowelt rule has been stable since 2026-07-20 — worth moving into `evaluate.md` / `portals.yml` notes.*
 - **When CiC is DOWN ("Browser extension is not connected"), do NOT fall back to the invisible-playwright *MCP* — drive the same stealth Firefox from a script instead. It does not hang.** The wedge above is a property of the MCP server path (`new_page`), not of the browser. Spawn the driver exactly the way `scripts/scan.mjs` does and send one eval command on stdin:
   `spawn('bash', ['scripts/invisible-venv.sh','scripts/invisible-driver.py'], {cwd: ROOT, env:{...process.env, IP_HEADLESS:'true', IP_LOCALE:'de-DE', IP_TIMEZONE:'Europe/Berlin', IP_STORAGE_STATE:'tmp/browser-state.json'}, stdio:['pipe','pipe','inherit']})` → wait for the `{ready:true}` line → write `JSON.stringify({cmd:'eval', url, snippet})+'\n'` → the reply is `{ok, result, blocked}`.
-  **Twelve for twelve clean runs, 2026-08-15 → 2026-08-23** (#596, #636, #637, #655–#658, #660, #661,
-  #662, the Stiftstr. 8a re-check, and the Potsdamer Str. 18 dupe check): always `blocked=false`, ~50–60 s
+  **Thirteen for thirteen clean runs, 2026-08-15 → 2026-08-23** (#596, #636, #637, #655–#658, #660,
+  #661, #662, #663, the Stiftstr. 8a re-check, and the Potsdamer Str. 18 dupe check): always
+  `blocked=false`, ~50–60 s
   end-to-end, 616–685 KB of `innerHTML`, and **no truncation** — a single eval returns `title` +
   `innerText` (4–5 k chars) + the whole `innerHTML` together, so ONE call covers liveness AND the full
   extraction. ⇒ Treat it as reliable, not as a lucky path. The standard shape is exactly **two Bash
@@ -85,6 +86,21 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
     lister *filled it in* — a 1-chip Merkmale block is a data-quality signal, not a feature census.
     ⇒ Below ~3 chips, downgrade "confirmed missing" to "not stated" and look for a sibling ad.
     Cross-post fingerprinting rules: `tauschwohnung.md`.
+  - **A chip can carry `"enrichment":"ai"` — it was DERIVED FROM THE DESCRIPTION, not filled in by
+    the lister.** #663: `features.preview` = `[{"icon":"floors","value":"2. Geschoss"},{"icon":
+    "kitchen","value":"Einbauküche"},{"icon":"cellar","value":"Keller","enrichment":"ai"},{"icon":
+    "floor-covering","value":"Bodenbelag: Parkett"}]`, and the prose said „Zur Wohnung gehört ein
+    Kellerraum". Two consequences: (a) an `enrichment:"ai"` chip is only as good as the sentence it
+    came from — **cite the prose, not the chip**, and re-read that sentence before scoring a
+    must-have as met (an LLM extractor can mis-attribute a *Kellerraum im Haus* to the flat);
+    (b) it is further proof that the chip list mixes lister-filled and machine-filled entries, so
+    the absence of a chip is even weaker evidence than the "≥3 chips" rule above already assumes.
+    ⇒ On a sparse Merkmale block, an amenity is *confirmed present* only via prose or photo, and
+    *confirmed absent* only via the triple test **plus** silence in a prose passage that would
+    naturally have mentioned it (#663: a description that dwells on light, Westsonne and
+    Dächerblick and never names a Balkon, with 0 `Balkon|Terrasse|Loggia|Dachterrasse` hits in
+    628 KB of HTML). *Why:* without reading the `enrichment` flag you cannot tell a lister's
+    positive assertion from the portal's guess, and the two carry very different confidence.
   - **The photo-classification regexes can return an empty histogram on a page that clearly has
     photos** (#661: both the escaped and the plain `classification.name` forms matched 0, yet the
     gallery header said "Alle 17 Bilder ansehen"). Fallback that worked: count `/Bild \d+/g` in

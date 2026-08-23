@@ -150,6 +150,30 @@ message should lead with — here Bj. 2024 vs ~1975 Platte, EG + ~29 m² Garten 
 Personenaufzug. *Why:* three of the five kill axes are about numbers the poster never wrote down,
 and inventing one of them would have discarded the best side-2 fit on record.
 
+**Fourth form: `gegen {N}+ Z` — a stated FLOOR, in the TITLE ONLY, with a body that never restates
+it. This is the shape that fakes a "silent Suche" and must NOT be routed to the #641 lenient KEEP.**
+#663 (Immowelt, „TAUSCHWOHNUNG 3-Zimmer in Potsdam Traumlage **gegen 4+ Zimmer in Berlin**", Neuer
+Markt, 95 m²/3 Zi, 1.030+330): the description is a **pure self-description** of their own flat and
+ends in the tauschwohnung.com boilerplate — grepping the ad text for `such|Suche|Gegenzug` returns
+**0**, and `Berlin` appears **only** in the headline. So the body-only reader sees exactly #641's
+signature (no Zimmer/m²/Miete/Ortsteil/Personenzahl anywhere) and would fire "Suche unknown ⇒ lenient
+KEEP" — producing a Swap-candidate the partner can never accept. ⇒ **Rule: the Suche is "unknown"
+only when the TITLE is silent too. Read the headline first, and count a title-only Suche as fully
+stated, not as vague** — no leniency is owed to a criterion the poster did write down, merely wrote
+down once. (`mainDescription.headline` in the Immowelt payload = the ad's real headline; the pipeline
+card blob is not.)
+  - `{N}+` is an **absolute floor**, the exact mirror of #662's `1-2 Z` range: 4+ vs our 2 Zi = two
+    rooms below ⇒ deterministic fail, kill axis 3. #662 and #663 landed in the same batch and were
+    **both settled by the title alone, in opposite directions** — that pair is the argument for a
+    title-regex prefilter (`gegen \d+\+? ?Z`) ahead of full evaluation.
+  - Watch the axis bookkeeping: on #663 the *rent* axis was a clean PASS (our 1.025,25 kalt = −0,5 %
+    vs their 1.030; warm −10,7 %) and no ceiling was stated, so the report has to say the rooms —
+    not the money — decided. A favourable rent axis on a swap is common and never rescues a stated
+    room/area floor.
+  - Their target city being a **different** city (Berlin) while our offer sits in *their current*
+    city (Potsdam) is a second, softer fail: commuter-belt leniency formally applies, but the
+    direction points *away* from where our offer is. Record it as a soft miss under the hard one.
+
 ### A `Möbliert/Teilmöbliert` flag on a swap is NOT the furnished / "auf Zeit" hard blocker
 #653 (Kleinanzeigen, Tauschwohnung GmbH, 14055 Berlin-Westend) carries the checktag
 **`Möbliert/Teilmöbliert`** next to Balkon/Terrasse/Keller. Taken at face value that fires the
