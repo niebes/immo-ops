@@ -2036,6 +2036,31 @@ nor garden and pays ~1,7× the headline.
   it looks like "no data" and invites the EXPIRED verdict, but the real 404 has a 221-byte JSON
   body — so retry with the Android UA BEFORE running the control curls.
 
+### Hard blockers that exist ONLY in free text: **möbliert / Mindestmietzeit / Wohnen auf Zeit**
+Die Mobile-API hat **kein strukturiertes Feld für „möbliert"**. `header.realEstateType` steht auch
+bei einem reinen Möbliert-Produkt auf **`apartmentrent`** (nicht `shortTermAccommodation`), und in
+`Hauptkriterien`/`Kosten`/`Bausubstanz` taucht das Wort nirgends auf. Wer nur die
+`ATTRIBUTE_LIST`-Sektionen ausliest, übersieht damit einen **Hard Blocker** komplett und schreibt
+einen 4/5-Bericht über eine Auf-Zeit-Wohnung.
+→ **Immer `sections[].type == "TITLE"` UND alle `TEXT_AREA` (Objektbeschreibung / Ausstattung /
+Lage) gegen** `möbliert|möbliertes Wohnen|Wohnen auf Zeit|auf Zeit|Mindestmietzeit|Mindestlaufzeit|
+befristet|Untermiete|Zwischenmiete|serviced|all.?inclusive|furnished` **greppen**, bevor gescort wird.
+Zwei weitere Freitext-Fallen aus demselben Exposé (#647, 169882456, Königsallee Grunewald):
+- **`Kaution oder Genossenschaftsanteile` ist ein Freitextfeld, keine Zahl.** Hier stand
+  `"3-fache Miete"` — mehrdeutig: 3× Nettokaltmiete (1.600 → 4.800 EUR, zulässig) oder 3×
+  Gesamtmiete (2.000 → 6.000 EUR, nach § 551 BGB rechtswidrig). Nie in eine EUR-Zahl auflösen,
+  ohne die Mehrdeutigkeit als Klärungspunkt in Block G zu nennen.
+- **Plural im Titel + generische Textbausteine = Portfolio-Inserat.** „möbliertes LUXUS
+  **Apartments**" für eine einzelne Wohnung, dazu eine Lage-Beschreibung ohne jeden Objektbezug und
+  ein englischer Absatz, der ein Baujahr-1960-Haus „new-build apartments" nennt: der Anbieter
+  bespielt eine ganze Einheiten-Serie mit einem Text. Kein Scam-Signal (die `MEDIA`-Captions waren
+  objektspezifisch), aber Musterwohnungs-Risiko → als Besichtigungsfrage aufnehmen, nicht als Flag.
+Anbieter-Gegenprobe, die das in einer WebSearch entscheidet: das Firmenprofil nennt das
+Geschäftsmodell offen („Schwerpunkt möbliertes Wohnen", >1.500 Einheiten bei Progenea GmbH & Co.
+Liegenschaften KG) — das bestätigt die Freitext-Lesart und liefert zugleich Block H.
+**Warum:** ohne den Freitext-Grep sieht ein möbliertes 12-Monats-Apartment in der JSON exakt aus wie
+eine normale unbefristete Etagenwohnung, inkl. `Bezugsfrei ab`, Balkon/Keller-CHECKs und Kaution.
+
 ### `MEDIA` captions can flag AI-staging **per image** — the render rule is per-gallery, don't over-cap D
 `_shared.md`'s render/Visualisierung keyword scan is written against the *description*, so it reads
 as an all-or-nothing gallery verdict ("labels the images as non-real → cap Block D at 3.0"). On

@@ -98,9 +98,14 @@ Mittelwert +10 % *und* Spannen-Oberwert +10 % — die zweite ist die für den Ve
 macht die festgestellte Überschreitung unangreifbar.
 **Warum:** ohne diesen Absatz endet so ein Fall entweder in einem falschen Wucher-Vorwurf oder in
 einem kommentarlosen 4/5 — beide Male geht der einzige große Geldhebel der Wohnung verloren.
-- **Grunewald (14193), 2026: ~17–22 EUR/m²** (aus der Suchgruppen-Konfiguration, `max_price_per_m2: 22`).
+(Der Grunewald-Anker steht schon oben unter „Angebotsmarkt-Anker" — nicht doppelt pflegen.)
 Angebotsanker sind nach oben verzerrt → dürfen **nie allein** das High-Scam-Signal
 "Preis >20 % unter Mietspiegel" auslösen. Weitere Bezirke hier ergänzen, wenn sie auftauchen.
+Gegenprobe, die den Anker *entkräftet* statt ihn zu benutzen: die IS24-`priceBar` aus der Mobile-API
+ist **adressgenau** (`minSimilarPrice`–`maxSimilarPrice` + Perzentil) und schlägt jeden Bezirks-
+oder Ortsteil-Anker. #647 Königsallee: Band 14,00–26,60 EUR/m², Angebot 23,53 = 51. Perzentil, also
+marktkonform als *Angebot* und zugleich +183 % über der ortsüblichen Miete — beide Aussagen sind
+wahr und müssen beide im Bericht stehen.
 
 ### Eine „auffällig billige" Berliner Wohnung ist fast immer ein Anker-Fehler, kein Scam
 Kommt die Aufgabe schon mit der These „X EUR/m² ist die HÄLFTE des Mietspiegels", steckt der Fehler
