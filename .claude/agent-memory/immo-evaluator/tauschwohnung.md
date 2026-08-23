@@ -438,6 +438,16 @@ was **Wohnungsswap.de vs Tauschwohnung GmbH** = two different syndicators, hence
 it), then confirm with the prose fingerprint. *Why:* the orchestrator explicitly instructed "do NOT
 try to settle it with Referenznummer — on swap ads those always differ", which is only half true and
 would have cost a full A–H re-scoring.
+⚠ **…but grep the Anbieter-ID over `reports/*.md`, NOT over `data/listings.md` — the tracker's Notes
+column usually does NOT carry it.** #673: the briefing said "grep it against `data/listings.md` Notes
+first"; `grep 477331 data/listings.md` returned **nothing**, while `grep -rn 477331 reports/` hit
+`606-…md` instantly ("Inserent ist ein privater Mieter (Anbieter-Objekt-ID 477331)"). #606's tracker
+row records only the *portal-internal* Kleinanzeigen Ad-ID 3488620217, which by the rule above is
+useless cross-portal. The full-body report is where the id survives. ⇒ Standard dedup grep for a swap
+is `grep -rn "{id}" data/listings.md data/pipeline.md reports/` — all three at once, one call. A
+listings-only grep returns a **false "not a dupe"** and buys a whole redundant evaluation.
+⇒ Cheap belt-and-braces second key: grep a **distinctive prose phrase** from the Suche at the same
+time (#673: `"ZWEI Wohnungen"`), which caught the same report independently.
 **Bonus: fetch the sibling even on a confirmed dupe — the richer post can RESOLVE an open question
 from the first report.** #641 could not decide whether the bare `700 €` was kalt or warm (it flips
 the side-2 rent delta by ~27 points and the whole Mietpreisbremse verdict). The Immowelt twin states

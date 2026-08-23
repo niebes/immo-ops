@@ -40,9 +40,20 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `<script id="__UFRN_LIFECYCLE_SERVERREQUEST__">window["__UFRN_LIFECYCLE_SERVERREQUEST__"]=JSON.parse("…")</script>`.
   Three lines get the whole record, escaping level irrelevant:
   ```js
-  const m = raw.match(/JSON\.parse\("([\s\S]*)"\)/);      // do NOT anchor with \s*$ — a ';' follows
+  const tail = raw.slice(raw.indexOf('__UFRN_LIFECYCLE_SERVERREQUEST__'));   // ⚠ anchor FIRST
+  const m = tail.match(/JSON\.parse\("([\s\S]*?)"\)\s*<\/script>/);          // lazy + </script> end
   const d = JSON.parse(JSON.parse('"' + m[1] + '"')).app_cldp.data.classified;
   ```
+  ⚠ **Both the anchor and the end-delimiter are load-bearing — get either wrong and you do not get an
+  error, you get the WRONG script's payload.** #673: an unanchored `/JSON\.parse\("([\s\S]*?)"\)/`
+  (lazy, no anchor) matched an **earlier, unrelated** `JSON.parse(...)` script on the page; it parsed
+  cleanly and then died on `Cannot read properties of undefined (reading 'data')` because
+  `obj.app_cldp` was absent. The greedy variant in the old note (`[\s\S]*` with no anchor) has the
+  mirror failure — it runs past the payload into a *later* script. So: `indexOf` the
+  `__UFRN_LIFECYCLE_SERVERREQUEST__` id to slice the tail, then match **lazily** and terminate on
+  `"\)\s*</script>`. Sanity-check `Object.keys(obj)` — the correct payload's ONLY top-level key is
+  `app_cldp`. *Why:* the symptom ("Cannot read 'data' of undefined") reads like "this listing has no
+  structured payload" and pushes you back to innerText scraping on a page that has the full record.
   `classified` then gives, fully typed and unescaped: `metadata.{legacyId,creationDate,updateDate}` ·
   `tags.{has3DVisit,hasBrokerageFee,isNew}` · `domains.medias.{images,floorplans,videos,virtualTours}`
   (`images.length` is the **exact** photo count — better than the `/Bild \d+/g` innerText count, which
@@ -385,6 +396,27 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
   - *Flatly wrong* (#655, 0230de0d): JSON `address = {city:"Charlottenburg-Wilmersdorf", zipCode:"10589", district:"Grunewald"}` while `document.title` said **Westend** and the tenant's prose said "Altbau-Wohnung in **Charlottenburg auf der Mierendorff-Insel**" (U7, Ringbahn, Spree, Österreichpark — all Mierendorffinsel, none of them in Grunewald). **10589 is Charlottenburg-Nord; 14193 is Grunewald. Three names, one PLZ.**
   **Rule: the `zipCode` + the description prose are the tie-breakers; `district` is the field that lies.** Cheapest test — does the PLZ belong to the named Ortsteil at all? If not, the district label is Immowelt geocoding noise and the listing is out of a PLZ-scoped search group. Note this is a *different* failure from the #654 "Die Adresse stimmt nicht ganz" case: there the lister disowned his own entry, here the lister is precise and the **portal** is wrong — so a `Adresse stimmt|stimmt nicht ganz` regex returning nothing does **not** clear the location. *Why:* the Grunewald batch had four listings mis-tagged by area (10711 Halensee, Schmargendorf, 14055 Westend, 10589 Mierendorffinsel); `district` looks authoritative and is exactly what the search-result metadata repeats.
   - ✅ **…and when prose and `district` disagree, `sections.location.geometry` ADJUDICATES — it is the Ortsteil MultiPolygon, so just ask which candidate Ortsteil's centroid falls inside it.** #672: `district:"Bornstedt"`, prose twice „Stadtteil **Eiche**" + headline „Potsdam, Eiche". Polygon spans 13,0199–13,0442 O / 52,4138–52,4297 N ⇒ **Eiche's centroid (52,4139 / 13,0247) is INSIDE**, **Bornstedt's (52,4153 / 13,0489) is OUTSIDE** (east of the 13,0442 edge). Prose + geometry agree ⇒ Eiche, settled with zero extra calls. This upgrades the rule above: the documented tie-breakers were `zipCode` + prose, but **`zipCode` is useless whenever both candidate Ortsteile share it** (14469 = Eiche *and* Bornstedt; 14480 = Am Stern *and* Kirchsteigfeld, cf. #662) — exactly the common case. The polygon is not a point (#654 already noted that), and that is precisely what makes it usable: a *point* would only locate the flat, an *Ortsteil polygon* names the Ortsteil. ⇒ **Standard move on any prose-vs-`district` conflict: look up the two Ortsteil centroids and do the bbox/point-in-polygon check.** *Why:* the Potsdam Mietspiegel is addressed by Baualtersklasse, not by Ortsteil, so this does not move Block A — but it moves Block B (Eiche borders Golm = preferred area; Bornstedt does not) and it is the field the search-result metadata parrots.
+    - ✅ **The same test also CORROBORATES `district` — and that is worth running even when prose is
+      silent, because it can overturn a *previous report's* guessed Ortsteil.** #673 (dupe of #606):
+      prose named no Ortsteil at all, so there was no conflict to adjudicate; `district:"Waldstadt I"`
+      stood alone — but report #606 (the Kleinanzeigen copy, where no Ortsteil field exists) had
+      inferred **Waldstadt II** from building traits. PIP settled it for `district`: Waldstadt I's
+      centroid is **inside**, Waldstadt II / Zum Jagenstein / Schlaatz / Am Stern / Teltower Vorstadt
+      all **outside**. ⇒ Treat the polygon as an independent locator, not merely a tie-breaker; and on
+      a **cross-portal dupe, re-run it** — the richer copy can falsify the poorer copy's hypothesis.
+    - ⚠ **Use REAL geocoded Ortsteil centroids, never hand-estimated ones — a wrong centroid produces
+      a confident FALSE POSITIVE, not a miss.** #673 first pass used from-memory coordinates and the
+      polygon "contained" **Am Stern**; the OSM-geocoded run put Am Stern 3,5 km outside and Waldstadt I
+      inside. One Nominatim call per candidate (`nominatim.openstreetmap.org/search?q={Ortsteil},
+      Potsdam&format=json&limit=1`, ~1 s apart, real UA) costs nothing and is the whole basis of the
+      verdict. Bonus: Nominatim's `display_name` itself resolves sub-locations — it placed the street
+      *Zum Jagenstein* in **Waldstadt II**, contradicting #606's premise directly.
+    - ℹ️ **Polygon-shape tell: a MultiPolygon with several DISJOINT parts is normal, not corrupt.**
+      #673's Waldstadt I geometry had **3** separate rings (15 / 45 / 6 points) — it matches the
+      Potsdam statistical district „Waldstadt I und Industriegelände", which genuinely is
+      discontiguous. So iterate all `coordinates[i][0]` rings; testing only the first, or judging by
+      the union bbox (which spanned ~4 × 2,7 km here and swallowed three foreign Ortsteile), gives the
+      wrong answer.
 - **The description's own Warmmiete can contradict the `Mietkosten` arithmetic** — #533: Kaltmiete 1.900 + Nebenkosten 440 = 2.340, description prose says "Die Warmmiete beträgt 2400 Euro". Report both, don't average (same failure mode as the stale price-cut note below).
 - **A named historic building in the description is a free data source.** #521's expose gave no address, no Baujahr and no condition field, but the description named the "Brockessches Palais" — one WebSearch yielded the exact address (Yorckstraße 19/20, 14467), **Baujahr 1776** (⇒ Mietspiegel Baualtersklasse "bis 1948") and "denkmalgerecht vollsaniert bis Ende 2016" (⇒ Block D "Saniert" **and** the § 556f umfassende-Modernisierung exception that decides the Mietpreisbremse verdict). *Why:* without the Baujahr there is no Mietspiegel field at all, and "Der Anbieter hat die genaue Adresse nicht freigegeben" reads like a dead end.
 - **The Suche can hinge on FLOOR/Etage, not just rooms/m²/area — check the title too.** Seen on #351 (dd00b8fa, Bornstedt): title = "TAUSCHWOHNUNG **Tausch in eine höhere Etage**", flat is EG, Suche = "2-3 Zimmer mit Balkon in Potsdam (Norden)". Their central motivation was a *higher floor*. Our Golm offer (EG, no balcony) matched rooms+area (Golm = Potsdam-Nord) but failed the two explicit points (höhere Etage + Balkon) → side-2 clear fail → DISCARDED, even though their flat scored 4,4/5 for us. So a floor preference in the title is a real side-2 match dimension; our EG offer fails any "höhere Etage"/upper-floor Suche.
