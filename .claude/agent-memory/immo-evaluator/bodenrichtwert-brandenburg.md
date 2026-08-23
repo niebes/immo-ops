@@ -84,5 +84,17 @@ so "at BRW" is the *expected* result — an apparent deep discount is nearly alw
 blended-rate artefact, not a bargain, and it must never be talked into the ">20 % below market"
 High scam signal.
 
+**Re-verified 2026-08-23 (#644)** straight from the Kreis PDF (`curl` + `pdftotext`, one call — the file
+is a 4-page press release, not the value catalogue): the 0,33 / 0,24 Forst figures and the Acker/Grünland
+rows above are verbatim, beschlossen 28.01.2026, "stabil" y-o-y. **Michendorf is Berliner Umland ⇒ 0,33.**
+
+**On a 100 %-Waldparzelle the Forst-BRW is the ANCHOR, not a footnote** (the paragraph above says the
+Wohnbauland-BRW is a ceiling on *Wochenend*-plots; on pure forest it is not even that). #644: 3.391 m²
+Wald asked at 8,85 EUR/m² = **~27× the 0,33 amtlich**, so the parcel's real Sachwert is ~1.100 EUR Boden
+plus a low-four-digit Aufwuchs against a 30.000 EUR ask. Quote the Wohnbauland figure only to explain the
+*motive* (Michendorf ~340 EUR/m², i.e. the same parcel would be ~1,15 Mio as Bauland — that spread IS the
+product being sold). Framing it as "27× BRW" alone reads as an accusation; framing it as "a Bauerwartung
+that § 8 LWaldG + § 35 BauGB will not deliver" is the finding.
+
 **Review cadence:** Potsdam-Mittelmark publishes each March for the 01.01. Stichtag; re-check every
 spring. Roskow was reported unchanged year-on-year; the agrarian rates likewise.

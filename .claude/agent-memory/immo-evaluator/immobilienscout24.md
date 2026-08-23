@@ -1183,8 +1183,43 @@ because banks barely lend on Erholungsgrundstücke (#633: EK 50k vs 129.115 EUR 
 "geregelte Fäkalienentsorgung" (= abflusslose Grube, worst rung) and **never mentions Trinkwasser at all**,
 although the photos show a Bad and a Küchenzeile. Absence of the word is the finding — same shape as the
 "Abwasser kommt im Exposé gar nicht vor" tell on #546/#592.
-*(This whole Wochenend-/Freizeit section has now held across two listings and is stable — candidate for
-promotion into `modes/_shared.md` next to the Bauland block, together with the type-correct-search rule.)*
+### Third instance (#644) — the **pure Waldparzelle**: same trap, but the price fits and NO hard blocker fires
+#644 (expose 170134827, "Waldfläche in verkehrsgünstiger Lage von Michendorf", 3.391 m², 30.000 EUR,
+Makler Krentz) is the variant #518/#633 don't cover: **100 % Wald, no building, no Bestandsschutz story,
+and the ask is only 50 % of the Freizeit cap** — so the "price 40 %+ above target" blocker that carried
+both earlier verdicts does **not** fire. If you lean on the blocker you get no verdict at all. Handling:
+- **Drive the score down through C and E, not A.** Block C on the **usable** area (the #518 rule) — on a
+  100 %-Wald parcel that is **0 m²**, so C ≈ 2,0 (large raw area, nothing usable), and Block E is "missing
+  every must-have *and none of them is addable*" ⇒ 1,0. That lands ~2,8 honestly instead of ~3,2 from a
+  naive C = 4,5. Score BOTH readings anyway; #644 came out 2,8 (Freizeit) vs 2,5 (Bauland), i.e. the
+  verdict survives the search-assignment question — say that explicitly, it is what makes it safe.
+- **§ 15 LWaldG is the argument that kills the *Freizeit* reading**, and it is easy to forget because it
+  isn't about building: the public may enter your own forest for Erholung, and Einfriedung/Sperrung needs
+  forstbehördliche Genehmigung. So you buy land you may neither build on **nor keep anyone off** — the
+  profile's "ownable and usable" test fails on the second half, not the first. Pair it with § 8
+  (Umwandlung + Ersatzaufforstung), the Wiederaufforstungspflicht (which voids the exposé's "Verwertung
+  des Holzbestandes" pitch), and the Verkehrssicherungspflicht (real here — neighbours are *built*).
+- **Anchor Block A on the FOREST BRW, never the Wohnbauland one.** 8,85 EUR/m² vs 0,33 EUR/m² = **~27×**;
+  say what the money actually buys (a Bauerwartung that § 8 LWaldG + § 35 BauGB will not deliver). Give
+  the Wohnbauland figure only as context for *why* someone asks it (Michendorf ~340 EUR/m² ⇒ the parcel
+  would be worth ~1,15 Mio if it were ever Bauland — that is the lottery ticket being sold).
+- **A seller who states the non-buildability himself is an honesty CREDIT in Block H** (#644's
+  Objektbeschreibung has a standalone paragraph: *"das Grundstück aktuell nicht bebaubar ist und nicht für
+  Wohnzwecke genutzt werden kann"*). Don't reflexively read candour as a red flag; #633 hid the same fact
+  behind "Entwicklungsperspektive" prose and scored H lower for it.
+- **Read the aerials for the access question before assuming the worst.** #644's gallery had three drone
+  shots with the parcel outlined from two flight directions: they proved it abuts unpaved lanes on two
+  sides (**not landlocked, no Wegerecht needed**) — and simultaneously showed the **A 10 with its
+  Lärmschutzwand ~150–250 m away**, which is the decisive Block-B minus for a *recreation* plot and appears
+  nowhere in the text (the title sells it as "verkehrsgünstige Lage"). A street-name sign in the gallery
+  (`Siedlerstraße`) can localise a parcel whose address IS24 withholds.
+- Counterfactual worth computing in Block E: unpaved Anliegerwege ⇒ full Erschließungsbeitrag on
+  **Grundstücksfläche** (20–60 EUR/m²) = 68–203 TEUR on a 30 TEUR plot, i.e. even the dream scenario is
+  not cheap. And LSG check: "Nuthetal-Beelitzer Sander" (~41.651 ha) reaches west to Beelitz/Michendorf —
+  state it as an **open question for the Landkreis**, not a fact; Ortslagen are often carved out.
+*(Third occurrence of the search-group misfiling — the whole Wochenend-/Freizeit/Wald section has now held
+across #518, #633 and #644 and is stable. Promote to `modes/_shared.md` next to the Bauland block, together
+with the type-correct-search rule and the "score both readings" table.)*
 
 ### Private exposés: when `TEXT_AREA "Sonstiges"` names the seller's OWN domain, fetch it — it carries what the exposé omits
 #633's Sonstiges ended with "…stehen unter: www.havelgrundstueck.de zur Verfügung". That one-object site
