@@ -292,13 +292,34 @@ Two sub-details from the same ad:
   priceMin/priceMax, is a mechanical ±20 % window around the asking price, see `immowelt.md`).
 
 **Cross-PORTAL swap dupes: Tauschwohnung GmbH syndicates one flat to Kleinanzeigen AND Immowelt.**
-Strong candidate pair seen 2026-08-23: report #641 (Kleinanzeigen, Babelsberg, 700 EUR / 60 m² /
-3 Zi / 1. OG, 2021 renoviert, 5 Fotos, Anbieter-ID 476848) vs the queued Immowelt expose
-`94b8c035-…` (700 EUR / 60 m² / 3 Zi, Babelsberg Nord, Tauschwohnung). Since the `Referenznummer`
-on a swap is the syndicator's per-platform id, it can NOT settle this — dedup on the prose
-fingerprint (Etage + Fotoanzahl + Renovierungsjahr + Suche-Zeile). *Why:* the existing note below
-only covers Immowelt-vs-Immowelt (Wohnungsswap.de vs Tauschwohnung GmbH); the same ad also crosses
-portals, and a second full evaluation of #641 would be pure waste.
+CONFIRMED 2026-08-23: report #641 (Kleinanzeigen, Babelsberg, 700 EUR / 60 m² / 3 Zi / 1. OG, 2021
+renoviert, 5 Fotos, Anbieter-ID 476848) and the queued Immowelt expose `94b8c035-…` are **one flat**
+— closed as DUPE, no #665 written. All five prose-fingerprint axes matched verbatim: identical
+headline (`TAUSCHWOHNUNG Klein aber Fein: 3-Zimmer-Wohnung in Babelsberg`), identical description
+(1.OG, „viele liebe Nachbarn", 2021 komplett renoviert incl. Netzwerk + Heimkino, 10-min-Radius mit
+Linden- und Filmpark), 5 Fotos, 700 EUR / 60 m² / 3 Zi.
+⚠ **CORRECTION to the "never dedupe swaps by Referenznummer" rule: that holds only ACROSS
+syndicators. WITHIN the Tauschwohnung-GmbH feed the poster's `Anbieter-ID` is stable cross-portal
+and is the single cheapest dedup key there is.** Immowelt prints it in **two** places —
+`Referenznummer: 476848` in the Anbieter tail *and* a literal line in the description body,
+„Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: 476848)" — and Kleinanzeigen prints
+the same 476848 as its Anbieter-/Objekt-ID. (Immowelt's `Online-ID`, here `261G6BY8HXRI`, stays
+portal-internal and is useless cross-portal.) The #660/#661 case that produced the original warning
+was **Wohnungsswap.de vs Tauschwohnung GmbH** = two different syndicators, hence two different ids.
+⇒ On a suspected cross-portal swap dupe, grep both ads for `Anbieter-ID` FIRST (one field, settles
+it), then confirm with the prose fingerprint. *Why:* the orchestrator explicitly instructed "do NOT
+try to settle it with Referenznummer — on swap ads those always differ", which is only half true and
+would have cost a full A–H re-scoring.
+**Bonus: fetch the sibling even on a confirmed dupe — the richer post can RESOLVE an open question
+from the first report.** #641 could not decide whether the bare `700 €` was kalt or warm (it flips
+the side-2 rent delta by ~27 points and the whole Mietpreisbremse verdict). The Immowelt twin states
+it outright: `"price":{"value":"700 €","additionalInformation":"Kaltmiete"}` plus a `Mietkosten`
+block reading `Kaltmiete 11,67 €/m² · 700 €` and `Kaution: keine Angabe`. ⇒ 700 EUR = **Kaltmiete**,
+Nebenkosten genuinely unstated. Also corroborated: the Suche is silent on BOTH portals (Immowelt
+headline has no `gegen …` half; body is self-description + boilerplate; `Keller/Balkon/Terrasse/
+Garten/Baujahr/möbliert/WBS/Aufzug/Einbauküche` = **0 hits in 616 KB**, and there is no `"features"`
+key at all — the Merkmale block is entirely absent, not merely truncated) ⇒ #641's lenient-KEEP
+stands, now on two independent posts.
 
 ### Side-2 sub-case: the TOTALLY silent Suche (no "gegen X" title, no Suche sentence at all)
 #641 (Kleinanzeigen, "TAUSCHWOHNUNG Klein aber Fein: 3-Zimmer-Wohnung in Babelsberg", 60 m² / 3 Zi /
