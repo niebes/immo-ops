@@ -199,6 +199,45 @@ gehört als Risiko in Block A/G, nicht als „compliant" abgehakt.
 *Why:* das Standard-Playbook für Potsdamer Großsiedlungen („zuerst das Plattenbau-Feld ziehen") ist
 für Am Stern nur die halbe Wahrheit und liefert bei diesen Adressen einen um +100 % falschen Befund.
 
+## Ortsteil-Anker: **Drewitz (14480)** — und die Falle „1971–1990 hat KEINE `kein EA`-Zeile"
+Zwei Befunde aus #670 (Tauschanzeige, 3 Zi / **62 m²** / **324 EUR = 5,23 EUR/m²**, DG 4. OG):
+
+**1. Die 1971–1990-Gruppe hat — anders als `bis 1948` und `1949–1970` — KEINE eigene
+„kein Energieausweis"-Zeile.** Sie hat nur `A,B` · `C,D` · `E,F`. Bei einer Platte ohne EA (der
+Normalfall: `energy.hasScales:false`) gibt es also **kein einzelnes Feld**, das man ziehen darf.
+⇒ **Das ganze EEK-Band der Baualtersklasse zitieren**, nicht eine Zeile raten. Für Spalte C
+(>60–75 m²): Mittelwerte **5,69 (E,F) · 5,82 (C,D) · 6,06 (A,B)**, Gesamtspanne **5,19–6,88**.
+*Why:* die Standardanweisung „no EA ⇒ nimm die kein-EA-Zeile" läuft hier ins Leere, und wer
+stattdessen reflexhaft `E,F` (schlechteste Klasse) nimmt, senkt den Vergleichswert um bis zu 6 %
+und erzeugt einen falschen „über Mietspiegel"-Befund.
+
+**2. Gegen-Anker zum „verdächtig billig"-Auftrag: 5,23 EUR/m² ist der UNTERWERT, nicht darunter.**
+Der Orchestrator kam mit „5,23 EUR/m² liegt unter der Untergrenze *jeder* Potsdamer Spanne — also
+WBS/sozialer Wohnungsbau (Hard Blocker)". Falsch: **5,23 ist exakt der Unterwert der Zeile
+`1971–1990 · C,D · Spalte C` (5,82 [5,23–6,25])** und liegt über dem der `E,F`-Zeile (5,19). Die
+Miete liegt damit **innerhalb** der ortsüblichen Spanne, nur −8,1 bis −13,7 % vom Mittel ⇒
+**Scam-Schwelle (>20 % unter Mietspiegel) NICHT erreicht** und **Mietpreisbremse eingehalten**
+(zulässig 6,26–6,67 EUR/m² = 388–413 EUR gegen verlangte 324). Merksatz für Drewitz-Zahlen:
+**alles ab ~5,20 EUR/m² aufwärts ist bei 60–75 m² normal**, erst darunter lohnt die WBS-Frage.
+Zusatzbeleg für „Altvertrag statt Förderung": 5,23 = **genau ein Drittel** des Angebotsankers
+(15,51) — nach der Faustregel aus `tauschwohnung.md` (½ Anker oder darunter ⇒ Altvertrag).
+Der WBS-Sweep lief case-sensitiv über 16 Begriffe (`WBS`, `Wohnberechtigung(sschein)`,
+`Sozialwohnung`, `sozialer Wohnungsbau`, `Genossenschaft`, `gefördert(er)`, `Belegungsbindung`,
+`Belegungsrecht`, `Fehlbelegung`, `Mietobergrenze`, `einkommensorientiert`, `ProPotsdam`, `GEWOBA`)
+und ergab **16× 0**. *Why:* ohne diesen Gegen-Anker hätte ein Hard Blocker auf reiner
+Preis-Intuition gefeuert und die Wohnung auf ≤2,0 gedeckelt.
+
+**Ortsteil-Fakten (für Block B):** GDR-Großsiedlung WBS-70/P2, **1986–1989**, plus Wendebauten bis
+1991; seit 2010 Stadtumbau „**Gartenstadt Drewitz**" (Konrad-Wolf-Allee zurückgebaut, energetische
+Sanierung **einzelner** Blöcke ⇒ Sanierungsstand pro Haus prüfen, nie unterstellen). Tram **96/99**
+→ Potsdam Hbf ~15–18 Min., **Stern-Center** fußläufig/eine Tramstation, A 115 (AS Potsdam-Süd)
+~5 Min., Naherholung **Parforceheide** + Nuthewiesen. Ortsteil-Geometrie (Immowelt-MultiPolygon,
+88 Stützpunkte): BBOX **13,1143–13,1496 O / 52,3500–52,3779 N** — die Südausdehnung bis 52,350 ist
+Waldanteil, kein Wohngebiet; taugt als Gegenprobe gegen ein falsches `district`.
+⚠ „**Dachgeschoss**" in Drewitz ist atypisch (Platte = Flachdach): entweder eine
+Gartenstadt-Aufstockung/Staffelgeschoss oder — wahrscheinlicher — das oberste Vollgeschoss eines
+5-geschossigen P2-Riegels, vom Inserenten so genannt. Aufzug dort praktisch nie.
+
 ## Ortsteil-Anker: **Waldstadt II (14478) — `Zum Jagenstein` / `Saarmunder Str.` ist NICHT Plattenbau**
 Waldstadt II löst reflexhaft die Großsiedlungs-Regel oben aus (Feld 1971–1990). Für **eine** Adresse
 ist das falsch: das Quartier **Zum Jagenstein / Saarmunder Straße** ist ein **Neubauquartier der

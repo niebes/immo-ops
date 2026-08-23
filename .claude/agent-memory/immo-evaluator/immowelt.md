@@ -8,8 +8,8 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   - **CiC entry sequence that works (stable — 4th clean run 2026-08-20 #632; a full rental expose costs ~6 `javascript_tool` calls):** `tabs_context_mcp{createIfEmpty:true}` (a bare `tabs_create_mcp` errors with "No tab group exists for this session yet") → `tabs_create_mcp` → `navigate{tabId}` → `javascript_tool`. The 2026-07 "first navigate lands on chrome://newtab" no-op has NOT recurred in two runs; one navigate loads the expose. A full rental expose is only ~4,3 k chars of `innerText` ⇒ **4–5 `javascript_tool` calls total** (900-char head, 2–3 body slices, one combined regex sweep). *Promotion candidate: this CiC-first-on-Immowelt rule has been stable since 2026-07-20 — worth moving into `evaluate.md` / `portals.yml` notes.*
 - **When CiC is DOWN ("Browser extension is not connected"), do NOT fall back to the invisible-playwright *MCP* — drive the same stealth Firefox from a script instead. It does not hang.** The wedge above is a property of the MCP server path (`new_page`), not of the browser. Spawn the driver exactly the way `scripts/scan.mjs` does and send one eval command on stdin:
   `spawn('bash', ['scripts/invisible-venv.sh','scripts/invisible-driver.py'], {cwd: ROOT, env:{...process.env, IP_HEADLESS:'true', IP_LOCALE:'de-DE', IP_TIMEZONE:'Europe/Berlin', IP_STORAGE_STATE:'tmp/browser-state.json'}, stdio:['pipe','pipe','inherit']})` → wait for the `{ready:true}` line → write `JSON.stringify({cmd:'eval', url, snippet})+'\n'` → the reply is `{ok, result, blocked}`.
-  **Fifteen for fifteen clean runs, 2026-08-15 → 2026-08-23** (#596, #636, #637, #655–#658, #660,
-  #661, #662, #663, #664, #669, the Stiftstr. 8a re-check, and the Potsdamer Str. 18 dupe check): always
+  **Sixteen for sixteen clean runs, 2026-08-15 → 2026-08-23** (#596, #636, #637, #655–#658, #660,
+  #661, #662, #663, #664, #669, **#670**, the Stiftstr. 8a re-check, and the Potsdamer Str. 18 dupe check): always
   `blocked=false`, ~50–60 s
   end-to-end, 616–685 KB of `innerHTML`, and **no truncation** — a single eval returns `title` +
   `innerText` (4–5 k chars) + the whole `innerHTML` together, so ONE call covers liveness AND the full
@@ -19,6 +19,13 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   has settled full evaluations, EXPIRED checks, and DUPE-vs-relisting calls alike.
   ⚠ **Mine the embedded JSON with `indexOf(key)` + a slice, NOT with a `"key":"value"` regex.** On
   #660 the payload was **triple**-escaped (`\\\"zipCode\\\":\\\"14476\\\"`), so every documented
+  ⚠ **Corollary (#670): the escaping LEVEL varies per page, so do the offline mine from a `.mjs`
+  FILE, never from `node -e '…'`.** #670's payload was only **single**-escaped (`\"zipCode\":…`),
+  and a `node -e` one-liner has to carry those backslashes through **two** quoting layers
+  (zsh single-quotes + JS string) — every key came back `NOT FOUND` on a page that had them all,
+  which reads exactly like "listing has no structured data". Rewriting the identical logic into a
+  scratchpad `.mjs` and running `node mine.mjs` printed every block first try. ⇒ Standard shape
+  stays two Bash calls, but call 2 must be `node {scratchpad}/mine.mjs`, not `node -e`.
   regex (`/"address":\{…/`, `/"hardFacts":…/`, `/"titleAdditions":…/`, `/"floorplans":…/`) returned
   NULL and the listing read as having no structured data at all — while `h.indexOf('zipCode')` +
   `h.slice(i-60,i+260)` printed the whole `address`/`hardFacts`/`floorplans` block instantly. One
@@ -144,7 +151,7 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   1. *Deferred* (#538): "**Der Energieausweis wird bei Besichtigung nachgereicht.**" + Baujahr — no class, no kWh, and a § 87 GEG violation worth flagging.
   2. *Exempt* (#539, 26ephn5ffvma): "**Ein Energieausweis ist für diesen Gebäudetyp nicht notwendig.**" — the portal's canned § 79 Abs. 4 GEG (Baudenkmal) wording, and note it can appear with **no Baujahr line at all**. Immowelt renders it from the lister's object-type flag, so the *reason* is never stated: `Denkmal`/`Denkmalschutz` returns 0 hits in `innerHTML`. ⇒ report the exemption as *claimed, unverified* and make it a contact question; also feed the Mietspiegel lookup the **"kein EA" EEK row** for that Baualtersklasse.
   3. *Teaser*: a class/value snippet or a bare "Mehr Infos" button — only THIS one justifies opening the modal.
-  4. *Lead-gen prompt* (#668): the section renders **no energy data at all**, just „**Möchtest du Details zum Energieverbrauch? → Details zum Energieverbrauch anfragen**" plus a bare `Heizungsart` line. Machine-readable tell: `"energy":{"features":[{"type":"heatingSystem",…}],"hasScales":false}` — `hasScales:false` with no class/value is the positive proof that the lister supplied nothing, i.e. **the certificate is simply missing, not exempt**. Distinguish it from shape 2 by grepping `Denkmal` (0 hits ⇒ no § 79 Abs. 4 GEG exemption ⇒ it IS a § 87 GEG omission worth flagging + the Low scam signal). Common on private/swap ads. ⇒ Feed the Mietspiegel lookup the **"kein EA" row**, which is the conservative (landlord-unfriendly) assumption and keeps the Mietpreisbremse check defensible.
+  4. *Lead-gen prompt* (#668): the section renders **no energy data at all**, just „**Möchtest du Details zum Energieverbrauch? → Details zum Energieverbrauch anfragen**" plus a bare `Heizungsart` line. Machine-readable tell: `"energy":{"features":[{"type":"heatingSystem",…}],"hasScales":false}` — `hasScales:false` with no class/value is the positive proof that the lister supplied nothing, i.e. **the certificate is simply missing, not exempt**. Distinguish it from shape 2 by grepping `Denkmal` (0 hits ⇒ no § 79 Abs. 4 GEG exemption ⇒ it IS a § 87 GEG omission worth flagging + the Low scam signal). Common on private/swap ads. ⇒ Feed the Mietspiegel lookup the **"kein EA" row**, which is the conservative (landlord-unfriendly) assumption and keeps the Mietpreisbremse check defensible. ⚠ **…but that row does not always exist.** In the Potsdam Grundmietentabelle only `bis 1948` and `1949–1970` have a `kein EA` row; **`1971–1990` and everything after do not** (they have `A,B` / `C,D` / `E,F` / „alle"). Confirmed #670 (Drewitz Platte, no EA at all). ⇒ On those Baualtersklassen cite the **whole EEK band** of the class instead of guessing a row — see `potsdam-mietspiegel.md` → Ortsteil-Anker Drewitz.
      ⚠ **Shape 4 has a second variant in which there is NO `energy` object at all** — #669:
      `hasScales` returned **0 hits in 619 KB** (so did `heatingSystem`), while the DOM still
      rendered the same lead-gen prompt. So "read `energy.hasScales` first" can come back empty and

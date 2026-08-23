@@ -442,6 +442,40 @@ DISCARD into a bogus "Suche unknown → lenient KEEP".
     („mind. 4 Zimmer") killed it anyway. ⇒ Never let an accumulating run of PASSes soften the
     reading of the one written number, and say in the report which single axis decided.
 
+### The Suche can be an INVERTED `gegen … suchen wir` clause — every documented trigger returns 0
+#670 (Immowelt, Drewitz, Anbieter-ID 105369): the *entire* description is one sentence —
+*„Wir tauchen eine 3 Mietwohnung in Potsdam Drewitz an **gegen eine 4 zimmer wohnung in Potsdam
+oder Ludwigsfelde suchen wir** wir sind 2 Erwasche und 2Kind"* — and the title
+(„TAUSCHWOHNUNG **Tauschwoungung**") is a pure typo carrying no `gegen …` half.
+Sweep result: `im Gegenzug` **0** · `Ich suche` **0** · `Wir suchen` **0** · `Nun suche ich` **0** ·
+`Suchprofil`/`Das suche ich` **0** · `mindestens` **0** · `Du suchst`/`bietest` **0**. Only the bare
+stem `suchen` hits, and it sits **after** its object in an inverted V2 clause (`gegen X suchen wir`),
+so even a `such(e|en) (eine|nach)` pattern misses it. ⇒ **Add `gegen …` as a body-level trigger, not
+just a title trigger, and match the bare stem `such` anywhere.** *Why:* the `gegen X` construction
+was so far only ever seen in titles („… gegen 4+ Zimmer in Berlin"), so a body-only trigger list
+plus a title check both come up empty and produce a bogus "Suche unknown → lenient KEEP".
+
+  - **New independent side-2 axis: the stated HOUSEHOLD SIZE.** #670 closes with „**wir sind
+    2 Erwasche und 2Kind**" = 4 persons. That is a *structural* floor that stands even where no
+    room number is given: 4 people do not fit our 2 Zi / 54,19 m² (13,5 m²/person), and most
+    Vermieter apply an Überbelegungs-check. ⇒ Grep the body for `wir sind \d`, `\d ?(Kind|Kinder)`,
+    `Familie`, `zu (zweit|dritt|viert)`, `Personen` and score it as its own row in the checklist.
+    It is also the *reason* behind a room floor, so it makes the discard defensible even if the
+    partner later "softens" the number.
+  - **The money axis STILL cannot fail when no ceiling is stated — now proven at the extreme.**
+    #670 is the largest rent delta of the whole series: their 324/457 vs our 1.025,25/1.214,93 =
+    **+216,4 % kalt / +165,8 % warm (2,66×)** — and the ad states **no** Mietobergrenze, not even
+    an adjective („bezahlbar"). Under the lenient rule that is a **PASS**, with the delta written
+    down as a *labelled inference* only. The orchestrator had pre-called this as "the first of the
+    batch to fail on money"; it failed on rooms + household size instead. ⇒ Never convert a large
+    computed delta into a stated criterion; a rent axis fails only on words the partner wrote
+    (a number, or „bis max. …", or „bezahlbar/günstig"). *Why:* letting arithmetic manufacture a
+    fail is exactly the recall loss the lenient rule exists to prevent.
+  - Positive note for our offer, worth reusing: **partners leaving an upper floor without a lift
+    are the one group our EG+Personenaufzug genuinely serves.** #670 sits in a 4. OG/DG with
+    `Aufzug` = 0 hits. It still fails on rooms, but say it in the report — it is the second time
+    (after #655 „weniger Treppen steigen") that barrierearm was our strongest matching axis.
+
 ### Side-2 sub-case: the TOTALLY silent Suche (no "gegen X" title, no Suche sentence at all)
 #641 (Kleinanzeigen, "TAUSCHWOHNUNG Klein aber Fein: 3-Zimmer-Wohnung in Babelsberg", 60 m² / 3 Zi /
 700 EUR): the description describes only their own flat and ends in the tauschwohnung.com boilerplate —
