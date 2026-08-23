@@ -670,3 +670,31 @@ also ~10 % auf die zulässige Miete — „Zehlendorf ist doch gute Lage" als An
 steht adressgenau `gut`/Zeile 138 (6,60 · **8,45** · 12,99) und die Mietpreisbremse-Rechnung ist
 belastbar statt „konservativ geschätzt". Layer-Name enthält das Jahr → im Januar auf
 `wohnlagenadr20NN` hochzählen.
+
+## Quartiers-Anker: **Jutekiez / alte Jutespinnerei (14473, Lotte-Pulewka-Str. / Wiesenstr.)**
+Ehemalige **Jutespinnerei, Baujahr 1863** (älteste erhaltene auf dem europäischen Festland), ab 2014 aus
+der Ruine denkmalgerecht zu Lofts umgebaut, fertig **2017/2019** (Quellen nennen beide Jahre — offene
+Frage) → **29 Eigentumswohnungen 67–125 m²** in der Fabrikhalle plus **414 Mietwohnungen in sieben
+Neubaukomplexen** ringsum. ⇒ **Es kommen laufend Geschwistereinheiten in den Scan** (Miet- *und*
+Loft-Bestand), Ortsteil im Scan hoch halten.
+**Die Ortsteil-Zuordnung ist strittig und kostet sonst jedes Mal zwei Suchen:** Immowelt taggt
+„**Teltower Vorstadt**", das Straßenverzeichnis sagt „**Südliche Innenstadt**", der Stadtplan
+„**Zentrum Ost und Nuthepark**" — **PLZ 14473 ist bei allen dreien identisch und damit gesichert**.
+Ohne Scoring-Folge: alle Kandidaten liegen in Potsdam (= preferred), und das Mietspiegelfeld hängt an
+Baualter × EEK × m², nicht am Ortsteil. Prosa-Landmarke, die das Quartier eindeutig identifiziert:
+„restaurierte Jute-Fabrik" / „Jute-Kiez".
+**Mietspiegelfeld — die eigentliche Falle ist das nie genannte Baujahr, beide Zeilen rechnen:**
+Hypothese A (Baualter folgt dem Loft-Umbau = Sanierung auf Neubaustandard; die Wohnungen existierten
+vorher **nicht**, Lehrbuchfall) → **2013–2020 · alle EEK**, bei >90 m² Spalte E = **12,39 (10,31–14,00)**
+⇒ zulässig 13,63. Hypothese B (Hülle von 1863, kein EA) → **bis 1948 · kein EA · Spalte E = 8,17
+(5,90–9,40)** ⇒ zulässig 8,99, Oberwert-Decke 10,34. **Faktor ~1,5 zwischen beiden — A ist tragend.**
+**§ 556f: Erstnutzung als Wohnraum nach dem 01.10.2014 ⇒ Mietpreisbremse sehr wahrscheinlich gar nicht
+anwendbar** (Fabrikhalle → Wohnungen). Praktische Folge für Tausch-/Nachmieterfälle: beim Neuvertrag
+gibt es dann **keine gesetzliche Decke**; realistisches Neuvertragsniveau für ein konvertiertes
+Denkmal-Loft mit Stellplatz **15–17 EUR/m² kalt**.
+Lage: ca. **1,5 km östlich Potsdam Hbf** (RE1 Berlin ~25 Min., S7 Wannsee ~10 Min.), Nuthepark direkt,
+Babelsberg jenseits der Nuthe → **Block B 4,5**. **Caveat: Nuthestraße (B2) + Bahnkorridor** — die
+Lärmseite der konkreten Wohnung ist auf Exposés nie angegeben, gehört in die Kontaktfragen.
+Genutzt auf #666. *Why:* ohne den Anker recherchiert jede Jutekiez-Wohnung Baujahr, Ortsteil, § 556f
+und Mietspiegelfeld neu — und tippt bei „restaurierte Fabrik" leicht auf die Altbauzeile, was die
+Mietpreisbremse-Bewertung um 62 % verzerrt.
