@@ -681,6 +681,14 @@ four surrogates instead of guessing:
    consecutive across the gallery = one upload session, no date content). Rule: only accept the
    suffix as a date if `datetime.fromtimestamp()` lands in the past; consecutive-by-one values across
    the gallery mean it is an ID.
+   **…but the sequence-ID scheme is still MONOTONIC, so calibrate it instead of discarding it.** Pull
+   two known-recent exposés with the same curl and read their suffixes: in Aug 2026 they were
+   ~2.075–2.079 Mrd, ~7 days apart ⇒ **~0,49 M media-IDs/day**. A target sitting at 1.624 Mrd is then
+   ~2,5 years back — an *independent* second age estimate to corroborate surrogate 5 or 6, and the only
+   one available when the epoch decode is bogus. Used on #643: Scout-ID 142,8 M (vs 170,0–170,2 M for
+   Aug-2026 exposés, ~23 k IDs/day ⇒ ~3 years) and media-ID 1,624 Mrd (epoch-valid: 22.06.2021) agreed
+   on "years old", which turned the report's Block A from "in budget, fine" into a price set years ago
+   in a market since down 2,4 % y-o-y = an explicit negotiating lever.
 6. **Season cues in the photos themselves** — the last resort when 2 and 5 both fail (descriptive
    German captions + sequence-ID suffixes). #588 ran in **August** while the living-room and balcony
    shots both showed **yellow autumn foliage** through the windows ⇒ photos are from an earlier
@@ -881,6 +889,15 @@ massa Haus nach Wunsch."* followed by the rep's mobile + `@massa-haus.de` addres
   land+house (a five-figure difference vs #483/#519/#528). Seen on #546.
   **Why:** the memory so far only knew how to *detect* a hidden tie-in; without the inverse test a genuinely
   free plot gets no credit for the one feature that separates it from the whole Bauträger family.
+  - ⚠ **One guaranteed FALSE POSITIVE in that grep: `Baupartner`.** On #643 (expose 142808782, Jeserig)
+    the *only* hit across all of `Baubindung|Bauträger|Massivhaus|Bauverpflichtung|Hausbau|Baupartner`
+    was *"Tun Sie sich mit Freunden oder **Baupartnern** für dieses Projekt zusammen"* — an invitation
+    to **co-buy** a plot that is sold only as a whole, i.e. the opposite of a builder tie-in. Same trap
+    shape as the `Genossenschaft`-in-the-Kaution-label one. Only count a hit that names a **company**
+    (GmbH / Hausmarke / a `@{hausmarke}.de` address) or imposes an obligation ("wird bebaut mit",
+    "es besteht eine Bindung"); a bare noun in a marketing sentence is not a Bindung.
+    **Why:** read as a hit it flips the headline verdict from "free choice of builder" to "Baubindung"
+    — the single most score-deciding fact on a plot — on the strength of one word.
 - **`Provision für Käufer: Nein` on a plot is a tell, not just a plus.** A Makler works for commission; a
   0 %-plot means the seller earns elsewhere — usually the house contract. Still score it as the genuine
   Block-A/G plus it is (0 % vs the 3,57–7,14 % ladder = 6.400–12.800 EUR), but say *why* it is free.
@@ -1217,9 +1234,79 @@ both earlier verdicts does **not** fire. If you lean on the blocker you get no v
   **Grundstücksfläche** (20–60 EUR/m²) = 68–203 TEUR on a 30 TEUR plot, i.e. even the dream scenario is
   not cheap. And LSG check: "Nuthetal-Beelitzer Sander" (~41.651 ha) reaches west to Beelitz/Michendorf —
   state it as an **open question for the Landkreis**, not a fact; Ortslagen are often carved out.
-*(Third occurrence of the search-group misfiling — the whole Wochenend-/Freizeit/Wald section has now held
-across #518, #633 and #644 and is stable. Promote to `modes/_shared.md` next to the Bauland block, together
-with the type-correct-search rule and the "score both readings" table.)*
+### Fourth instance (#645) — the **classic Wochenendhaus**, and where the free Dauerwohnen tell lives
+#645 (expose 169123843, „Exklusives Freizeitgrundstück mit Bungalow und Sauna", Borkwalde/PM, 2.493 m²,
+150.000 EUR, **again Makler Krentz** — see #644, this agency lists the whole class) is the textbook case
+between #518 (hut + Wald) and #644 (pure Wald): a genuine DDR-Holzbungalow with Sauna on a big forested
+plot. Scanned into `property: grundstueck` (200k), type-correct `freizeitgrundstueck` (60k) → **+150 %**
+→ blocker; 2,65 uncapped → 2,0, charitable Bauland reading 3,40. It carries the **full house** of the
+negative tells in one exposé — treat this exact combination as the signature that routes to the 60k
+search with no further evidence: `obj_buildingPerm: n` · `obj_development: **no_information**` ·
+`obj_shortTermBuild: n` · `obj_constAfter: no_information` · `obj_immotype: grundstueck_wohnen_kauf` ·
+Hauptkriterien = **only** `Vermarktungsart` + `Grundstück ca.` (not even an Erschließung row).
+
+- **The Dauerwohnen tell is FREE: keyword-scan the description for `wohn`.** A Freizeit exposé that
+  *could* say "ganzjährig bewohnbar / Dauerwohnen zulässig / Erstwohnsitz möglich" always does — it is the
+  biggest value driver on the class. #645's 3.900-char lyrical text says „Wochenenddomizil",
+  „Sommerresidenz", „längere Aufenthalte" and **never once** says wohnen. **Absence of the claim IS the
+  answer** — score G on it instead of leaving Dauerwohnen "unknown". Two one-fetch corroborators: the
+  **Amt/Gemeinde Bauleitplanung register** (Amt Brück lists for Borkwalde only an FNP *still in Verfahren
+  since 2011*, B-Plan Nr. 3 Ortszentrum, a Verbrauchermarkt-B-Plan and Klarstellungs-/Ergänzungssatzungen
+  ⇒ **no Wohngebiets-B-Plan for the Waldsiedlung** ⇒ § 34/§ 35 with a Wochenendsiedlung as
+  Umgebungs-Eigenart), and the exposé's own **Lage** text, which on these Berlin-Wochenendsiedlungen
+  usually narrates the settlement genesis for you („entstand ursprünglich als Wochenendsiedlung für
+  Berliner … dieser Charakter ist bis heute erhalten"). Legal frame to cite, Brandenburg-wide and stable:
+  VV „Umnutzung von Wochenendhäusern zum dauerhaften Wohnen" 05.07.2010 — Umnutzung is **§ 54 BbgBO
+  genehmigungspflichtig** and **Bestandsschutz covers the Wochenend-Nutzung only**, never the
+  planning-law admissibility of the conversion.
+- **Score EACH structure's legality separately — the later add-ons are the real risk.** #645's Sauna is
+  visibly a much newer Blockbohlen build than the bungalow; a separate sauna cabin on an
+  Erholungsgrundstück is **not automatically verfahrensfrei (§ 61 BbgBO)**, and a Schwarzbau **never**
+  acquires Bestandsschutz however long it stands. Same for Carport, überdachte Terrasse, Massivschuppen.
+  Block G gets a numbered list (Bungalow / Sauna / Carport / Terrasse), not one blanket question. Missing
+  `Baujahr` (#633's rule) applies on top: without it, legal erection before 01.08.1990 isn't even arguable.
+- **The open Erschließungsbeitrag scales with the PLOT — which is what this class has a lot of.**
+  `obj_development: no_information` + photos showing an **unbefestigter Sandweg** as the only access ⇒
+  § 127 ff. BauGB still open, apportioned by **Grundstücksfläche** at 20–60 EUR/m² ⇒ on 2.493 m² that is
+  **49.860–149.580 EUR**, i.e. up to the purchase price again. Noise on a 500 m² Bauplot, the largest
+  number in the report on a 2.500 m² Wochenendplot. Compute it explicitly every time.
+- **"read for what is NOT named", #645 phrasing:** „Wasser- und Abwasseranlagen **im Außenbereich**
+  grundlegend erneuert" describes *private* installations on the plot (Brunnen / Grube / Kleinkläranlage),
+  **not** a mains connection — and no Trinkwasser-/Abwasseranschluss is claimed anywhere. A renovation
+  sentence is not a connection statement.
+- **Block-A proof trick: divide the ask by the Wohnbauland-BRW; the ratio is itself the verdict.**
+  2.493 m² × 140 EUR/m² (Ortslage Borkwalde 2026) = 349.020 EUR, and the seller asks **43 %** of that.
+  No agent gifts 200 TEUR ⇒ the price is its own proof the parcel is **not baureifes Wohnbauland**. Then
+  do the #633 split against the Erholungs-BRW band (see [[bodenrichtwert-brandenburg]]) to say what the
+  money actually buys.
+
+*(Fourth occurrence of the search-group misfiling — the whole Wochenend-/Freizeit/Wald section has now
+held across #518, #633, #644 and #645 and is stable. Promote to `modes/_shared.md` next to the Bauland
+block, together with the type-correct-search rule, the "score both readings" table and the free
+`wohn`-keyword Dauerwohnen tell.)*
+
+### Mobile-API gotcha on long exposés: `TEXT_AREA` text is TRUNCATED — and the web page won't rescue it
+`api.mobile.immobilienscout24.de/expose/{id}` cuts a long Objektbeschreibung mid-word (#645: 3.887 chars,
+ends „• Überdachte Te"). There is no `/expose/{id}/description` endpoint (404 `{"error":"what???"}`), and
+`https://www.immobilienscout24.de/expose/{id}` over plain curl returns **401** whatever the UA. So the
+tail is unrecoverable without a browser — **don't escalate for it.** On every case seen the cut lands in
+the closing „Highlights auf einen Blick" bullet recap, which only restates the prose above. Note "tail
+truncated by the API" and move on.
+**Why:** grabbing a browser purely to recover a bullet recap costs ~5× a curl-only run and takes a
+browser lock away from the parallel evaluators.
+
+### Cheapest photo evidence path: curl the `fullImageUrl` list to disk, then Read the files — no browser
+The gallery is the only source for Zufahrt, Dach-/Asbestbefund, Heizung and encumbrances, and it needs no
+browser: pull `sections[type=MEDIA].media[].fullImageUrl` out of the JSON, `curl` each into a scratch dir,
+and open them with the **Read tool** (`.webp` renders directly, no conversion). ~25 images = one loop.
+On #645 this alone produced: unbefestigter Sandweg as the only access, grey **Faserzement-Wellplatten**
+on Terrassendach + Nebengebäude (pre-1993 ⇒ Asbestzement, 3–8 TEUR disposal), Bitumen-/Teerpappe on the
+main roof, a **freistehender Elektro-Konvektor** in the living room + Ziegelschornstein ⇒ no
+Zentralheizung, DDR-Vertäfelung + 1990s bath ⇒ unsaniert, and mature pines over most of the 2.493 m² ⇒
+the Wald-dilution question. None of it appears in any structured field.
+Also: the last 1–2 „Fotos" are often an **Umgebungs-Collage** (signposts, Radweg, bus stop) — subtract
+them from the real-photo tally, but do read them; they are free Block-B evidence (#645's showed an
+Amt-Brück bus shelter on a paved village street ⇒ Ortsbus exists).
 
 ### Private exposés: when `TEXT_AREA "Sonstiges"` names the seller's OWN domain, fetch it — it carries what the exposé omits
 #633's Sonstiges ended with "…stehen unter: www.havelgrundstueck.de zur Verfügung". That one-object site
@@ -2887,6 +2974,25 @@ carries its own attribute set and its own defect-disclosure location. Read these
   = **§ 34 BauGB, no Bebauungsplan** ⇒ Art und Maß der Nutzung legally undetermined; combined with
   `obj_buildingPerm: n` the achievable Geschossfläche — the entire value basis — is the buyer's risk.
   Score Block E (= Erschließung/Baurecht on plots) on the *pair*: "Erschlossen" alone is not Baurecht.
+- **The MINIMAL plot exposé: when `Hauptkriterien` has only 2 rows, the missing fields ARE the finding.**
+  #643 (expose 142808782, Krentz, Jeserig) ships `Hauptkriterien` = *Vermarktungsart* + *Grundstück ca.*
+  and nothing else; `obj_development: no_information`, `obj_constAfter: no_information`,
+  `obj_buildingPerm: n`, `obj_shortTermBuild: n`. Confirm the gap with a keyword count over the whole
+  payload (`Erschließ|Abwasser|Kanal|Wasser|Strom|Bebauungsplan|B-Plan` → **0 hits in 31 KB**), then
+  **write the absence up as the finding rather than as "keine Angabe"**, because it is quantifiable:
+  an unstated Erschließung cannot be placed on the five-grade ladder, so per `_shared.md` a grade-3
+  **Erschließungsbeitrag runs 20–60 EUR/m² auf die Grundstücksfläche** — on 1.042 m² that is
+  **20.840–62.520 EUR**, i.e. it alone decides whether the plot clears `max_price_per_m2`. Always put
+  that scenario table in Block A and cap Block E ~2,0.
+  Two reading rules that come with it: **`obj_shortTermBuild: n` is the seller's own admission that the
+  Baurecht still has to be produced** (contrast #592's `y`), and the § 34 case is often stated only as
+  the *Einfügen*-formula in prose (*"mit einem sich in die Umgebung einfügenden Einfamilienhaus …
+  bebaubar"*) attributed to a **mündliche „Auskunft des Bauamtes"** — which the `Sonstiges` boilerplate
+  (*"Angaben des Eigentümers … keine Haftung"*) then disclaims, so it is rung 3–4 of the Baurecht ladder,
+  never rung 1. Watch the seller's own hedges in that sentence ("eventuell zwei Einfamilienhäuser").
+  **Why:** an exposé this thin reads as "nothing bad disclosed" and drifts to a mid-3 score on the
+  strength of price + size, while the one unpriced item in it can move the effective EUR/m² by 20–60
+  and breach the profile cap outright.
 - **`Empfohlene Nutzung: Mehrfamilienhaus` / `obj_recommendUtil: apartment_building` is the
   single fastest disqualifier for a private-buyer plot search.** It means the seller is marketing to
   Bauträger/Investoren; with `Kaufpreis: Auf Anfrage` such listings **bypass IS24's price filter**

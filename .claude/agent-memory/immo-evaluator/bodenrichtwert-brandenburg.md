@@ -40,6 +40,30 @@ depending purely on which aggregator you open first — one anchor alone decides
 | Roskow (inkl. OT Weseram, Lünow, Riewend) | Gemeindemittel ~49, Spanne 20–55 | Aggregator (understating family) → the **55 Oberwert** is the realistic Wohnbauland anchor. Not in the Kreis-PM. Used on #591. |
 | Niemegk (PM, SW-Rand, 14823) | Gemeindemittel 32–44, Spanne 10–50 | Aggregator (understating family) → **50 Oberwert** = realistic Wohnbauland-Ortslage anchor. Stichtag 01.01.2024/2025, y-o-y unverändert. Not in the Kreis-PM (Speckgürtel only). Used on #601. |
 | Havelsee (PM, NW-Kreis, 14798, inkl. OT Briest/Pritzerbe) | amtlich **44** (Spanne 20–70), Stichtag 01.01.2024 · Angebot **93** (23–207, 108 Objekte / 26-km-Radius) | `aktuelle-grundstueckspreise.de` in one fetch (both families). Not in the Kreis-PM. Used on #633. |
+| **Groß Kreutz (Havel)** (PM, RE1-Korridor W von Werder, 14550, inkl. OT Jeserig/Götz/Deetz/Krielow/Bochow/Schmergow/Schenkenberg) | amtlich **103** (Spanne **35–190**), Stichtag 01.01.2024 · Angebot **161** (71–291, 228 Objekte / 24 Mon. / 9-km-Radius), **−2,4 % y-o-y** | `aktuelle-grundstueckspreise.de`, one fetch (both families). Not in the Kreis-PM. Used on #592 (120 EUR/m² → unter Band) and #643 (172,74 → oberes Bandende). **Die Spanne 35–190 ist so weit, dass der Mittelwert 103 fast nichts über eine konkrete Parzelle sagt** — bei einem Angebot >150 EUR/m² immer den punktgenauen BORIS-BB-Wert als Next Step fordern. |
+
+| **Borkwalde** (PM, weiterer Metropolenraum, 14822, Amt Brück, RE7-Korridor) | **Ortslage Borkwalde amtlich 140**, Stichtag 01.01.2026, **gesenkt von 180** (auch „Wohnsiedlung Ortszentrum" −20) · Aggregator-Spanne Wohn-/Mischbebauung 100–200, Mittel 157 (−15,6 %) · Angebot **199** (59–287, 176 Objekte / 24 Mon. / **3-km**-Radius, −1,5 % y-o-y) | Die 140 stehen **wörtlich im Kreis-PM-PDF** (siehe unten) — für Borkwalde also *nicht* die Aggregator-Rate nehmen. Used on #645. |
+
+**Der PM-Kreis-PM nennt mehr als den Speckgürtel — grep ihn, bevor du zu den Aggregatoren gehst.**
+Die Warnung oben („Kreis-PM nur Speckgürtel") gilt für den *Nordwesten* des Kreises; für den **Südwesten
+am RE7** liefert dieselbe PDF konkrete Ortslagen-Werte im Fließtext. Aus `GA_PM_BRW_26.pdf` (Stichtag
+01.01.2026, beschlossen 28.01.2026) direkt entnehmbar: **Borkwalde Ortslage 140** (von 180),
+**Damsdorf 140** (von 180), **Fichtenwalde 160** (von 200), **Borkheide −20**, Bad Belzig Wohnsiedlung
+Friedrich-Engels-Str. 280, Seddiner See/Neuseddin 200→**270**, Kunersdorf Försterei 75→**130**,
+Nuthetal/Fahlhorst 80→**160**, Beelitz „Am Stellwerk" +30, Jeserig +30, Götz/Krielow +50, Pritzerbe
+Birkenwäldchen +40, Brielow (+ Am Seehof / Brielower Aue) 110→**130**, Schwielowsee: Caputh 550→**500**,
+Ferch 400→**360**, Geltow 500→**450**, neu Stücken Wohnpark Naeve 240, Lehnin Wohnpark Hohlweg 260.
+Kosten: ein `curl` + `pdftotext -layout` + `grep`. **Der Kreis hat 2026 mehr gesenkt als angehoben im
+Umland-Randbereich** — ein 2024er-Aggregatorwert überschätzt dort inzwischen systematisch.
+
+**Erholungs-/Wochenendflächen sind im PM eine eigene, publizierte Klasse — 93 BRW-Zonen "Sondergebiete
+Erholung" (2026).** Der Kreis-PM nennt einzelne davon und sie sind die einzigen brauchbaren Vergleichs­
+werte für ein Freizeitgrundstück: **Töplitz/Mühlenberg 80** und **Leest/Gohlwerder 80** (bebaute
+Erholungsflächen im Außenbereich) sowie **Leest/Galgenberg 40**. Das ergibt ein **Erholungs-Band von
+rund 40–80 EUR/m² im Werder-nahen Umland** — und weil das *Berliner Umland* ist, liegt der weitere
+Metropolenraum (Borkwalde, Brück, Beelitz-Rand) **darunter**. Die Aggregatoren führen diese Klasse für
+kleine Gemeinden **gar nicht** (für Borkwalde nur Wohn-/Mischbebauung + Forst 0,24) — die Lücke ist
+wertentscheidend und gehört als BORIS-BB-Next-Step in den Report.
 
 **On a Wochenend-/Erholungsgrundstück the Wohnbauland-BRW is a CEILING, not the anchor.** Every value in
 this table is Wohnbauland; Erholungs-/Wochenendflächen are a separate, materially lower BRW class. So on a
@@ -47,6 +71,18 @@ Freizeitgrundstück, state the Wohnbauland figure as the generous upper bound an
 below it — then split the ask into land vs. building/hope. #633: 506 m² even at the Wohnbauland **Oberwert 70**
 is only 35.420 EUR against a 119.000 EUR ask ⇒ ~84–110 TEUR pays a simple hut plus a pending B-Plan. Without
 that split the 235 EUR/m² reads as merely "5,3× BRW" and the report never says what the money actually buys.
+
+**Die Ratio Ask ÷ (Fläche × Wohnbauland-BRW) ist selbst der Beweis der Nutzungsart — und sie kann in
+BEIDE Richtungen zeigen.** #633 lag bei 5,3× BRW (die Hoffnung wird bezahlt). #645 (Borkwalde, 2.493 m²,
+150.000 EUR) liegt bei 2.493 × 140 = 349.020 EUR, also **43 % des Wohnbauland-Werts** — und *das* ist
+der Befund: kein Makler verschenkt 200 TEUR, also ist die Parzelle **kein baureifes Wohnbauland**.
+Ein auffällig *niedriger* EUR/m²-Wert auf einer großen Fläche ist bei dieser Klasse der Normalfall und
+darf **nie** das High-Signal „>20 % unter Markt" auslösen — gegen das Erholungs-Band (40–80) sitzt #645
+mit 60,17 EUR/m² brutto mittig, also marktkonform.
+**Und: der Bruttowert ist durch Wald verdünnt.** Bei ~800 m² gepflegter Erholungsfläche + ~1.700 m²
+Kiefernwald: 800 × 80 + 1.700 × 0,24 ≈ **64.400 EUR Boden** ⇒ ~85.600 EUR bezahlen die Hütte. Ohne die
+Nutzungsarten-Aufteilung des Flurstücks (Katasteramt/BORIS, kostenlos) ist Block A auf dieser Klasse
+eine Schätzung — mach sie zum Next Step, nicht zur Fußnote.
 
 **Second usable anchor found: `aktuelle-grundstueckspreise.de/deutschland/brandenburg/{kreis}/{gemeinde}`
 gives BOTH families on one page** — an explicit *Angebotspreis* mean+range with the sample size and radius,
