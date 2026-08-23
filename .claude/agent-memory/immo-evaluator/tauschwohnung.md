@@ -132,6 +132,24 @@ needed to reach it** (still score side 1 for the record — #661's flat was 4,3/
 Wunsch-Ortsteil in that sentence ("am liebsten in Drewitz") is a *preference* riding on a hard
 "in Potsdam" — do not upgrade it to an exclusion, and do not need it: the room floor already decided.
 
+**Third form: `gegen {M1}-{M2} Z` — a stated RANGE, and it passes when our 2 Zi hits its TOP.**
+#662 (Immowelt, „TAUSCHWOHNUNG Sonnige 3-Zimmwhn. mit Balkon **gegen 1-2 Z**", Am Stern Potsdam,
+3 Zi/60,20 m², 550 kalt/781 warm) = **the second side-2 PASS ever**, after #608. Read a range as a
+range: `1,5-2 Zimmer` is satisfied by our 2-Zi Golm flat at its upper bound, and "in Potsdam" is
+satisfied *literally* — Golm is a Potsdam Ortsteil, so no commuter-belt leniency is even needed.
+Here the Suche sat in **the title AND the first prose sentence, identically** — a new position pair;
+keep reading the tail anyway (it was pure boilerplate) but two agreeing statements up front make the
+verdict robust immediately.
+**Sub-rule that decided it: a large rent delta with NO stated ceiling is a PASS + a labelled
+inference, never a fail.** Their 550/781 vs our 1.025,25/1.214,93 = **+86,4 % kalt / +55,6 % warm
+(~+434 EUR/Mon.)** on an Indexmiete — by the #598 diagnostic ("downsizing for price") this smells
+like a decline. But #598 had an explicit `maximale Miete von 700 Euro`; #662 states **no P at all**,
+and an unstated ceiling must never be converted into an assumed one. ⇒ Keep it, and write the
+economic read as an explicitly-labelled inference (as on #641) plus the *counter-offer* the first
+message should lead with — here Bj. 2024 vs ~1975 Platte, EG + ~29 m² Garten vs 4. OG ohne Aufzug,
+Personenaufzug. *Why:* three of the five kill axes are about numbers the poster never wrote down,
+and inventing one of them would have discarded the best side-2 fit on record.
+
 ### A `Möbliert/Teilmöbliert` flag on a swap is NOT the furnished / "auf Zeit" hard blocker
 #653 (Kleinanzeigen, Tauschwohnung GmbH, 14055 Berlin-Westend) carries the checktag
 **`Möbliert/Teilmöbliert`** next to Balkon/Terrasse/Keller. Taken at face value that fires the
