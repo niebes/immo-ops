@@ -14,6 +14,19 @@ Aggregator. The detail page is thin and links out to the real source (Immowelt /
 - **SZ can silently DROP a Heizkosten line, so its Warmmiete reads low.** H22NXT showed `Warmmiete 1.945 = Kaltmiete 1.685 + NK 260`, but the sibling report on the same complex (#193) had a separate `Heizkosten 90` — i.e. the true warm figure is ~90 EUR higher than SZ's. Never quote SZ's Warmmiete as final; reconstruct it from the source.
 - **SZ's own price block is sometimes wrong — always cross-check, never trust silently.** Seen broken (#363): `Warmmiete 1.110` next to `Bruttokaltmiete 870`, `Nebenkosten 240`, `Heizkosten 120` — labels mislabeled, numbers don't add up. Seen exactly right (#364/GZFMWR): 870 kalt + 290 NK = 1.160 warm, Kaution 2.610, matching the Immowelt source field-for-field. So: take prices from the source, cross-check against an Ab-ins-Zuhause twin if one exists (it splits Kaltmiete/Heizkosten/Nebenkosten/Gesamtmiete cleanly), and report any discrepancy.
 
+- **SZ's "Warmmiete" label can actually be a *Pauschalmiete*.** When the price block shows a
+  single "Warmmiete" and the source's `Nebenkosten` is `0 €` with no Kaltmiete row, it is an
+  all-inclusive furnished let (§ 549 Abs. 2 Nr. 1 BGB) — a hard blocker, not a bargain warm
+  rent. Chase the Anbieter's own exposé, which labels it `Pauschalmiete` (see
+  `immobilien-de.md` and `homecompany.md`). Seen #659. *Why:* the scan gate compares that
+  number against `max_kaltmiete`/`max_warmmiete` and lets it through; only EUR/m² exposes it.
+- **SZ's PLZ is as unreliable as its breadcrumb Ortsteil** — and both can be wrong at once.
+  #659 carried PLZ `14193` + breadcrumb "Berlin-Charlottenburg-Wilmersdorf" for a street that
+  is actually **14199 Schmargendorf**; SZ just passes the source's field through unvalidated.
+  Get the street from the source's JSON-LD and check it against a street directory whenever
+  the Ortsteil decides scope. Do NOT fall back on the source `geo` — it is often a centroid of
+  the wrong PLZ.
+
 ## Dedup FIRST — before spending any effort on the listing
 After grepping the source expose URL out of the raw HTML (above), grep that expose ID against `data/pipeline.md` **before** extracting/scoring. SZ re-lists flats that were already scored under their source portal, and the SZ slug shares no token with the source URL, so slug-based dedup never catches it. Example: `.../helle-3-zimmer-wohnung-altbau-potsdam-babelsberg-GZFMWR` turned out to be `immowelt.de/expose/26nvt9lyf6y1` = already report **#334**, plus DUPE rows for the IS24 and Ab-ins-Zuhause copies of the same flat — a 4-way cross-post.
 `grep -i "{exposeId}" data/pipeline.md data/listings.md` (case-insensitively — SZ's HTML carries the ID uppercase, the pipeline row may hold it lowercase).

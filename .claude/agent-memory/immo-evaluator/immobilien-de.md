@@ -53,6 +53,31 @@ table field "Energieausweis nicht vorhanden" to CONTRADICT a described class (e.
 **Why:** without spotting "entsteht"/KfW you'd wrongly cap D at 3.0 on an in-budget Erstbezug for
 "example photos", and read the missing Energieausweis field as a real class-A contradiction.
 
+## `Nebenkosten 0 €` + a lone "Warmmiete" = **Pauschalmiete** = Wohnen auf Zeit
+immobilien.de has no Pauschalmiete field, so an all-inclusive furnished let renders as
+`Nebenkosten 0 €` / `Warmmiete {X} €` / "inkl. NK" and **no Kaltmiete row at all**. That
+shape is the tell, not a data gap: a heating flat rate is effectively unlawful in an
+ordinary multi-party tenancy (§ 2 HeizkostenV), so it only appears in **Wohnraum zum
+vorübergehenden Gebrauch, § 549 Abs. 2 Nr. 1 BGB**. Confirm against the Anbieter's own
+exposé, which *does* label the field `Pauschalmiete` (see `homecompany.md`).
+Corollary: § 549 lets are **exempt from the Mietpreisbremse** — that exemption is the
+whole reason such a flat can ask 2–3× the ortsübliche Miete. Write "not applicable *because
+of* § 549", never a bare "not applicable", and still quote the overshoot.
+**Why:** without this, `Nebenkosten 0 €` reads as sloppy data entry and a furnished
+Zeitmietvertrag gets scored as a normal unbefristete Wohnung (seen #659; cf. #647).
+
+## The PLZ can be wrong at Ortsteil granularity — and the geo won't catch it
+JSON-LD `address.postalCode` is supplied by the Anbieter and is not validated against
+`streetAddress`. Seen #659: `Ruhlaer Straße 1` tagged `14193` (Grunewald) when the Berlin
+street directory / Kauperts put that street unambiguously in **14199 Schmargendorf** — and
+the listing's own free text said "in Berlin-Schmargendorf". The JSON-LD `geo` does **not**
+disambiguate: it was 52,4779/13,2844, a **centroid of the (wrong) PLZ**, ~1,3 km off the
+real street. So: always cross-check `streetAddress` against a street directory when the
+Ortsteil is load-bearing, and read the description prose — the Anbieter usually names the
+Ortsteil correctly there even when the PLZ field is wrong.
+**Why:** the PLZ is what routes a listing into a search group, so a wrong one silently
+puts an out-of-area flat into an area-strict search and Block B scores the wrong place.
+
 ## Expiry / early-exit
 Deleted listings would show "nicht gefunden"/"nicht mehr". The metadata price hint
 (Kaltmiete) differs from JSON-LD price (Warmmiete) — that mismatch is normal, not
