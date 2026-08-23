@@ -18,8 +18,10 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   sweep together) and **#658, 7th clean run** (628 KB, `blocked=false`, ~50 s; two Bash calls again)
   and **#660, 8th clean run** (626 KB, `blocked=false`, ~60 s; two Bash calls again)
   and **#661, 9th clean run** (624 KB, `blocked=false`, ~60 s — one fetch + one offline mine
-  answered a whole duplicate-check).
-  Nine for nine ⇒ treat it as reliable, not as a lucky path.
+  answered a whole duplicate-check)
+  and **2026-08-23 Stiftstr. 8a re-check, 10th clean run** (616 KB, `blocked=false`, ~60 s —
+  one fetch + one offline mine settled a DUPE-vs-relisting call end to end).
+  Ten for ten ⇒ treat it as reliable, not as a lucky path.
   ⚠ **Mine the embedded JSON with `indexOf(key)` + a slice, NOT with a `"key":"value"` regex.** On
   #660 the payload was **triple**-escaped (`\\\"zipCode\\\":\\\"14476\\\"`), so every documented
   regex (`/"address":\{…/`, `/"hardFacts":…/`, `/"titleAdditions":…/`, `/"floorplans":…/`) returned
@@ -40,6 +42,16 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
 - **invisible-playwright works first-try** (2026-07-11, #310): `new_page` → title already shows price/m²/address; `document.body.innerText` returns the FULL expose in one `evaluate_script` (no truncation), incl. Merkmale, Mietkosten, Sonstiges, Anbieter name + rating. No consent wall. Real gallery `<img>`s ARE present in the DOM here (filter out `/shared/images/` placeholders) — the "photos absent from DOM" note below was observed under CiC only.
 - **Mine the embedded JSON, not the rendered text, once you have the raw `innerHTML`.** One blob near the end of the document holds everything in clean form: `"hardFacts":{...,"facts":[{"type":"numberOfRooms"…},{"type":"livingSpace"…}],"price":{…}}`, `"sections":{"location":{"address":{"street","district","zipCode","city"},"geometry":{coordinates}}}`, the media array (`url` + `description` = the original filename + `classification.name`), and `"floorplans":[]` / `"videos"` / `"virtualTours"`. `floorplans:[]` is the definitive "no Grundriss" answer.
   - **A plain keyword grep returning 0 for `Balkon`/`Keller`/`Baujahr`/`Etage` really does mean the field is absent** — Immowelt does not hide them behind escaping or a different token (checked `constructionYear`, `BALCONY`, `CELLAR`, `LIFT`, `BUILT_IN_KITCHEN`: all 0 on a listing that genuinely stated none). So a 0-count sweep is trustworthy as "not stated"; it still is not "confirmed absent" (see the Keller rule below).
+  - **`rawData.tags` is a free re-check/dedup panel: `{"has3DVisit","hasBrokerageFee","isNew"}`.**
+    `hasBrokerageFee:false` settles the Bestellerprinzip/Provision question without a keyword sweep,
+    and **`isNew` flips true→false as the ad ages** — on the Stiftstr. 8a re-check (2026-08-23) it was
+    the *only* field that had changed since 2026-08-15, every price/size/Merkmal/photo field being
+    byte-identical. Nearby, `defaultBackToSearch` leaks the lister's own `priceMin`/`priceMax` band.
+    ⇒ When an expose resurfaces from a second portal, diff `Online-ID` + `hardFacts` + `Kaution` +
+    photo count: all equal ⇒ **DUPE of the existing report, not a re-listing** — an unchanged ad whose
+    `isNew` merely dropped is the signature of "still the same posting, just older". *Why:* the same
+    Immowelt expose reaches the pipeline repeatedly through aggregators (Ab ins Zuhause, Süddeutsche)
+    and a re-listing would reset `isNew` to true and usually move a number.
   - **The `Merkmale` list can legitimately hold a single entry** (#596: only `Bezug: 2026-08-31T00:00:00Z`). That is a real, extremely sparse listing, not a failed extraction — don't keep re-fetching looking for the missing Ausstattung.
   - **Photo classifications double as an amenity probe.** 12 photos all classified as interior rooms (LIVING_ROOM/BEDROOM/KITCHEN/BATHROOM/HALLWAY/CLOSET/HOME_OFFICE) with **no** outdoor/balcony frame is decent evidence that there is no Balkon/Terrasse when the text is silent — enough to take the Block-E must-have penalty, phrased as "not evidenced" rather than "confirmed absent".
 - **Energieausweis can legitimately be absent: `"Ein Energieausweis ist für diesen Gebäudetyp nicht notwendig."`** appears in `data-testid="cdp-energy-certificate-preview"` in place of the scale. On a Baudenkmal this is the § 79 Abs. 4 GEG exemption — **do NOT fire the "Missing Energieausweis" scam signal** for it, but do note that the energy performance is then unverifiable (Block D). Such listings also omit the Baujahr; recover it from the Wikipedia Denkmalliste — see `potsdam-mietspiegel.md` → "Baujahr HARD bekommen".
