@@ -480,6 +480,36 @@ genaue Adresse dransteht. Preisniveau 2026: 14,71 EUR/m² kalt für 85 m² kam v
 *Why:* ohne den Anker wird für jede Golm-Wohnung neu recherchiert, und der naheliegende Reflex
 „Golm = Uni-Neubau ⇒ ab 2021 ⇒ § 556f, Bremse egal" ist bei zwei von drei Feldern schlicht falsch.
 
+### Unterher: Quartier **„In der Feldmark"** (Golm, 14476) — eigener Sub-Anker
+Das ist **unsere eigene Straße** (`swap_offer` In der Feldmark 29, Bj. **2024**, DIBAG Hausverwaltung
+für **Bayerische Städte- und Wohnungsbau GmbH & Co. KG**). Anzeigen von dort tauchen wiederholt auf
+(#660 als Wohnungsswap-Tauschanzeige, Headline `Wohnungsswap - In der Feldmark`) und nennen **nie**
+ein Baujahr oder einen Energieausweis. Was man deshalb nicht neu recherchieren muss:
+- **Baualtersklasse = ab 2021** ⇒ Mietspiegelfeld je m²-Spalte, und **§ 556f BGB ⇒ Mietpreisbremse
+  nicht anwendbar** (trotzdem beide Begründungen in den Report schreiben). Der Unterschied ist groß:
+  *ab 2021 · Spalte C* = **15,72 (10,52–19,00)** vs. *2013–2020 · C* = 12,06 (11,23–12,74).
+- **Preisregime (EUR/m² kalt):** eigene Wohnung 1.025,25 ÷ 54,19 = **18,92** · #660 1.280 ÷ 70,53 =
+  **18,15**. ⇒ ~18–19 EUR/m² ist dort normal und **kein Scam-Signal**, liegt aber über dem
+  Profil-Cap `max_price_per_m2: 18` und ~15 % über dem Mietspiegel-Mittelwert.
+- **Nebenkosten ≈ 3,50–3,55 EUR/m²** (eigene 189,68 ÷ 54,19 = 3,50; #660 250 ÷ 70,53 = 3,54).
+  Deckungsgleiche NK sind zugleich der beste Beleg, dass eine Anzeige wirklich aus diesem Quartier
+  stammt.
+- **Kein Kellergeschoss im Quartier** — unsere Wohnung hat keinen Keller, #660 ebenfalls nicht
+  (vollständige Merkmale-Liste ohne Keller-Chip, 0 `Keller`/`Abstellraum`-Treffer im HTML, kein
+  Kellerfoto). ⇒ Der Profil-Must-have `keller` fällt bei **jeder** Feldmark-Anzeige aus, Block E
+  landet dort systematisch bei 2,0. Kontaktfrage: gibt es überhaupt anmietbare Abstellräume?
+- **Vertragsform:** unser Vertrag ist **Indexmiete (§ 557b BGB)**; bei Nachbarwohnungen dasselbe
+  annehmen und erfragen. Zusammen mit § 556f heißt das: bei Mieterwechsel ist die Miete **frei neu
+  setzbar** — eine niedrige Bestandsmiete in einer Tauschanzeige ist keine Preiszusage.
+- **Block B:** REWE und Bahnhof Potsdam-Golm fußläufig, Bushaltestelle direkt — das ist die *gute*
+  Ecke Golms, also **4,8** statt der generischen 4,5.
+- **Sonderweg statt Tausch:** wird dort eine Wohnung frei, sind wir Bestandsmieter **desselben**
+  Vermieters ⇒ interner Wohnungswechsel über DIBAG (Carola Dembicki / Melanie Heinke) ist der
+  bessere Pfad als ein Tausch — er braucht keine Tauschpartner-Zustimmung. Immer in „Next Steps".
+*Why:* #660 wäre sonst als reiner Tausch-Discard abgelegt worden, obwohl die eigentliche Chance ein
+Nicht-Tausch-Pfad im eigenen Haus ist — und Baujahr/Keller/Indexmiete werden dort sonst jedes Mal
+als „unbekannt" gescort, obwohl sie firsthand feststehen.
+
 ## Umland: **Beelitz-Heilstätten** — eigener Mietanker + die 20-Minuten-Lüge der Exposés
 Der Scan liefert laufend Neubau-**Reihenhäuser zur Miete** aus dem QUARTIER BEELITZ-HEILSTÄTTEN
 (#207, #326, #336, #486, #611). Zwei Dinge, die sonst jedes Mal neu recherchiert werden:
