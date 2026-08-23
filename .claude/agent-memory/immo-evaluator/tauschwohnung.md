@@ -206,6 +206,34 @@ stated and it alone decides.
     body, and the existing `gegen \d+\+? ?Z` title regex catches it in the headline. #665 was
     decidable from either.
 
+**Sixth form: the SPLIT Suche — the WHERE in the first sentence, the DIRECTION in the
+second-to-last paragraph, and no number anywhere.** #668 (Immowelt `42a71ce9-…`, Brandenburger
+Vorstadt, 3 Zi/70 m², 570+260): headline „TAUSCHWOHNUNG Sonnendurchflutete Altbauwohnung im
+Seitenflügel" carries **no `gegen …` half at all** (pure self-description, the #664 shape), and the
+Suche is two sentences that sit at opposite ends of the body:
+  1. first paragraph — „hiermit bieten wir unsere Wohnung zum Tausch an. **Wir suchen eine
+     Tauschwohnung in Potsdam West.**" (the WHERE, and nothing else);
+  2. second-to-last paragraph, right before the tauschwohnung.com boilerplate — „Da unsere
+     **Familie immer weiter wächst**, ist die Wohnung **zu klein für uns geworden**." (the
+     DIRECTION — the #606 household clause, here without a Personenzahl).
+⇒ **Neither half alone decides, and each half alone looks like a lenient PASS.** Read in
+isolation, sentence 1 is "a Suche with zero numbers" (⇒ #641/#608 lenient KEEP) and sentence 2 is
+just the poster's reason for moving. Together they are two independent hard fails. So the
+"silent Suche ⇒ KEEP" rule needs a stricter trigger: **silent means the title AND every prose
+paragraph, including the motive sentence.** Grep the *motive* (`wächst|zu klein|Familie|Nachwuchs|
+Zuwachs|mehr Platz`) as a first-class Suche criterion, not as colour.
+  - **An Ortsteil-level target inside our own city is still an area FAIL.** „in **Potsdam West**"
+    is not „in Potsdam": Golm is a Potsdam Ortsteil, but ~6,5 km from the one they named, and
+    there is no `am liebsten` / `ggf. auch` / `bevorzugt … aber` softener. Do not let the shared
+    city name upgrade it to a match — the #662 „in Potsdam" *literal* pass only works when the
+    poster wrote the bare city.
+  - Rent axis was a lenient PASS (no ceiling stated) but ran hard against us for once: their
+    570/830 vs our 1.025,25/1.214,93 = **+79,9 % kalt / +46,4 % warm** on an Indexmiete. Write it
+    as a labelled inference (#662 rule) and say plainly that direction + Ortsteil, not the money,
+    decided.
+  - Side 1 still passed at **4,2** (both must-haves double-evidenced), so the "watch for it as a
+    normal Vermietung" follow-up applies — check the side-1 number before writing that line (#610).
+
 **Anbieter-ID magnitude ≈ how long the swap has been unmatched.** Recent GmbH-feed posters ran
 113343 (#662), 338350 (#664), 427872 (#661), 476848 (#641); #665 was **38298** — an order of
 magnitude lower, i.e. a long-standing tauschwohnung.com account, and Immowelt's `tags.isNew` was
