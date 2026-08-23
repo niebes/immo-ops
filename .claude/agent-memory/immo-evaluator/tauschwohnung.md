@@ -272,6 +272,34 @@ at all. Record "Suche unknown", fall back to their own flat as the yardstick, ap
 months and may come back. Either way it is ONE curl, not four: the ID on a Kleinanzeigen swap is never
 a housing id, so the outcome is known before you send it.
 
+**Where the free-text Suche sits on the Immowelt/Tauschwohnung-GmbH variant: the SECOND-TO-LAST
+paragraph, immediately before the "Diese Anzeige wurde von einem Nutzer eingestellt …
+tauschwohnung.com stellt nur die Plattform bereit" legal boilerplate.** #664: headline was pure
+self-description ("TAUSCHWOHNUNG Biete 3 Raum Babelsberg mit kleinem Garten EG Perfekte Lage" — no
+"gegen …" half), and the whole side-2 input was one sentence in that slot: *"Wir suchen eine 3
+Wohnung **ab 85 m2** mit Balkon, Terrasse oder Garten in Babelsberg, Innenstadt, Berliner- oder
+Templiner Vorstadt oder Klein Glienicke."* ⇒ **A silent TITLE is not a silent Suche** — read the
+full description down to the boilerplate before invoking the lenient-KEEP rule of the next section.
+Two sub-details from the same ad:
+- **An alternative-set Ausstattungswunsch ("Balkon, Terrasse **oder** Garten") is satisfied by our
+  Golm garden** — it is the one criterion our offer routinely meets, and it never rescues a numeric
+  fail. Score it ✓ in the checklist so the email row is honest, then let axis 3 decide.
+- **A named Ortsteil list with NO openness clause is an area FAIL** — the exact mirror of #606's
+  "Bevorzugt A, B, C … aber bietet gern alles an" (lenient PASS). The presence/absence of a closing
+  openness sentence is the whole difference; on Immowelt there is no `radius` field to fall back on
+  (axis 5 is IS24-NUXT-only — `roomsMin`/`sizeMin`/`rentMax`/`selectedGeos` return **0 hits** in
+  636 KB of Immowelt HTML, and the only price pair on the page, `defaultBackToSearch`
+  priceMin/priceMax, is a mechanical ±20 % window around the asking price, see `immowelt.md`).
+
+**Cross-PORTAL swap dupes: Tauschwohnung GmbH syndicates one flat to Kleinanzeigen AND Immowelt.**
+Strong candidate pair seen 2026-08-23: report #641 (Kleinanzeigen, Babelsberg, 700 EUR / 60 m² /
+3 Zi / 1. OG, 2021 renoviert, 5 Fotos, Anbieter-ID 476848) vs the queued Immowelt expose
+`94b8c035-…` (700 EUR / 60 m² / 3 Zi, Babelsberg Nord, Tauschwohnung). Since the `Referenznummer`
+on a swap is the syndicator's per-platform id, it can NOT settle this — dedup on the prose
+fingerprint (Etage + Fotoanzahl + Renovierungsjahr + Suche-Zeile). *Why:* the existing note below
+only covers Immowelt-vs-Immowelt (Wohnungsswap.de vs Tauschwohnung GmbH); the same ad also crosses
+portals, and a second full evaluation of #641 would be pure waste.
+
 ### Side-2 sub-case: the TOTALLY silent Suche (no "gegen X" title, no Suche sentence at all)
 #641 (Kleinanzeigen, "TAUSCHWOHNUNG Klein aber Fein: 3-Zimmer-Wohnung in Babelsberg", 60 m² / 3 Zi /
 700 EUR): the description describes only their own flat and ends in the tauschwohnung.com boilerplate —

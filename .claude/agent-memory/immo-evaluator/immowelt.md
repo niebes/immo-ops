@@ -8,8 +8,8 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   - **CiC entry sequence that works (stable — 4th clean run 2026-08-20 #632; a full rental expose costs ~6 `javascript_tool` calls):** `tabs_context_mcp{createIfEmpty:true}` (a bare `tabs_create_mcp` errors with "No tab group exists for this session yet") → `tabs_create_mcp` → `navigate{tabId}` → `javascript_tool`. The 2026-07 "first navigate lands on chrome://newtab" no-op has NOT recurred in two runs; one navigate loads the expose. A full rental expose is only ~4,3 k chars of `innerText` ⇒ **4–5 `javascript_tool` calls total** (900-char head, 2–3 body slices, one combined regex sweep). *Promotion candidate: this CiC-first-on-Immowelt rule has been stable since 2026-07-20 — worth moving into `evaluate.md` / `portals.yml` notes.*
 - **When CiC is DOWN ("Browser extension is not connected"), do NOT fall back to the invisible-playwright *MCP* — drive the same stealth Firefox from a script instead. It does not hang.** The wedge above is a property of the MCP server path (`new_page`), not of the browser. Spawn the driver exactly the way `scripts/scan.mjs` does and send one eval command on stdin:
   `spawn('bash', ['scripts/invisible-venv.sh','scripts/invisible-driver.py'], {cwd: ROOT, env:{...process.env, IP_HEADLESS:'true', IP_LOCALE:'de-DE', IP_TIMEZONE:'Europe/Berlin', IP_STORAGE_STATE:'tmp/browser-state.json'}, stdio:['pipe','pipe','inherit']})` → wait for the `{ready:true}` line → write `JSON.stringify({cmd:'eval', url, snippet})+'\n'` → the reply is `{ok, result, blocked}`.
-  **Thirteen for thirteen clean runs, 2026-08-15 → 2026-08-23** (#596, #636, #637, #655–#658, #660,
-  #661, #662, #663, the Stiftstr. 8a re-check, and the Potsdamer Str. 18 dupe check): always
+  **Fourteen for fourteen clean runs, 2026-08-15 → 2026-08-23** (#596, #636, #637, #655–#658, #660,
+  #661, #662, #663, #664, the Stiftstr. 8a re-check, and the Potsdamer Str. 18 dupe check): always
   `blocked=false`, ~50–60 s
   end-to-end, 616–685 KB of `innerHTML`, and **no truncation** — a single eval returns `title` +
   `innerText` (4–5 k chars) + the whole `innerHTML` together, so ONE call covers liveness AND the full
@@ -41,7 +41,13 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
     `hasBrokerageFee:false` settles the Bestellerprinzip/Provision question without a keyword sweep,
     and **`isNew` flips true→false as the ad ages** — on the Stiftstr. 8a re-check (2026-08-23) it was
     the *only* field that had changed since 2026-08-15, every price/size/Merkmal/photo field being
-    byte-identical. Nearby, `defaultBackToSearch` leaks the lister's own `priceMin`/`priceMax` band.
+    byte-identical.
+    ⚠ **CORRECTION (2026-08-23, #664): the neighbouring `defaultBackToSearch` band is NOT the lister's
+    own search — it is a mechanical ±20 % window around the asking price** (`priceMin=520&priceMax=780`
+    on a 650 € ad = 650×0,8 / 650×1,2 exactly). It carries zero information and must never be quoted as
+    a market/price band in Block A. *Why:* an earlier version of this note claimed it leaked the
+    lister's priceMin/priceMax, and it read as an independent corroboration of a rent estimate; test it
+    with the ×0,8/×1,2 arithmetic before using it and it collapses every time.
     ⇒ When an expose resurfaces from a second portal, diff `Online-ID` + `hardFacts` + `Kaution` +
     photo count: all equal ⇒ **DUPE of the existing report, not a re-listing** — an unchanged ad whose
     `isNew` merely dropped is the signature of "still the same posting, just older". *Why:* the same
