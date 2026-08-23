@@ -171,6 +171,18 @@ des Nachfolgers.** Bei Mieterwechsel/Tausch greift die Mietpreisbremse neu (zul�
 ~227 EUR/Monat**), sonst liest sich Block A als Schnäppchen, das es für uns nie gewesen wäre.
 **Warum:** ohne diese Gegenprobe wird eine völlig normale Wohnung als „Likely Scam" abgestempelt,
 und in Suchgruppen mit vielen Tauschwohnungen (Grunewald-Batch: 610–1.200 EUR) reihenweise.
+**Dritte Gegenprobe #658** (10589 Charlottenburg, 1.200 EUR / **140 m²** = **8,57 EUR/m²**, gemeldet
+als „8,57 — nicht als Scam werten"): Baujahr **nicht angegeben**, Ausstattung (Parkett, Personen­aufzug,
+Gäste-WC, Balkon *und* Terrasse) deutet auf **bis 1918 / ab 110 m² = 6,30/8,84/13,24** ⇒ der Preis
+liegt praktisch **auf dem Mittelwert**. Wichtig für die Robustheit ohne Baujahr: **Gegenprobe über die
+Baualtersklassen statt über die Wohnlagen** — 1919–1949 ab 65 = 6,37/**8,11**/11,93 und 1950–1964
+ab 90 = 7,49/**10,00**/12,78; in *jeder* plausiblen Klasse liegt 8,57 innerhalb der Spanne. Wenn das
+Baujahr fehlt, ist diese Klassen-Gegenprobe genau so viel wert wie sonst die Wohnlage-Gegenprobe und
+macht die Aussage vom unbekannten Feld unabhängig. Falsifikation erneut 0/0/0/0 (WBS-Sweep).
+**Nachfolgemiete-Delta** hier besonders groß, weil die Fläche groß ist: +10 % = 9,72 EUR/m² ⇒
+~1.361 EUR, Spannen-Oberwert +10 % = 14,56 ⇒ ~2.039 EUR ⇒ Risiko **~161 bis ~839 EUR/Monat**.
+⚠ Und: bei fehlender Nebenkostenangabe (0 Treffer NK/Heizkosten) ist die **Warmmiete** einer
+140-m²-Wohnung nicht ableitbar — die niedrige Kaltmiete allein sagt nichts über die Gesamtbelastung.
 
 Review: Mietspiegel-Neuausgabe im Zweijahresrhythmus, nächste **2028** erwartet; die
 Mietenbegrenzungsverordnung läuft bis 31.12.2029 — vor 2030 nichts nachzuschlagen.
