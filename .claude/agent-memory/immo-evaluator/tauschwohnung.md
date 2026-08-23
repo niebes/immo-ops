@@ -174,6 +174,37 @@ card blob is not.)
     city (Potsdam) is a second, softer fail: commuter-belt leniency formally applies, but the
     direction points *away* from where our offer is. Record it as a soft miss under the hard one.
 
+**Fifth form: the SINGLE-CRITERION Suche — one bare room count and literally nothing else.**
+#665 (Immowelt `1fdae0cc-…`, Berliner Vorstadt Potsdam, 3 Zi/104 m², 1.300+350): title
+„… **gegen 4 Zimmer**", body paragraph „**Wir suchen eine 4 Zimmerwohnung.** Am liebsten mit
+Badewanne und Balkon/Terrasse." That is the *entire* Suche — **no Stadt, no Ortsteil, no m², no
+Mietobergrenze, no Personenzahl**. It is the mirror of #598 (rent-only Suche): exactly one axis is
+stated and it alone decides.
+  - **Do not read the silence on area/rent as a fail — both are lenient PASSes, and here the rent
+    axis ran strongly in OUR favour** (our 1.025,25 kalt / 1.214,93 warm = −21,1 % / −26,4 % below
+    their own 1.300 / 1.650, i.e. the swap would *save* them money). Write that as a labelled
+    inference and state plainly that only the room count decided. *Why:* a report that lists five
+    silent axes as "unclear" reads like a marginal call when it is actually a clean single-axis fail.
+  - **`4 Zimmerwohnung` written as a flat noun is still an absolute floor**, not a range and not a
+    wish — same class as #663's `4+`. Two rooms above our only offer ⇒ axes 1 (they hold 104 m² and
+    are upsizing) and 3 (numbered room floor) fire together.
+  - **Generalise the `am liebsten` softener beyond the Ortsteil case (line ~132):** it softens
+    *whatever follows it*, Ortsteil **or** Ausstattung. „Am liebsten mit Badewanne und
+    Balkon/Terrasse" is a preference, so our missing Balkon is a con and never a fail — and the
+    alternative-set half is the one thing our ~29 m² Golm garden half-answers. It still cannot
+    rescue the numeric fail.
+  - **Cheap prefilter:** `such\w* (eine?|nach) .{0,20}\b(\d)[ -]?Zimmer` catches this shape in the
+    body, and the existing `gegen \d+\+? ?Z` title regex catches it in the headline. #665 was
+    decidable from either.
+
+**Anbieter-ID magnitude ≈ how long the swap has been unmatched.** Recent GmbH-feed posters ran
+113343 (#662), 338350 (#664), 427872 (#661), 476848 (#641); #665 was **38298** — an order of
+magnitude lower, i.e. a long-standing tauschwohnung.com account, and Immowelt's `tags.isNew` was
+`false`. Not a scam signal and not a scoring input, but a useful freshness read: a very low id on a
+still-live ad means the poster has been looking for a long time (⇒ their stated criteria are
+probably firm, not an opening position). Complements the *cross-portal dedup* use of the same field
+documented below.
+
 ### A `Möbliert/Teilmöbliert` flag on a swap is NOT the furnished / "auf Zeit" hard blocker
 #653 (Kleinanzeigen, Tauschwohnung GmbH, 14055 Berlin-Westend) carries the checktag
 **`Möbliert/Teilmöbliert`** next to Balkon/Terrasse/Keller. Taken at face value that fires the
