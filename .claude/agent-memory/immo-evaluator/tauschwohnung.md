@@ -270,6 +270,16 @@ scoring the partner's Altvertrag price as if it were ours. Corollary: a cheap sw
 *signature* of an Altvertrag, which is why the "> 20 % unter Mietspiegel" High scam signal must not
 fire on it — it needs an address-precise band, and against the **ortsübliche** Vergleichsmiete these
 prices usually sit ABOVE the Mittelwert, not below.
+  ⚠ **The Altvertrag premise is an inference, not a given — test it against the Angebotsanker.**
+  #669: 1.100 EUR / 75 m² = **14,67 EUR/m²**, i.e. ~−5 % off the Potsdam Angebotsanker (~15,51) and
+  **+95,9 % over** the ortsübliche Vergleichsmiete (bis 1948 · kein EA · Spalte C = 7,49). Every
+  other swap in the series sat at 6–12,6 EUR/m². At Angebotsmarktniveau there is **no Altvertrag to
+  inherit**, so the "consent may come as a new contract" risk is already priced in — and the real
+  Block-A story flips to a **Mietpreisbremse overshoot** (zulässig 8,24 EUR/m² = 618 EUR ⇒ +78 %),
+  making § 556g Abs. 3 BGB (Vormiete, Baujahr, Modernisierungsumfang) the first contact question
+  instead. ⇒ Rule of thumb: swap €/m² near the Angebotsanker ⇒ young contract, Mietpreisbremse
+  check; swap €/m² at half the Angebotsanker ⇒ Altvertrag, successor-rent question. *Why:* writing
+  "Bestandsmiete, günstig geerbt" on a 14,67-EUR/m² ad would invert the actual risk.
 
 ## Even on IS24 the object-specific twg.click link is NOT guaranteed — check "Weitere Links" first
 Some IS24 swap exposés carry only the **generic** `https://twg.click/is24-homepage` in the
@@ -371,7 +381,15 @@ Two sub-details from the same ad:
   „…, *ggf. auch Potsdam*" appended to a Berlin-Ortsteil list is a genuine openness clause ⇒ area
   PASS on the poster's own wording, no commuter-belt leniency needed.** Grep the tail of the Ort
   clause for `ggf|eventuell|evtl|oder Umgebung|auch in|gern auch|am liebsten` before calling an area
-  fail — the clause is usually 2–3 words and easy to read past. On Immowelt there is no `radius` field to fall back on
+  fail — the clause is usually 2–3 words and easy to read past.
+  **Fourth documented form, #669: the openness word LEADS the clause instead of trailing it —
+  „**Am besten** auch in Babelsberg oder in zentraler Lage in Potsdam."** Two named targets, both
+  narrower than Golm, yet „am besten" (+ the „auch") frames the whole clause as a *preference*, so
+  it is an area **PASS** — and the follow-up „zentraler Lage in Potsdam" names our own city, which
+  Golm is part of. ⇒ Add `am besten|bevorzugt|vorzugsweise|idealerweise|vor allem` to the grep and
+  check the **head** of the Ort clause too, not only its tail. *Why:* scanning only for a trailing
+  clause makes a leading „Am besten" invisible and converts a lenient PASS into a bogus area fail —
+  which then hides *which* axis really killed the swap. On Immowelt there is no `radius` field to fall back on
   (axis 5 is IS24-NUXT-only — `roomsMin`/`sizeMin`/`rentMax`/`selectedGeos` return **0 hits** in
   636 KB of Immowelt HTML, and the only price pair on the page, `defaultBackToSearch`
   priceMin/priceMax, is a mechanical ±20 % window around the asking price, see `immowelt.md`).
@@ -405,6 +423,24 @@ headline has no `gegen …` half; body is self-description + boilerplate; `Kelle
 Garten/Baujahr/möbliert/WBS/Aufzug/Einbauküche` = **0 hits in 616 KB**, and there is no `"features"`
 key at all — the Merkmale block is entirely absent, not merely truncated) ⇒ #641's lenient-KEEP
 stands, now on two independent posts.
+
+### The Suche can be a COORDINATED CLAUSE of the self-description sentence, not a sentence of its own
+#669 (Immowelt, Babelsberg Süd): the entire description is three sentences, and the middle one is
+*„Wir wohnen in der Hochparterre eines schönen Altbaus mit 3 Zimmer, Flur, Küche, Bad und einer
+Loggia **und suchen mind. 4 Zimmer**. Am besten auch in Babelsberg oder in zentraler Lage in
+Potsdam."* — i.e. the Suche hangs off the self-description by a bare `und`, sharing its subject.
+Sentence-splitting or paragraph-hunting ("which paragraph is the Suche?") finds **one** paragraph
+that reads as pure self-description and can be filed as "silent". ⇒ Match on the **verb**
+(`suche|suchen|gesucht|wünschen uns|bräuchten|benötigen`) anywhere in the body, not on a
+sentence/paragraph boundary, and always read the self-description sentence to its end. *Why:* this
+is the cheapest Suche shape to miss (whole side 2 in nine words), and missing it flips a determined
+DISCARD into a bogus "Suche unknown → lenient KEEP".
+  - Also #669's positive lesson: **a Suche can be lenient-PASS on every axis but one and still be a
+    determined fail.** Area PASS („Am besten …"), m² unstated, no rent ceiling, no Ausstattung, no
+    Bausubstanz, and — a first in 14 swaps — the **money axis running in OUR favour** (their
+    1.100/1.350 vs our 1.025,25/1.214,93, i.e. the partner would pay *less*). One numbered floor
+    („mind. 4 Zimmer") killed it anyway. ⇒ Never let an accumulating run of PASSes soften the
+    reading of the one written number, and say in the report which single axis decided.
 
 ### Side-2 sub-case: the TOTALLY silent Suche (no "gegen X" title, no Suche sentence at all)
 #641 (Kleinanzeigen, "TAUSCHWOHNUNG Klein aber Fein: 3-Zimmer-Wohnung in Babelsberg", 60 m² / 3 Zi /
