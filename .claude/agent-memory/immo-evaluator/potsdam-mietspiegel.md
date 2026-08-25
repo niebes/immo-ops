@@ -402,6 +402,22 @@ Vermieter nicht, wenn die Vormiete niedriger war → gehört als Deckelrechnung 
 Preisrisiko „unbegrenzt". *Why:* ohne den Anker wird eine Babelsberg-Nachmieteranzeige entweder als
 Scam-Schnäppchen oder als „Miete kann beliebig steigen" fehlgelesen.
 
+### Dritte Teillage in 14482: **Medienstadt Babelsberg (Marlene-Dietrich-Allee & Umfeld)** — Neubau-Korridor, nicht Altbestand
+Babelsberg Süd zerfällt preislich in **zwei** Teillagen, nicht eine: (a) der ältere, günstige Bestand
+mit der adressgenauen priceBar 6,10–9,60 EUR/m² (s. o.) und (b) die **Medienstadt** um die
+Marlene-Dietrich-Allee — Filmpark/Studio Babelsberg/rbb, überwiegend Nachwende- bis Neubau
+(Projekte **„LOLA"** und **„Marlene 21"**, KW Development). Dort gilt das Angebotsniveau des neueren
+Bestands (15–18 EUR/m² und darüber), und die Mietspiegelzeile ist **nicht** die Plattenbau-/Altbau-
+Zeile. Praktische Folge: Baujahr auf dieser Straße zwischen **1991–2008 (9,10 in Spalte D)** und
+**ab 2021 (16,73)** bracketen — Faktor 1,8, d. h. es entscheidet allein die Baualtersklasse, ob eine
+Miete „+130 %" oder „+25 %" über zulässig liegt, und ob § 556f (Erstbezug nach 01.10.2014) die
+Mietpreisbremse ganz aussetzt. ÖPNV: S7 **Medienstadt Babelsberg** *und* Babelsberg, Tram 94/99,
+Hbf 4–6 Min., Wannsee ~7 Min. → **Block B 4,5** (ohne Hausnummer keine 5,0; 4,0 bei Nuthestraßen-
+(B2-) oder Bahnnähe am Nordrand). Gesehen auf #676 (expose 170161206).
+*Why:* mit dem „Babelsberg Süd = älterer, günstiger Bestand"-Anker liest sich eine 23-EUR/m²-Miete
+in der Marlene-Dietrich-Allee als absurder Ausreißer statt als Neubau-Toplage — und der falsche
+Mietspiegel-Zeile kostet die Mietpreisbremsen-Aussage.
+
 ## Ortsteil-Anker: **Speicherstadt (14473, Teltower Vorstadt, Havelufer)**
 Groth-Gruppe-Quartier zwischen Brauhausberg und Havel, gegenüber Stadtschloss, 5–10 Gehmin. zum Hbf.
 **Zwei Bauabschnitte — und der Schnitt liegt genau auf der § 556f-Grenze:** Südteil Ende **2014**

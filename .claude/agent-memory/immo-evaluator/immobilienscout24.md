@@ -127,6 +127,22 @@ Mietspiegel") and Block A gets 5,0 — while the household actually pays the sam
 ad that was 19 % over the Mietpreisbremse, and the single strongest negotiating lever of the whole
 evaluation goes unmentioned.
 
+#### Objekt-Nr. taxonomy — a `{9-digit}#{hash}` prefix is usually a FORMER scoutId, so the re-list test is free
+`OBJECT_INFO` Objekt-Nr. comes in four shapes and only the first two identify a *unit*:
+(1) landlord unit key (Vonovia `82-1301070005`, `Stein124 WE32-1`) → identical = same flat;
+(2) Makler hash (`7612#MNCBtJ`) → identifies nothing, fall back to address+m²+floor+amenity set;
+(3) TENANT_NETWORK UUID → per-ad, never matches across a re-list (see below);
+(4) **`{9-digit-number}#{hash}` where the number sits in the live scoutId range** (e.g.
+`166780518#38Exe` on #681/expose 170226116) — that prefix is the **scoutId of the exposé this ad
+was duplicated from**. Just curl it: **404 = the predecessor was deleted → confirmed re-list of the
+same flat by the same lister, only one live ad**; **200 = two ads live in parallel**. Costs one curl
+and needs no address/m²/amenity reasoning at all. Caveat: on a 404 the old price is unrecoverable,
+so you can confirm the *re-list* but cannot compute a price delta — say exactly that instead of
+implying a price change, and do **not** fire the "reposted with different prices" Medium signal on
+a re-list you cannot price-diff.
+**Why:** shape (4) reads like a meaningless Makler hash, so the cheapest identity/re-list evidence
+in the whole JSON gets skipped and the ad is written up as brand-new.
+
 **Exception — on TENANT_NETWORK ads the Objekt-Nr. is a random UUID and proves nothing.**
 `OBJECT_INFO` reads `Scout-ID: … | Objekt-Nr.: bdf4153d-7aec-4daf-8cd1-08d51d761777` — IS24
 generates that per *ad*, so a re-list gets a fresh UUID and it can never match the old one.
@@ -2091,6 +2107,43 @@ nor garden and pays ~1,7× the headline.
   wrong by default. The 0-byte case is also the most dangerous one to misread on an EXPIRED check:
   it looks like "no data" and invites the EXPIRED verdict, but the real 404 has a 221-byte JSON
   body — so retry with the Android UA BEFORE running the control curls.
+
+### The EMPTY private exposé: `obj_picturecount: 0` + **no `TEXT_AREA` section at all** — what still carries information
+A private freemium ad can ship with zero photos AND zero Objektbeschreibung/Ausstattung/Lage text
+(#681, expose 170226116, "3-Zimmer Wohnung", Alt Nowawes 106A). The `sections` list then simply has
+**no `TEXT_AREA` entry** — don't hunt for it, check `obj_picturecount` and the section types once and
+move on. What is still usable, and how to score it:
+- **`adTargetingParameters` is the whole exposé.** `obj_balcony`/`obj_cellar`/`obj_garden`/`obj_lift`/
+  `obj_hasKitchen` = `n` and `obj_condition`/`obj_interiorQual` = `no_information` are the only
+  amenity/condition evidence. Apply the must-have rule normally (both must-haves `n` → **Block E 1,0**)
+  but **say in the report that `n` may mean "field left blank", and make "verify Balkon/Keller" the
+  decisive Next step** — quantify the swing (here 1,0→3,5 on E = +0,25 global) so the user sees that
+  one reply settles the listing. Never *credit* an unverified amenity (per the #628 rule).
+- **Block D goes BELOW the 3,0 no-photo cap**, because there is also no textual condition claim, no
+  Baujahr and no Energiekennwert to anchor on → 2,0. The `_shared.md` cap is a ceiling, not a target.
+- **`Gesamtmiete` == `Kaltmiete` means the NK field was left blank, NOT an all-inclusive rent.** The
+  label still reads "Kaltmiete (zzgl. Nebenkosten)", and `header.shareMessage` will happily print
+  "Warmmiete: 840 €". Report the Warmmiete as **unknown** and estimate from ~3,00–3,80 EUR/m²
+  Potsdam incl. heating, rather than copying the artefact.
+- **`Energieausweis: "laut Gesetz nicht erforderlich"`** is an unbacked assertion (the GEG exemption
+  is essentially Baudenkmal or <50 m²). It fires the **Low** "missing Energieausweis" scam signal and
+  is a useful Baualtersklasse hint (Denkmal ⇒ the `bis 1948 · kein EA` Mietspiegel row).
+- **Scam verdict usually stays *Legitimate*, and the decider is the price direction.** The
+  0-photos/0-text/anonymous-lister silhouette looks like a bait ad, but bait ads underprice. If the
+  address-precise `priceBar` puts the offer *inside* (let alone in the upper third of) the similar-offer
+  band and *above* the Mietspiegel, the bait reading is refuted → 1 Medium (unverified minimal account)
+  + 1 Low (no EA) = Legitimate. Write the refutation out explicitly instead of leaving the silhouette hanging.
+
+### `contact.freemiumSettings` = free listing age + a hard contact deadline (private ads only)
+`contact.freemiumSettings` carries `dateStarted` / `dateEnding` / `freemiumPeriodActive` — e.g.
+`2026-08-24T07:45Z → 2026-08-27T07:45Z`, a 72 h free contact window. Two facts nothing else in the
+JSON gives you: **exactly how old the ad is** (dateStarted ≈ publication) and **when the contact
+channel expires**. Put the expiry into Next steps as a deadline ("bis 27.08. anschreiben"). Pair it
+with `AGENTS_INFO` (`verifiedBy: []`, no address, `phoneNumbers: []`, first-name+initial like
+"Dominic H.") → that combination is the **Block H 1,5 "missing/suspicious listing signals"** profile
+and the **Medium** "new account, minimal profile" scam signal. Seen on #681.
+**Why:** without dateStarted every ad reads as undated, and the user can miss a contact window that
+closes in days on exactly the cheap listings worth a speculative message.
 
 ### Hard blockers that exist ONLY in free text: **möbliert / Mindestmietzeit / Wohnen auf Zeit**
 Die Mobile-API hat **kein strukturiertes Feld für „möbliert"**. `header.realEstateType` steht auch
