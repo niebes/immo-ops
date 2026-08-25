@@ -145,6 +145,19 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     the text would have produced a Potsdam report for an Oder-Spree flat — and would have fired the
     High "price >20 % below Mietspiegel" signal (10,62 EUR/m² is cheap for Potsdam, ordinary for
     Grünheide). Whenever title-Ort ≠ field-Ort, settle it before scoring anything else.
+    - **Mirror case — the field is RIGHT and the TITLE upsells to the neighbouring prestige Ortsteil.**
+      #682: title "3 Zimmer Wohnung **Grunewald** …", `#viewad-locality` "**14199 Berlin - Wilmersdorf**",
+      Standort "Helene-Jacobs-Straße 18" → one WebSearch on the street name returns Ortsteil
+      **Schmargendorf**, Neubauquartier *Maximilians Quartier*. So title-Ort ≠ field-Ort does **not**
+      always mean the field is broken; in Berlin it usually means Lagemarketing toward the adjacent
+      posher Ortsteil (Grunewald/Dahlem/Westend). **Decision rule: the STREET beats both.** Always pull
+      the Standort street address and WebSearch `"{Straße}" {PLZ} Berlin Ortsteil` before scoring
+      Block B — it settles the Ortsteil *and* usually names the Bauvorhaben, which is the only route to
+      a Baujahr on an ad that states none. Consequence for an Ortsteil-scoped search group (Grunewald
+      = 14193 only): this is a near-miss, **not** an excluded area (no hard blocker when
+      `excluded_areas` is empty) — score Block B ~3,5 and say the title was marketing.
+      *Why:* taking the title at face value files a Grunewald report for a Schmargendorf flat and
+      hands the user a wrong preferred-area bonus.
   - **Vermieter name + exact address ⇒ settle Baujahr AND the kalt/warm reading with ONE WebSearch.**
     On #607 the ad gave only "1.200 €" (heading == `Warmmiete` field, no NK field ⇒ the #356
     ambiguity) plus "Der Vermieter ist die Pro Potsdam" and the Standort address. A single search
@@ -264,6 +277,16 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
       anonymous private poster (#594: no name, no address, no phone, but active since 09/2024 with
       all three badges).
   - Photo count: gallery shows "/13" style counter.
+  - **Letterboxed phone screenshots alone are NOT the "photos from different properties" signal — the
+    APP CHROME is.** #682 had 2 of 12 images as `624x1600` / `1200x1600` screenshots with fat black
+    bars top+bottom, but **no** overlay badge, no UI text, and motifs identical to the 10 native
+    `1600x1200` shots (same parquet, same window front, same view direction). That is a tenant
+    re-uploading their own photos out of a messenger, not re-captured foreign marketing material →
+    do **not** fire the Medium signal and do **not** dock Block H. Cheap discriminator before you even
+    Read the files: `file -b` the whole gallery — a mix of native landscape *and* tall letterboxed
+    frames of the SAME rooms is the harmless case; uniform letterboxing across the whole set plus
+    baked-in chrome is the #594 case below. *Why:* firing the signal here would have invented a
+    provenance defect on a clean private ad.
   - **Photos can be phone SCREENSHOTS of another listing's gallery** — tell-tales: black bars down the
     left/right of most images (phone screen capture) and, on at least one, baked-in app chrome such as
     a "**12 Fotos**" overlay badge and greyed UI text below the picture. The images are still real

@@ -372,6 +372,20 @@ in die Nacht) als Besichtigungspunkt setzen, nicht als Abwertung ohne Beleg.
 sich gegen den stadtweiten Angebotsanker 12,60–13,50 nur „etwas teuer" statt nach dem tatsächlichen
 Faktor 2 gegenüber der ortsüblichen Vergleichsmiete.
 
+**Die `priceBar` ist adressscharf, NICHT ortsteilscharf — sie schwankt innerhalb EINER Straße um
+~40 %.** Alt Nowawes ist der Beleg: **Nr. 55b (#588): ähnliche Angebote 9,20–14,90 EUR/m²**
+(Gesamtband 7,30–18,90) — **Nr. 106A (#681): ähnliche Angebote 7,10–10,70 EUR/m²** (Gesamtband
+5,80–13,00), rund 50 Hausnummern und ~500 m auseinander. Der westliche Abschnitt (Richtung
+Humboldtring/Nuthestraße, Nachwende-Neubau) trägt das 15–18-EUR/m²-Niveau des Ortsteilankers, der
+östliche (Richtung Rathaus/Karl-Liebknecht-Str., Gründerzeit-/Denkmalbestand) liegt praktisch auf
+Mietspiegelniveau. Konsequenz: **den Ortsteilanker oben nie als Vergleichsmaßstab in Block A
+einsetzen, immer die `priceBar` des konkreten Exposés ziehen** — sonst wirkt ein 10,50-EUR/m²-Angebot
+an Nr. 106A wie „35 % unter Markt" (im Extremfall bis zum High-Scam-Signal „>20 % unter
+Mietspiegel"), während es real im **65. Perzentil** seines Adressbandes und **über** der zulässigen
+Miete liegt. Der Ortsteilanker taugt nur noch als Plausibilitätsrahmen, nicht als Zahl.
+*Why:* dieselbe Falle wie bei Babelsberg Süd unten, aber innerhalb *eines* Ortsteils und *einer*
+Straße — die Nord/Süd-Trennung allein reicht als Schutz nicht aus.
+
 ### **Babelsberg SÜD (ebenfalls 14482) ist NICHT Babelsberg Nord — Anker getrennt halten**
 Gleiche PLZ, völlig anderes Preisbild: die adressgenaue IS24-`priceBar` in Babelsberg Süd liegt bei
 **6,10–9,60 EUR/m² „ähnliche Angebote"** (Gesamtspanne 4,90–12), also praktisch **auf
