@@ -161,7 +161,7 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
     independent ProvenExpert/Jacasa figures used in Block H.
   - **The `Merkmale` list can legitimately hold a single entry** (#596: only `Bezug: 2026-08-31T00:00:00Z`). That is a real, extremely sparse listing, not a failed extraction — don't keep re-fetching looking for the missing Ausstattung.
   - **Photo classifications double as an amenity probe.** 12 photos all classified as interior rooms (LIVING_ROOM/BEDROOM/KITCHEN/BATHROOM/HALLWAY/CLOSET/HOME_OFFICE) with **no** outdoor/balcony frame is decent evidence that there is no Balkon/Terrasse when the text is silent — enough to take the Block-E must-have penalty, phrased as "not evidenced" rather than "confirmed absent".
-- **Energieausweis can legitimately be absent: `"Ein Energieausweis ist für diesen Gebäudetyp nicht notwendig."`** appears in `data-testid="cdp-energy-certificate-preview"` in place of the scale. On a Baudenkmal this is the § 79 Abs. 4 GEG exemption — **do NOT fire the "Missing Energieausweis" scam signal** for it, but do note that the energy performance is then unverifiable (Block D). Such listings also omit the Baujahr; recover it from the Wikipedia Denkmalliste — see `potsdam-mietspiegel.md` → "Baujahr HARD bekommen".
+- **Energieausweis can legitimately be absent: `"Ein Energieausweis ist für diesen Gebäudetyp nicht notwendig."`** appears in `data-testid="cdp-energy-certificate-preview"` in place of the scale. On a Baudenkmal this is the § 79 Abs. 4 GEG exemption — **do NOT fire the "Missing Energieausweis" scam signal** for it, but do note that the energy performance is then unverifiable (Block D). ⚠ **Only when the exposé states no Baujahr** — if a Baujahr > 1948 is present the exemption is false and the signal DOES fire; see the shape-2 falsification rule under „Check `Bausubstanz und Energie`" below. Such listings also omit the Baujahr; recover it from the Wikipedia Denkmalliste — see `potsdam-mietspiegel.md` → "Baujahr HARD bekommen".
 - CiC fallback: **first `navigate` often lands on `chrome://newtab/` (no-op) — just call `navigate` again.** Second call loads.
 - No cookie/consent wall blocks content; page renders immediately. `read_page`/`javascript_tool` on `document.body.innerText` works.
 - **All load-bearing fields are in `innerText`** — extract by section, not one blob (CiC truncates ~1100 chars):
@@ -209,6 +209,23 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
 - **Check `Bausubstanz und Energie` in `innerText` BEFORE opening the energy modal.** Three observed shapes, two of which are already complete answers:
   1. *Deferred* (#538): "**Der Energieausweis wird bei Besichtigung nachgereicht.**" + Baujahr — no class, no kWh, and a § 87 GEG violation worth flagging.
   2. *Exempt* (#539, 26ephn5ffvma): "**Ein Energieausweis ist für diesen Gebäudetyp nicht notwendig.**" — the portal's canned § 79 Abs. 4 GEG (Baudenkmal) wording, and note it can appear with **no Baujahr line at all**. Immowelt renders it from the lister's object-type flag, so the *reason* is never stated: `Denkmal`/`Denkmalschutz` returns 0 hits in `innerHTML`. ⇒ report the exemption as *claimed, unverified* and make it a contact question; also feed the Mietspiegel lookup the **"kein EA" EEK row** for that Baualtersklasse.
+     ⚠ **Shape 2 is FALSIFIABLE — do not stop at "claimed, unverified". Cross-check it against the
+     Baujahr and the prose, because on a post-1948 building the claim is legally impossible and then
+     flips from a benign exemption into a Medium scam signal.** Machine-readable tell for shape 2:
+     `energy.hasScales:true` + `energy.certificates[0].scales[0].alternateText` carrying the sentence,
+     with **no** class and no kWh value (so it is NOT shape 4 — `hasScales` is `true` here).
+     #686 (25bq8a5hkzkr, Mertz-von-Quirnheim-Str. 7): the same canned sentence appeared **next to
+     `energy.features.yearOfConstruction = "2011"`** and a prose Ausstattungsliste quoting
+     „Energieeffizienzklasse C / Endenergieverbrauch 76 kWh/(m²·a)". § 79 Abs. 4 GEG covers
+     Baudenkmäler; a 2011 MFH has no exemption, and an exposé cannot simultaneously assert
+     "no certificate needed" *and* quote one. ⇒ Three-step rule: (a) if `yearOfConstruction` is
+     present and > 1948 → the exemption is **false**, treat as a § 87 GEG omission (Low scam signal)
+     and withhold any EEK bonus in Block D; (b) if the prose *also* names an EEK/kWh figure, log the
+     contradiction as a **Medium** "exposé internally inconsistent / text likely lifted from another
+     property" signal; (c) only when there is no Baujahr at all (the #539 case) does the old
+     "claimed, unverified + Denkmalliste lookup" handling apply. *Why:* the existing line above says
+     flatly "do NOT fire the Missing-Energieausweis scam signal" for this sentence — followed
+     blindly, that suppresses a real signal on exactly the listings that fabricate their data.
   3. *Teaser*: a class/value snippet or a bare "Mehr Infos" button — only THIS one justifies opening the modal.
   4. *Lead-gen prompt* (#668): the section renders **no energy data at all**, just „**Möchtest du Details zum Energieverbrauch? → Details zum Energieverbrauch anfragen**" plus a bare `Heizungsart` line. Machine-readable tell: `"energy":{"features":[{"type":"heatingSystem",…}],"hasScales":false}` — `hasScales:false` with no class/value is the positive proof that the lister supplied nothing, i.e. **the certificate is simply missing, not exempt**. Distinguish it from shape 2 by grepping `Denkmal` (0 hits ⇒ no § 79 Abs. 4 GEG exemption ⇒ it IS a § 87 GEG omission worth flagging + the Low scam signal). Common on private/swap ads. ⇒ Feed the Mietspiegel lookup the **"kein EA" row**, which is the conservative (landlord-unfriendly) assumption and keeps the Mietpreisbremse check defensible. ⚠ **…but that row does not always exist.** In the Potsdam Grundmietentabelle only `bis 1948` and `1949–1970` have a `kein EA` row; **`1971–1990` and everything after do not** (they have `A,B` / `C,D` / `E,F` / „alle"). Confirmed #670 (Drewitz Platte, no EA at all). ⇒ On those Baualtersklassen cite the **whole EEK band** of the class instead of guessing a row — see `potsdam-mietspiegel.md` → Ortsteil-Anker Drewitz.
      ⚠ **Shape 4 has a second variant in which there is NO `energy` object at all** — #669:

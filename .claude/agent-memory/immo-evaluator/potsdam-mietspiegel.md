@@ -132,6 +132,52 @@ sich um ~8 %. #627 lag mit **60,1 m² genau 0,1 m² in Spalte C** (5,82 → zul�
 *Why:* eine Mietpreisbremsen-"Verletzung", die an 100 cm² Wohnfläche hängt, darf nicht als harter
 Befund in den Report — die Wohnfläche selbst ist ja nur "ca." angegeben.
 
+## „Verdächtig billig" entscheiden: **echte Untermiete vs. Köderpreis — der Unterwert ist die Trennlinie**
+Die Abschnitte oben lösen den häufigsten Fall auf („billig gegen 13 EUR" = bloß der Gebäudetyp).
+Sie erklären aber *nicht* den seltenen zweiten Fall, den Betrugsköder — und beide kommen als
+derselbe Auftrag herein („X EUR für Y m² ist weit unter Markt, prüfe auf Genossenschaft /
+Extraktionsfehler / Scam"). Die drei Tests, in dieser Reihenfolge, trennen sie zuverlässig:
+
+**1. Liegt der Preis INNERHALB oder UNTERHALB der amtlichen Spanne?** Das ist die eigentliche
+Trennlinie, nicht der Abstand zum Angebotsmarkt (der ist bei *beiden* Fällen −50 %).
+- #684 (350 EUR / 60 m² = 5,83): in 2 von 3 Kandidatenfeldern **innerhalb** der Spanne → echt.
+- #627 (397 EUR / 60,1 m² = 6,61): sogar **+5,8 % über** dem Oberwert → echt.
+- #558 (7,59): unter dem Mittelwert, über dem Unterwert → echt.
+- #686 (900 EUR / 117 m² = 7,69, Bj. 2011 → Feld 2009–2012 × Spalte E = 12,01 (10,30–13,84)):
+  **−25,3 % unter dem UNTERWERT**, also außerhalb der Spanne → Köder.
+⇒ Ein Preis *innerhalb* der Spanne ist per Definition ortsüblich und braucht keine
+Betrugserklärung. Erst **unterhalb des Unterwerts** ist der Preis selbst erklärungsbedürftig.
+
+**2. Gibt es einen benannten Mechanismus für die Untermiete?** Echte Billigfälle nennen ihn immer,
+weil er den Preis rechtfertigt: Genossenschaft/Nutzungsentgelt (#684, Satz steht in der Prosa),
+alter Bestand + sitzender Mieter, Baualtersklasse 1971–1990. **Ein „Privater Anbieter", der
+NEU vermietet, hat gar kein Vehikel für eine Bestandsmiete** — Sweep auf
+`Genossenschaft|Genossen|Sozial|Wohnberechtigung|WBS(case-sensitiv)|Nachmieter|Tausch`; 0 Treffer
+bei einem Privatanbieter heißt: für den Preis existiert keine Erklärung. (#686: 0/0/0/0/0/0/0.)
+
+**3. Kapitalwertprobe — der billigste unabhängige Test, kostet eine WebSearch.**
+Objektwert = Kaufpreis-EUR/m² der Straße × Wohnfläche, dann Bruttomietrendite = Kaltmiete×12 ÷ Wert.
+Realistisch sind in Potsdam 3–5 %; **unter ~2 % ist die Vermietung wirtschaftlich unmöglich** und
+der Preis damit unabhängig vom Mietspiegel widerlegt. #686: Mertz-von-Quirnheim-Str. 7/7a
+(„Waterfront Residence", Havelufer) ≈ 5.796 EUR/m² × 117 m² ≈ 678.000 EUR → 10.800/678.000 =
+**1,59 %**, inklusive gratis Garagenstellplatz. Die Suchanfrage `"{Straße} {PLZ} Wohnung"` liefert
+den Straßen-EUR/m² zuverlässig über die IS24-Atlas-/Immobilienpreis-Seiten.
+
+**Zusatztest, der beide Richtungen absichert: NEBENKOSTEN je m² gegenrechnen.** Plausibel sind
+2,50–3,50 EUR/m². #686 nannte 120 EUR auf 117 m² = **1,03 EUR/m²** bei Zentralheizung +
+Fußbodenheizung + Aufzug + Garage → auch die Warmmiete ist erfunden, nicht nur die Kaltmiete.
+Gleiche Signatur wie #320 (Warmmiete = Kaltmiete = 700 EUR). Echte Billigfälle haben entweder
+plausible NK oder gar keine Angabe (#684) — sie erfinden keine unmöglich niedrigen.
+
+**Und: die eigenen Reports sind eine adressgenaue Vergleichsobjekt-Quelle.** Vor dem Scam-Urteil
+`grep -rn "{Straßenname}" reports/ data/listings.md data/scan-history.tsv*`. Auf #686 lieferte das
+**dieselbe Straße, Hausnummer 8**: 3 Zi/100 m² zu 1.690 EUR = 16,90 EUR/m² (Report #187) und ein
+zweites Inserat zu 1.890 EUR = 18,90 EUR/m² → das inkriminierte Angebot liegt −54,5 % darunter.
+Damit ist die `_shared.md`-Auflage für das High-Signal erfüllt („Angebotsanker allein reicht nicht"),
+denn Vergleichsobjekte derselben Straße *sind* adressgenau — man braucht dafür keine IS24-`priceBar`.
+*Why:* dieser Grep kostet einen Bash-Call und ist das stärkste Einzelbeweisstück im ganzen Report;
+ohne ihn hängt das High-Signal allein am Mietspiegel-Unterwert und wirkt anfechtbar.
+
 ### Gegenprobe zur Großsiedlungs-Regel: **das Baualter aus den FOTOS verifizieren, bevor man das Plattenbau-Feld nimmt**
 Der Ortsteil-Reflex ("Waldstadt/Drewitz/Schlaatz → 1971–1990") ist eine *Vermutung*, und weil
 zwischen den Baualtersklassen bis zu **Faktor 1,4** liegt, dreht eine falsche Klasse das
