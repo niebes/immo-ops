@@ -91,7 +91,15 @@ Two extensions to the rule above, both from **#626** (expose 170130580) vs **#49
 Gartenstraße 17 Fahrland:
 - **When the Objekt-Nr. is a Makler hash (`7612#MNCBtJ`) it identifies nothing** — it is not the
   landlord's unit key like the Vonovia/ProPotsdam ones. Settle identity on **exact address + exact
-  m² + room count + the full amenity SET + floor**, then the 404 on the old scoutId. Watch the
+  m² + room count + the full amenity SET + floor**, then the 404 on the old scoutId.
+  **Refinement (#674 vs #537, expose 170259082 vs 169858137, Luisenhof 16 Potsdam): split the
+  Objekt-Nr. at the `#` before dismissing it.** The suffix is per-ad noise, but the PREFIX is often
+  a semantic unit key even on a Makler ad: `p-luis-5.58#Skgucv` = Projekt Luisenpark, Haus 5, WE 58
+  — and the "Weitere Dokumente" Grundriss-PDF was literally labelled **"WE 58"**, corroborating it.
+  So: prefix semantic (project/house/unit, matches the Grundriss label) ⇒ treat as a valid unit key
+  like the Vonovia one; prefix opaque ⇒ fall back to the address+m²+amenity route. **Why:** applying
+  the "Makler hash proves nothing" rule to the whole string throws away a free, exact identity match
+  and forces the slow route. Watch the
   floor notation: **"3. von 3" (Obergeschosse) and "4 von 4" (Etagen inkl. EG) are the SAME top
   floor** — read them as identical, not as evidence of two different buildings.
 - **The real finding is usually the price RESTRUCTURING, not the price level.** Here KM

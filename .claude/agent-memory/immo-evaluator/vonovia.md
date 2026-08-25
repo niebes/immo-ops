@@ -149,6 +149,26 @@ Potsdam, Bj 1975, 15 Geschosse).
 **Why:** three independent fields say "Keller" and only the free text distinguishes a 7th-floor
 closet from a basement — bulky-storage plans (bikes, sports kit) depend on which one it is.
 
+## „Musterbilder, da die Sanierungsarbeiten noch nicht abgeschlossen sind" — Vonovia re-lets a flat
+## MID-renovation, and that combination costs TWO blocks
+Recurring pattern on modernised Vonovia stock: the gallery holds 6–8 attractive photos, and the last
+line of the Objektbeschreibung says *"ACHTUNG: Bei den Fotos handelt es sich lediglich um
+**Musterbilder**, da die Sanierungsarbeiten aktuell noch nicht abgeschlossen sind."* Consequences:
+- The flat is an **existing** one (no Neubau/Erstbezug exception) ⇒ `_shared.md` photo-evidence rule
+  fires: **zero real photos ⇒ Block D capped at 3,0** regardless of how good the described fit-out is
+  (neu geflies­tes Bad, Vinyl-Planken). Put "nur Musterbilder" in the ✗ cons explicitly.
+- It travels with **"Die Wohnung wird unrenoviert vermietet / lediglich tapezierfertig gespachtelt"** —
+  i.e. wallpapering/painting all rooms is the tenant's cost (~1.500–3.000 EUR). Score that as a hidden
+  entry cost in Block A and a Schönheitsreparatur-/Endrenovierungsklausel check in Block G (a clause
+  shifting them onto a tenant who got the flat *unrenoviert* is regularly unwirksam, BGH).
+- Expect the Ausstattungsliste to **contradict** the free text (there: "PVC/Linoleum" + "tapeziert"
+  vs "Vinyl-Planken" + "tapezierfertig gespachtelt") — the list is stale boilerplate; list both as
+  viewing checks instead of picking one.
+- No Grundriss ships with these ads either → request real photos + Grundriss in the first contact.
+Seen on #679 (IS24 expose 170256330, Maxie-Wander-Str. 8, Kirchsteigfeld, DG 73,49 m²).
+**Why:** the photos look like a normal, verified interior, so without reading the last description
+line Block D gets a 4,0+ "modernisiert" on evidence that does not exist.
+
 ## Landlord / character
 Anbieter = "Vonovia Kundenservice GmbH", direct landlord, **no Provision** (Bestellerprinzip
 fine), low Eigenbedarf risk (corporate). Reputation: commonly cited slow-on-repairs — note in
