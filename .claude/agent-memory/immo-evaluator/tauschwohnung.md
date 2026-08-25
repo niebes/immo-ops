@@ -35,6 +35,16 @@ offered m² raise your prior — compare our 2 Zi / 54,19 m² against the *numbe
 say so explicitly in the report so the next reader does not re-litigate it. (Same lesson as #658, now
 at the top of the size range.) Corollary worth surfacing to the user: when Ort and Miete both pass and
 only size fails — repeatedly — the binding constraint is the `swap_offer` inventory, not the search.
+**Cleanest instance of that corollary so far: #683** (Immowelt, Charlottenburg 10585, Anbieter-ID
+477956). *Four* axes passed simultaneously — Ort ✓ (their „Rand-Berlin oder im **nahen Umland**"
+covers Potsdam-Golm literally, no commuter-belt leniency needed), Ausstattung ✓ (their „Garten
+**oder** Gartenzugang" is a clean #664-style disjunction our ~29 m² garden satisfies, and a garden is
+their stated main motive), Miete ✓ (their 1.029 kalt vs our 1.025,25 — four euros apart, and their
+Suche names **no** ceiling at all), Richtung der Miete ✓ — and it still died on „**mind. 3-4
+Zimmern**" + „mit wachsender Familie … mehr Platz". ⇒ When you see Ort/Garten/Miete all green, do NOT
+let the momentum carry you into a Swap-candidate: re-read the room/area floor, it is the only axis
+that has ever decided these. And say so explicitly in the report, because a reader who sees three ✓
+will otherwise re-litigate the discard.
 
 **But "downsizer" is NOT automatically a side-2 pass — a second, independent kill axis is a
 qualitative BAUSUBSTANZ requirement, which our 2024 Neubau can never satisfy.** #579 was the first
@@ -363,6 +373,17 @@ self-description ("TAUSCHWOHNUNG Biete 3 Raum Babelsberg mit kleinem Garten EG P
 Wohnung **ab 85 m2** mit Balkon, Terrasse oder Garten in Babelsberg, Innenstadt, Berliner- oder
 Templiner Vorstadt oder Klein Glienicke."* ⇒ **A silent TITLE is not a silent Suche** — read the
 full description down to the boilerplate before invoking the lenient-KEEP rule of the next section.
+⚠ **"Second-to-last" is the modal slot, NOT a rule — the Suche is just as often the SECOND
+paragraph, i.e. right after the "(Anbieter-ID: N)" line.** #656 had it in the title + first sentence;
+**#683 has it in paragraph 2** (*"Wir suchen ein helles Zuhause mit mind. 3-4 Zimmern, mit Garten
+oder Gartenzugang, bevorzugt in ruhiger, grüner Lage in Rand-Berlin oder im nahen Umland"*), while
+the second-to-last paragraph carried only the *direction* (*"mit wachsender Familie wünschen wir uns
+einfach mehr Platz, Natur und am liebsten einen eigenen Garten"*). ⇒ **Never slot-hunt: read the
+whole `sections.mainDescription.description` end to end and collect EVERY Suche clause, because the
+numeric criteria and the direction clause routinely sit in different paragraphs** and each can decide
+side 2 on its own. *Why:* stopping at the documented slot on #683 would have found the direction but
+missed the „mind. 3-4 Zimmern" floor, i.e. the one clause that makes the fail deterministic rather
+than a judgement call.
 **Richest documented form (#667): a colon-headed BULLETED Suchprofil in that same slot** — *"Ich
 suche einen Tausch mit einer Wohnung in Berlin Schöneberg, Wilmersdorf oder Charlottenburg, ggf.
 auch Potsdam:"* followed by `- mind. 3 Zimmer / - mind. 80 qm / - Balkon / - Badewanne /
