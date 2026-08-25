@@ -467,6 +467,33 @@ EUR/m² comparison with that caveat stated. Ask for the real Netto/NK/Heiz split
 **Why:** the residual reads like a concrete Nebenkosten figure (#561: "≈360 EUR = 5,00 EUR/m², high for
 EEK B") and would otherwise be reported as an Anbieterangabe rather than as arithmetic on an estimate.
 
+**The 70/30 split is BIASED — it systematically UNDERSTATES the Kaltmiete by ~15–20 %, so on a flat
+near the budget cap it silently flatters Block A. Always RECONSTRUCT the real Kaltmiete before
+scoring price.** The formula parks 30 % of the Warmmiete in "Nebenkosten"; a real Potsdam NK incl.
+Heizung is 3,00–4,50 EUR/m², i.e. only ~13–17 % of a normal Warmmiete. Two-line fix, no extra data
+needed: `real_KM ≈ obj_totalRent − (3,00…4,50 × m²)` → report it as a **band**, then test THAT band
+(not `obj_baseRent`) against `max_kaltmiete` and `max_price_per_m2`. Seen on **#676** (expose
+170161206, Marlene-Dietrich-Allee, Babelsberg Süd): headline "1.529–1.691 €" / `obj_baseRent` 1.610
+= 19,17 EUR/m² looked comfortably inside the 1.900-EUR cap, while `obj_totalRent` 2.300 on 84 m²
+reconstructs to **1.920–2.050 EUR = 22,9–24,4 EUR/m²** — over `max_kaltmiete` and **+27…+36 %** over
+the 18-EUR/m² ceiling. Corollaries: (a) the ONE number you can state without caveat is the Warmmiete,
+so lead Block A with it and check `max_warmmiete` first (2.300 vs 2.200 = the only hard, provable
+budget breach in that report); (b) run the reconstructed band, not the derived KM, against the
+Mietspiegel — with `obj_baseRent` the Mietpreisbremse overshoot is understated by a full
+Baualtersklasse; (c) the usual "Mieternetzwerk = cheap Altvertrag" prior does NOT always hold — this
+one was *above* market in every direction, which also keeps the "20 % unter Mietspiegel" High signal
+from firing.
+**Why:** quoting `obj_baseRent` as the price gives a 4,0–5,0 Block A on a flat whose real rent
+breaks all three profile price limits, and it is the exact number the search-result metadata carries,
+so nothing downstream corrects it.
+
+**The genuinely data-free variant: NEITHER `PRICE_INFO`/`priceBar` NOR `PRICE_RATING` is present.**
+Both fallbacks above can be absent at once (#676: sections were only MEDIA/TOP_ATTRIBUTES/TAG_LIST/
+TITLE/RELOCATION/MAP/REFERENCE_LIST/TRAVELTIME/AD/TEXT_AREA/AGENTS_INFO/OBJECT_INFO/FRAUD_REPORT — no
+price section of any kind). Then there is **no address-adjacent price anchor at all**: Block A rests
+entirely on the reconstructed Kaltmiete vs the bracketed Mietspiegel field plus the Ortsteil
+Angebots-Anker from [[potsdam-mietspiegel]]. Say so in the report instead of hunting for a band.
+
 **On a Mieternetzwerk exposé there is NO Baujahr — resolve the address, then look the BUILDING up
 externally, before touching the Mietspiegel table.** These ads have no ATTRIBUTE_LIST, so the
 Baualtersklasse (the single biggest lever in the Potsdam table) is missing and the Ortsteil's dominant
@@ -2965,9 +2992,41 @@ a house whose entire visible condition is machine-generated at 4,75 on the selle
   (many housebuy exposés omit the attribute entirely). Where it's absent, decide it from the
   Objektbeschreibung's floor enumeration ("teilt sich in Erdgeschoss, Obergeschoss und
   Dachgeschoss auf" = kein Keller) plus the Ausstattung list. `adTargetingParameters.obj_cellar`
-  is the faster check when present.
+  is the faster check when present — **but `obj_cellar: n` is only weak evidence of ABSENCE**, and
+  a **Grundriss caption naming a basement level overrules it**: #673 (expose 170221295) carried
+  `obj_cellar: n` while the gallery held "unverbindlicher Grundriss **Kell**" and the text described
+  a full **Gartengeschoss** (Einliegerwohnung + Wellness + HAR/HWR) on that level. Rule: a
+  souterrain marketed as *Gartengeschoss/Untergeschoss* is often not ticked as "Keller", so scan the
+  `MEDIA[].caption` floor-plan names and the Etagen enumeration before scoring the Keller
+  nice-to-have as missing.
 **Why:** both fields silently inflate Blocks D and E — a "2025 saniert" 5-Zimmer house with an
 assumed Keller scores ~0,4 higher than the same house read correctly.
+
+### Kauf: `Kaufpreis: Auf Anfrage` (`obj_purchasePrice: "0"`) — bound the price yourself, never contact to learn it
+A missing price is **not** a scraper failure and **not** a reason to open a browser. The exposé says
+"Auf Anfrage" in `TOP_ATTRIBUTES`, in `ATTRIBUTE_LIST "Kosten"` **and** as
+`adTargetingParameters.obj_purchasePrice: "0"` (+ `obj_purchasePriceRange: "1"`) — three consistent
+places = the number is genuinely withheld, gated behind "Exposé nur gegen vollständige Adresse und
+Telefonnummer".
+**Never phone/mail the Makler for it.** Bound it from below out of fields the ad *does* publish:
+`obj_lotArea` × Ortsteil-**Bodenrichtwert** (average AND top value — a Wasser-/Uferlage sits in the
+top band) **+** `obj_livingSpace` × Sachwert-NHK (~2.200–2.800 EUR/m², minus Alterswertminderung).
+If the **bare land at the Ortsteil AVERAGE BRW** already eats most of the cap, the hard blocker
+"price 40 %+ above target" is proven and Block A = 1,0 without any contact. #673 (expose 170221295,
+Groß Glienicke Seevilla): 1.933 m² × 209 EUR/m² = **404.000 EUR = 80,8 % of the 500k cap before the
+house**; × 600 (Ortsteil-Spitzenwert) = 1,16 Mio nur Boden ⇒ floor 1,1–2,1 Mio = 2–4× cap.
+Two corollaries:
+- **Quote the per-m² axis separately** — it is usually the *less* violated one and saying so keeps
+  the report honest (#673: 4.000 EUR/m² × 360 m² = 1,44 Mio, still 2,9× the absolute cap; the
+  binding constraint is the absolute Kaufpreis).
+- **"Auf Anfrage" is NOT a scam signal** — it is normal for discreet Alleinauftrag mandates. Log it
+  as a transparency note. The real finding is the **filter hole**: `obj_purchasePrice: 0` slips
+  through every portal-side price cap, so these ads reach the pipeline no matter what max price the
+  search sets. The cheapest substitute filter is the **size cap** (`obj_livingSpace` vs the profile
+  band) — 360 m² vs 150 would have killed #673 before evaluation.
+**Why:** without this, a price-on-request listing either burns a browser session and a Makler
+contact to obtain a number that was never going to fit, or gets written up as "price unknown,
+cannot score" — when the plot area alone settles Block A for free.
 
 ### Kauf: MEDIA captions can leak the exact street address
 When `MAP.addressLine1` says "Die vollständige Adresse … erhältst du vom Anbieter", check the
@@ -2988,6 +3047,17 @@ scam signal. Seen on #368.
 apply the no-photos D cap. Renders/stock instead caption as Visualisierung/Symbolbild or room
 names on Neubau projects. Note the trailing `type:"AD"` entry ("Gesponsert") is not a photo —
 exclude it from the count (#361: 16 media = 15 photos + 1 ad).
+**Fifth caption form — the per-image AI-staging label: `Inspiration {N} (KI-Generiert)`.** Makler
+increasingly mix AI-staged shots into a gallery of real photos and label them **per asset**, so the
+real/AI split is exact instead of guessed from the description disclaimer. Bucket the captions and
+report all four buckets: real photos · `Inspiration N (KI-Generiert)` · `unverbindlicher Grundriss
+{Kell|EG|1.OG}` · Makler-Werbekacheln ("kostenlose Wertermittlung") — the last two also inflate
+`obj_picturecount`. #673 (expose 170221295) had `obj_picturecount: 36` = **27 echte Fotos + 5 KI + 3
+Grundrisse + 1 Werbekachel**. Consequence: the `_shared.md` **cap-D-at-3,0 does NOT fire** (that cap
+targets galleries that are *entirely* non-real) — take **−0,5** instead, and say in the ✗ cons WHICH
+subjects are rendered. Check that specifically: on #673 the AI images covered the **Außenanlage**,
+i.e. exactly the garden/lake frontage the whole price rested on. Corroborating tell: the KI assets
+often ship as `.png` while the camera shots are `.jpg`.
 **Why:** lets you settle the Block D photo-evidence adjustment from the JSON without opening the gallery.
 
 **Why:** this guide was stranded in an orphaned memory copy (`reports/.claude/agent-memory/`,
