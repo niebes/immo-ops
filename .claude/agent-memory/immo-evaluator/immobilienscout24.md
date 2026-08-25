@@ -67,6 +67,25 @@ inserent is the same person and the price fell — #621.)
 **Why:** without the Objekt-Nr.+404 pair a re-list is either scored as a brand-new flat (losing the
 price-cut leverage and re-deriving everything) or dismissed as a stale duplicate and never evaluated.
 
+**A re-list can recur N times — chase the WHOLE chain, not just the predecessor, and let a crossed
+threshold re-score the block.** Same unit, third cycle: #337 (169320905) → #617 (170133922) →
+#677 (170257487), Objekt-Nr. `Stein124 WE32-1` throughout, both older scoutIds 404. Two rules that
+only surface from the third instance on:
+- Grep `reports/` for the **address**, not just the last known scoutId — the predecessor report
+  itself names its own predecessor, so one grep gives the full price history. Quote the **cumulative**
+  delta as well as the step delta (1.617,10 → 1.575,64 → 1.492,72 = −5,3 % step / **−7,7 % total**);
+  the cumulative number plus the total vacancy (~10 weeks) is the actual negotiating lever, and a
+  single-step delta understates both.
+- "Keep the block scores aligned unless a field actually changed" **cuts both ways**: here the
+  repricing moved EUR/m² from 19,00 to exactly 18,00 = the profile's `max_price_per_m2`, so Block A's
+  double penalty (over Mietspiegel AND over the user's own cap) collapses to the single ±0,5
+  Mietspiegel penalty → 4,0 → 4,5, and `Bezugsfrei` changed sofort → a dated 01.09.2026. Re-score
+  those blocks and say *which field moved*; freezing the old score because "it's the same flat"
+  is as wrong as re-deriving everything.
+**Why:** #677 arrived as an ordinary new listing. Compared only against #617 it looks like a −5 %
+nudge; against the full chain it is a twice-cut, 10-weeks-vacant unit that just crossed into budget —
+which is the difference between "another Am Stern flat" and "apply now, and negotiate the Mietbeginn".
+
 #### Re-list variant: **privat → Makler, Kaltmiete RUNTER + Nebenkosten HOCH, Warmmiete gleich = Mietpreisbremsen-Umgehung prüfen**
 Two extensions to the rule above, both from **#626** (expose 170130580) vs **#495** (169626249),
 Gartenstraße 17 Fahrland:
