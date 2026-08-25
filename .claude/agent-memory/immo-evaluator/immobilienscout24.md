@@ -2272,6 +2272,25 @@ them showed unit H5-01-06: interiors captioned `Musterwohnung` / `… / Digital-
 without this, a 63-photo exposé gets written up as thoroughly documented while the user actually has
 no picture, no floor plan and no description of the flat they would be signing for.
 
+#### A bare floor abbreviation as caption (`"OG"`, `"DG"`, `"EG"`, `"KG"`) IS a Grundriss — and it is often the ONLY source for half the score
+2–3-char captions look like the numeric sort-index/placeholder case (`"0"`,`"1"`,`"99999"`), so they
+get skipped as junk. They are floor plans. Bucket them as **Grundriss** (neither "real photo" for
+the Block-D count nor render), and **download and Read them** — `curl "{fullImageUrl}"` → Read tool,
+no browser. On **#680** (expose 168348084, 102 m² Maisonette) the two plans captioned `"OG"`/`"DG"`
+were the sole evidence for four scoreable facts that appear in **no** structured field and in no
+text block:
+- **Badewanne** (nice-to-have) — drawn in the OG bath, never mentioned in any TEXT_AREA;
+- the **extent of the Dachschrägen** in the DG (hatched bands on two sides) — quantifies the
+  `Nutzfläche = Wohnfläche` warning above into a concrete "usable area < headline";
+- a **Wendeltreppe** between the levels (furniture logistics, not age-proof) — invisible in the text;
+- that the advertised **3rd room is the open Wohnküche** (`Schlafzimmer: 1` + "zwei helle Zimmer" in
+  the text) → 2 closed rooms + one open living/kitchen space, i.e. Block C needs a dock even though
+  `obj_noRooms: 3` sits mid-range.
+Rule: whenever `obj_noRooms` and the `Schlafzimmer:` count disagree, or the flat is a Maisonette,
+read the plan before scoring C and E.
+**Why:** treating those captions as placeholders loses a confirmed nice-to-have, hides the real
+room count, and leaves the roof-slope area unquantified — all three move the score.
+
 #### `MEDIA[].caption` is hard-truncated at **30 Zeichen** — keyword-match on PREFIXES
 Captions come back cut mid-word at exactly 30 chars: `"Außenansicht - Visualisierung"` survives but
 `"Hausaufteilung - Visualisierun"`, `"Interaktive 3D-Tour - Musterwo"`, `"Schlafzimmer / Digital-Home-St"`
