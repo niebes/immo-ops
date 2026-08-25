@@ -119,6 +119,37 @@ swap's purpose would be not merely unmet but negatively met. Cheap machine test,
 `pipeline.md` metadata alone: **their listing's city == our offer's city AND their stated target
 city != it ⇒ area fail, no leniency.** *Why:* on #684 the room axis passed, so a leniency-minded
 reader with three-of-four green had real momentum toward a Swap-candidate.
+⚠ **Bound on axis 6 — it only fires when the TARGET city differs from ours. When their target sits
+INSIDE our own city (another Ortsteil of Potsdam), leniency applies at Ortsteil level and the axis is
+silent.** #685 (Immowelt, Anbieter-ID 199871, Babelsberg Süd 14482) seeks „Babelsberg", i.e. the
+Ortsteil they already live in — target city == Potsdam == our offer's city. Running axis 6 on it
+would produce a bogus area fail on a poster who is explicitly staying put in our city.
+
+## The FIRST Swap-candidate (#685) — and the two rules that produced it
+**(a) On Immowelt the Suche can live ONLY in the headline, in telegram „Tausche {Angebot} gegen
+{Suche}" grammar, with the description carrying no Suche clause at all.** #685's headline is
+„TAUSCHWOHNUNG Ruhige 3 Z. Neubau Wohnung **gegen 1-2 Z. Babelsberg**"; the body describes only their
+own flat and ends on „Bei Interesse und passender Tauschwohnung schreibt mir gerne direkt:)".
+`mindestens|min\.|maximal|max\.` = 0, `Personen|Kinder|Familie` = 0 over 634 KB. This is the mirror of
+#664 ("a silent TITLE is not a silent Suche") — **a silent BODY is not a silent Suche either**; read
+both, and if only the title carries it, say so rather than recording "Suche unknown".
+**(b) A bare Ortsteil inside a five-word TITLE FRAGMENT is weaker evidence than the same Ortsteil in a
+written-out sentence — do NOT apply the #668 bare-Ortsteil area fail to it mechanically.** #668's
+„Wir suchen eine Tauschwohnung in Potsdam West" is a considered sentence; #685's „gegen 1-2 Z.
+Babelsberg" is a headline under a character limit. Combined with the axis-6 bound above (same city),
+that is a **KEEP with the Ort flagged as the single open axis** and put in the FIRST sentence of the
+contact message, not a discard.
+⇒ **#685 is the first ever `Swap-candidate`.** Side 1 = 4,4/5 (best of the series, beats #684's 4,1);
+side 2 passes on **four** axes at once because their Suche states **no m² floor, no room floor and no
+rent ceiling**: direction ✓ (3 Zi/72 m² → 1-2 Zi, genuine downsizer), rooms ✓ (our 2 Zi hits „1-2 Z."
+exactly), area-size ✓, rent ✓ (their 1.000/1.150 vs our 1.025,25/1.214,93 = +2,5 % kalt / +5,6 % warm
+— note it runs the *wrong* way: they pay more for less space, on an Indexmiete). Only the Ortsteil is
+open. ⇒ The "swap_offer inventory is the binding restriction" thesis is now falsified twice (#684 on
+rooms, #685 outright): a triage prefilter on „Suche nennt ≥3 Zi / ≥60 m²" would have kept both.
+⇒ Two honest counter-signals to record in any such report, so the user can overrule: they **praise
+their own location** in the ad („2 min zur Tramstation", „Direkt in der Innenstadt") ⇒ the swap motive
+is size only, not a move; and a **low Anbieter-ID** (199871 vs the 400k–480k of current GmbH-feed
+posters) + 9 months online ⇒ long-standing account whose criteria are firm, not an opening position.
 
 **Rent axis when NO ceiling is stated: use the partner's OWN Kaltmiete as the ceiling proxy.**
 Extends the #598 shortcut, which required a written P. #684 names no maximum at all — but they sit on
@@ -137,13 +168,15 @@ After eleven straight discards on a room/area floor (#492, #505, #533, #541, #55
 54,19 m² hits exactly, and they lose only 5,81 m². It fails anyway, on Ort-Richtungsumkehr and rent.
 ⇒ Do not conclude "only a bigger swap_offer would help" — and a triage prefilter on
 "Suche nennt ≥3 Zi / ≥60 m²" would **not** have caught this one; it needs axes 6 and the rent proxy.
+(#685 then went one step further and passed side 2 outright — see the Swap-candidate section above.)
 
 ⇒ Seven-axis side-2 check, in this order: (1) direction/size (vergrößern, "mehr Platz", "für N
 Personen zu klein" → fail), (2) qualitative Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen →
 fail), (3) explicit numeric floor/ceiling (mindestens m² / maximal EUR → arithmetic fail), (4)
 Wohnkonstellation (zwei Wohnungen / Gemeinschaft → fail, we can only offer one unit), (5) `radius: 0`
 + named Ortsteile (→ area fail, leniency does not apply), (6) **Ort-Richtungsumkehr** (they already
-live where we offer and target another city → area fail, leniency does not apply), (7) **implicit
+live where we offer and target **another city** → area fail, leniency does not apply; silent when
+their target Ortsteil is inside our own city, see the #685 bound above), (7) **implicit
 rent ceiling** = their own Kaltmiete when none is written. All seven belong in the same triage
 prefilter — axes (3), (6) and (7) are the cheapest to automate (regex on the description; city+price
 comparison off the search-result row), axis (5) the cheapest to read (one NUXT field), axis (4) is
