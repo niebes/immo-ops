@@ -173,4 +173,15 @@ line Block D gets a 4,0+ "modernisiert" on evidence that does not exist.
 Anbieter = "Vonovia Kundenservice GmbH", direct landlord, **no Provision** (Bestellerprinzip
 fine), low Eigenbedarf risk (corporate). Reputation: commonly cited slow-on-repairs — note in
 Block H, especially when listing says renovation "noch nicht abgeschlossen". Kaution normally
-exactly 3 Nettokaltmieten (legal). These Kirchsteigfeld 3-room flats cluster 4,4–4,7.
+exactly 3 Nettokaltmieten (legal). These Kirchsteigfeld 3-room flats cluster 4,3–4,7.
+
+**Kirchsteigfeld price line has TWO tiers — don't assume the old cluster.** The unsanierte Bestands-
+Neuvermietungen sit at ~10,3–10,6 EUR/m² (#107/#200/#208/#209/#248/#286/#576), but the
+sanierungs-Neuverträge of 2026 are asking **~12,1 EUR/m²** (#679: 889,23 EUR / 73,49 m², Bj 1995,
+EEK D). At 12,10 the Potsdam-Mietspiegel-2026 field *1991–2008 · D–G · Spalte C (>60–75 m²)* =
+9,45 (8,20–11,51) is exceeded **above its Oberwert**, so a Kirchsteigfeld flat in this tier is a
+Mietpreisbremse case (Bj. vor 2014 ⇒ § 556f greift nicht) while the 10,3er tier was comfortably
+compliant. Also check the warm side separately: Vonovia there splits NK 210 + Heizkosten 177 on
+73 m² = **5,27 EUR/m²**, well over the ~3,00–3,80 Potsdam benchmark incl. Fernwärme.
+**Why:** carrying the old ~10,5 cluster forward as "the Vonovia Kirchsteigfeld level" makes the new
+asks look market-conform and silently skips the Mietpreisbremse finding.
