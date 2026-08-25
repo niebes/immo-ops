@@ -106,15 +106,50 @@ one field, settles the area axis outright. Seen on #610 (expose 170120501, Klado
 "mindestens 3 Zimmern und 80 m² in Charlottenburg bzw. Westend bis maximal 1800 Euro" + structured
 `radius 0 / roomsMin 3 / sizeMin 80 / rentMax 1800` — the two sources agreed on every axis, which is
 what made the verdict robust (contrast #454, where they contradicted each other).
-⇒ Five-axis side-2 check, in this order: (1) direction/size (vergrößern, "mehr Platz", "für N
+**Sixth kill axis: ORT-RICHTUNGSUMKEHR — the poster ALREADY LIVES in the region our offer sits in
+and names a DIFFERENT city as the target. The commuter-belt leniency must NOT be applied.** #684
+(Immowelt/Wohnungsswap, Ref 1483177, Hans-Sachs-Str., Brandenburger Vorstadt 14471): „Tausche …
+3-Zimmer-Wohnung **in Potsdam West** gegen eine … Wohnung **in Berlin, bevorzugt im Prenzlauer
+Berg**." Offering Potsdam-Golm leaves them in the city they are leaving and pushes them ~7 km onto
+the **Berlin-averted** side of Potsdam — worse Berlin access than the Bhf Charlottenhof they praise
+in their own ad *and still abandon*. ⇒ **Their own address is an implicit exclusion.** The lenient
+rule ("they name a city ⇒ surface its commuter belt") exists for seekers who live *elsewhere* and
+might accept the Speckgürtel; it is exactly inverted for someone escaping the Speckgürtel, where the
+swap's purpose would be not merely unmet but negatively met. Cheap machine test, computable from
+`pipeline.md` metadata alone: **their listing's city == our offer's city AND their stated target
+city != it ⇒ area fail, no leniency.** *Why:* on #684 the room axis passed, so a leniency-minded
+reader with three-of-four green had real momentum toward a Swap-candidate.
+
+**Rent axis when NO ceiling is stated: use the partner's OWN Kaltmiete as the ceiling proxy.**
+Extends the #598 shortcut, which required a written P. #684 names no maximum at all — but they sit on
+a **350 EUR kalt Genossenschafts-Bestandsmiete** (5,83 EUR/m², inside the official Potsdam
+Mietspiegel span, not a typo) against our **1.025,25 kalt / 1.214,93 warm = +193 % / +247 %**.
+Nobody swaps into a tripling of their rent, so "no stated ceiling" is NOT the free pass the lenient
+rule makes it look like. Two amplifiers to name in the report: a **Genossenschaft / kommunaler
+Bestand** on their side is structurally capped, and our Golm flat is a **freifinanzierte Indexmiete**
+that only diverges further over time. Rule of thumb: partner's own Kaltmiete < ~60 % of 1.025,25
+(≈ 615 EUR) ⇒ treat as a hard rent fail even with no P written down.
+
+⇒ **#684 is the counterexample to the "swap_offer inventory is the binding restriction" thesis.**
+After eleven straight discards on a room/area floor (#492, #505, #533, #541, #550, #578, #579, #597,
+#606, #667, #683), #684 is the **first swap where the room axis PASSES**: a genuine downsizer
+(60 m² / 3 Zi → seeks **1,5–2 Zimmer**, no m² floor, no rent ceiling) whose target our 2 Zi /
+54,19 m² hits exactly, and they lose only 5,81 m². It fails anyway, on Ort-Richtungsumkehr and rent.
+⇒ Do not conclude "only a bigger swap_offer would help" — and a triage prefilter on
+"Suche nennt ≥3 Zi / ≥60 m²" would **not** have caught this one; it needs axes 6 and the rent proxy.
+
+⇒ Seven-axis side-2 check, in this order: (1) direction/size (vergrößern, "mehr Platz", "für N
 Personen zu klein" → fail), (2) qualitative Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen →
 fail), (3) explicit numeric floor/ceiling (mindestens m² / maximal EUR → arithmetic fail), (4)
 Wohnkonstellation (zwei Wohnungen / Gemeinschaft → fail, we can only offer one unit), (5) `radius: 0`
-+ named Ortsteile (→ area fail, leniency does not apply). All five belong in the same triage
-prefilter — axis (3) is the cheapest to automate (regex on the description), axis (5) the cheapest to
-read (one NUXT field), axis (4) is the cheapest to get WRONG. *Why:* on #579 the favourable direction
-made the swap look promising right up to the last clause of the title; on #597 the favourable *rent*
-direction did the same, and only the stated 70-m²-Minimum settled it.
++ named Ortsteile (→ area fail, leniency does not apply), (6) **Ort-Richtungsumkehr** (they already
+live where we offer and target another city → area fail, leniency does not apply), (7) **implicit
+rent ceiling** = their own Kaltmiete when none is written. All seven belong in the same triage
+prefilter — axes (3), (6) and (7) are the cheapest to automate (regex on the description; city+price
+comparison off the search-result row), axis (5) the cheapest to read (one NUXT field), axis (4) is
+the cheapest to get WRONG. *Why:* on #579 the favourable direction made the swap look promising
+right up to the last clause of the title; on #597 the favourable *rent* direction did the same, and
+only the stated 70-m²-Minimum settled it; on #684 the size fit perfectly and only (6)+(7) decided.
 
 **Both sides can fail at once — score side 1 anyway and say so.** #610 was the first swap where
 side 1 *also* missed the 3,5 gate (3,3 — a 160 m²/6-Zi EFH is +33 % over `max_m2` and one room over
