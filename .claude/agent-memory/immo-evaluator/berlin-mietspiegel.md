@@ -122,7 +122,28 @@ liegt, ist in Berlin der **Normalfall**, nicht die Ausnahme — trotzdem jedes M
   Streuung der Quellen (17,5 vs. 21,7 = 24 % Unterschied) ist selbst ein Grund, den Anker nie
   allein tragen zu lassen.
 
-## § 556f-Ausnahme: der Normalfall bei "Erstbezug nach Sanierung" im Altbau
+## § 556f **Satz 1** (echter Neubau) — der zweite, häufigere Ausnahmefall
+Nicht mit der Altbau-Sanierungs-Variante (Satz 2, unten) verwechseln. **Satz 1: eine Wohnung, die nach
+dem 01.10.2014 erstmals genutzt und vermietet wurde, ist dauerhaft von §§ 556d/556e ausgenommen — die
+Ausnahme haftet an der Wohnung, gilt also auch bei jeder Nach-/Wiedervermietung**, nicht nur beim
+Erstbezug. Bei Berliner Neubauquartieren (Baujahr ≥ 2015) ist das der Regelfall und muss ausdrücklich
+so im Bericht stehen, sonst liest sich ein 23-EUR/m²-Neubau wie ein Rechtsverstoß.
+Trotzdem **nie kommentarlos durchwinken**, weil das Baujahr in Kleinanzeigen-/Nachmieterinseraten fast
+nie dabeisteht: (1) Ausnahme als *plausibel, aber unbelegt* benennen, (2) § 556g Abs. 1a-Hebel
+beziffern (ohne Textform-Offenlegung vor Vertragsschluss fällt die zulässige Miete auf ortsüblich
++10 %), (3) **beide Deckel rechnen** — Mittelwert +10 % *und* Spannen-Oberwert +10 %.
+Bei unbekanntem Baujahr entscheidet die Zeilenwahl alles: #682 (Maximilians Quartier, 85 m²,
+23,53 EUR/m², gute Wohnlage, Quartier in Abschnitten ca. 2018–2023) → Feld **2020–2024 ab 85 m²**
+(10,28/**18,42**/23,49) liegt der Preis *auf* dem Spannen-Oberwert ⇒ Oberwert+10 % = 2.196 EUR, kein
+Verstoß; Feld **2016–2019 ab 85 m²** (10,91/**17,47**/21,00) ⇒ Oberwert+10 % = 1.963 EUR, also 36 EUR
+darüber, Mittelwert-Route sogar 367 EUR. Zwei Felder, zwei Verdikte → Baujahr wird zur benannten
+Erstkontakt-Frage. **Baujahr-Recherche-Trick für Neubauquartiere: Hausnummer + Straße googeln ⇒
+Bauvorhabenname ⇒ Bauabschnitte/Fertigstellung** (auf Kleinanzeigen liefert der Standort-Block die
+hausnummerngenaue Adresse; die IS24-Mobile-API scheidet aus, sobald die Nachbar-Exposés 404en).
+**Warum:** ohne Satz 1 landet jeder Berliner Neubau entweder in einem falschen "+30 % über
+Mietspiegel = Verstoß" oder in einem stillen Freispruch ohne den § 556g-Hebel.
+
+## § 556f **Satz 2**-Ausnahme: der Normalfall bei "Erstbezug nach Sanierung" im Altbau
 Berliner Premium-Inserate sind oft **saniert­e Gründerzeitbauten mit "Erstbezug"** — dann liegt die
 Miete regelmäßig **100–200 % über der ortsüblichen Vergleichsmiete** (#652: 24,10 vs. Mittel 8,80
 = +174 %). Das ist **kein Scam-Signal und kein automatischer Rechtsverstoß**: der Vermieter wird

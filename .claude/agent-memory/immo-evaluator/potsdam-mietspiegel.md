@@ -767,3 +767,22 @@ Lärmseite der konkreten Wohnung ist auf Exposés nie angegeben, gehört in die 
 Genutzt auf #666. *Why:* ohne den Anker recherchiert jede Jutekiez-Wohnung Baujahr, Ortsteil, § 556f
 und Mietspiegelfeld neu — und tippt bei „restaurierte Fabrik" leicht auf die Altbauzeile, was die
 Mietpreisbremse-Bewertung um 62 % verzerrt.
+
+## Baualter 1991–2008: die EEK-Zeile entscheidet über die **Spannenbreite**, nicht über den Mittelwert — ein *besserer* Energieausweis macht die Mietpreisbremsen-Rüge STÄRKER
+In der Klasse **1991–2008** liegen die beiden EEK-Zeilen im Mittelwert praktisch gleichauf
+(Spalte C: `A+,A,B,C` = **9,28**, `D,E,F,G` = **9,45**), aber die **Spannen** unterscheiden sich
+drastisch: **8,88–10,29** vs. **8,20–11,51**. Weil „zulässig" = *Spanneneinordnung* + 10 % ist,
+kippt derselbe Quadratmeterpreis je nach Energieausweis in ein anderes Ergebnis:
+- EEK **C** → Oberwert 10,29 → maximal deckbar **11,32 EUR/m²**
+- EEK **D** → Oberwert 11,51 → maximal deckbar **12,66 EUR/m²**
+
+Direkter Beleg, zwei Nachbarhäuser im selben Quartier mit **exakt demselben Preis von 12,10 EUR/m²**:
+**#679** (Maxie-Wander-Str. 8, EEK **D**) = „grenzwertig, am Oberwert gerade noch deckbar";
+**#678** (Maxie-Wander-Str. 6, EEK **C**) = **in jeder Lesart überschritten** (+30,4 % über
+Mittelwert, +17,6 % über Oberwert, 57–137 EUR/Monat Hebel). Praxis: bei Baujahr 1991–2008 immer
+zuerst `obj_energyEfficiencyClass` lesen und den **Oberwert** der passenden Zeile ×1,1 rechnen —
+nicht nur den Mittelwert ×1,1.
+**Why:** ohne diese Unterscheidung wird derselbe Preis in zwei benachbarten Bewertungen einmal als
+compliant und einmal als Verstoß gemeldet, oder — schlimmer — der stärkste Verhandlungshebel eines
+gut gedämmten Baus geht verloren, weil man intuitiv annimmt, ein besserer Energieausweis
+rechtfertige eine höhere Miete.

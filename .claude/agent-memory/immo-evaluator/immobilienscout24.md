@@ -334,8 +334,26 @@ zero interior. Read it for three things the payload otherwise lacks entirely:
   ONLY way to pick the Mietspiegel field on ads that state neither Baujahr nor EEK, and it also decides
   the **§ 556f** question (Erstbezug after 01.10.2014 = Mietpreisbremse exempt). Say "consistent with",
   never assert the estate's identity from a photo.
-- **Estate-wide amenity evidence:** "a balcony on every visible unit" makes the Balkon must-have
-  *likely* but still unconfirmed for the unit → E ≈ **2,5**, not the bare 2,0 of the both-unknown case.
+- **Estate-wide amenity evidence, and it runs in BOTH directions.** "A balcony on every visible
+  unit" makes the Balkon must-have *likely* but still unconfirmed for the unit → E ≈ **2,5**, not
+  the bare 2,0 of the both-unknown case. **The inverse is just as readable and was missing here:**
+  a facade that shows only **Laubengang/Gitterrost-Zugangsgalerien and an external steel stair**
+  (i.e. access decks, not private outdoor space) is a *negative* prior on the Balkon must-have —
+  and lightweight/system construction on a slab usually implies **no Keller** either. Seen on
+  **#675** (expose 170188964, Groß Glienicke): one blurry entrance shot, blue flat door "1",
+  grating gallery above. Do **not** move E below the unconfirmed band on this — a facade photo
+  shows one side only — but keep E at 2,5 (a real photo = a verification path exists) and write
+  the negative prior into the report prose as the most likely reason the flat will fail later.
+  **Why:** scoring the same 2,5 with no comment hides from the user that the single piece of
+  physical evidence in the whole exposé leans *against* both must-haves.
+- **Fabric tells that date a post-1990 building from an exterior shot** (this is the whole
+  Mietspiegel-Baualtersklasse lever on an address-less ad): **Pfosten-Riegel-Aluminiumfassade**
+  with coloured spandrel panels, **feuerverzinkte Außentreppe mit Gitterroststufen**, **Edelstahl-
+  Netzgeländer**, large satinised glazing units. None of these exist on 1970/80s Platten- or
+  Mauerwerksbau. On #675 that single inference moved the Spalte-C row from 5,82 (zulässig 6,88,
+  *überschritten*) to 9,28 (zulässig 11,32, *konform*) — a factor 1,6 on the Mietpreisbremse
+  verdict. Still report per the standing rule: compliance only counts if it also holds under the
+  conservative row, so the honest verdict stays "**nicht abschließend bestimmbar** + § 556g Abs. 3".
 - **Block D:** base off the visible fabric (modern, well-kept, occupied → ~4,5, no EEK bonus without a
   class) then **−1,0 for zero interior** → 3,5. Do NOT let an exterior shot buy interior condition.
 
@@ -406,6 +424,24 @@ propagates into the title and looks confirmed. The two-line arithmetic that catc
 2,50–3,50 incl. Heizung, so an impossibly low NK/m² indicts the *denominator*, not the rent. Test the
 digit-slip hypothesis (180→80, 120→20) and check which reading lands inside a real Mietspiegel column
 band; also sanity-check m²/Zimmer (>40 m²/room for a plain 4-Zi flat is a red flag).
+**The LOW end of the m²/Zimmer ratio indicts the ROOM COUNT, not the area — run the two tests in
+this order.** If NK/m² comes out normal (≥ ~2,50, i.e. the denominator is exonerated) but m²/Zimmer
+is implausibly *small*, the suspect field flips to `obj_noRooms`, which this file separately
+documents as sometimes flat wrong on auto-generated tenant ads (#562: live title said "1-Zimmer"
+for a 3,5-Zi flat). #675 (expose 170188964): 70 m² / **5 Zi = 14,0 m²/Zimmer**, while 8,00 EUR/m²
+kalt + 3,43 EUR/m² NK both sat mid-band → the Wohnfläche is fine, the room count is not evidenced.
+Note that the auto-generated TITLE **and** description both interpolate the same form fields
+("5-Zimmer … 70 Quadratmetern"), so their agreement is **zero corroboration** — it is one field
+printed twice. Score Block C at ~4,0 (in range on paper, unverified and unfavourable in fact:
+five tiny rooms are worse than three normal ones for a household moving *because* it needs space)
+and make "tatsächliche Zimmerzahl + Grundriss?" contact question #1, ahead of the usual
+Balkon/Keller ask. A very low ratio plus external gallery access also legitimately raises "is this
+Sonderwohnungsbau — WG-/Wohnheim-Schnitt or a converted building?" → a **data-integrity flag and
+contact question, never a scam signal** (cf. the #557 Lerchensteig case), especially when the
+priceBar puts the rent mid-band with no bait pattern.
+**Why:** the existing rule only covered the >40 m²/room direction, so a 14 m²/room flat read as
+"within range, C = 5,0" — scoring a layout the household would reject and treating a doubly-printed
+generator field as confirmed.
 **The rule is one-directional — an abnormally HIGH NK/m² does NOT indict the m².** A too-small
 denominator would raise EUR/m² *and* NK/m² together, but on #621 (170042920, Eiche) the kalt figure
 13,50 EUR/m² was market-conform while NK ran 486 €/84 m² = **5,79 EUR/m²**, ~2× the Potsdam norm.
@@ -804,6 +840,26 @@ EXPIRED and NOT stale** — but score it as follows:
 **Why:** a very low Scout-ID reads like a long-dead listing that should be EXPIRED, and the API gives no
 publication date to refute it — without the freemium/caption cross-check you'd either drop a live in-budget
 listing or trust 10-year-old photos as current evidence.
+
+### Inverse of the #507 case: LOW Scout-ID + **CURRENT** media-IDs = re-list with a REFRESHED gallery
+#507 was old ID + old photos (→ stale-photo penalty). The mirror shape exists and scores differently:
+**#680** (expose 168348084, Babelsberg Nord) had a Scout-ID that the report-ladder dates to ~early
+June 2026, `freemiumSettings.dateStarted = 24.08.2026` (yesterday) — but the media-IDs sat at
+**2.075.828.179–2.075.831.717 (6 pics) and 2.079.842.125–2.079.842.138 (11 pics)**, i.e. squarely in
+the Aug-2026 band, ~8 days apart at ~0,49 M IDs/day. Reading:
+- **Always cross-read the Scout-ID age against the media-ID age instead of stopping at either.**
+  Old ID + new media = the *ad object* is old, the *gallery* is new → **do NOT apply the Block-D
+  stale-photo penalty** and do NOT fire the decade-old-photos Medium scam signal; the condition
+  evidence is current.
+- **Two distinct media-ID batches inside one gallery date the gallery's EXPANSION** (here: 6 photos,
+  then 11 more added ~a week later) — that is itself the re-listing effort, and it corroborates
+  `dateStarted` far better than a single batch would.
+- The ad's *age* still stands as a **market-time / negotiating lever** (here ~11 weeks unlet at
+  16,67 EUR/m², `obj_highDemand: false`, Bezugstermin already imminent) — put "seit wann inseriert?"
+  in Next steps rather than asserting the weeks as fact.
+**Why:** applying #507's rule mechanically (low ID ⇒ stale photos) would have docked Block D and
+booked a scam signal on a gallery uploaded three weeks ago, while ignoring the low ID entirely
+would have thrown away the strongest negotiating point in the report.
 
 ## Bare placeholder/stub expose (live, full criteria, but title/desc are single chars)
 Some real Anbieter listings are published as near-empty drafts: `TITLE.title` = a single char like `"s"` and `TEXT_AREA` Objektbeschreibung = `"t"`, with **0 photos** — yet `publicationState=live` and the ATTRIBUTE_LIST criteria (Kaltmiete/NK/Warmmiete/Kaution, Wohnungstyp/Etage/Bezugsfrei, Ausstattungsqualität) ARE fully populated. This is NOT EXPIRED and NOT a Nachvermietung (AGENTS_INFO shows a normal named private Anbieter, not "Aktuelle:r Mieter:in"). Score it from the criteria table, but: cap D at 3.0 (no photos), treat must-haves as unconfirmed (no CHECK/amenity items), score H low (2.5, weak/incomplete listing signal), and mark scam **Proceed with Caution** — an empty private listing + below-band price is unverifiable even without a classic scam narrative. Seen on #349 (expose 169234210, Bornstedt: title "s", desc "t", private "Herr Clemens Wimmer"). The caller's scan title was garbled to "s" because that IS the live title — confirm against the API, don't assume an extraction glitch.
@@ -4455,3 +4511,36 @@ framing is positive evidence of **authentic, self-shot photos** (as opposed to a
 material) — it argues *against* the "photos from different properties" / "stock photos" scam flags.
 **Why:** the existing `fullImageUrl → curl → PIL → Read` recipe says nothing about size; handing a
 45 MB original to Read wastes the budget several images can otherwise fill.
+
+## `obj_balcony: n` + Ausstattung sagt "Ausrichtung Freisitz: {West/Süd/…}" = **Wintergarten/Loggia**, Must-have IST erfüllt
+Auf einem **professionellen Großvermieter-Inserat** (Vonovia & Co.) ist die Ausstattungsmaske
+*bewusst* gesetzt — die bestehende False-Negative-Regel für private/Mieternetzwerk-Anzeigen greift
+hier also **nicht**, und `obj_balcony: n` sieht wie eine harte Absage aus. Trotzdem kann ein
+Freisitz existieren: IS24 kennt **Wintergarten**, **Loggia** und **Dachterrasse** als eigene
+Kategorien, die `obj_balcony` NICHT setzen. Der verlässliche Gegenbeweis steht im
+`TEXT_AREA "Ausstattung"`: sobald dort **"Ausrichtung Freisitz: {Himmelsrichtung}"** auftaucht, hat
+die Wohnung einen Freisitz — das Feld wird nur befüllt, wenn einer existiert. Praxis: bei
+`obj_balcony: n` immer die Ausstattung-Liste auf `Freisitz|Wintergarten|Loggia|Dachterrasse|Terrasse`
+grepen, bevor `balkon_or_terrasse` als fehlend gewertet wird; erfüllt zählen, aber im Report
+vermerken, dass ein Wintergarten **verglast** ist (Öffenbarkeit + Flächenanrechnung als Kontaktfrage).
+Gesehen auf #678 (expose 170256572, Maxie-Wander-Str. 6 Kirchsteigfeld, Vonovia: `obj_balcony: n`
++ "Wintergarten; Ausrichtung Freisitz: West").
+**Why:** ohne diesen Check fällt ein Must-have weg → Block E stürzt per Rubrik auf 2,0
+("Missing 1 must-have", hard penalty) und die Gesamtnote verliert ~0,2 — bei einer Wohnung, die den
+Freisitz nachweislich hat.
+
+## Vonovia-Bestandsinserate: die "ACHTUNG: … Musterbilder"-Zeile steht am **Ende** der Objektbeschreibung
+Vonovia inseriert Wohnungen regelmäßig **während** der laufenden Sanierung und hängt den Satz
+*"ACHTUNG: Bei den Fotos handelt es sich lediglich um Musterbilder, da die Sanierungsarbeiten
+aktuell noch nicht abgeschlossen sind."* als **letzten Absatz** an die Objektbeschreibung — nicht in
+Sonstiges, nicht in die Ausstattung, und die Bilder selbst tragen unauffällige numerische Captions
+(`0 Bild`, `1`, `2`, `99999`), sehen also nach echten Fotos aus. Zusammen mit der ebenfalls im
+Fließtext versteckten Formel *"lediglich tapezierfertig gespachtelt … wird unrenoviert vermietet"*
+entscheidet dieser Absatz zwei Dinge: **Block D wird auf 3,0 gedeckelt** (Bestandsobjekt ohne echte
+Fotos) und es entsteht ein **einmaliger Eigenaufwand ~4.000–7.000 EUR** (Tapezieren/Streichen + EBK,
+`obj_hasKitchen: n`), der in der Kaltmiete unsichtbar ist. Immer den ganzen `TEXT_AREA
+"Objektbeschreibung"` bis zum Schluss lesen bzw. auf `Musterbild|Symbolbild|tapezierfertig|unrenoviert`
+grepen. Wiederholt gesehen bei #566, #576, #586, #678, #679 (alle Potsdam, Vonovia).
+**Why:** nach den Captions allein zählt man 7 "echte" Fotos, vergibt D ≈ 4,3 für ein "renoviertes"
+Bad und verschweigt die Renovierungskosten — der Zustand ist in Wahrheit vor der Besichtigung
+komplett unbelegt.
