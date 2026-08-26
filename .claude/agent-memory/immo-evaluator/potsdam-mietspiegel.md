@@ -245,6 +245,25 @@ gehört als Risiko in Block A/G, nicht als „compliant" abgehakt.
 *Why:* das Standard-Playbook für Potsdamer Großsiedlungen („zuerst das Plattenbau-Feld ziehen") ist
 für Am Stern nur die halbe Wahrheit und liefert bei diesen Adressen einen um +100 % falschen Befund.
 
+### Kirchsteigfeld-Detailanker: **Vonovia-Bestand Bj. 1995 — die Wohnflächen-SPALTE entscheidet den Mietpreisbremsen-Befund, nicht der Preis**
+Der Vonovia-Bestand im Kirchsteigfeld (Maxie-Wander-Str., Anni-von-Gottberg-Str., Maimi-von-Mirbach-Str.,
+Ricarda-Huch-Str., Am Hirtengraben) ist durchgängig **Bj. 1995, Fernwärme-Zentralheizung, EEK C–E,
+kein Aufzug, Mieterkeller + Balkon/Loggia/Wintergarten, keine EBK (nur Spüle + E-Herd), Kaution
+exakt 3,0 NKM**, Anbieter „Vonovia Kundenservice GmbH (Frau Schultze.)", Objekt-Nr. `82-13…`.
+Preisniveau 2026: **10,7–12,1 EUR/m² kalt** — und trotzdem fällt das Mietpreisbremsen-Urteil im selben
+Quartier gegensätzlich aus, weil die m²-Spalte springt:
+- **60–75 m² (Spalte C)** → 9,28 (A+–C) bzw. **9,45 (D,E,F,G)** → zulässig ~10,2–10,4 EUR/m²
+  ⇒ die üblichen 12,10 EUR/m² sind **überschritten** (#678: +137 EUR/Mon.; #679 grenzwertig).
+- **>90 m² (Spalte E)** → **10,28 (7,91–13,71)**, zulässig **11,31 EUR/m²** ⇒ derselbe Vermieter,
+  dasselbe Baujahr, dieselbe Ausstattung ist **konform** (#689, 93,51 m², 10,66 EUR/m², 60,78 EUR/Mon.
+  *unter* der Grenze). Spalte E ist im 1991–2008-Feld auffällig weit — das ist der ganze Grund.
+Zweiter stabiler Befund: die **warme Seite ist im Quartier durchgehend über Benchmark**, 4,9–5,3 EUR/m²
+(NK 2,3–2,9 + Heizkosten 2,4–2,6) gegen Potsdamer 3,0–3,8 — immer als Con nennen und die
+Betriebskostenabrechnung als Kontaktfrage setzen, egal wie günstig die Kaltmiete wirkt.
+*Why:* ohne die Spaltenprobe schreibt man den Kirchsteigfeld-Reflex „Vonovia 1995 ⇒ Mietpreisbremse
+überschritten, § 556g-Rüge" auch auf die großen Wohnungen, bei denen der Preis tatsächlich *unter*
+der zulässigen Miete liegt — und verschenkt das stärkste Pro-Argument der Wohnung.
+
 ## Ortsteil-Anker: **Drewitz (14480)** — und die Falle „1971–1990 hat KEINE `kein EA`-Zeile"
 Zwei Befunde aus #670 (Tauschanzeige, 3 Zi / **62 m²** / **324 EUR = 5,23 EUR/m²**, DG 4. OG):
 

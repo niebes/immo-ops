@@ -165,9 +165,23 @@ line of the Objektbeschreibung says *"ACHTUNG: Bei den Fotos handelt es sich led
   vs "Vinyl-Planken" + "tapezierfertig gespachtelt") — the list is stale boilerplate; list both as
   viewing checks instead of picking one.
 - No Grundriss ships with these ads either → request real photos + Grundriss in the first contact.
-Seen on #679 (IS24 expose 170256330, Maxie-Wander-Str. 8, Kirchsteigfeld, DG 73,49 m²).
+Seen on #679 (IS24 expose 170256330, Maxie-Wander-Str. 8, Kirchsteigfeld, DG 73,49 m²) and again on
+#690 (170281438, Karoline-Schulze-Str. 1, 1. OG 74,51 m²) — it is the standard wording of the whole
+2026 Kirchsteigfeld re-letting wave, expect it on every flat of that batch.
 **Why:** the photos look like a normal, verified interior, so without reading the last description
 line Block D gets a 4,0+ "modernisiert" on evidence that does not exist.
+
+## **Always recompute the Warmmiete from the components — Vonovia's `Gesamtmiete` can be wrong**
+On #690 the Kosten block read Kaltmiete 911,26 + Nebenkosten 198 + Heizkosten 165, but both
+`obj_totalRent` and the "Gesamtmiete" row said **1.249,26 EUR** — the components sum to
+**1.274,26 EUR**, a flat **25,00 EUR** gap (the total is only consistent with NK = 173). The two
+numbers are stored in different fields of the Vonovia feed, so neither is automatically the right
+one. Report the portal figure AND the recomputed one, plan with the higher, and make "Gesamtmiete
+schriftlich bestätigen" a Next step. It is a data defect, **not** a scam signal (mass exposé, all
+other integrity checks clean). Same reflex as the "Heizkosten in Nebenkosten enthalten: Nein" row —
+read it before adding anything up.
+**Why:** taking `obj_totalRent` at face value silently understates the warm rent by up to ~2 %, and
+it also corrupts the Nebenkosten-per-m² benchmark that drives the Block-A deduction.
 
 ## Landlord / character
 Anbieter = "Vonovia Kundenservice GmbH", direct landlord, **no Provision** (Bestellerprinzip
