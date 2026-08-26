@@ -370,13 +370,21 @@ Fixwerte, die man nicht neu recherchieren muss:
   jeder Wiedervermietung. Also **kein § 556g-Abs.-3-Hebel**, so formulieren. Gegenrichtung als
   Stabilitätsplus nennen: weil die Miete ~38 % *über* der ortsüblichen Vergleichsmiete liegt, ist der
   § 558-Erhöhungsspielraum im laufenden Vertrag faktisch null — sofern keine Indexmiete vereinbart ist.
-- **Preisniveau des Quartiers: 16,68–16,70 EUR/m² kalt**, zwei unabhängige Belege — #510
-  (Brunnenallee 3A, Bj. 2018, 76,84 m², 16,68) und #642 (Haus I/WE 8, 74,84 m², 16,70). Das ist
-  ~+38 % über ortsüblich und nur **+7,7 %** über dem stadtweiten Angebotsanker 15,51 ⇒ quartiersüblich,
+- **Preisniveau des Quartiers: 16,50–16,70 EUR/m² kalt**, drei unabhängige Belege — #510
+  (Brunnenallee 3A, Bj. 2018, 76,84 m², 16,68), #642 (Haus I/WE 8, 74,84 m², 16,70) und **#692
+  (Brunnenallee 5, Bj. 2018, 75,04 m², 16,50, BUWOG)**. Das ist ~+34–38 % über ortsüblich und nur
+  **+6–8 %** über dem stadtweiten Angebotsanker 15,51 ⇒ quartiersüblich,
   Block A landet realistisch bei **4,3**, nicht darunter. Ein Aufruf ≫ 18 EUR/m² kalt wäre dort neu.
-- **Energieausweis-Anker: Bedarfsausweis B / 52 kWh(m²·a), Fernwärme** (#510, Brunnenallee 3A, Bj. 2018).
-  Für Nachbarhäuser plausibel, aber **unbestätigt — keinen EEK-Bonus daraus vergeben**, sondern als
-  Kontaktfrage setzen.
+  Achtung Spaltenkante: 74,84 / 75,04 / 76,84 m² fallen auf beide Seiten der 75-m²-Grenze — bei
+  Werten im Bereich 74–76 m² immer **Spalte C *und* D** rechnen und beide nennen.
+- **Energieausweis-Anker: Bedarfsausweis B / 52 kWh(m²·a), Fernwärme** — jetzt **zweifach belegt**
+  (#510 Brunnenallee 3A und #692 Brunnenallee 5, beide Bj. 2018), identische Werte. Für weitere
+  Häuser des Quartiers damit gut plausibel, aber weiterhin **nur aus dem eigenen Exposé gutschreiben**.
+- **Bestätigt (#692): die Häuser Nr. 3/3a/5/7a sind tatsächlich der institutionelle BUWOG-Mietbestand.**
+  Die in #642 formulierte Zwei-Schichten-Regel hat sich damit an einem Fall verifiziert — eine laufende
+  Brunnenallee-Anzeige der BUWOG Immobilien Treuhand GmbH ist eine der 240 Mietwohnungen, **nicht** der
+  Vermieterkanal zu einem privaten ETW-Nachmietergesuch. Sauber unterscheiden lässt sich das an der
+  **Objekt-Nr. `90-…` im `OBJECT_INFO`** (BUWOG hat eine, ein privater Eigentümer/eine Mieteranzeige nie).
 - **Block B = 4,5.** Bhf **Potsdam-Rehbrücke ~350 m** (RE 7 / RB 33 nach Berlin) + **Tram 91**
   Rehbrücke – Heinrich-Mann-Allee – **Hbf ~11 Min.** – Neues Palais – Eiche – **Wissenschaftspark Golm**
   (= direkte Tram zur jetzigen Wohnung des Profils). Kita (2020) und Gymnasium (2025) im Quartier,

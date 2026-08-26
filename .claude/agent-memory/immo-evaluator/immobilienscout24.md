@@ -4270,7 +4270,7 @@ signal, and read "Erschlossen" as settling the Erschließung cost question outri
 Some DB Immobilien Kauf exposés (agent e.g. Timon-Gordon Lauterbach, FG Potsdam & Brandenburg) fully populate the ATTRIBUTE_LIST criteria + carry real photos (19 on #476, expose 168127585), but the Ausstattung TEXT_AREA states the full address, Lage-Exposé, 3D-Tour, extra photos AND the Besichtigungstermin come **only after you confirm a "digitaler Maklervertrag" (kostenfrei bis Kauf)**, and the MAP `address` is null. This is NOT the pre-publication preview case above and NOT EXPIRED — score normally from the criteria table; the true address recovers from the `obj_telekomInternetUrlAddition` base64 leak (decoded to Sternstr. 28, 14480 Potsdam, matching the geo-tag). The gating + "übermitteln Sie uns Ihre vollständigen Kontaktdaten" ask is standard DB-Immobilien funneling, NOT a scam signal on its own. Next-step #1 = confirm the free Maklervertrag to unlock address/photos/viewing.
 **Why:** the null MAP address + "erst nach Vertragsbestätigung" wording looks like a hidden/draft listing, but it's a fully scoreable live exposé — the telekom leak + geo-tag settle the location without contacting anyone.
 
-## Anbieter boilerplate: Objektbeschreibung + Lage can belong to a DIFFERENT project than the address
+## Anbieter boilerplate: Objektbeschreibung + Lage + **Ausstattung** can belong to a DIFFERENT project than the address
 Large Bestandshalter/Konzernvermieter (seen: **BUWOG Immobilien Treuhand GmbH**, a Vonovia-group entity
 — Impressum names Rolf Buch / Philip Grosse / Petra Langemann = the Vonovia SE board) paste a
 project-level Objektbeschreibung + Lage text into unrelated exposés. On #510 (expose 169749898,
@@ -4287,6 +4287,27 @@ label can also be self-inconsistent (`addressLine2` "Waldstadt I" vs `geocodes` 
 **Why:** scoring Block B off the Lage text would have credited a Bornstedt location and Bornstedt transit
 to a flat in Potsdam-Süd, and would have missed the actually-better connection (RE 7/RB 33 at 350 m +
 direct Tram 91 to Golm).
+
+### Extension (#692, expose 170272916, Brunnenallee 5): the **Ausstattung** TEXT_AREA is boilerplate too — never credit an amenity from it
+The identical BUWOG exposé carries a semicolon-separated Ausstattung list that mixes **building-level**
+features with **unit-level** ones in one undifferentiated string: `Barrierearmes Gebäude; Aufzug; Balkon;
+Einbauküche; offene Küche; Abstellraum; Parkett; Fußbodenheizung; Fernwärme; Rollläden elektrisch;
+Mieterkeller; Fahrradabstellraum; Gegensprechanlage; vollständige Wärmedämmung; Spielplatz;
+Mehrfamilienhaus; **Badewanne eingemauert; Dusche**`. On #692 the bathroom photo showed **only a
+bodengleiche Dusche** — so "Badewanne" is a quarter/spec-sheet claim, not this unit's fitting.
+Tells that a token is building-level, not unit-level: `Spielplatz`, `Mehrfamilienhaus`,
+`vollständige Wärmedämmung`, `Fahrradabstellraum`, `Barrierearmes Gebäude` sitting in the same list
+(a unit does not "have" a Mehrfamilienhaus). Once those appear, treat the WHOLE list as project spec.
+**How to apply:** cross-check each *nice-to-have* against the photos and the `adTargetingParameters`
+`obj_*` booleans before scoring Block E; if only the prose asserts it, score it as **not present** and
+make it a contact question (per the "never credit an unverified amenity" rule). The `obj_balcony` /
+`obj_cellar` structured flags stay trustworthy — it's the prose list that over-promises.
+Note also that a **Vonovia-group `90-…` Objekt-Nr. discriminates the building the same way the plain
+Vonovia `82-…` one does**: #510 `90-1791890030` (Brunnenallee 3A) vs #692 `90-1791900008`
+(Brunnenallee 5) — differing digits before the trailing unit counter ⇒ different house, duplicate
+question settled for free.
+**Why:** without this, #692's Badewanne would have been ticked off as a satisfied nice-to-have on
+boilerplate alone (Block E 3,8 → 4,0), and the same list will recur on every Brunnenallee/BUWOG ad.
 
 ## Numeric MEDIA captions ("0","1","2"…) ≠ renders — download and look before capping Block D
 Memory elsewhere says numeric-ID captions on a Planung/Fertighaus listing mean catalog renders. On a
