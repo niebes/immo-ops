@@ -111,6 +111,18 @@ liegt, ist in Berlin der **Normalfall**, nicht die Ausnahme — trotzdem jedes M
 
 ## Angebotsmarkt-Anker (Anchor 2, immer zusätzlich nennen)
 - **Westend (14052/14055), Q2 2026: 14,65 EUR/m² Mittel, Spanne 11,87–21,73, −2 % y-o-y.**
+- **Spandau (Bezirk), Q2 2026: 11,34 EUR/m²** (−2,1 % y-o-y), Bezirksspanne **9,75–17,67**; ein zweiter
+  Aggregator nennt 14,89 für „Angebotsmiete Wohnung" — die übliche 25-%-Quellenstreuung, IS24-Wert als
+  Mittel zitieren. Ortsteile: **Siemensstadt (13629) Q1 2026 11,84 EUR/m²** (+0,85 % y-o-y, #696) ·
+  **Wilhelmstadt (13595) Q2 2026 13,64** (Spanne 8,84–15,59, #695). Spandau ist der **billigste** Bezirk
+  Berlins — hier fällt eine Angebotsmiete regelmäßig *unter* den Grunewald/Westend-Reflexwert, aber
+  immer noch **deutlich über** die ortsübliche Vergleichsmiete (Altbauzeilen 7,5–8,1). *Warum:* zwei
+  Bewertungen an einem Tag brauchten denselben Anker; ohne ihn wird der Grunewald-Anker (17–22)
+  fälschlich auf einen Spandauer Bestandsbau angelegt.
+  - ⚠ **PLZ 13629 ist Siemensstadt/Spandau, NICHT Charlottenburg-Wilmersdorf** — Immowelt behauptet auf
+    Tauschanzeigen genau das (`city:"Charlottenburg-Wilmersdorf"`, `district:"Grunewald"`). Bezirk vor dem
+    Nachschlagen per Nominatim auf die PLZ prüfen; der Bezirk entscheidet nur den Anker, die
+    Mietspiegelzeile hängt an Baualter × Wohnlage × m².
 - **Grunewald (14193): 17–22 EUR/m²** — Spitzensegment Berlins, steht so auch als
   `max_price_per_m2: 22` in der Suchgruppe "Berlin Grunewald flat rental" in `config/profile.yml`.
   Ein Inserat **über 22** ist damit teuer *selbst am Angebotsmarkt*, nicht nur gegen den Mietspiegel

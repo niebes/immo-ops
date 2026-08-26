@@ -191,11 +191,27 @@ side 1 *also* missed the 3,5 gate (3,3 — a 160 m²/6-Zi EFH is +33 % over `max
 a wrong recommendation — check the side-1 number before writing that follow-up.
 
 ### The base rate is NOT a law — #608 is the first side-2 PASS. Don't pre-judge a swap as doomed.
-**Pass roster (three known shapes, keep it current):** #608 „{N} Raum **gegen {M} Raum**" with M ≤ our
+**Pass roster (four known shapes, keep it current):** #608 „{N} Raum **gegen {M} Raum**" with M ≤ our
 2 Zi (the Suche IS the title) · #662 · **#672 silent-except-a-bare-city-clause** (see the „TOTALLY silent
-Suche" section below). Note the split: #608's pass is a *match against stated criteria*, #641/#672's is a
-pass *by silence*. Both are legitimate Swap-candidates, but only the first carries real odds — say which
-kind you have, so the user can budget attention accordingly.
+Suche" section below) · **#685** headline-only „gegen 1-2 Z. {Ortsteil}" · **#696 the strongest shape yet:
+„Suche {N} Zimmer / Biete {M} Zimmer" in the HEADLINE *plus* an explicit motive sentence
+(„Möchte mich **verkleinern** und suche deshalb eine neue Wohnung") as sentence 1 of the body.** Note the
+split: #608/#696's pass is a *match against stated criteria*, #641/#672's is a pass *by silence*. Both are
+legitimate Swap-candidates, but only the first carries real odds — say which kind you have, so the user can
+budget attention accordingly.
+  - **#696 also breaks the „our offer's missing Keller always costs us" reflex: check whether the PARTNER
+    has one.** Their Siemensstadt flat had `Keller` **0 hits** and a nachweislich complete 5-chip
+    Merkmalsliste (`features.details:null`), only „eine kleine Abstellkammer im Flur" — so the Ausstattungs-
+    delta of the swap was the smallest of the whole series (they lose only Balkon + EBK, gain ~29 m² garden
+    + Aufzug + Neubau 2024). ⇒ Score the amenity axis of side 2 as a **delta between the two flats**, not
+    as a list of what our offer lacks in the abstract. Same listing, mirror lesson for side 1: „Keller not
+    stated" on a **Berlin pre-1990 Bestandsbau** is weak evidence of absence (Kellerabteile are near-
+    universal there) — apply the E-2,0 rubric penalty, bump to 2,5, and make the Keller question the
+    cheapest-highest-leverage first-contact item (confirmed ⇒ E ≈ 4,0, ~+0,15 on the global score).
+  - **Rent axis, #696 variant: the partner's €/m² sitting AT the Ortsteil-Angebotsanker kills the usual
+    Altvertrag caveat.** 11,40 EUR/m² vs Siemensstadt-Anker 11,84 (−3,7 %) ⇒ no deep legacy discount to
+    lose, so „Zustimmung kommt als neuer Vertrag zu Marktmiete" is a small risk here — but the flipside is
+    that the **Mietpreisbremse** becomes the live Block-A story instead (cf. the #669 rule of thumb).
 After a long unbroken failure run (#492, #505, #533, #541, #550, #578, #579, #597, #598, #606) it is
 tempting to treat every swap as a foregone Discard. **#608** (Kleinanzeigen, „TAUSCHWOHNUNG *Günstige
 3 Raum Wohnung **gegen 2 Raum Wohnung***", 89 m² / 980 EUR kalt, Potsdam 14469) passed both sides.
