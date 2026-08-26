@@ -191,11 +191,19 @@ exactly 3 Nettokaltmieten (legal). These Kirchsteigfeld 3-room flats cluster 4,3
 
 **Kirchsteigfeld price line has TWO tiers — don't assume the old cluster.** The unsanierte Bestands-
 Neuvermietungen sit at ~10,3–10,6 EUR/m² (#107/#200/#208/#209/#248/#286/#576), but the
-sanierungs-Neuverträge of 2026 are asking **~12,1 EUR/m²** (#679: 889,23 EUR / 73,49 m², Bj 1995,
-EEK D). At 12,10 the Potsdam-Mietspiegel-2026 field *1991–2008 · D–G · Spalte C (>60–75 m²)* =
-9,45 (8,20–11,51) is exceeded **above its Oberwert**, so a Kirchsteigfeld flat in this tier is a
-Mietpreisbremse case (Bj. vor 2014 ⇒ § 556f greift nicht) while the 10,3er tier was comfortably
-compliant. Also check the warm side separately: Vonovia there splits NK 210 + Heizkosten 177 on
-73 m² = **5,27 EUR/m²**, well over the ~3,00–3,80 Potsdam benchmark incl. Fernwärme.
+sanierungs-Neuverträge of 2026 are asking **12,1–12,3 EUR/m²** — two independent data points:
+#679 (889,23 EUR / 73,49 m², Bj 1995, EEK D) and #690 (911,26 EUR / 74,51 m², Bj 1995, **EEK C**,
+1. OG). Both blow through the Potsdam-Mietspiegel-2026 **Oberwert** of their field — *1991–2008 ·
+D–G · Spalte C* = 9,45 (8,20–11,51) for the EEK-D flat, *1991–2008 · A+,A,B,C · Spalte C* = **9,28
+(8,88–10,29)** for the EEK-C one (note: the **better** EEK lands in the **cheaper** row, so a good
+Energieausweis makes the Mietpreisbremse finding *worse*, not better). Bj. vor 2014 ⇒ § 556f greift
+nicht, § 556e Vormiete is the only remaining justification ⇒ § 556g Abs. 3 Auskunft. The old 10,3er
+tier was comfortably compliant. Two more checks that both flats failed:
+- **warm side:** NK + Heizkosten are **4,9–5,3 EUR/m²** (#679: 210+177 on 73 m²; #690: 198+165 on
+  74,5 m²), well over the ~3,00–3,80 Potsdam benchmark incl. Fernwärme.
+- **`priceBar` is the discriminator between the two tiers**, and it moves fast within Kirchsteigfeld:
+  #679 sat at the 60th percentile *inside* the similar-offer band (7,10–12,50), #690 at the 81st
+  percentile **above** its band (6,40–10,80). Always pull the per-address band; the quarter has no
+  single level.
 **Why:** carrying the old ~10,5 cluster forward as "the Vonovia Kirchsteigfeld level" makes the new
 asks look market-conform and silently skips the Mietpreisbremse finding.
