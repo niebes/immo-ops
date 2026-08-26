@@ -352,6 +352,18 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
   "Wir haben derzeit keinen Vergleich für diese Immobilie" but still shows the band). Use it as an
   independent cross-check against a Bodenrichtwert-derived estimate. *Why:* #396 — the portal's own
   3.218–5.946 EUR/m² band corroborated the BORIS-based floor with zero extra research.
+  In the JSON it is `sections.priceComparison = {data:{value,accuracy,low,high}, hasMainPrice}` —
+  and on a priceless expose **`hasMainPrice:false` + `markerPosition:null` prove the absence of a
+  Kaufpreis is real, not a parse failure**, while `data.value` is then the *regional* mean €/m², NOT
+  a value derived from this object (#697: 6.374, band 3.544–9.895 for Potsdam-Nauener Vorstadt).
+- **⚠ On a "Preis auf Anfrage" expose, `sections.mortgage.price` IS populated — with a DUMMY, not a
+  hidden price. Never report it as the Kaufpreis.** #697: `mortgage.price: 1041`, `monthlyAmount: 4`
+  — it exists only to feed the "**ab 4 € mtl. finanzieren**" widget, i.e. the seller typed a token
+  value into a mandatory field (a 347-m²-Villa is not 1.041 EUR). The four fields that actually settle
+  the question all say the same thing: `hardFacts.price = "Preis auf Anfrage"` ·
+  `sections.price.base.main.value.main.value = "auf Anfrage"` · `priceComparison.hasMainPrice = false`
+  · the visible `Preisdetails` block. *Why:* when the task is literally "find the hidden price", a
+  numeric field deep in the payload reads like the answer and produces a fabricated Kaufpreis.
 - **Provision terms are spelled out in the Preisdetails block** — rate, when it becomes due, and
   crucially whether a **same-rate contract with the seller** exists (= § 656c BGB split confirmed).
   Read it verbatim; it is a real Block-G differentiator (#396 was clean and 2,38 %; #384's IS24 twin
@@ -373,6 +385,32 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
   for renders — the `_shared.md` Neubau/Erstbezug exception applies.
   *Why:* on the sticker price alone #514 reads as a comfortable 78 %-of-budget 5,0 in Block A; the
   real cost sits at/over the 500 k cap and the "house" does not exist.
+  ⚠ **…but the `Zustand: Projektiert` tell is NOT reliable — a Typenhaus ad can claim to be existing
+  stock in EVERY structured field.** #697 (`d237c4da…`, Mein Haus GmbH Nauen, "Villa im Bauhausstil
+  347 m²"): `Zustand der Immobilie: **In bewohnbarem Zustand**` · `rawData.distributionSubType.buy:
+  **"RESALE"**` · `propertySubType: "VILLA"` · `metadata.isNewBuildProject: **false**` ·
+  `frei ab sofort` — i.e. every field the "is this a build offer?" check normally relies on lies.
+  The five tells that DID work, in order of cost:
+  1. **`sections.price.base.commissionFee.value` (the `Provision für Käufer` text) is the decider**:
+     „**Grundstücke werden auf Anfrage angeboten, sind nicht im Preis enthalten..** Die Provision …
+     ist ausschließlich auf den **Grundstückspreis** zu entrichten." Plot excluded + commission on the
+     plot only ⇒ build offer, always. This is a pure text test and works off the search page too.
+  2. **`domains.medias.floorplans[].description` is a filename that names the Haustyp AND its area** —
+     here `Bauhaus - 393 m² EG/OG/Staffel G.png` while the ad advertises **347 m²**. A floorplan area
+     ≠ the advertised `livingSpace` means the plans belong to a catalogue type, not to the object.
+  3. **Gallery = renders + a logo tile.** One image carried `classification.name: "LOGO"` (Immowelt's
+     own scene classifier tags the builder's banner), the rest were CGI with the firm's logo burnt in.
+     0 real photos — but do NOT cap Block D, the `_shared.md` Neubau exception still applies.
+  4. Prose sells a *service*: „Grundstücksservice", „Netzwerk an Immobilienmaklern und
+     Grundstücksbesitzern", „individuelle Grundrissplanung", a named build system („Liaplan Bausatz").
+  5. **`Referenznummer` = the creation date** (`15052026` = 15.05.2026), the date-variant of the
+     kw-rotation tell above.
+  Scoring consequence when the plot is excluded: the profile's `garten` must-have is **not delivered**
+  (Block E 2,0 — the garden on the render belongs to no land in the offer), and Block B must be marked
+  *nominal*: the Ortsteil is a marketing catchment, not an address (`isAddressPublished:false`,
+  `geometry` = Ortsteil polygon, builder 30 km away). Same #419/#381 pattern.
+  *Why:* without this, #697 passes the #514 checklist as an existing villa and the whole evaluation
+  argues about a resale price that was never on offer.
 - **Watch the tail of the description for a digital-staging disclaimer** — e.g. "Einige Räume sowie
   die Außenanlage wurden digital gestaltet und dienen ausschließlich als Inspiration." It sits AFTER
   the prose and before "Mehr anzeigen", so a truncated read misses it. It is *partial* staging on an
