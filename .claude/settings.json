@@ -17,9 +17,6 @@
     "allow": [
       "Bash(node *)",
       "Bash(npm *)",
-      "Bash(echo *| node *)",
-      "Bash(cat *| node *)",
-      "Bash(printf *| node *)",
       "Bash(echo * > data/*)",
       "Bash(cp templates/*)",
       "Bash(date *)",
