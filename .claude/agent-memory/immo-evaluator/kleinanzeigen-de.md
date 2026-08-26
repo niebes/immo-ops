@@ -89,6 +89,24 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     *Why:* on #642 the search hint's naive `heading ÷ m²` gave **22,13 EUR/m²**, over the profile's
     18-EUR/m² cap and heading for a rejection; the real figure is **16,70 EUR/m²**, comfortably under
     it — a 32 % error that flipped the whole verdict, on an ad that states the answer in one sentence.
+  - **When the description settles NOTHING, two NON-price fields still decide the kalt/warm reading —
+    and they are independent of each other.** #694 (heading 1.885 € == `Warmmiete` field, no NK field,
+    no price sentence anywhere = a textbook #356 coin flip) was decided outright by:
+    1. **Kaution ÷ 3 — and the quotient is allowed to carry CENTS.** The #594 rule says "exact multiple
+       of a plausible rent", which reads as "must be round". It is not: 4.276 ÷ 3 = **1.425,33**, i.e.
+       3 × 1.425,33 = 4.275,99 ≈ 4.276. A rent computed as m² × rate almost always has cents, so a
+       *non*-round quotient is the normal case, not a miss. Always also test the reverse for
+       impossibility: heading-as-Kaltmiete would make the Kaution 2,27 NKM — a number nobody computes.
+    2. **The poster's stated MINIMUM HOUSEHOLD INCOME is a price-reading discriminator.** German
+       private ads routinely close with "Bitte nur Anfragen bei einem Haushaltseinkommen von mind.
+       X €", and X is set by the ⅓-rule on the **Warmmiete**: #694 asked 5.600 € against a heading of
+       1.885 € → 1.885 × 3 = 5.655 ≈ 5.600. Had 1.885 been the Kaltmiete (warm ≈ 2.200) she would have
+       asked ~6.600. Grep `Haushaltseinkommen|Nettoeinkommen|mind\.|mindestens.{0,20}€` and divide by 3.
+    Both are cheap and neither needs the description to say anything about the price.
+    *Why:* on #694 the conservative default (heading = Kaltmiete) gives 21,92 EUR/m², busts the
+    18-EUR/m² cap by +21,8 % and pushes the Warmmiete over the 2.200 cap — a rejection profile — while
+    the true 16,57 EUR/m² clears all three caps. Two independent non-price fields flipped the verdict
+    on an ad that states no split at all.
   - Posting date + view count: `#viewad-extra-info` (e.g. "14.08.2026") and the counter right after it
     ("6" Aufrufe). Useful for "how fresh / how contested is this ad" in next steps — there is no
     "Anzeige online seit N Tagen" string to grep.

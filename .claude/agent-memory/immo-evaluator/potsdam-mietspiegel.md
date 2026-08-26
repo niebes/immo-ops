@@ -370,16 +370,25 @@ Fixwerte, die man nicht neu recherchieren muss:
   jeder Wiedervermietung. Also **kein § 556g-Abs.-3-Hebel**, so formulieren. Gegenrichtung als
   Stabilitätsplus nennen: weil die Miete ~38 % *über* der ortsüblichen Vergleichsmiete liegt, ist der
   § 558-Erhöhungsspielraum im laufenden Vertrag faktisch null — sofern keine Indexmiete vereinbart ist.
-- **Preisniveau des Quartiers: 16,50–16,70 EUR/m² kalt**, drei unabhängige Belege — #510
-  (Brunnenallee 3A, Bj. 2018, 76,84 m², 16,68), #642 (Haus I/WE 8, 74,84 m², 16,70) und **#692
-  (Brunnenallee 5, Bj. 2018, 75,04 m², 16,50, BUWOG)**. Das ist ~+34–38 % über ortsüblich und nur
-  **+6–8 %** über dem stadtweiten Angebotsanker 15,51 ⇒ quartiersüblich,
-  Block A landet realistisch bei **4,3**, nicht darunter. Ein Aufruf ≫ 18 EUR/m² kalt wäre dort neu.
+- **Preisniveau des Quartiers: 15,16–16,70 EUR/m² kalt**, fünf unabhängige Belege — #510
+  (Brunnenallee 3A, Bj. 2018, 76,84 m², 16,68), #642 (Haus I/WE 8, 74,84 m², 16,70), **#692
+  (Brunnenallee 5, Bj. 2018, 75,04 m², 16,50, BUWOG)**, **#691 (Brunnenallee 5A, Bj. 2018, 72,74 m²,
+  **15,30**, BUWOG)** und **#693 (Brunnenallee 3, 75,00 m², 15,16, BUWOG)**. Das ist ~+26–38 % über
+  ortsüblich und **−2 bis +8 %** um den stadtweiten Angebotsanker 15,51 ⇒ quartiersüblich.
+  **Die Spanne korreliert mit der Fläche, nicht mit dem Haus:** die ~75-m²-Wohnungen liegen bei
+  15,2–16,7, die kleinere 72,74-m²-Einheit bei 15,30 — der Aufruf ist also **kein** verlässlicher
+  Qualitätsindikator, sondern Preisliste. Konsequenz für Block A: **4,3 ist der Quartiers-Normalfall**
+  (Basis 5,0 − 0,5 Mietspiegel-Aufschlag), aber ein Aufruf **am unteren Rand (≤ 15,5)** verdient nur die
+  reduzierte Korrektur −0,4 ⇒ **A ≈ 4,6** (so gescort auf #691). Ein Aufruf ≫ 18 EUR/m² wäre dort neu.
   Achtung Spaltenkante: 74,84 / 75,04 / 76,84 m² fallen auf beide Seiten der 75-m²-Grenze — bei
-  Werten im Bereich 74–76 m² immer **Spalte C *und* D** rechnen und beide nennen.
-- **Energieausweis-Anker: Bedarfsausweis B / 52 kWh(m²·a), Fernwärme** — jetzt **zweifach belegt**
-  (#510 Brunnenallee 3A und #692 Brunnenallee 5, beide Bj. 2018), identische Werte. Für weitere
-  Häuser des Quartiers damit gut plausibel, aber weiterhin **nur aus dem eigenen Exposé gutschreiben**.
+  Werten im Bereich 74–76 m² immer **Spalte C *und* D** rechnen und beide nennen; ≤ 74 m² ist
+  eindeutig Spalte C (12,06).
+- **Energieausweis-Anker: Bedarfsausweis B / 52 kWh(m²·a), Fernwärme** — jetzt **dreifach belegt**
+  (#510 Brunnenallee 3A, #692 Brunnenallee 5, #691 Brunnenallee 5A, alle Bj. 2018), identische Werte.
+  Für weitere Häuser des Quartiers damit gut plausibel, aber weiterhin **nur aus dem eigenen Exposé
+  gutschreiben**. Nutzbare Gegenprobe zur Heizkostenvorauszahlung: 52 kWh/m²·a × Fläche × ~0,13 EUR/kWh
+  ÷ 12 ≈ **0,56 EUR/m²/Monat** (72,74 m² → ~41 EUR); die BUWOG-Exposés setzen ~0,99 EUR/m² an, sind also
+  **konservativ kalkuliert** ⇒ Nachzahlungsrisiko gering, das im Report als Plus nennen.
 - **Bestätigt (#692): die Häuser Nr. 3/3a/5/7a sind tatsächlich der institutionelle BUWOG-Mietbestand.**
   Die in #642 formulierte Zwei-Schichten-Regel hat sich damit an einem Fall verifiziert — eine laufende
   Brunnenallee-Anzeige der BUWOG Immobilien Treuhand GmbH ist eine der 240 Mietwohnungen, **nicht** der
@@ -837,7 +846,21 @@ Denkmal-Loft mit Stellplatz **15–17 EUR/m² kalt**.
 Lage: ca. **1,5 km östlich Potsdam Hbf** (RE1 Berlin ~25 Min., S7 Wannsee ~10 Min.), Nuthepark direkt,
 Babelsberg jenseits der Nuthe → **Block B 4,5**. **Caveat: Nuthestraße (B2) + Bahnkorridor** — die
 Lärmseite der konkreten Wohnung ist auf Exposés nie angegeben, gehört in die Kontaktfragen.
-Genutzt auf #666. *Why:* ohne den Anker recherchiert jede Jutekiez-Wohnung Baujahr, Ortsteil, § 556f
+**Spalte D (>75–90 m²), damit man sie nicht nachschlagen muss:** Hyp. A `2013–2020` = **12,34
+(10,90–14,23)** ⇒ zulässig 13,57 · Hyp. B `bis 1948 · kein EA` = **7,83 (6,51–9,24)** ⇒ zulässig 8,61.
+**Die 15–17-EUR/m²-Neuvertragsprognose ist inzwischen BESTÄTIGT — zwei Einheiten derselben Fabrikhalle
+im Vergleich:** #666 (4 Zi, 98 m², **13,27** kalt) ist ein *Bestands*vertrag, #694 (3 Zi, 86 m²,
+**16,57** kalt, frisch inseriertes Nachmietergesuch) ein *Neu*vertrag — **+24,9 %**, exakt das für
+#666 vorhergesagte Reset-Band. Also: bei Jutekiez-Inseraten erst fragen, ob der Preis ein Altvertrag
+(Tausch/Nachmieter mit Vertragsübernahme) oder ein Neuvertrag ist; **13 EUR/m² = Bestand, ~16–17 =
+Neuvertrag, beides quartiersüblich**. Nutze die jeweils andere Zahl als adressgenaues
+Vergleichsobjekt — das ist der stärkste Beleg im ganzen Block A und kostet einen Grep.
+**Lärm-Caveat ist jetzt fotografisch belegt, nicht mehr Vermutung:** #694 Foto 8 zeigt von der Terrasse
+aus direkt gegenüber den **Bahnkorridor mit abgestellten Regionalzügen**. Die Fotos der Loft-Einheiten
+stammen fast alle aus der Zeit direkt nach dem Umbau (~2017/2019, Baustelle im Bild) — die Freiflächen
+davor sind inzwischen mit den sieben Neubaukomplexen bebaut, Blick *und* Schallweg haben sich also
+geändert. Foto-Alter deshalb immer mitlesen: es belegt das Objekt, nicht den heutigen Zustand.
+Genutzt auf #666, #694. *Why:* ohne den Anker recherchiert jede Jutekiez-Wohnung Baujahr, Ortsteil, § 556f
 und Mietspiegelfeld neu — und tippt bei „restaurierte Fabrik" leicht auf die Altbauzeile, was die
 Mietpreisbremse-Bewertung um 62 % verzerrt.
 

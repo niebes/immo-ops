@@ -4325,6 +4325,15 @@ Vonovia `82-…` one does**: #510 `90-1791890030` (Brunnenallee 3A) vs #692 `90-
 question settled for free.
 **Why:** without this, #692's Badewanne would have been ticked off as a satisfied nice-to-have on
 boilerplate alone (Block E 3,8 → 4,0), and the same list will recur on every Brunnenallee/BUWOG ad.
+**Refinement (#691, expose 170273080, Brunnenallee 5A): the list is project spec, which means it is
+sometimes TRUE — verify per unit, do not blanket-reject it.** The byte-identical Ausstattung string
+carried `Badewanne eingemauert; Dusche`, and here the photos show **both** (an eingemauerte Wanne with
+washbasin AND a separate walk-in shower with towel radiator) ⇒ nice-to-have `badewanne` legitimately
+ticked. So the rule is symmetric: the prose neither proves nor disproves a unit-level amenity —
+**the photo decides in both directions**, and two ads in the same building can differ on the same
+token. Same run also gives the third `90-…` Objekt-Nr. data point: `90-1791910019` (5A) vs
+`90-1791900008` (5) vs `90-1791890030` (3A) — three houses, three prefix blocks, consistent with the
+building-discriminator rule above.
 
 ## Numeric MEDIA captions ("0","1","2"…) ≠ renders — download and look before capping Block D
 Memory elsewhere says numeric-ID captions on a Planung/Fertighaus listing mean catalog renders. On a
@@ -4417,6 +4426,28 @@ How to handle:
 **Why:** taking `Gesamtmiete` at face value silently understates the monthly cost by 100–250 EUR and can
 flip a listing from "over the Warmmiete cap" to "in budget" — and the exclusion is never in the cost
 table's headline, only in the `Heizkosten in Nebenkosten enthalten: Nein` sub-line plus one prose sentence.
+
+### Mirror case: `Gesamtmiete` **EXCEEDS** Kalt+NK+HK → an unitemized extra position, and the way to prove it is a SIBLING listing
+`obj_serviceCharge` / `obj_heatingCosts` are printed **rounded to whole euros**, so a small residual is
+normal noise — but the noise ceiling is **±2 EUR per field, i.e. ±4 EUR total**. Anything bigger is a
+real cost line the exposé never names (Stellplatz/Tiefgarage, Kabel-/Multimediapauschale, Möblierungs-
+or Ausstattungszuschlag). Seen on **#691** (expose 170273080, Brunnenallee 5A): 1.112,92 + 181 + 72 =
+1.365,92 vs `obj_totalRent` **1.420,62** ⇒ **+54,70 EUR/Monat unaccounted**.
+**How to prove it in one minute — curl a sibling from the same landlord/estate** (the pipeline usually
+holds two or three), and diff the same four fields. #691's siblings: 170272916 (Brunnenallee 5) gap
+**−4,20**, 170262432 (Brunnenallee 3) gap **0,00** ⇒ rounding is demonstrably small in this feed, so the
++54,70 is structural. Second corroboration: put NK and HK on a EUR/m² basis — #691's 2,49 / 0,99 vs the
+sibling's 2,48 / 0,99 are proportional, i.e. the two NK fields are *complete* and the surplus cannot be
+hiding inside them.
+**How to score it:** use the higher `obj_totalRent` as the Warmmiete (conservative, it is what the
+landlord will invoice), state the gap explicitly in the price table, and make "which position is the
+X EUR, and is it verpflichtend mitzumieten?" contact question #1 — the answer decides whether it is a
+rent line or an opt-out. Do NOT let it fire a scam signal (it is a Massenvermieter data-entry mistake,
+same class as the boilerplate Lage text above); log it as a Low data-quality flag.
+**Why:** the temptation is to "fix" the arithmetic by quoting 1.365,92 as the Warmmiete. That
+under-reports the real monthly cost by ~55 EUR and silently deletes the single most useful question to
+ask the landlord — and without the sibling diff there is no way to tell this apart from harmless
+rounding, which is exactly what the neighbouring exposé turned out to be.
 
 ## The headline `Wohnfläche` can INCLUDE the Balkonanteil — the Grundriss states both figures
 IS24's `Wohnfläche ca.` is whatever the lister typed, and on new-builds that is routinely the WoFlV
