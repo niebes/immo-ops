@@ -369,6 +369,23 @@ gap is this large.
 **Why:** without the re-let line, Block A scores a rent the user will never sign; with the scam signal
 fired, a perfectly normal below-market Altvertrag reads as fraud.
 
+**Same rule applies to the plain-private Nachmietergesuch class (`isTenantNetwork: false`) — and
+there the sharpest re-let anchor is usually sitting in `pipeline.md` already.** When the SAME street
+has landlord-marketed sibling units live in the same scan, quote those instead of an Ortsteil average:
+they are the identical building class at the identical moment, so the delta is the re-let risk, exactly.
+#693 (expose 170262432, Brunnenallee 3, Brunnen Viertel Potsdam) asked **15,16 EUR/m²** — the cheapest
+of five Brunnenallee ads (siblings at 15,30 / 16,50 / 16,68 / 16,70), i.e. **+9–10 % ≈ +100–115 EUR/Mon.**
+of headroom, not a bargain. What makes the raise legally free is the **§ 556f BGB Neubau exemption**
+(quarter first let after 01.10.2014 → exempt *permanently*, incl. every Wiedervermietung): there is no
+Mietpreisbremse ceiling to stop the landlord re-pricing to the sibling level, and no § 556g Abs. 3
+Rügehebel either. So in a post-2014 quarter the re-let estimate is not a caveat, it is Block A's
+central number — score −0,5 and make "bleibt die Kaltmiete für den Nachmieter bestehen?" contact
+question #1. Corollary: the § 556f verdict rests on a **Baujahr the private ad never states**
+("Baujahr: unbekannt"), so it is an *assumption* — say so, and if the landlord cannot confirm the
+Baujahr the Mietpreisbremse is back on and the gap to ortsüblich becomes rügefähig.
+**Why:** without the sibling anchor, a Nachmieter ad that is genuinely 10 % under the live local ask
+gets written up as "cheapest in the street" full stop — praising a price the user will never be offered.
+
 **`TEXT_AREA.text` can be a single sentence that is the most consequential fact in the exposé — read
 it even when it looks empty.** #614's entire description: *"Wir dürfen keine Nachmieter suchen."* —
 i.e. the **landlord has not authorised a successor search at all**, so the IS24 proposal route is the
