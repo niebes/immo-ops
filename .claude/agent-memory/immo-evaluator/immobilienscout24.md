@@ -67,6 +67,48 @@ inserent is the same person and the price fell — #621.)
 **Why:** without the Objekt-Nr.+404 pair a re-list is either scored as a brand-new flat (losing the
 price-cut leverage and re-deriving everything) or dismissed as a stale duplicate and never evaluated.
 
+**`obj_objectnumber == obj_scoutId` means there IS no Objekt-Nr. — and that absence is itself the
+discriminator.** On a private/freemium ad the field just echoes the Scout-ID (#699: both
+`170310996`), so the "identical Objekt-Nr. = same unit" test above **cannot be run** — don't report
+the echoed number as if it were a landlord key. Flip it into a positive signal instead: a *short,
+distinct* Objekt-Nr. (#698: `60177`) = a professional Verwalter's own stable unit key; an echoed one
+= a private lister. **In a same-address cluster that one field sorts the ads into landlord-channel
+vs. Nachmieter-channel before you read a single price**, which is exactly the CLAUDE.md dual-listing
+call (apply via the landlord, dodge the Ablöse). Cheapest cluster resolver: `curl` each sibling
+exposé and diff **`obj_objectnumber` + `obj_floor` + `obj_privateOffer`**. `obj_floor` is the
+killer — #698 `0` (EG) vs #699 `1` (1. OG) at the same house number = two different flats, no matter
+how identical m²/Kaltmiete/Warmmiete look (both were 900/1.200 to the euro).
+**Why:** three near-identical Fahrland ads at one address looked like one flat listed thrice. Two
+curls proved it was 2 flats + 1 re-list; scoring them as one would have merged an EG and a 1.-OG unit.
+
+**Two cross-checks that only work once you have the sibling exposé — both from #699:**
+1. **A captioned Grundriss image beats every numeric field as a cross-portal identity proof.** The
+   private ad's own numbers had drifted from its Kleinanzeigen twin (875→900 EUR, 71,5→71 m²), so
+   price/m² matching was inconclusive; the floor-plan photo captioned **"1. Obergeschoss · Whg. 1.07
+   · ca. 71,50 m²"** was byte-for-byte the same image and settled it instantly. When a cluster
+   resists numeric dedup, **download the Grundriss and read its caption** — unit numbers are printed
+   on it and are stable across portals and across price edits.
+2. **A landlord ad at the same address independently verifies a private ad's Warmmiete — use it in
+   the scam check.** #699 (private) bundled `300 EUR NK inkl. Heizung`; #698 (Semmelhaack, same
+   house) split `120 NK + 180 Heizung`. 120+180 = 300, and both totalled 1.200 EUR warm on 900 kalt.
+   A fabricated ad does not land on the real landlord's cost structure to the euro → strong
+   *entlastendes* signal against the "unverified private lister" Medium. It also **retro-corrects the
+   older report**: #594 had *derived* 875/210 from Kaution÷3, and the sibling proves the derived
+   figures were the outliers, not the new ones.
+
+**A private ad's amenity checkboxes are not trustworthy — arbitrate against the landlord's ad.**
+#699 set `obj_lift: y`, #698 set `obj_lift: n` for the same 3-storey building, and the exterior photo
+showed no lift overrun. **Follow the professional lister and say so in the report.** Same direction
+for the gaps: the private ad had `Baujahr: unbekannt` and no Bezugstermin, while the landlord's ad
+for the same house carried `obj_yearConstructed: 2016` — which is what fixes the Mietspiegel
+Baualtersklasse (2013–2020) and triggers **§ 556f BGB**. So **harvest Baujahr/Energieausweis/
+Ausstattung from the sibling before declaring them "unbekannt"** and before falling back to
+photo-guessing the Baualtersklasse.
+**Why:** guessing the Baujahr off photos (as #594 had to) leaves Block A resting on an inference;
+one curl of the neighbouring exposé turns it into a hard fact and can flip Mietpreisbremse
+applicability entirely. And crediting an unverified Aufzug/Keller off a private tick-box violates
+the #628 "never credit an unverified amenity" rule — the sibling is the cheapest way to verify.
+
 **A re-list can recur N times — chase the WHOLE chain, not just the predecessor, and let a crossed
 threshold re-score the block.** Same unit, third cycle: #337 (169320905) → #617 (170133922) →
 #677 (170257487), Objekt-Nr. `Stein124 WE32-1` throughout, both older scoutIds 404. Two rules that
@@ -2176,8 +2218,10 @@ nor garden and pays ~1,7× the headline.
   automatically the working one — a plausible-looking `ImmoScout24_2.6.1_10.2.1_._` produced the
   same silent 200 + 0 bytes. Always send the Android form from this file, never a UA quoted
   elsewhere. **Recurring (2nd occurrence #650, 2026-08-23: `ImmoScout24_2.5.0_15.5_._` → 200 + 0
-  bytes).** Orchestrators keep inventing dotted iOS-looking UAs, so treat any prompt-supplied UA as
-  wrong by default. The 0-byte case is also the most dangerous one to misread on an EXPIRED check:
+  bytes; 3rd occurrence #699, 2026-08-27: `ImmoScout24_iPhone/25.0.0` → 200 + 0 bytes).**
+  Orchestrators keep inventing dotted/iPhone-looking UAs, so treat any prompt-supplied UA as
+  wrong by default — this is the most reliable prediction in this file. **Send the Android form on
+  the FIRST call; never spend a round trip on the prompt's UA.** The 0-byte case is also the most dangerous one to misread on an EXPIRED check:
   it looks like "no data" and invites the EXPIRED verdict, but the real 404 has a 221-byte JSON
   body — so retry with the Android UA BEFORE running the control curls.
 
