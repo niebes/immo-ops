@@ -2243,6 +2243,29 @@ Liegenschaften KG) — das bestätigt die Freitext-Lesart und liefert zugleich B
 **Warum:** ohne den Freitext-Grep sieht ein möbliertes 12-Monats-Apartment in der JSON exakt aus wie
 eine normale unbefristete Etagenwohnung, inkl. `Bezugsfrei ab`, Balkon/Keller-CHECKs und Kaution.
 
+⚠ **Der Grep-Treffer entscheidet NICHT — „teilmöbliert" im Titel ist meist Möbelübernahme, kein
+Auf-Zeit-Produkt.** #701 (expose 170311104, Nauener Vorstadt) heißt „… - teilmöbliert" und listet
+Inventar (EBK, Einbauschränke, Esstisch, Waschmaschine & Trockner, Spülmaschine, 65-Zoll-TV).
+Mechanisch angewandt hätte der Blocker eine 4,0-Wohnung auf ≤2,0 gedeckelt. Entscheide wie in
+`tauschwohnung.md` („Möbliert/Teilmöbliert ist nicht der Blocker"), nur mit IS24-Feldern — feuere
+erst, wenn mindestens **ein echter Auf-Zeit-Marker** dazukommt:
+- `befristet` / `auf Zeit` / `Zwischenmiete` / `Untermiete` / Mietende / Mindest- oder
+  Höchstmietdauer im TITLE oder einem TEXT_AREA, **oder**
+- eine **Pauschalmiete** — d. h. `Kosten` zeigt *keinen* sauberen Kalt/NK-Split (vgl. die
+  `Gesamtmiete == Kaltmiete`-Falle weiter oben), **oder**
+- eine hotelartige Inventarliste (Bettwäsche/Handtücher/Endreinigung/Service).
+Gegenindizien, die auf einen ganz normalen § 535-Vertrag deuten: sauberer Kalt/NK-Split,
+**Kaution als glatte 3,00 Nettokaltmieten** (ein Möbliert-auf-Zeit-Produkt rechnet fast nie so),
+konkretes `Bezugsfrei ab`, Keller-/Stellplatz-CHECKs.
+⇒ Nicht deckeln, aber (a) als offene Frage in Block G + Next Steps führen („unbefristeter
+Wohnraummietvertrag nach § 535 BGB oder vorübergehender Gebrauch nach § 549 Abs. 2 Nr. 1 BGB?"),
+(b) das Konditional ausschreiben („falls Letzteres → ≤2,0"), und (c) **vor dem Mietspiegel-Vergleich
+den Möblierungszuschlag herausrechnen** (BGH VIII ZR 44/18, Zeitwert ÷ Restnutzungsdauer + ~2 %;
+Teilmöblierung ≈ 100–150 EUR/Monat) — der Potsdamer Mietspiegel erfasst Möblierungszuschläge
+ausdrücklich nicht, siehe `potsdam-mietspiegel.md`. Auf #701: 19,00 → ~17,4–17,9 EUR/m².
+**Warum:** der Freitext-Grep oben ist als Detektor richtig, liest sich aber wie ein Urteil; ohne
+diesen Absatz kostet jedes „teilmöbliert" im Titel eine sonst gut bewertete Wohnung.
+
 ### `MEDIA` captions can flag AI-staging **per image** — the render rule is per-gallery, don't over-cap D
 `_shared.md`'s render/Visualisierung keyword scan is written against the *description*, so it reads
 as an all-or-nothing gallery verdict ("labels the images as non-real → cap Block D at 3.0"). On
