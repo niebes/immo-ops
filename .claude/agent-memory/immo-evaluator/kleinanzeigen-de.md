@@ -200,6 +200,32 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     data-entry joke and the obvious move (treat the heading as the price) yields "0 EUR"; without the
     Kaution ÷ 3 route the ad has no Kaltmiete at all and the whole Mietspiegel/Mietpreisbremse check
     is unrunnable on an otherwise 4,1/5 flat.
+    - **Follow-up (#703, same flat): an already-evaluated ad can be SILENTLY EDITED and then ALSO
+      re-posted under a fresh ad-ID — and the repost's photo UUIDs are all-new.** The #594 ad
+      (3483783446) still returns HTTP 200, but its `Warmmiete` had been raised 1.085 → 1.200 € and the
+      Kaution 2.625 → 2.700 € after the report was written; two weeks later the identical ad reappeared
+      as 3495849124 with a *word-for-word identical* description. Consequences:
+      1. **Never dedupe a Kleinanzeigen repost by `data-imgsrc` UUID** — re-uploading the same 12
+         photos mints 12 new UUIDs, so the overlap with the earlier ad is **0**, which reads as
+         "different flat". (The UUID-set comparison from the #640 recipe below only works *between two
+         ads live at the same time*, not across a repost.) Dedupe on the tuple
+         `posterid + m² + Zimmer + Etage + Verfügbar-ab + Kaution` instead — that was identical.
+      2. **Re-fetch the OLD ad before trusting the old report's numbers.** A price recorded in the
+         tracker can be stale within days, and the Kaution moves with it, so the Kaution ÷ 3 Kaltmiete
+         silently changes too. Cheap: one curl of the old URL, diff `#viewad-details`.
+      3. `data-soldlabel="Verschenkt"` persists on the edited old ad — still not "sold".
+      *Why:* without (1) the repost looks like a second, distinct Fahrland flat and earns a duplicate
+      report; without (2) the tracker keeps a Kaltmiete that the poster abandoned.
+  - **The poster's OTHER ads reveal their ROLE, which the flat ad never states.** Same
+    `s-bestandsliste.html?userId={id}` call as the PLZ-triangulation recipe below, read for a different
+    purpose: on #703 the Fahrland flat sat alongside ten **household clear-out** ads from the same
+    account (Waschmaschine, Geschirrspüler, Wohnlandschaft, Kommode, Couchtisch, Drehstuhl, Spiegel…)
+    — that pattern identifies the poster as the **outgoing tenant**, not the owner. Act on it: go
+    looking for the landlord-channel twin (Hausverwaltung/Semmelhaack/IS24) and route the application
+    there, and score Block H on the *landlord* once found rather than docking it for an anonymous
+    private account. Conversely, several *flats* on one private account = re-poster/gewerblich-getarnt,
+    a different read. *Why:* #594 had to score H at 2,5 for "role not stated at all" — one extra curl
+    answers it, and it is the same call you already make for a location contradiction.
   - **The Ablöse is often NOT called "Ablöse".** #540 used "**Abschlagszahlung** von 1500€" for a
     tenant-installed Geschirrspüler + Kochinsel; a grep for `Ablöse` returns 0 hits. Grep for
     `Abschlag|Ablös|Abstand|übernehmen|Übernahme` when checking a Nachmieter ad for the

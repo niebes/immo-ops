@@ -119,6 +119,15 @@ swap's purpose would be not merely unmet but negatively met. Cheap machine test,
 `pipeline.md` metadata alone: **their listing's city == our offer's city AND their stated target
 city != it ⇒ area fail, no leniency.** *Why:* on #684 the room axis passed, so a leniency-minded
 reader with three-of-four green had real momentum toward a Swap-candidate.
+  - **Second datapoint, now on Kleinanzeigen: #704** (Anzeige 3495809074, Anbieter-ID 258002,
+    „TAUSCHWOHNUNG Helle 3-Zi-Whg. **in Potsdam** gegen 3/4-Zi-Whg. **in Zehlendorf**", Bornstedter
+    Feld 14469 → Suche „3/4-Zimmerwohnung **mit Balkon** in Steglitz-Zehlendorf"). Same shape as
+    #684 across a different portal, so the axis is portal-independent and the cheap test fires
+    straight off the pipeline row (their PLZ 14469 = Potsdam, target = Berlin). Here it stacked with
+    the room floor (3 vs our 2), −34,7 % Fläche and the **bare** „mit Balkon" (no `oder` ⇒ the #664
+    alternative-set leniency does not apply, and their own flat has a West-Balkon) — four axes,
+    only the rent passed. ⇒ **Both signals are readable from the title alone** („{unsere Region}
+    gegen {andere Stadt}"), which makes this the cheapest triage prefilter candidate seen so far.
 ⚠ **Bound on axis 6 — it only fires when the TARGET city differs from ours. When their target sits
 INSIDE our own city (another Ortsteil of Potsdam), leniency applies at Ortsteil level and the axis is
 silent.** #685 (Immowelt, Anbieter-ID 199871, Babelsberg Süd 14482) seeks „Babelsberg", i.e. the
