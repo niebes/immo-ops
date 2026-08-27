@@ -624,6 +624,24 @@ Wohnung) sind beide mit 3,8 gescort, das ist der Referenzwert für den Ortskern.
 *Why:* der Fahrland-Anker bot bisher nur Ortsrand-Neubau und „Bestand ohne Baujahr" an — dieses Haus
 ist der einzige belegte 1990er-Fixpunkt, und ohne die B-Differenzierung schwankt derselbe Ortsteil
 zwischen 3,5 und 3,8 je nachdem, welcher Anker zuerst gelesen wird.
+**Nachtrag #698: fünfter und bestbelegter Fixpunkt = `Pastor-Moritz-Str. 5/7` — Semmelhaack-Quartier,
+Bj. 2016.** Das ist die Adresse hinter der 2013–2020-Vermutung von #594 (dieselbe Wohnung, Whg. 1.07):
+3-geschossiges MFH mit Satteldach, geklinkertem Sockelgeschoss (= Keller mit Fenstern),
+Glas-Balkonbrüstungen, **Personenaufzug −1…3**, Fernwärme, **Verbrauchsausweis B / 60 kWh/(m²·a)**,
+Vinyl in Holzoptik, Duschbad. Baujahr steht dort ausnahmsweise im Exposé — nicht mehr aus Fotos raten.
+Feld **2013–2020 · Spalte C (>60–75 m²) = 12,06 (11,23–12,74)**, zulässig 13,27; Aufruf 08/2026
+**12,59 EUR/m² kalt (900,00 auf 71,50 m²)** = +4,4 % über Mittel, innerhalb der Spanne. **§ 556f greift
+(Erstbezug 2016) ⇒ Mietpreisbremse dauerhaft nicht anwendbar**, also auch keine Deckelung der
+Wiedervermietungsmiete — hier direkt belegt: Vormiete 875,00 → neu 900,00 (+2,9 %).
+Adressgenaue IS24-`priceBar`: **8,90–13,00 EUR/m² (ähnliche Angebote), Gesamtband 7,40–15,70**.
+**Block B = 3,8** (Ortskern-Referenz, ~250–300 m nördlich des Dorfkerns, fußläufig Einkaufsmarkt/
+Grundschule/Kita), nicht die 3,5 des Ketziner-Str.-Ortsrandankers und nicht die 3,5, die #594 mangels
+Adresse vergeben musste. **Warme Seite dort auffällig: NK 1,68 + Heizkosten 2,52 = 4,20 EUR/m²** —
+die Heizkostenvorauszahlung ist bei 60 kWh/(m²·a) Fernwärme ~2× des erwarteten Verbrauchs (≈47–57
+EUR/Mon.), die NK dagegen unter dem 2,50–3,50-Benchmark ⇒ beide Abrechnungen als Kontaktfrage setzen.
+*Why:* Fahrland-Anzeigen kamen bisher ohne Baujahr herein und mussten übers Bildmaterial in eine von
+vier Klassen geraten werden; diese Adresse ist jetzt hart belegt (Baujahr, EEK, Aufzug, Keller,
+Preisniveau, Block-B-Wert) und deckt das ganze Semmelhaack-Quartier ab.
 
 ## Ortsteil-Anker: **Golm (14476)** — drei Baualtersklassen, kein Ortsteil-Reflex möglich
 Golm ist der **Top-Präferenz-Ortsteil des Profils und der Standort unseres Tauschangebots**
