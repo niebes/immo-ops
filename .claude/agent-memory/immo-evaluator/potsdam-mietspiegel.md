@@ -254,9 +254,20 @@ Preisniveau 2026: **10,7–12,1 EUR/m² kalt** — und trotzdem fällt das Mietp
 Quartier gegensätzlich aus, weil die m²-Spalte springt:
 - **60–75 m² (Spalte C)** → 9,28 (A+–C) bzw. **9,45 (D,E,F,G)** → zulässig ~10,2–10,4 EUR/m²
   ⇒ die üblichen 12,10 EUR/m² sind **überschritten** (#678: +137 EUR/Mon.; #679 grenzwertig).
+- **75–90 m² (Spalte D)** → 9,10 (A+–C) bzw. **9,01 (D,E,F,G)** — das ist der **niedrigste Wert der
+  ganzen 1991–2008-Zeile**, zulässig nur **9,91 EUR/m²**. „Größer ⇒ mehr Luft" gilt hier also NICHT:
+  Spalte D ist der **schärfste** Fall, nicht der mildeste (#702, 76,02 m², 11,30 EUR/m²:
+  **+105,60 EUR/Mon.** über der Mittelwert-Grenze, +48,73 selbst am Oberwert).
 - **>90 m² (Spalte E)** → **10,28 (7,91–13,71)**, zulässig **11,31 EUR/m²** ⇒ derselbe Vermieter,
   dasselbe Baujahr, dieselbe Ausstattung ist **konform** (#689, 93,51 m², 10,66 EUR/m², 60,78 EUR/Mon.
   *unter* der Grenze). Spalte E ist im 1991–2008-Feld auffällig weit — das ist der ganze Grund.
+⇒ Die m²-Reihenfolge der zulässigen Miete ist **nicht monoton**: C 10,40 → **D 9,91 (Minimum)** →
+E 11,31. Deshalb immer die Spalte ziehen, nie „je größer desto konformer" schließen.
+**Spaltenkante 75 m² ist im Quartier der Normalfall** (die 3-Zi-Wohnungen liegen bei 73–78 m²), also
+Pflicht-Gegenprobe: bei #702 (76,02 m², nur 1,02 m² drüber, Fläche im Exposé „ca.") wäre in Spalte C
+der **Oberwert** 11,51 × 1,1 = **12,66 EUR/m²** — der Aufruf von 11,30 wäre bei maximaler
+Spanneneinordnung **gedeckt**. Der Befund „überschritten" ist dort also spaltenkanten-abhängig ⇒ als
+Next step „Wohnfläche im Mietvertrag prüfen" setzen, statt die Rüge hart zu behaupten.
 Zweiter stabiler Befund: die **warme Seite ist im Quartier durchgehend über Benchmark**, 4,9–5,3 EUR/m²
 (NK 2,3–2,9 + Heizkosten 2,4–2,6) gegen Potsdamer 3,0–3,8 — immer als Con nennen und die
 Betriebskostenabrechnung als Kontaktfrage setzen, egal wie günstig die Kaltmiete wirkt.
