@@ -157,8 +157,10 @@ line of the Objektbeschreibung says *"ACHTUNG: Bei den Fotos handelt es sich led
 - The flat is an **existing** one (no Neubau/Erstbezug exception) ⇒ `_shared.md` photo-evidence rule
   fires: **zero real photos ⇒ Block D capped at 3,0** regardless of how good the described fit-out is
   (neu geflies­tes Bad, Vinyl-Planken). Put "nur Musterbilder" in the ✗ cons explicitly.
-- It travels with **"Die Wohnung wird unrenoviert vermietet / lediglich tapezierfertig gespachtelt"** —
-  i.e. wallpapering/painting all rooms is the tenant's cost (~1.500–3.000 EUR). Score that as a hidden
+- It travels with **"Die Wohnung wird unrenoviert vermietet"** in one of **two grades — read which**:
+  „tapeziert, jedoch **nicht frisch gestrichen**" (#690) = nur Streichen, ~800–2.000 EUR; „die
+  Wohnräume sind **lediglich tapezierfertig gespachtelt**" (#679, #702) = Tapezieren **und**
+  Streichen, ~1.500–3.000 EUR. Score the applicable figure as a hidden
   entry cost in Block A and a Schönheitsreparatur-/Endrenovierungsklausel check in Block G (a clause
   shifting them onto a tenant who got the flat *unrenoviert* is regularly unwirksam, BGH).
 - Expect the Ausstattungsliste to **contradict** the free text (there: "PVC/Linoleum" + "tapeziert"
@@ -176,7 +178,9 @@ On #690 the Kosten block read Kaltmiete 911,26 + Nebenkosten 198 + Heizkosten 16
 `obj_totalRent` and the "Gesamtmiete" row said **1.249,26 EUR** — the components sum to
 **1.274,26 EUR**, a flat **25,00 EUR** gap (the total is only consistent with NK = 173). The two
 numbers are stored in different fields of the Vonovia feed, so neither is automatically the right
-one. Report the portal figure AND the recomputed one, plan with the higher, and make "Gesamtmiete
+one. **Recurring, not a one-off: #702 has the same signature with a 10,00 EUR gap** (859,03 + 191 +
+179 = 1.229,03 vs `obj_totalRent`/„Gesamtmiete" 1.219,03) ⇒ **auf jedem Vonovia-Exposé nachrechnen**.
+Report the portal figure AND the recomputed one, plan with the higher, and make "Gesamtmiete
 schriftlich bestätigen" a Next step. It is a data defect, **not** a scam signal (mass exposé, all
 other integrity checks clean). Same reflex as the "Heizkosten in Nebenkosten enthalten: Nein" row —
 read it before adding anything up.
@@ -189,8 +193,13 @@ fine), low Eigenbedarf risk (corporate). Reputation: commonly cited slow-on-repa
 Block H, especially when listing says renovation "noch nicht abgeschlossen". Kaution normally
 exactly 3 Nettokaltmieten (legal). These Kirchsteigfeld 3-room flats cluster 4,3–4,7.
 
-**Kirchsteigfeld price line has TWO tiers — don't assume the old cluster.** The unsanierte Bestands-
-Neuvermietungen sit at ~10,3–10,6 EUR/m² (#107/#200/#208/#209/#248/#286/#576), but the
+**Kirchsteigfeld price line has THREE tiers — don't assume the old cluster.** Corrected 2026-08-27:
+between the old ~10,3–10,6 cluster and the 2026 Sanierungswelle sits a **middle tier at
+11,2–11,3 EUR/m²** — #248 (169026704, 77,98 m², 874,16 EUR, *komplett renoviert*, echte Fotos +
+Grundriss) and **#702** (170286614, Marie-Juchacz-Str. 11, 76,02 m², 859,03 EUR, `82-13016…`,
+*unrenoviert*, nur Musterbilder). Gleicher EUR/m², völlig anderer Gegenwert ⇒ **der EUR/m² allein
+sagt im Quartier nichts über den Zustand**; Übergabezustand + Fotolage separat prüfen.
+Die unsanierten Bestands-Neuvermietungen sitzen bei ~10,3–10,6 EUR/m² (#107/#200/#208/#209/#286/#576), die
 sanierungs-Neuverträge of 2026 are asking **12,1–12,3 EUR/m²** — two independent data points:
 #679 (889,23 EUR / 73,49 m², Bj 1995, EEK D) and #690 (911,26 EUR / 74,51 m², Bj 1995, **EEK C**,
 1. OG). Both blow through the Potsdam-Mietspiegel-2026 **Oberwert** of their field — *1991–2008 ·
@@ -200,10 +209,13 @@ Energieausweis makes the Mietpreisbremse finding *worse*, not better). Bj. vor 2
 nicht, § 556e Vormiete is the only remaining justification ⇒ § 556g Abs. 3 Auskunft. The old 10,3er
 tier was comfortably compliant. Two more checks that both flats failed:
 - **warm side:** NK + Heizkosten are **4,9–5,3 EUR/m²** (#679: 210+177 on 73 m²; #690: 198+165 on
-  74,5 m²), well over the ~3,00–3,80 Potsdam benchmark incl. Fernwärme.
-- **`priceBar` is the discriminator between the two tiers**, and it moves fast within Kirchsteigfeld:
-  #679 sat at the 60th percentile *inside* the similar-offer band (7,10–12,50), #690 at the 81st
-  percentile **above** its band (6,40–10,80). Always pull the per-address band; the quarter has no
-  single level.
+  74,5 m²; #702: 191+179 on 76 m² = 4,87), well over the ~3,00–3,80 Potsdam benchmark incl.
+  Fernwärme — **gilt auch für den mittleren Tier**, ist also keine Eigenschaft der Sanierungswelle.
+- **`priceBar` is the discriminator between the tiers**, and it moves fast within Kirchsteigfeld:
+  #679 sat at 60 % *inside* the similar-offer band (7,10–12,50), #690 at 81 % **above** its band
+  (6,40–10,80), #702 at 70 % — same 6,40–10,80 band as #690, i.e. **the band is shared across
+  addresses of the quarter while the ask is not**. Note `priceIndicatorPositionInPercent` is the
+  position in the *full* band (`minPrice`–`maxPrice`), not an offer percentile — verify with
+  `(ask − min)/(max − min)` before quoting it as a percentile.
 **Why:** carrying the old ~10,5 cluster forward as "the Vonovia Kirchsteigfeld level" makes the new
 asks look market-conform and silently skips the Mietpreisbremse finding.
