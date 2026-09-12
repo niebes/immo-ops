@@ -4,7 +4,8 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
 
 ## Getting the data
 - **Plain curl/WebFetch is blocked (403)** even with a browser UA — don't bother; go straight to a browser tier. Re-confirmed 2026-07-20 (#397): still 403 (771-byte body) with a Chrome-126 UA. *Why:* callers/orchestrators sometimes assert "Immowelt is curl-fetchable" — it is not; test it in one call if told so, then escalate.
-- **invisible-playwright can HANG (not just crash) — on Immowelt, go to CiC FIRST.** `new_page` returns nothing for the full 1800s idle timeout: seen 2026-07-20, **recurred 2026-08-09 (#538)**, i.e. twice = the norm, not a blip. Symptom differs from the "Connection closed while reading from the driver" crash below but the remedy is the same: don't retry, use CiC. *Why:* each attempt burns 30 min of wall-clock; the standing "PREFER invisible-playwright" doctrine is a net loss on this portal specifically. Immowelt renders fully in CiC with no consent wall, so the fallback is cheap.
+- ⚠ **SUPERSEDED 2026-09-12 — the first move on Immowelt is the NODE DRIVER SCRIPT (see „⇒ Treat the node-script path as the DEFAULT first move" below); `modes/evaluate.md` was corrected the same day and no longer says „CiC FIRST".** The paragraph below stays only to explain *why* the MCP tier is skipped. 17/17 clean node-driver runs incl. #732.
+- **invisible-playwright can HANG (not just crash), so the MCP tier is skipped entirely; CiC is the FALLBACK, not the first move.** `new_page` returns nothing for the full 1800s idle timeout: seen 2026-07-20, **recurred 2026-08-09 (#538)**, i.e. twice = the norm, not a blip. Symptom differs from the "Connection closed while reading from the driver" crash below but the remedy is the same: don't retry, use CiC. *Why:* each attempt burns 30 min of wall-clock; the standing "PREFER invisible-playwright" doctrine is a net loss on this portal specifically. Immowelt renders fully in CiC with no consent wall, so the fallback is cheap.
   - **CiC entry sequence that works (stable — 4th clean run 2026-08-20 #632; a full rental expose costs ~6 `javascript_tool` calls):** `tabs_context_mcp{createIfEmpty:true}` (a bare `tabs_create_mcp` errors with "No tab group exists for this session yet") → `tabs_create_mcp` → `navigate{tabId}` → `javascript_tool`. The 2026-07 "first navigate lands on chrome://newtab" no-op has NOT recurred in two runs; one navigate loads the expose. A full rental expose is only ~4,3 k chars of `innerText` ⇒ **4–5 `javascript_tool` calls total** (900-char head, 2–3 body slices, one combined regex sweep). *Promotion candidate: this CiC-first-on-Immowelt rule has been stable since 2026-07-20 — worth moving into `evaluate.md` / `portals.yml` notes.*
 - **When CiC is DOWN ("Browser extension is not connected"), do NOT fall back to the invisible-playwright *MCP* — drive the same stealth Firefox from a script instead. It does not hang.** The wedge above is a property of the MCP server path (`new_page`), not of the browser. Spawn the driver exactly the way `scripts/scan.mjs` does and send one eval command on stdin:
   `spawn('bash', ['scripts/invisible-venv.sh','scripts/invisible-driver.py'], {cwd: ROOT, env:{...process.env, IP_HEADLESS:'true', IP_LOCALE:'de-DE', IP_TIMEZONE:'Europe/Berlin', IP_STORAGE_STATE:'tmp/browser-state.json'}, stdio:['pipe','pipe','inherit']})` → wait for the `{ready:true}` line → write `JSON.stringify({cmd:'eval', url, snippet})+'\n'` → the reply is `{ok, result, blocked}`.
@@ -101,8 +102,8 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   Two gotchas in the harness itself: (a) set `IP_HEADLESS/IP_LOCALE/IP_TIMEZONE/IP_STORAGE_STATE` and
   `cwd: ROOT` in the spawn env (`tmp/drive.mjs` omits them); (b) the driver emits a **second** line
   `{"ok":true}` after the result — write the result to a file on the first non-`ready` message and
-  `quit`, or the second line overwrites it with nothing. *Promotion candidate: this now outranks the
-  "CiC FIRST on Immowelt" line in `evaluate.md`, which should be rewritten.*
+  `quit`, or the second line overwrites it with nothing. ✅ *Promotion DONE 2026-09-12: `modes/evaluate.md`
+  now states the node-driver-first doctrine — treat any remaining "CiC FIRST on Immowelt" wording as stale.*
   It is the cheapest *first* move, not just a CiC fallback: one `node` script (spawn driver → wait for `{ready:true}` → one `eval` cmd) answered liveness in ~40 s with no MCP round trip and no permission prompt. A **deleted** expose comes back as `title:"Immowelt"`, `L:542`, "Anzeige gelöscht" — i.e. this path alone settles the aggregator-EXPIRED question.
   Verified 2026-08-15 (#596): expose fetched in well under a minute, `blocked=false`, **no truncation** — one call returned `innerText` + the whole 632 KB `documentElement.innerHTML`. Wrap it with your own `setTimeout` kill so a stall fails fast. Two passes is the cheapest shape: pass 1 = `{title, innerText, imgs}` for liveness + fields, pass 2 = raw `innerHTML` to disk for the offline keyword/JSON mining below. *Why:* CiC is not always available, and without this the doctrine's only remaining tier is the one that wedges.
 - **Downloading the gallery: `mms.immowelt.de/*.webp` actually serves JPEG — `dwebp` fails, just
@@ -187,7 +188,11 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `floorplans` = 3 entries, all „Grundriss/3D-Grundriss - **Musterwohnung**", while the
   unit-specific plan sat as **Bild 59 of 60 in `images`**, the only image without a `classification`,
   captioned with the raw source filename (`FF26888_…_Haus_2_Haus_2_WE_5_…`). On #729 the very same
-  project put it in `floorplans`. ⇒ Run the filename/`WE`-token sweep over **both** arrays and
+  project put it in `floorplans`. **#732 repeated #731 exactly** (`floorplans` = 3× „Musterwohnung",
+  real plan = Bild 59 of 60, `FF26888_…_Haus_1_Haus_1_WE_16_…`, again the sole image with no
+  `classification`) ⇒ on this lister the `images`-tail is now the *likelier* home of the plan, and
+  **"the only image lacking `classification`" is the reliable selector** — one `node` filter finds it
+  without downloading anything. ⇒ Run the filename/`WE`-token sweep over **both** arrays and
   download any image lacking `classification`; one `curl` then yields the per-room m² that settle
   the Wohnfläche-vs-Innenfläche question. *Why:* „`floorplans` has 3 entries" reads as „the plans
   are covered" and you score the area on the lister's headline number alone.

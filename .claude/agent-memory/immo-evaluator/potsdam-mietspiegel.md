@@ -697,6 +697,9 @@ Flächen-Gegenrechnung entscheidet, nicht das Feld.** #731: Stichworte „10,52 
 „10,25 m²"; nur 10,25 reproduziert die beworbene Fläche (73,35 + 10,25 × 0,50 = 78,48 exakt),
 10,52 ergäbe 78,61. ⇒ Das Feld bleibt der Tie-Breaker gegen widersprüchliche Chips (#730), ist aber
 gegenüber dem Grundriss nachrangig, sobald die Summe nicht aufgeht.
+✅ **…aber der Dreher ist per ANZEIGE, nicht systematisch.** #732: Stichworte „9,78 m²" = Grundriss
+„9,78 m²", Gegenrechnung exakt (80,56 + 4,89 = 85,45). ⇒ Immer rechnen, aber nicht vorab annehmen,
+das Feld sei falsch.
 **Dritter Flächentyp der Charge, jetzt hart belegt — der 78,48-m²-Typ (H2-01-05 = #731; gilt
 geometriegleich für #624 H3-02-09 / 78,52 und #629 H2-02-09 / 78,48):** Wohnen 33,93 · Schlafen
 14,58 · Kind 10,66 · Flur 6,71 · Bad 5,80 · Abstell 1,67 = **73,35 m² beheizte Innenfläche**,
@@ -706,11 +709,28 @@ nennen. Bemerkenswert: dieser Typ hat mit **9,1 % Flur** den effizientesten Schn
 einen **größeren Wohnbereich (33,93) als der 85,45-m²-Typ (32,74)** — der Flächenaufpreis der
 großen Einheiten kauft Schlafzimmer- und Flurfläche, nicht Wohnfläche.
 ⚠ **Flächenfalle der Charge: der Balkon ist mit dem WoFlV-HÖCHSTFAKTOR 50 % in die „Wohnfläche"
-gerechnet.** Beim 85,45-m²-Typ (H1-01-04 = #632, H1-01-05 = #729, vermutlich auch H1-03-16 = #732):
+gerechnet.** Beim 85,45-m²-Typ (H1-01-04 = #632, H1-01-05 = #729, **bestätigt auch H1-03-16 = #732**):
 Zimmer summieren sich auf **80,56 m² beheizte Innenfläche** (Wohnen 32,74 · Schlafen 16,67 ·
 Kind 12,43 · Flur 11,20 · Bad 5,80 · Abstell 1,72), 85,45 − 80,56 = **4,89 = 9,78 m² Balkon × 0,50**.
-⇒ echte Innen-Kaltmiete **22,34 EUR/m²** statt 21,06. Bei jeder weiteren Einheit dieselbe
-Gegenrechnung machen (Regelfall wären 25 % Anrechnung).
+⇒ echte Innen-Kaltmiete **22,34 EUR/m²** statt 21,06 (bei #732s 1.890 EUR: **23,46** statt 22,12).
+Bei jeder weiteren Einheit dieselbe Gegenrechnung machen (Regelfall wären 25 % Anrechnung).
+Der Typ hat mit **11,20 m² Flur = 13,9 %** den ineffizientesten Schnitt der Charge und einen
+**kleineren Wohnbereich (32,74) als der 78,48-m²-Typ (33,93)** — der Flächenaufpreis kauft
+Schlafzimmer (12,43 + 16,67) und Flur, nicht Wohnfläche. Beide Flächen liegen in Mietspiegel-
+**Spalte D**, hier gibt es also keine Spaltenkante (anders als beim 78,48-Typ).
+⚠ **Der Grundriss-Typ kommt auf mehreren Etagen zu VERSCHIEDENEN Preisen vor — es gibt eine
+Etagen-Preisleiter.** #632/#729 (1. OG) 1.800 EUR vs. #732 (3. OG) **1.890 EUR** bei identischem
+Plan, identischer Fläche und identischen 285 EUR NK ⇒ **+90 EUR/Monat pro zwei Geschosse**
+(+1.080/Jahr, +2.160 über die 24-Monats-Mindestmietdauer). ⇒ Bei zwei Einheiten desselben Typs
+immer den Etagenaufpreis explizit ausrechnen und gegen die Himmelsrichtung stellen — #732 zahlt
+mehr **und** bekommt die Straßenseite statt der Hofseite von #729.
+✅ **„Dachgeschoss" ist in diesem Quartier KEINE Dachschräge.** #732 führt den Chip
+„Dachgeschoss, 3. Geschoss", die Häuser haben aber **Flachdächer mit Gründach + PV** (Luftbild
+„Hausaufteilung") und der einheitsgenaue Plan zeigt **keine 1-m-/2-m-Linie** ⇒ volle Raumhöhe auf
+der ganzen Fläche, keine WoFlV-Minderung. *Why:* sonst deckelt man Block C/A auf Verdacht.
+Nebenbefund: Bild „Hausaufteilung - **Visualisierung**" ist faktisch ein **Drohnen-Luftbild des
+äußerlich fertigen Quartiers** (Gründächer, PV, angelegte Höfe, parkende Autos) — gutes Indiz für
+den Baufortschritt (Block F), wegen der Beschriftung aber nur mit Vorbehalt zitieren.
 ⚠ **Die 50-%-Anrechnung gilt auch für TERRASSEN der EG-Wohnungen — dort mit viel größerem Hebel.**
 #730 (H5-00-01, EG, 90,2 m² für 2.030 EUR): Zimmer summieren sich auf **79,71 m²** (Wohnen 32,37 ·
 Schlafen 16,40 · Kind 12,23 · Flur 11,13 · Bad 5,80 · Abstell 1,78); 79,71 + 21,06 Terrasse × 0,50
@@ -739,12 +759,21 @@ Visualisierungen + ~9 Umgebungsfotos + ~9 Marketing-/Textkacheln; `classificatio
 falsch, `medias.images[].description` dagegen korrekt beschriftet.
 Nicht mit **#430 (Havel Quartier / MIRU, Bj. 2022, allod)** verwechseln — gleicher Ortsteil, anderes
 Quartier, andere Vertragsfakten (dort Indexmiete + 12 Mon. Mindestlaufzeit).
-**Chargen-Ökonomie (Stand #731):** nur die 78,5-m²-Einheiten (1.650–1.670) halten die reale
-Warmmiete (Kalt + NK + ~1,00–1,40 EUR/m² Heizkosten) mit **160–190 EUR Abstand unter dem
-2.200-EUR-Cap**; die 85-m²-Einheiten (1.800) landen **am** Cap, die 90-m²-Einheit (2.030) **darüber**.
-⇒ Der Cap ist in dieser Charge der eigentliche Diskriminator, nicht der EUR/m² (der über alle
-Einheiten in engen 21,0–22,5 liegt). Gescort: #729 4,2 · #730 4,1 · #731 4,3.
-Genutzt auf #624, #729, #730, #731.
+**Chargen-Ökonomie (Stand #732, Charge vollständig — Befund bestätigt):** nur die 78,5-m²-Einheiten
+(1.650–1.670) halten die reale Warmmiete (Kalt + NK + ~1,00–1,40 EUR/m² Heizkosten) mit
+**160–190 EUR Abstand unter dem 2.200-EUR-Cap**; die 85-m²-Einheiten zu 1.800 (#632/#729) landen
+**am** Cap; **#732 (1.890) und #730 (2.030) liegen darüber**. ⇒ Der Cap ist in dieser Charge der
+eigentliche Diskriminator, nicht der EUR/m² (der über alle Einheiten in engen 21,0–22,5 liegt).
+⚠ **#732 ist der Grenzfall, der die Regel schärft:** die **ausgewiesene** Warmmiete 2.175 liegt
+25 EUR UNTER dem Cap und sieht damit unauffällig aus — erst die fehlenden Heizkosten (+85–120 auf
+85,45 m²) kippen sie auf 2.260–2.295. ⇒ Bei dieser Charge **nie** die ausgewiesene Warmmiete gegen
+den Cap prüfen, immer erst die Heizkosten aufschlagen.
+**Block-A-Kalibrierung der Charge:** #731 3,9 (Warm klar unter Cap) · #729 3,5 (am Cap) ·
+#732 3,1 (60–95 über Cap) · #730 2,8 (210–260 über Cap).
+Gesamt-Scores: **#731 4,3 · #729 4,2 · #730 4,1 · #732 4,1**; übrige Blöcke sind über die ganze
+Charge praktisch konstant (B 4,6–4,7 · D 4,7 · F 4,4 · G 3,8 · H 4,2), d. h. **die Rangfolge
+entsteht fast ausschließlich in Block A**.
+Genutzt auf #624, #729, #730, #731, #732.
 *Why:* fünf Geschwistereinheiten (#624/#628/#629/#630/#632) laufen als Einzel-Evaluationen; ohne den
 Anker recherchiert jede Mietspiegelfeld, § 556f, Anbieter und Lage neu — und übernimmt womöglich #430s
 Indexmiete-Fakten, die für dieses Quartier unbelegt sind.
