@@ -273,6 +273,20 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   also appears in `innerText`, but the chip is the lister's own assertion. #725 confirmed it against
   the photos (fully kitted designer interior). Same block usually carries the other blocker-adjacent
   flags: `pets-allowed`, `flat-share-possible`, `furnished`.
+- ⚠ **The `Stichworte` line is the tie-breaker when the Merkmal-chips contradict the Grundriss —
+  and `Balkon-Terrassen-Fläche` is a SUM field, not a per-item area.** #730: chips listed both
+  `Balkon` and `Terrasse` with **no `aiEnrichments` in the payload** (so both looked like lister
+  assertions), while the unit floorplan showed exactly one outdoor space; `Stichworte` read
+  „Anzahl Balkone: 1, Anzahl Terrassen: 1, **Balkon-Terrassen-Fläche: 21,06 m²**" — the sum equals
+  the terrace alone ⇒ there is no balcony, the second chip is lister sloppiness. *Why:* the
+  documented „`enrichment:"ai"` ⇒ chip is a portal guess" test returns *clean* here and would have
+  confirmed a second outdoor space that does not exist; the sum-vs-plan comparison is the only
+  cheap check that settles it. Same line also carries `Anzahl der Schlafzimmer/Badezimmer` and
+  `Mindestmietdauer`, i.e. facts that exist nowhere else in the payload.
+- ⚠ **`classified.title` can be `undefined` outright** (#730, commercial lister) — the headline then
+  lives only in `sections.mainDescription.headline`. Harmless if you already sweep
+  `mainDescription.headline + classified.title + document.title` together for VERGEBEN, but
+  `JSON.stringify(d.title).slice(…)` **throws** on it; use `String(d.title)`.
 - ⚠ **A live, complete page is NOT proof the flat is available — read the ad TITLE for `VERGEBEN`.**
   #712 (`001f6218-…`, Tauschwohnung GmbH): HTTP 200, `blocked:false`, 623 KB payload, every field
   populated, `tags.isNew:true` — and `classified.title` = „**TAUSCHWOHNUNG VERGEBEN:**

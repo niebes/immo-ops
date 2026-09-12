@@ -654,9 +654,13 @@ auf **Immowelt** doppelt gelistet (dort ohne Objekt-Nr. → über Kaltmiete+m²+
 Fixwerte, die man nicht neu recherchieren muss: **§ 556f BGB — Mietpreisbremse nicht anwendbar**
 (Erstbezug 2026); Mietspiegelfeld **ab 2021**, bei 75–90 m² = **16,73 (14,88–19,64)**;
 IS24-`priceBar` adressgenau **11,20–18,50 EUR/m²** (Gesamtband 8,70–23,90).
-Preisniveau des Quartiers **21,0–22,2 EUR/m² kalt** (1.550/71,17 · 1.650/78,52 · 1.670/78,48 ·
-1.800/85,5 · 1.880/84,59) — also durchweg **~25–33 % über der ortsüblichen Vergleichsmiete** und über
-dem lokalen Angebotsband; Block A landet dort realistisch bei **4,0**, nicht 4,5+.
+Preisniveau des Quartiers **21,0–22,5 EUR/m² kalt** (1.550/71,17 · 1.650/78,52 · 1.670/78,48 ·
+1.800/85,5 · 1.880/84,59 · **2.030/90,2 = 22,50, die Spitze**) — also durchweg **~25–49 % über der
+ortsüblichen Vergleichsmiete** und über dem lokalen Angebotsband; Block A landet dort realistisch bei
+**4,0**, nicht 4,5+ — und bei den 2.030-EUR-Einheiten bei **2,8**, weil dort die **ausgewiesene
+Warmmiete (2.330) den Profil-Cap 2.200 schon ohne Heizkosten reißt** (mit Heizkosten ~2.410–2.460).
+Faustregel für die Charge: NK = **3,33 EUR/m²**, Heizkosten fehlen immer und sind mit
+~1,00–1,40 EUR/m²/Monat draufzurechnen.
 **Zwei wiederkehrende Fallen:** (1) **"Heizkosten in Nebenkosten enthalten: Nein"** — die ausgewiesene
 Warmmiete ist unvollständig, real +60–90 EUR/Monat; (2) **keine Fotos/Grundrisse der konkreten Einheit**,
 nur Musterwohnung + Außen-Visualisierungen (Neubau-Ausnahme greift, Block D also nicht deckeln).
@@ -672,6 +676,14 @@ kein WBS, unbefristet, **keine Staffel-/Indexmiete**, **Energieausweis fehlt kom
 Ausstattung überall: **EBK inklusive, Personenaufzug, Keller, Bad mit bodengleicher Dusche —
 KEINE Badewanne, KEIN Garten, KEIN Gäste-WC**. Anbieter-Telefon **0331 58 18 60**.
 Ein **„Terrasse"-Chip ist eine Immowelt-KI-Anreicherung** (`enrichment:"ai"`), keine Vermieterangabe.
+⚠ **…aber das ist per Anzeige zu prüfen, und in der Charge kommt auch die Umkehrung vor.** #730
+(EG) hat **keine `aiEnrichments`**, führt aber **beide** Chips (Balkon *und* Terrasse) — und der
+einheitsgenaue Grundriss zeigt nur **eine** Außenfläche. Auflösung ohne Bildersichtung: die
+`Stichworte`-Zeile nennt „Anzahl Balkone: 1, Anzahl Terrassen: 1, **Balkon-Terrassen-Fläche:
+21,06 m²**" — die **Summenfläche entspricht exakt der Terrasse allein**, also gibt es keinen
+Balkon (die gestrichelte Linie im EG-Plan ist die Überdeckung durch den Balkon des 1. OG).
+⇒ Regel: `Balkon-Terrassen-Fläche` gegen den Grundriss legen, bevor man einen zweiten Außenraum
+als vorhanden wertet.
 **Jede Einheit hat einen einheitsgenauen Grundriss** in `medias.floorplans[].description`
 (`FF26888_…_Haus_{N}_Haus_{N}_WE_{n}_…` = die Referenznummer `H{N}-{Etage}-{WE}`) — den immer ziehen,
 er beantwortet Zimmerflächen und die Flächenfrage.
@@ -681,17 +693,35 @@ Zimmer summieren sich auf **80,56 m² beheizte Innenfläche** (Wohnen 32,74 · S
 Kind 12,43 · Flur 11,20 · Bad 5,80 · Abstell 1,72), 85,45 − 80,56 = **4,89 = 9,78 m² Balkon × 0,50**.
 ⇒ echte Innen-Kaltmiete **22,34 EUR/m²** statt 21,06. Bei jeder weiteren Einheit dieselbe
 Gegenrechnung machen (Regelfall wären 25 % Anrechnung).
-**Quartiersgeometrie (Hausaufteilungsbild):** Haus 1 = Max-Planck-Str. **16** · Haus 2 = **15** ·
-Haus 3 = **14** · Haus 4 = **16A** · Haus 5 = **15A** · Haus 6 = **14A**; Haus 1 ist das
-**Nordwest-Eckhaus**. Max-Planck-Straße + blu-Parkplatz liegen **westlich**, die begrünten Innenhöfe
-und der bewaldete Brauhausberg **östlich** ⇒ **Ostbalkon = ruhige Hof-/Grünseite (Morgensonne),
-Westbalkon = Straßenseite (Abendsonne)** — das ist bei den spiegelbildlichen Zwillingen
-(#632 West / #729 Ost, sonst identisch in Fläche, Miete, Grundriss) der EINZIGE Unterschied.
+⚠ **Die 50-%-Anrechnung gilt auch für TERRASSEN der EG-Wohnungen — dort mit viel größerem Hebel.**
+#730 (H5-00-01, EG, 90,2 m² für 2.030 EUR): Zimmer summieren sich auf **79,71 m²** (Wohnen 32,37 ·
+Schlafen 16,40 · Kind 12,23 · Flur 11,13 · Bad 5,80 · Abstell 1,78); 79,71 + 21,06 Terrasse × 0,50
+= 90,24 ≈ 90,2 ⇒ **10,49 m² = 11,6 % der beworbenen Fläche sind Außenfläche** (Balkontypen: 5,7 %),
+echte Innen-Kaltmiete **25,47 statt 22,50 EUR/m²**. Daraus die stärkste Aussage des Reports:
+**#730 hat für +230 EUR/Monat 0,85 m² WENIGER beheizte Fläche als #729** — der Aufpreis kauft
+ausschließlich die +11,28 m² Außenfläche. Bei jeder EG-Einheit zuerst diese Gegenrechnung.
+⚠ **Spaltenkante: die großen Einheiten der Charge liegen bei ~90 m², also auf der Grenze D/E.**
+#730 mit 90,2 m² fällt formal in **Spalte E = 15,14 (10,90–17,86)**, auf Innenfläche gerechnet aber
+in **Spalte D = 16,73 (14,88–19,64)** — beide nennen (Faktor ~1,1 auf den Befund).
+**Quartiersgeometrie (Hausaufteilungsbild):** 2×3-Raster. **Westreihe** Haus 1 = Max-Planck-Str.
+**16** · Haus 2 = **15** · Haus 3 = **14**; **Ostreihe** Haus 4 = **16A** · Haus 5 = **15A** ·
+Haus 6 = **14A**. Haus 1 ist das Nordwest-Eckhaus. Max-Planck-Straße + blu-Parkplatz liegen
+**westlich der Westreihe**, der bewaldete Brauhausberg **östlich der Ostreihe**; dazwischen ein
+begrünter Innenbereich mit Fußwegen und einigen oberirdischen Stellplätzen.
+⇒ **Die Faustregel „Ost = Hof, West = Straße" gilt NUR für die Westhäuser 1–3.** Bei den
+**Osthäusern 4–6 zeigt West auf den Innenhof** (ruhig + Abendsonne = beste Kombination), Ost auf den
+Wald. Also immer erst über die Referenznummer `H{N}` die Reihe bestimmen, dann die Ausrichtung
+bewerten (#632 H1 West = Straße, #730 H5 West = Innenhof — gleiche Himmelsrichtung, gegenteilige
+Bewertung).
+⚠ **Das strukturierte `sections.location.address.street` nennt die generische Projektadresse
+(„Max-Planck-Straße 15"), nicht die Hausnummer der Einheit** — bei #730 (Haus 5 = 15A) stand die
+korrekte Nummer nur im SEO-`document.title`. Maßgeblich ist `H{N}` + der Hausaufteilungsplan.
 Fotolage: ~30 **echte** Fotos der fertigen **Musterwohnung** (Parkett, EBK, Bad) + ~10 Außen-
 Visualisierungen + ~9 Umgebungsfotos + ~9 Marketing-/Textkacheln; `classification` ist hier grob
 falsch, `medias.images[].description` dagegen korrekt beschriftet.
 Nicht mit **#430 (Havel Quartier / MIRU, Bj. 2022, allod)** verwechseln — gleicher Ortsteil, anderes
-Quartier, andere Vertragsfakten (dort Indexmiete + 12 Mon. Mindestlaufzeit). Genutzt auf #624, #729.
+Quartier, andere Vertragsfakten (dort Indexmiete + 12 Mon. Mindestlaufzeit).
+Genutzt auf #624, #729, #730.
 *Why:* fünf Geschwistereinheiten (#624/#628/#629/#630/#632) laufen als Einzel-Evaluationen; ohne den
 Anker recherchiert jede Mietspiegelfeld, § 556f, Anbieter und Lage neu — und übernimmt womöglich #430s
 Indexmiete-Fakten, die für dieses Quartier unbelegt sind.
