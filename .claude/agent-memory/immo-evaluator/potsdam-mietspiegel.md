@@ -441,6 +441,16 @@ Fixwerte, die man nicht neu recherchieren muss:
   Qualitätsindikator, sondern Preisliste. Konsequenz für Block A: **4,3 ist der Quartiers-Normalfall**
   (Basis 5,0 − 0,5 Mietspiegel-Aufschlag), aber ein Aufruf **am unteren Rand (≤ 15,5)** verdient nur die
   reduzierte Korrektur −0,4 ⇒ **A ≈ 4,6** (so gescort auf #691). Ein Aufruf ≫ 18 EUR/m² wäre dort neu.
+  ⚠ **Das Band 15,16–16,70 ist ein ANGEBOTS-Band. Ein Altvertrag liegt darunter und ist kein
+  Ausreißer.** #723 (Tauschwohnung-Inserat des *sitzenden Mieters* von **Haus I / WE 8**, also
+  derselben Einheit wie #642): **1.100 EUR kalt = 14,29 EUR/m²** auf die inserierten 77 m² bzw.
+  **14,70** auf die Grundrissfläche 74,84 m² — ~4–14 % unter dem Angebotsband, und derselbe
+  Eigentümer rief für dieselbe Wohnung am 21.08.2026 **1.250 EUR (16,70)** auf. ⇒ Bei einem
+  Mieter-Inserat (Tausch/Nachmieter) ist der aufgerufene Betrag die **Bestandsmiete**, nicht unser
+  Preis; für Block A den Eigentümer-Aufruf gegenrechnen. Das Band selbst bleibt bei 15,16–16,70.
+  Nebenbei dreifach bestätigt: **Haus I / WE 8 = 74,84 m²** (Grundriss in #642 *und* #723), und die
+  Anzeige nannte 77 m² — die Inseratsfläche ist im Quartier bis ~3 % zu hoch, immer den Grundriss
+  nehmen.
   Achtung Spaltenkante: 74,84 / 75,04 / 76,84 m² fallen auf beide Seiten der 75-m²-Grenze — bei
   Werten im Bereich 74–76 m² immer **Spalte C *und* D** rechnen und beide nennen; ≤ 74 m² ist
   eindeutig Spalte C (12,06).

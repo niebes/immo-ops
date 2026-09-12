@@ -134,8 +134,21 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   and **both images are architectural floor plans** (Bauantragspläne, „Tauschwohnung" watermark). So
   the real-photo count is **0**, not 2, and D must be capped at 3,0. ⇒ On any listing whose photo
   count is small (≤ ~4) AND whose images carry no `classification`, **fetch and Read them before
-  scoring D** — the count alone cannot distinguish a photo from a Grundriss on this feed. Bonus once
-  you do: the plans carried per-room m², Raumhöhen (2,44–2,53 m), „1 m Linie"/„2 m Linie" Dachschräge
+  scoring D** — the count alone cannot distinguish a photo from a Grundriss on this feed.
+  ⚠⚠ **Extend that: on the Tauschwohnung-GmbH feed, fetch the LAST image on EVERY ad regardless of
+  gallery size — it is routinely the developer Grundriss, and it is the best identity key the feed
+  has.** #723 (`64e0a0da-…`, 9 images, `hasFloorPlan:false`, `floorplans:[]`, no `classification`):
+  Bild 9 was the KW-Development plan „**Haus I – WE 8**" with per-room m² and **Wohnfläche gesamt
+  ca. 74,84 m²**. Three payoffs the text alone never gives: (a) real-photo count 8, not 9;
+  (b) the advertised **77 m² was 2,16 m² / 2,9 % too high** — the plan is the accurate area and
+  changes the €/m² *and* the Mietspiegel m²-column (74,84 sits on the 75-m² Spaltenkante, so both
+  columns must be quoted); (c) the **`Haus {N} – WE {n}` unit designator identified the flat as one
+  already evaluated in the tracker** (#642, same plan, same 74,84 m²) — i.e. a swap ad and a
+  Kleinanzeigen *Nachmietergesuch* were two exit channels of ONE unit. The documented „≤4 images"
+  threshold would have skipped all of it. *Why:* the swap feed carries no Referenznummer that dedups
+  across portals (it is the syndicator's Anbieter-ID), so the Grundriss caption is the only
+  cross-portal identity key — and it is one `curl` away.
+  Bonus once you do: the plans carried per-room m², Raumhöhen (2,44–2,53 m), „1 m Linie"/„2 m Linie" Dachschräge
   markers (⇒ the advertised 130 m² is Grundfläche, WoFlV-Wohnfläche is lower ⇒ the real EUR/m² is
   higher), a second bathroom, and the definitive absence of any Balkon/Terrasse. *Why:* this inverts
   two documented rules at once — „`floorplans:[]` is the definitive no-Grundriss answer" and

@@ -249,6 +249,50 @@ silent.** #685 (Immowelt, Anbieter-ID 199871, Babelsberg Süd 14482) seeks „Ba
 Ortsteil they already live in — target city == Potsdam == our offer's city. Running axis 6 on it
 would produce a bogus area fail on a poster who is explicitly staying put in our city.
 
+**Seventh kill axis: the PUNKTADRESSE-Suche — a named street/corner plus a proximity SUPERLATIVE
+plus a stated reason. It beats the #685 in-city leniency, and it is the first axis that ever had to
+override a passing room axis.** #723 (Immowelt `64e0a0da-…`, Anbieter-ID 396787, Brunnenallee/
+Waldstadt I): *„Ich möchte **aus familiären Gründen so nah wie möglich an die Grossbeerenstr / Ecke
+Kopernikusstrasse in Babelsberg** ziehen und biete im Gegenzug …"*
+  - **Why it is not a near-miss:** the target is not a loosely named Ortsteil but a **point**, the
+    constraint is a *minimize-distance* superlative, and the motive is named and non-negotiable.
+    Their current flat is ~4–5 km from that corner; Golm is ~13–14 km ⇒ the swap would move them
+    **~3× further from its own sole purpose** (the #684 Richtungsumkehr logic, but *within* one city).
+  - **Boundary vs. the #685 bound — this is the case that bound does NOT cover.** #685 („gegen 1-2 Z.
+    Babelsberg", target Ortsteil inside Potsdam) earned Ortsteil-level leniency and became the first
+    Swap-candidate. The distinguishing test is **what kind of object the Suche names**: a bare
+    Ortsteil ⇒ leniency (#685); a **street/corner + `so nah wie möglich`/`in unmittelbarer Nähe` +
+    a reason** ⇒ explicit exclusion, no leniency. Without this split, the #685 bound reads as
+    "any in-city target gets leniency" and produces a Swap-candidate the partner can never accept.
+  - **Asymmetric flexibility is itself evidence.** The ad flexes explicitly on rooms and not at all
+    on location — when a poster concedes one axis in writing and leaves another absolute, the
+    unconceded one is the hard one. Use it instead of hunting for an openness clause.
+  - **⭐ First time ever the ROOM axis passed** — the six previous swaps (#667, #683, #710, #719,
+    #720, #722) all died on a stated floor ≥3 Zimmer. Here: *„Ich suche im Idealfall eine 3-4
+    Zimmerwohnung, **kann mich aber auch auf eine gut geschnittene 2 Raumwohnung einlassen**, wenn
+    die Rahmenbedingungen stimmen."* ⇒ **an „ideal N, notfalls M" clause sets the floor at M, not N**
+    — grep `kann mich auch|notfalls|zur Not|im Idealfall|auch eine \d`. Rent, m² (none stated) and
+    „ruhige Lage + kinderfreundliches Umfeld" all passed too; only the Ortsachse failed. Side 1 was
+    **4,3/5, the highest Tauschwohnung side-1 score so far**. *Why:* the standing pattern is "the room
+    floor decides"; when it doesn't, the reflex is to call it a Swap-candidate on momentum — exactly
+    the #683/#719 failure mode, one axis over.
+
+### A swap ad and a Nachmietergesuch can be TWO EXIT CHANNELS OF ONE FLAT — and the swap price is the Altvertrag
+#723's Grundriss („Haus I – WE 8", 74,84 m²) is byte-identical to **#642**'s (Kleinanzeigen
+Nachmietergesuch, 21.08.2026, same quarter). Same unit, two ads, two very different numbers:
+swap **1.100 kalt / 1.400 gesamt** vs. Nachmieter **1.250 kalt / 1.660 gesamt** (+ Kaution 3.750
++ 500 Ablöse). Three consequences:
+  - **Score Block A with the OWNER's ask, not the swap ad's.** The documented "the advertised rent is
+    the partner's Altvertrag" rule stops being a hedge here — the owner's real number is *in our own
+    tracker*, dated. Quote both and take the deduction.
+  - **The non-swap channel is strictly the better route** and belongs in Next Steps: same flat, no
+    Wohnungstausch, no `swap_offer.landlord_consent` gate, no giving up Golm — for the price delta.
+    (This is the `CLAUDE.md` Nachmieter-vs-Vermieterkanal rule, in a swap-vs-Nachmieter variant.)
+  - **How to find the twin:** the swap feed's `Referenznummer` is the syndicator's Anbieter-ID and
+    dedups nothing across portals — but the **developer Grundriss caption (`Haus {N} – WE {n}` +
+    exact Wohnfläche) does**. Fetch the last gallery image on every swap ad and grep the tracker for
+    the unit designator/area before scoring. See [[immowelt]].
+
 ## The FIRST Swap-candidate (#685) — and the two rules that produced it
 **(a) On Immowelt the Suche can live ONLY in the headline, in telegram „Tausche {Angebot} gegen
 {Suche}" grammar, with the description carrying no Suche clause at all.** #685's headline is
