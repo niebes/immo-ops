@@ -227,6 +227,19 @@ Bekannte Neubau-Adressen (Bj. 2021), fortschreiben wenn neue auftauchen:
   geplant: 6-Geschosser mit bis zu 109 WE → mehrjährige Baustelle als Lage-Con nennen. (#561)
 - **Schwarzschildstr. 28** — Bj. 2021, Max Müller Immobilien GbR. (#523)
 
+**Eigener Angebots-Korridor für 14480 Am Stern (aus 8 bewerteten Objekten) — als Plausibilitäts-
+schranke benutzen, bevor eine Zahl geglaubt wird:** sanierter Plattenbaubestand **7,66–11,18 EUR/m²
+kalt** (#146 7,66 · #149 9,46 · #279 10,07 · #192 10,13 · #239 10,63 · #231 11,18), Ortsteil-**Spitze**
+sind die Neubauten 2019/2021 mit **16,02–16,50** (#217 · #105). ⇒ **Jeder Aufruf über ~17 EUR/m² in
+14480 ist erklärungsbedürftig und sollte zuerst den Datenintegritäts-Check auslösen** (Tippfehler,
+Stellplatz/Möblierung/Strom im Betrag enthalten, Quartals- statt Monatszahl), nicht sofort eine
+Mietpreisbremsen-Rechnung. Seen on **#742** (Mieternetzwerk, 68 m², `obj_totalRent` 1.880 EUR warm =
+27,65 EUR/m² warm → rekonstruiert 23,15–24,65 EUR/m² kalt) — das ist **+40–50 % über dem teuersten je
+in Am Stern bewerteten Objekt** und +130 bis +273 % über der zulässigen Miete in jeder plausiblen
+Baualtersklasse. *Why:* der Ortsteil-Korridor ist die einzige schnelle Gegenprobe auf einer
+Mieternetzwerk-Anzeige, wo die Kaltmiete ohnehin nur aus der Warmmiete zurückgerechnet ist — ohne ihn
+schreibt man eine +273-%-Mietspiegelverletzung auf, die in Wahrheit vermutlich eine Falscheingabe ist.
+
 **Die Ziolkowskistraße selbst ist gemischt — eine Anzeige nur mit STRASSE (ohne Hausnummer) ist
 deshalb nicht auflösbar.** Nr. 2 = Neubau 2021 (77 WE), Nr. 8 = Altbestand 1920–1949 (IS24-Atlas),
 Straßenkern = Plattenbau, gegenüber geplanter Sechsgeschosser (bis 109 WE). Bei straßengenauen
