@@ -1086,3 +1086,22 @@ Fixwerte, die man nicht neu recherchieren muss:
 Baualtersklasse noch einem § 556f-Status zuzuordnen, und ein 21-EUR/m²-Aufruf liest sich entweder
 als Mietpreisbremsen-Verstoß (den es rechtlich nicht gibt) oder als „marktkonform" (was ihn gegen
 die ortsübliche Vergleichsmiete um ein Drittel zu günstig darstellt).
+
+⚠ **Das Bornstedter Feld ist NICHT durchgehend § 556f — der westliche Altbestand am Volkspark ist
+älter als der Fontane-Gärten-Gürtel. Baujahr pro Straße prüfen, nicht pro Quartier.**
+**Horst-Bienek-Straße (14469, Sackgasse an der Volkspark-Kante)**, #726: IS24-Atlas nennt für
+Nr. 9 **Baujahr 2010**, für Nr. 4 sogar 1920–1949; das Inserat selbst nannte kein Baujahr, aber
+Küchen-Selbsteinbau 2016 + Tiefgarage + Loggia + komplette Barrierefreiheit ⇒ Baualtersklasse
+**2009–2012 oder 2013–2020**, also Spalte E (>90 m²) = **12,01 (10,30–13,84)** bzw.
+**12,39 (10,31–14,00)**. Das ist die Stelle, an der der 01.10.2014-Stichtag kippt:
+- Bezugsfertig **vor** 01.10.2014 ⇒ Bremse **greift**, Deckel ortsüblich +10 % ≈ 13,21–13,63 EUR/m².
+- Erstbezug **ab** 01.10.2014 ⇒ **§ 556f**, kein Deckel, quartiersüblich bis 19,7–22,4 EUR/m².
+Auf 144,92 m² sind das **1.914–1.975 EUR** gegen **2.855–3.246 EUR** Kaltmiete — ein Faktor 1,6.
+⇒ Bei jeder Volkspark-Kanten-Adresse ohne Baujahresangabe ist „Baujahr/Erstbezug?" die **erste**
+Kontaktfrage, und beide Szenarien gehören in Block A nebeneinander.
+Datenpunkt Bestandsmiete: #726 zahlt dort seit ~2016 **11,25 EUR/m² kalt** (144,92 m², 1.630 EUR),
+d. h. **6–9 % unter ortsüblich** und **rund die Hälfte** des Quartiers-Angebotsniveaus — Altvertrag
+nach der ½-Anker-Faustregel aus `tauschwohnung.md`. NK dort nur **2,02 EUR/m²** (292,45 auf
+144,92 m² inkl. Heizung) = deutlich **unter** dem Band 3,00–3,80 und damit das Gegenstück zum
+Fontane-Gärten-NK-Anker 4,79 — im selben Quartier existieren beide Extreme, also nie aus dem
+Quartier auf die NK schließen.

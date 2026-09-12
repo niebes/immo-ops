@@ -141,9 +141,17 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   the real-photo count is **0**, not 2, and D must be capped at 3,0. ⇒ On any listing whose photo
   count is small (≤ ~4) AND whose images carry no `classification`, **fetch and Read them before
   scoring D** — the count alone cannot distinguish a photo from a Grundriss on this feed.
-  ⚠⚠ **Extend that: on the Tauschwohnung-GmbH feed, fetch the LAST image on EVERY ad regardless of
-  gallery size — it is routinely the developer Grundriss, and it is the best identity key the feed
-  has.** #723 (`64e0a0da-…`, 9 images, `hasFloorPlan:false`, `floorplans:[]`, no `classification`):
+  ⚠⚠ **Extend that: on the Tauschwohnung-GmbH feed, fetch the GRUNDRISS on EVERY ad regardless of
+  gallery size — it is routinely present, and it is the best identity key the feed has.**
+  ⚠ **…but it is NOT reliably the LAST image — download the WHOLE gallery and build a contact
+  sheet.** #726 (`aa2c696c-…`, 20 images): the Grundriss was **Bild 3**; the last image was a
+  Kellergang photo. A "fetch the last image" shortcut would have (a) missed the plan entirely and
+  (b) reported 20 real photos instead of 19. All 20 came down in ~40 s with the documented
+  `curl --http1.1 + image Accept` recipe (mixed bag: Bild 1 JPEG, Bilder 2–20 genuine WebP —
+  `file` each, never branch on the `.webp` suffix), and one `+append/-append` contact sheet answered
+  photo-count, Zustand, Balkon, Badewanne, Keller (Kellergang mit Verschlägen) and Tiefgarage in a
+  single Read. ⇒ Cost is one Bash call; make the whole gallery the default, not the tail.
+  #723 (`64e0a0da-…`, 9 images, `hasFloorPlan:false`, `floorplans:[]`, no `classification`):
   Bild 9 was the KW-Development plan „**Haus I – WE 8**" with per-room m² and **Wohnfläche gesamt
   ca. 74,84 m²**. Three payoffs the text alone never gives: (a) real-photo count 8, not 9;
   (b) the advertised **77 m² was 2,16 m² / 2,9 % too high** — the plan is the accurate area and
@@ -181,6 +189,19 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   **Sibling check on the same ad: `sections.price.additional[].label:"Kaution"` can contradict the
   description too** (#725: price block `"Kaution":"2599"` = 1,3 NKM vs. description „Kaution: 3
   Nettokaltmieten" = 6.000 €). Read both; report the contradiction rather than one number.
+  **Third sibling: the description's own Warmmiete TOTAL can contradict its own line items — always
+  re-add them.** #726 wrote „Kaltmiete 1.630,00 + 146,00 Betriebskosten + 146,45 Heizkosten
+  = Gesamte Warmmiete aktuell: **2.002,00 €**"; the sum is **1.922,45 €**, and the 79,55 € gap is
+  almost exactly the **80 €/Monat Garagenstellplatz** mentioned two paragraphs later. So the lister's
+  „Warmmiete" silently included an optional extra. Quote both figures and make „is the Stellplatz
+  included/obligatory?" a contact question — copying the headline total overstates Warmmiete by ~4 %.
+  ✅ **When the m² IS disputed or unlabelled, the Grundriss settles it arithmetically — sum the
+  per-room m² and see which Loggia/Balkon factor reconciles.** #726: rooms summed to **137,62 m²**;
+  137,62 + 14,60 Loggia × **0,5** = **144,92 m²** = the advertised figure exactly. ⇒ no Flächen-
+  schwindel, but ~7,3 m² of the "Wohnfläche" is outdoor space counted at the WoFlV *maximum*
+  (25 % is the regular case → 141,27 m²), and the heated-interior €/m² is 11,84 not 11,25. This
+  reconciliation distinguishes „lister lied about the area" from „lister used the legal upper
+  Anrechnungsfaktor" — two very different Block-A/C conclusions from the same headline number.
   *Why:* both fields are the ones an evaluator copies verbatim, and each error moves Block A/G.
 - ⚠⚠ **`rawData.propertyType:"APARTMENT"` does not mean it is a building — Immowelt lists
   HAUSBOOTE / Floating Homes as ordinary „Wohnung zur Miete" with nothing in the structured payload

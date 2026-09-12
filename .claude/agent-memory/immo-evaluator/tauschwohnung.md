@@ -928,3 +928,37 @@ IS24 MEDIA here was 5 tiles all captioned `www.tauschwohnung.com`/`Gesponsert` =
 (cap D 3,0), and `energyEfficiency` (Klasse A) came ONLY from NUXT — IS24 ATTRIBUTE_LIST was all null.
 **Why:** scoring side 2 off the structured `roomsMin 4/110 m²` alone would misstate what the partner
 wants; reading the free text confirmed the real target (Kreuzberg) and made the mismatch unambiguous.
+
+## Side-2 sub-case: the Suche names BOTH of `swap_offer.lacks` (Balkon *und* Keller) — still a PASS
+#726 (Immowelt `aa2c696c-…`, Anbieter-ID 384558, Bornstedt/Volkspark, 4 Zi / 144,92 m² / 1.630 kalt)
+is the first Suche that hits **both** of the Golm flat's `lacks` at once:
+> „Ich bin Allgemeinärztin und suche eine kleinere Wohnung in Postdam (2-3 Zimmer) **mit Balkon und
+> Keller** für höchstens 1300 € warm. Gerne moderner Neubau und **zentral**, aber ruhig."
+Six axes pass and pass *well* — kleiner (54,19 vs 144,92 m², −63 %), Stadt Potsdam (Golm ist
+Ortsteil), 2 Zi im Band „2-3", 1.214,93 warm unter ihrem 1.300er Deckel, „moderner Neubau" = Bj 2024
+(besser als gefordert), ruhig — und der Rest sind drei weiche Fehlstellen: kein Balkon (~29 m²
+Privatgarten als Teilersatz), kein Keller (kein Ersatz), Golm ist nicht „zentral".
+⇒ **Ausstattungswünsche sind KEINE Kill-Achse.** Die vier Kill-Achsen bleiben Ort (expliziter
+Ausschluss / Punktadresse), Zimmer-Floor, Flächen-Floor, Mietobergrenze. `evaluate.md` sagt es
+ausdrücklich: fehlende Must-haves = Con, kein Hard-Fail ohne Deal-Breaker-Formulierung. „mit Balkon
+und Keller" ist eine Aufzählung, kein „zwingend"/„Bedingung" ⇒ **Swap-candidate mit offener Ansage**,
+nicht Discarded. *Why:* der Reflex, zwei genannte Ausstattungswünsche wie einen Zimmer-Floor zu
+behandeln, hätte den bis dahin **strukturell besten** Tauschfall der Serie weggeworfen.
+
+**Das strukturell beste Muster überhaupt: echter Downsizer + echter Upsizer + großer Mietvorteil für
+die Gegenseite.** #726 spart beim Tausch **604,75 EUR/Monat kalt / 707,52 EUR warm** (bzw. 787,07
+gegen die von ihr selbst genannten 2.002) und landet 85 EUR unter ihrem eigenen Deckel; wir zahlen
+dieselbe Differenz für +90,73 m² und +2 Zimmer und bleiben unter beiden Caps. Bisher scheiterte
+praktisch jeder Kandidat daran, dass die Gegenseite **vergrößern** wollte (#492/#505/#533/#541/#550/
+#578/#667/#683/#720/#724) — „sie verkleinert" ist das seltene Spiegelbild und sollte im Triage als
+**positives** Signal gelten (Titel-Tell: „Suchen {M}, bieten {N}" mit M < N, oder eine große
+Wohnfläche im Suchergebnis). Der Mietvorteil der Gegenseite ist dabei das belastbarste
+Überzeugungsargument und gehört in die erste Nachricht — nicht die fehlenden Ausstattungsmerkmale
+verschweigen, sondern gegen die ~700 EUR/Monat stellen.
+
+**Preisfalle in genau diesem Muster:** je größer ihre Wohnung, desto größer der Altvertragshebel —
+und desto härter der Repricing-Schaden. #726: 11,25 EUR/m² Bestandsmiete gegen 19,7–22,4 EUR/m²
+Quartiersniveau (Bornstedter Feld) ⇒ ein Neuvertrag kostet je nach § 556f-Status 1.914–1.975 EUR
+(gedeckelt) oder bis ~3.200 EUR (Neubau-Ausnahme, = sofort disqualifizierend). ⇒ Bei jedem
+Großflächen-Downsizer ist **„Baujahr/Erstbezug + sagt der Vermieter eine Vertragsübernahme zu
+unveränderten Konditionen zu?"** die erste Frage; die Antwort entscheidet mehr als der halbe Score.
