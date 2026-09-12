@@ -414,6 +414,28 @@ camera-real, no cap fired.
 **Why:** an unfamiliar caption shape is the only thing standing between "download and look" and a
 wrongly-fired render cap.
 
+**Fifth caption form: `WhatsApp Image YYYY-MM-DD at 0` (IS24 truncates the time) — and the image
+behind it is often a PHOTOGRAPHED GRUNDRISS, not a room.** Then `obj_picturecount: 1` but the
+Block-D photo count is **0 real photos** (Grundriss/Lageplan never count) → D still capped at 3,0,
+*and the cap is actually reached* (a plan is more than #621's nothing). The same image is
+simultaneously the **strongest amenity evidence the exposé has**: on #739 (expose 170303660,
+Ziolkowskistraße Am Stern, 4 Zi/77 m²) it showed a full-width **Balkon** off the Wohnzimmer
+(overturning `obj_balcony: n`), **Bad mit Badewanne** (nice-to-have confirmed), an abgetrennte
+**L-Küche** and a tiny second bedroom — so E moved to 3,3 (one must-have hard-confirmed, Keller
+still uncredited) while D stayed capped. A Grundriss also **dates the layout**: 4 Zi on 77 m² with a
+separate L-kitchen is a Bestandsschnitt, not a 2021 open-plan Neubau — usable as a Baualtersklasse
+argument when there is no Baujahr and no house number.
+**Why:** counting the plan as a photo would lift D wrongly; ignoring it would throw away the only
+must-have confirmation in the whole payload.
+
+**Two Mieternetzwerk ads with the SAME Warmmiete have byte-identical Kalt/Warm bands — that is
+arithmetic, not a duplicate.** The bands are ±5 % around `obj_totalRent` and its 70 % derivation, so
+any two ads reporting 1.200 EUR warm both show "798–882 €" / "1.140–1.260 €". #739 vs #561 (both
+Ziolkowskistraße, both 1.200 warm) looked like a re-list on the price alone; they differ in rooms
+(4 vs 3), m² (77 vs 72), tenant name and Bezugsdatum. Discriminate on `obj_noRooms` + m² +
+`AGENTS_INFO.name` + availability — never on the bands, and not on the UUID `obj_objectnumber`
+(per-ad, proves nothing).
+
 **Fifth form — and the only one that carries a DATE: `WhatsApp Image YYYY-MM-DD at 0`** (IS24 truncates
 the caption at ~30 chars, so the time is cut off). Phone-original like the other four → no cap. But
 unlike them the caption **timestamps the shoot**, so read it as a second datum: on #734 (expose
@@ -889,6 +911,28 @@ field is unbelegt. #525 landed D 3,5 this way; the baugleiche Nachbarwohnung #23
 15 Innenfotos + Grundriss) got 4,5, i.e. the photo evidence alone is worth ~1 point of D / 0,1 global.
 **Why:** without the middle case you either cap a photographed listing at 3,0 or wave through an
 unverified "komplett renoviert" at 4,5.
+
+**Mieternetzwerk TITLE + Beschreibung are IS24 BOILERPLATE — an identical title across two exposés is
+ZERO duplicate evidence.** #736 (170397856, Am Stern/Schubertstr., 89 m²) and #619 (170113761,
+Drewitz/Murnau-Str., 85 m²) both carry the byte-identical title **"Wohnen mit Charakter:
+4-Zimmer-Wohnung in Potsdam"**, and both `TEXT_AREA`s are the same generated sentence frame
+("Diese Wohnung in der {Straße} bietet auf einer Wohnfläche von {N} Quadratmetern insgesamt {N}
+Zimmer … Die durchdachte Aufteilung … eine solide Basis für individuelle Gestaltungsideen"). IS24
+composes these from the tenant's form fields, so the title varies only with Zimmerzahl+Stadt. The
+*only* discriminators on this ad class are the **Straße in the generated sentence**, `obj_livingSpace`,
+`geo_ot` and `obj_totalRent` — the Objekt-Nr. is a per-ad UUID (`db871978-…`) and identifies nothing.
+**Why:** two Mieternetzwerk ads in the same city look like one re-listed flat on title alone; routed
+as a duplicate, a genuinely new listing never gets evaluated.
+
+**On a Mieternetzwerk ad, distinguish "amenity keys ABSENT" from "keys PRESENT and `n`" — they score
+differently.** #619 had *no* `obj_balcony`/`obj_cellar` keys at all → must-haves *unbestätigt*, the
+"2+ missing must-haves = 1,0" rule does NOT fire (Block E 2,0). #736 had the keys present and set to
+`n` (plus `obj_garden`/`obj_lift`/`obj_hasKitchen`/`obj_barrierFree` = `n`) → the tenant did fill the
+mask, so score Block E **1,0** per `_shared.md` — but write in the report that `n` may still mean
+"not ticked", never *credit* the amenity, and **quantify the swing** (confirmed Balkon+Keller ⇒ E
+1,0→3,5 ⇒ +0,25 global) so one reply settles the listing. Check the keys' *presence* before deciding.
+**Why:** applying #619's "unbestätigt" reading to a filled mask hands out a free point; applying
+#736's reading to a missing mask punishes a flat for a form the tenant was never shown.
 
 ## „Kaution **oder Genossenschaftsanteile**" is IS24's STANDARD deposit label — not a Genossenschaft tell
 The `ATTRIBUTE_LIST "Kosten"` row is literally labelled `Kaution oder Genossenschaftsanteile:` on

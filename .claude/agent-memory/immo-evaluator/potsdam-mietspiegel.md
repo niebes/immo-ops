@@ -227,6 +227,28 @@ Bekannte Neubau-Adressen (Bj. 2021), fortschreiben wenn neue auftauchen:
   geplant: 6-Geschosser mit bis zu 109 WE → mehrjährige Baustelle als Lage-Con nennen. (#561)
 - **Schwarzschildstr. 28** — Bj. 2021, Max Müller Immobilien GbR. (#523)
 
+**Die Ziolkowskistraße selbst ist gemischt — eine Anzeige nur mit STRASSE (ohne Hausnummer) ist
+deshalb nicht auflösbar.** Nr. 2 = Neubau 2021 (77 WE), Nr. 8 = Altbestand 1920–1949 (IS24-Atlas),
+Straßenkern = Plattenbau, gegenüber geplanter Sechsgeschosser (bis 109 WE). Bei straßengenauen
+Mieterinseraten also **klammern statt raten**: Feld 1971–1990 vs. 1991–2008 vs. ab 2021 nebeneinander
+rechnen und den Mietpreisbremsen-Befund ausdrücklich als "nicht abschließend bestimmbar" + § 556g
+Abs. 3 ausweisen (#739: 11,08–12,58 EUR/m² = +79…+103 % über Platte, +12…+27 % über 1991–2008,
+−25…−34 % unter ab-2021). Die `priceBar` hilft dabei nur begrenzt: sie zeigte 5,70–9,50 EUR/m²
+(Angebotsband der Umgebung) und stellt das Angebot ins 83. Perzentil — das belegt "teuer für die
+Umgebung", aber nicht die Baualtersklasse.
+
+**Straßennamen-Heuristik für 14480: Astronomen = Platte, Komponisten = MUSIKERVIERTEL ≠ Platte.**
+Die Am-Stern-Großsiedlung trägt Astronomen-/Physikernamen (Newton-, Galilei-, Kepler-, Ziolkowski-,
+Schwarzschildstr.); die **Komponistenstraßen südlich der Großbeerenstraße (Schubert-, Flotow- u. a.,
+„Musikerviertel")** sind kleinteiliger Siedlungs-/Einfamilienhausbau neben 1980er-Geschossbau
+(bestätigt über #525 Lilienthalstr. 12 und #736 Schubertstr.). Dort ist der Plattenbau-Reflex
+**keine Default-Hypothese** — ohne Baujahr das Mietspiegelfeld klammern (bis 1948 · kein EA /
+1949–1970 / 1971–1990) statt eine Klasse zu setzen. Lage-Scoring in diesem Teilquartier: **Block B
+4,0** (peripher, ÖPNV busbasiert, Tram erst am Stern-Center) gegenüber **4,5** an der Steinstraße
+(#677/#617/#337). *Why:* der Ortsteilname „Am Stern" zieht automatisch das 1971–1990-Feld (5,63 in
+Spalte D) und produziert damit im Musikerviertel einen um bis zu +100 % falschen
+Mietpreisbremsen-Befund.
+
 **14480 ist außerdem nicht nur Am Stern/Drewitz — es umfasst KIRCHSTEIGFELD (Bj. 1993–1998).** Damit
 hat die PLZ *drei* Baualtersklassen (1971–1990 Platte · **1991–2008** Kirchsteigfeld/90er-Ergänzungs-
 bauten · ab 2021 Neubauriegel) und der Plattenbau-Reflex ist dort nur eine von drei Hypothesen.
@@ -492,6 +514,24 @@ sogar das „>20 % unter Mietspiegel"-Scam-Signal); mit dem echten Süd-Band ist
 oberen Rand der Vergleichsangebote und die Mietpreisbremse wird zum realen Thema.
 Für die Bewertung im Süden zusätzlich: ÖPNV-Anbindung ist gleich gut (S7 Babelsberg/Griebnitzsee,
 Tram 94/99), plus Lindenpark und Filmpark fußläufig → Block B 4,5, ohne Adresse keine 5,0.
+
+## Ortsteil-Anker: **Potsdam West / Westliche Vorstadt (14471)** — Altbau-Ruf, aber der Bestand ist gemischt
+Das Image (Park Sanssouci/Charlottenhof, Gründerzeit an Zeppelin-/Geschwister-Scholl-Straße) verleitet
+dazu, jede 14471er Wohnung in die Zeile **bis 1948** zu setzen. Zwischen den Altbauachsen stehen aber
+ganz gewöhnliche **Mehrfamilienhäuser der 1970er** (z. B. Stormstr. 16/20/21, 5 Geschosse, ~15 WE) —
+und zwischen den beiden Zeilen liegt in Spalte C (>60–75 m²) der Faktor ~1,5 (bis 1948 · kein EA 7,49
+bzw. C–E 8,82 gegen 1971–1990 · C,D **5,82**). Also **immer erst das Gebäude datieren**, nie den
+Ortsteil. Anker, gemessen an Stormstr. 16 (#737): adressgenaue IS24-`priceBar` „ähnliche Angebote"
+**6,10–8,60 EUR/m²** (Gesamtspanne 5,10–10,10), IS24-Atlas-Schätzmiete für die Adresse **~11 EUR/m²**,
+stadtweiter Angebotsanker 12,60–13,50 → das lokale Band liegt **deutlich unter** dem Stadtmittel, weil
+die Altverträge im 1970er-Bestand es nach unten ziehen. Ein Nachmieter-Altvertrag bei 6,5–8 EUR/m² ist
+hier der Normalfall und **kein** Scam-Signal. Lage/Block B: Tram 91/94 an der Kastanienallee/
+Zeppelinstr., Bhf Charlottenhof + Bhf Park Sanssouci (RB21/RB22) fußläufig, Innenstadt/Luisenplatz
+5–10 Min. → **4,5**; Abzug nur bei direkter Lage an der Zeppelinstraße (laute Hauptverkehrsachse,
+Hausseite erfragen).
+*Why:* mit der Altbauzeile gescort wirkt eine 7,7-EUR/m²-Wohnung „unter Mietspiegel/verdächtig
+billig", mit der richtigen 1970er-Zeile liegt dieselbe Miete **über** ortsüblich und die
+Mietpreisbremse wird zur echten Frage.
 
 ## Ortsteil-Anker: **Babelsberg Süd (14482)** — Villen-/EFH-Rand, nicht Nowawes
 Südlich der Bahn Richtung Park Babelsberg/Griebnitzsee: durchgrünte, ruhige Bebauung (Kiefern/Eichen,
