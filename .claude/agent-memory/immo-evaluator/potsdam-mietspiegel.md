@@ -873,6 +873,17 @@ Borkheide, Brück, Nauen, Ketzin, Brandenburg an der Havel.
 **Merke außerdem:** § 549 Abs. 2 Nr. 1 BGB nimmt **Wohnraum zum vorübergehenden Gebrauch**
 (möbliert/auf Zeit/Monteur) ohnehin aus den §§ 556d ff. heraus — bei solchen Anzeigen also
 beide Begründungen nennen (Gemeinde reguliert ja/nein **und** § 549), nie nur eine.
+⚠ **Und es können DREI Gründe gleichzeitig greifen — dann alle drei nennen, sonst liest sich der
+Report so, als gäbe es noch einen Hebel.** #725 (Potsdam West, möbliertes **Hausboot**, Bj. 2022,
+20,00 EUR/m²): (1) Potsdam ist reguliert, aber **§ 556f BGB** (Erstbezug nach 01.10.2014) setzt die
+Bremse aus; (2) **§ 549 Abs. 2 Nr. 1** wegen möbliert (hier abgeschwächt durch 12 Monate
+Mindestmietdauer); (3) der Mietspiegel erfasst **(teil-)möblierte** Wohnungen ausdrücklich nicht und
+kennt **für ein Hausboot/Floating Home gar keine Kategorie** (kein Baualter-/Flächenfeld passt).
+⇒ Ergebnis sauber formulieren als „**kein Preishebel vorhanden — die Miete ist teuer, aber
+rechtlich unangreifbar**", und die Mietspiegel-/Angebotsanker nur noch als *indikativen*
+Marktvergleich zitieren (#725: +32 % über Mittelwert ab-2021 Spalte E 15,14, +29 % über dem
+Angebotsanker 15,51). *Why:* mit nur einem genannten Grund schreibt man „§ 556g Abs. 3
+Auskunftshebel" in die Next Steps und schickt den Nutzer auf eine Verhandlung, die es nicht gibt.
 *Why:* #640 (Grünheide) kostete eine WebSearch nur, um festzustellen, dass die Gemeinde seit 2026
 reguliert ist; die Verordnung wird jährlich neu erlassen → **jeden Januar gegenprüfen**.
 → **Promotion-Vorschlag:** diese Liste gehört in `modes/_shared.md`, Abschnitt „Brandenburg

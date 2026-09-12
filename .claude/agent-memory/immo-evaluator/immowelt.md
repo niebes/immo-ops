@@ -127,6 +127,12 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   branch (`cp` → `.jpg` for JPEG, `dwebp` for RIFF/WebP). *Why:* a 92 on one image of a two-image
   gallery reads as "the gallery is unavailable" and leaves Block D scored blind on exactly the
   listings where the images are the only evidence.
+  ✅ **Re-confirmed 2026-09-12 (#725) and simplified: the URL extension is meaningless — `.png` URLs
+  served genuine WebP.** All 6 images were `mms.immowelt.de/**.png?ci_seal=…` and came back
+  `RIFF … VP8` on the documented `curl -s --http1.1 -A <Chrome UA> -H 'Accept: image/avif,image/webp,
+  image/apng,image/*,*/*;q=0.8'`, decoding cleanly with `dwebp`. ⇒ Never branch on the URL suffix;
+  always `file` the bytes and branch on that. No 92/52 errors on this run, so the `--http1.1` +
+  image-Accept combo is now 2-for-2 as the default first attempt (not a retry).
 - ⚠⚠ **`tags.hasFloorPlan:false` + `domains.medias.floorplans:[]` can BOTH lie — the Grundrisse then
   sit in `medias.images` and inflate the photo count, so the Block-D "no real photos" cap is silently
   missed.** #722 (`b308b2f6-…`, Tauschwohnung GmbH): `images.length` = 2, `floorplans` = `[]`,
@@ -162,6 +168,39 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   higher), a second bathroom, and the definitive absence of any Balkon/Terrasse. *Why:* this inverts
   two documented rules at once — „`floorplans:[]` is the definitive no-Grundriss answer" and
   „`images.length` is the exact photo count" — and both errors push the score the same wrong way.
+- ⚠⚠ **`hardFacts.livingSpace` is a free-text lister field and can be NEITHER Wohnfläche NOR
+  Gesamtfläche — and `priceComparison.pricePerSqm` is computed from it, so a wrong m² silently
+  produces a wrong €/m² that looks authoritative.** #725 (`26dzepzyatjz`): hardFacts said **160 m²**
+  and the portal printed **12,50 €/m²**, while the lister's own description said „Ca. **220 m²
+  Gesamtfläche**, ca. **100 m² Wohnfläche**" — i.e. three figures, and the only one *labelled*
+  Wohnfläche gives the real rate **20,00 €/m²** (+60 % on the portal's number). ⇒ Before computing
+  Block A, grep the description for `Wohnfläche|Gesamtfläche|Nutzfläche` and prefer the labelled
+  Wohnfläche; quote the portal €/m² only as „portal figure, computed on the disputed m²".
+  Same class of trap as the Grundriss-m² correction on #723, but here the contradiction is inside
+  the exposé text itself, so no image fetch is needed — one regex settles it.
+  **Sibling check on the same ad: `sections.price.additional[].label:"Kaution"` can contradict the
+  description too** (#725: price block `"Kaution":"2599"` = 1,3 NKM vs. description „Kaution: 3
+  Nettokaltmieten" = 6.000 €). Read both; report the contradiction rather than one number.
+  *Why:* both fields are the ones an evaluator copies verbatim, and each error moves Block A/G.
+- ⚠⚠ **`rawData.propertyType:"APARTMENT"` does not mean it is a building — Immowelt lists
+  HAUSBOOTE / Floating Homes as ordinary „Wohnung zur Miete" with nothing in the structured payload
+  to tell you.** #725: `propertyType:"APARTMENT"`, `distributionType:"RENT"`, normal hardFacts,
+  normal `features` chips (incl. an implausible `Keller` chip) — and the object is a floating home
+  whose berth is **mutable**: headline „Luxus auf dem Wasser … Waterloft", Sonstiges „Aktueller
+  **Liegeplatz**: in Potsdam" + „**Überführung** zu anderen Standorten (z. B. Berlin oder Ostsee)
+  auf Wunsch möglich". Consequences that no other field reveals: the Ortsteil in
+  `sections.location` is a current fact, not a contractual one (Block B); the Mietspiegel has no
+  category for it *and* the tenancy may not even be Wohnraummiete (Liegeplatz-/Chartervertrag);
+  physical must-haves like `Keller` become implausible-by-construction. ⇒ **Add a case-insensitive
+  `hausboot|floating|liegeplatz|auf dem wasser|überführung|schwimmend` sweep to the standard
+  keyword pass**, next to the `vergeben` EXPIRED sweep. *Why:* scoring it as a flat in Potsdam West
+  gives it a preferred-area 4,5 and a clean Block E on a Keller that cannot exist.
+- ⚠ **`möbliert` is a one-field hard-blocker test in the payload** — it renders as a
+  `sections.features` chip `{icon:"furnished", value:"möbliert"}` (in `preview` *and* under
+  `details.categories → Allgemeine Informationen`). Check it before any prose sweep; `möbliert`
+  also appears in `innerText`, but the chip is the lister's own assertion. #725 confirmed it against
+  the photos (fully kitted designer interior). Same block usually carries the other blocker-adjacent
+  flags: `pets-allowed`, `flat-share-possible`, `furnished`.
 - ⚠ **A live, complete page is NOT proof the flat is available — read the ad TITLE for `VERGEBEN`.**
   #712 (`001f6218-…`, Tauschwohnung GmbH): HTTP 200, `blocked:false`, 623 KB payload, every field
   populated, `tags.isNew:true` — and `classified.title` = „**TAUSCHWOHNUNG VERGEBEN:**
