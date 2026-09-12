@@ -106,6 +106,20 @@ one field, settles the area axis outright. Seen on #610 (expose 170120501, Klado
 "mindestens 3 Zimmern und 80 m² in Charlottenburg bzw. Westend bis maximal 1800 Euro" + structured
 `radius 0 / roomsMin 3 / sizeMin 80 / rentMax 1800` — the two sources agreed on every axis, which is
 what made the verdict robust (contrast #454, where they contradicted each other).
+  - **Free-text equivalent, for the platforms that carry NO `search` dict (Immowelt/Kleinanzeigen
+    cross-posts): a CLOSED enumeration of Ortsteile with no openness clause = `radius 0`.** #710
+    (Immowelt `f7e26e14-…`, Anbieter-ID 73058, Grunewald): *„zum Tausch gegen eine mind. 4
+    Zimmer-Wohnung in den Bezirken **Grunewald, Schmargendorf, Dahlem oder Zehlendorf**"* — four
+    adjacent SW-Berlin Ortsteile, connected by „oder", and nothing after them. Test: does a sentence
+    like „bevorzugt …, biete aber gern alles an" / „oder im nahen Umland" follow? **No ⇒ explicit
+    exclusion, no commuter-belt leniency for Golm** (contrast the #606 positive-form list, which is a
+    lenient PASS precisely because of its closing openness clause, and #683's „Rand-Berlin oder im
+    nahen Umland", which literally covers Potsdam). *Why:* without a structured `radius` field the
+    reflex is to fall back to the lenient city rule and surface a Golm offer for a „Berlin" seeker who
+    has in fact named four villa Ortsteile they are not leaving.
+  - **Also on #710: the Suche can live entirely in the TITLE** („TAUSCHWOHNUNG 3 Zi. Wohnung 80qm
+    Grunewald **gegen mind. 4 Zi.**") — read the title as a Suche source before the description, it
+    often carries the decisive `mind. N Zimmer` even when the body is boilerplate.
 **Sixth kill axis: ORT-RICHTUNGSUMKEHR — the poster ALREADY LIVES in the region our offer sits in
 and names a DIFFERENT city as the target. The commuter-belt leniency must NOT be applied.** #684
 (Immowelt/Wohnungsswap, Ref 1483177, Hans-Sachs-Str., Brandenburger Vorstadt 14471): „Tausche …

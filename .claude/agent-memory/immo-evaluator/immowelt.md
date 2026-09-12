@@ -110,6 +110,13 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
       is unsafe by this rule — the Altbau-Seitenflügel conclusion is probably still right, but it was
       not actually established.
   - **`rawData.tags` is a free re-check/dedup panel: `{"has3DVisit","hasBrokerageFee","isNew"}`.**
+    ⚠ **…but `tags` is OPTIONAL — on swap/Tauschwohnung ads `rawData` can carry only
+    `{distributionType, propertyType, geoIdHierarchy, distributionSubType}` and no `tags` at all**
+    (#710, `f7e26e14-…`, Tauschwohnung GmbH). Then `hasBrokerageFee`/`isNew` are simply unavailable —
+    `Object.keys(d.rawData)` first, and fall back to a case-insensitive `provision|courtage` sweep for
+    Bestellerprinzip and to `metadata.creationDate`/`updateDate` for ad age (which are always there and
+    are the better source anyway). *Why:* reading `d.rawData.tags.hasBrokerageFee` on such a page throws
+    on `undefined` and reads like a broken parse of an otherwise complete payload.
     `hasBrokerageFee:false` settles the Bestellerprinzip/Provision question without a keyword sweep,
     and **`isNew` flips true→false as the ad ages** — on the Stiftstr. 8a re-check (2026-08-23) it was
     the *only* field that had changed since 2026-08-15, every price/size/Merkmal/photo field being
@@ -161,6 +168,13 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
     independent ProvenExpert/Jacasa figures used in Block H.
   - **The `Merkmale` list can legitimately hold a single entry** (#596: only `Bezug: 2026-08-31T00:00:00Z`). That is a real, extremely sparse listing, not a failed extraction — don't keep re-fetching looking for the missing Ausstattung.
   - **Photo classifications double as an amenity probe.** 12 photos all classified as interior rooms (LIVING_ROOM/BEDROOM/KITCHEN/BATHROOM/HALLWAY/CLOSET/HOME_OFFICE) with **no** outdoor/balcony frame is decent evidence that there is no Balkon/Terrasse when the text is silent — enough to take the Block-E must-have penalty, phrased as "not evidenced" rather than "confirmed absent".
+- **Second "no Energieausweis" shape — the lead-gen prompt, and it means NO data, not an exemption.**
+  `sections.energy = {features:[{type:"heatingSystem",…}], hasScales:false}` and the page renders
+  „Möchtest du Details zum Energieverbrauch? → Details zum Energieverbrauch anfragen" where the scale
+  would be (#710). Do NOT read this as the § 79 GEG Baudenkmal exemption below — there is no exemption
+  sentence; the class is simply unfilled (typical for private Tausch-/Nachmieter ads). ⇒ the Low
+  "Missing Energieausweis" scam signal DOES apply, and Block D stays unverified. **`hasScales` is the
+  one-field test:** `false` = no scale rendered at all; a real certificate has `hasScales:true`.
 - **Energieausweis can legitimately be absent: `"Ein Energieausweis ist für diesen Gebäudetyp nicht notwendig."`** appears in `data-testid="cdp-energy-certificate-preview"` in place of the scale. On a Baudenkmal this is the § 79 Abs. 4 GEG exemption — **do NOT fire the "Missing Energieausweis" scam signal** for it, but do note that the energy performance is then unverifiable (Block D). ⚠ **Only when the exposé states no Baujahr** — if a Baujahr > 1948 is present the exemption is false and the signal DOES fire; see the shape-2 falsification rule under „Check `Bausubstanz und Energie`" below. Such listings also omit the Baujahr; recover it from the Wikipedia Denkmalliste — see `potsdam-mietspiegel.md` → "Baujahr HARD bekommen".
 - CiC fallback: **first `navigate` often lands on `chrome://newtab/` (no-op) — just call `navigate` again.** Second call loads.
 - No cookie/consent wall blocks content; page renders immediately. `read_page`/`javascript_tool` on `document.body.innerText` works.
