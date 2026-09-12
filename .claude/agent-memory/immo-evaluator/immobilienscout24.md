@@ -82,6 +82,23 @@ inserent is the same person and the price fell — #621.)
 **Why:** without the Objekt-Nr.+404 pair a re-list is either scored as a brand-new flat (losing the
 price-cut leverage and re-deriving everything) or dismissed as a stale duplicate and never evaluated.
 
+**Chains of THREE, and what to do when the earlier reports disagree with each other.** The Objekt-Nr.
+can gain a suffix between schaltungen (#756 `263119-36` vs #442 `263119`) — match on the **base**, the
+suffix is just the agent's re-post counter, not a different unit. "Align with the earlier report"
+then needs a tie-break, because two prior reports of one unit routinely differ (#442 = 3,6 vs #465 =
+4,0 on byte-identical data, 2 days apart). Rules: (1) follow the **better-evidenced** report block by
+block, not the newer one, and say which and why in the header note; (2) **do re-score where a doctrine
+postdating the old reports applies** — #756's Block E moved 2,0 → 2,5 because the mask-reliability
+test (see the amenity-mask section) was written after July 2026, and the header must say it
+*corrects* the earlier reports rather than silently diverging; (3) Block F genuinely decays with
+time — the same "bezugsfrei 01.10.2026" was 4,5 when it sat 2 months out (#465) and 4,0 when the same
+date was 19 days out (#756), because the 3-month Kündigungsfrist turns a near date into ~2 months
+Doppelmiete. (4) A re-list with the price **unchanged** across ~7 weeks and 2 withdrawn ads is still
+leverage — just point it at Kaution, Mietbeginn and Stellplatz instead of at the rent.
+**Why:** the prompt flagged "#465 and #442 carry the same title" as a possible duplicate; without a
+tie-break rule the evaluation either inherits the wrong (looser) of two conflicting scores or produces
+a third, unexplained number for a flat the user has already read about twice.
+
 **`obj_objectnumber == obj_scoutId` means there IS no Objekt-Nr. — and that absence is itself the
 discriminator.** On a private/freemium ad the field just echoes the Scout-ID (#699: both
 `170310996`), so the "identical Objekt-Nr. = same unit" test above **cannot be run** — don't report
@@ -1084,6 +1101,21 @@ mit dazu!" *and* unit-level "Ein Keller sowie ein Abstellraum in der Wohnung") �
 "Keller schriftlich bestätigen" as contact question #1.
 **Why:** the ≥2-positives rule was written to stop `n`-inflation, and applied mechanically it now
 over-corrects in the opposite direction — the EBK contradiction is the cheap, decisive counter-test.
+
+**Cheapest refuter of all: the AD'S OWN TITLE.** You do not need a sibling ad or a TEXT_AREA hunt —
+the headline IS24 prints in the search results usually itemises the amenities, so diff the title
+against the mask first. #756 (expose 170511973, Georg-Hermann-Allee 127 Bornstedt, Makler A&A GmbH):
+title *"…mit offenem Wohnkonzept, 2 Bädern, **neuer Einbauküche** und **eigenem Garten**"* while the
+mask said `obj_hasKitchen: n` AND `obj_garden: n` — **two** refuted `n`s on an otherwise
+curated-looking mask (`obj_balcony:y`, `obj_lift:y`, `obj_noParkSpaces:1`, 3 CHECK rows,
+`obj_condition: mint_condition`, gewerblich). So the lone `obj_cellar: n` is "unset", not "absent"
+⇒ Block E **2,5** (unconfirmed) instead of the 2,0 a missing must-have would score. Corroborate the
+"unset" reading rather than the "absent" one when the building type makes absence implausible
+(Bj. 2023 Neubau ⇒ Kellerabteile are standard) and quote the swing both ways in Next steps
+(Keller ja → E 4,0 → 3,8 global; nein → E 2,0 → 3,6).
+**Why:** the mask-reliability test was being run only against TEXT_AREAs, which costs a full parse;
+the title is already in the pipeline metadata and settled it here in one glance. Note the title is
+*only* a refuter of `n`s — it can never confirm an amenity the mask and text both omit.
 
 **Third reading — `obj_x = n` while the TEXT_AREA grants the amenity is usually neither "unset" nor a
 lie: the amenity exists but is NOT part of the Mietvertrag.** On a curated commercial mask, read the
