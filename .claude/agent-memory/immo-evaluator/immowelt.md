@@ -182,6 +182,15 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   still ships empty `description`s — it just stops it being unconditional. *Why:* the existing note
   says „the labels are a guess, in both directions", which is true of `classification` but not of
   `description`; without this you pay full gallery cost on every well-tagged commercial listing.
+  ⚠ **…and a POPULATED `floorplans[]` is no guarantee that the unit's own plan is in it — sweep
+  `images[].description` for plan filenames too.** #731 (same project as #729): `hasFloorPlan:true`,
+  `floorplans` = 3 entries, all „Grundriss/3D-Grundriss - **Musterwohnung**", while the
+  unit-specific plan sat as **Bild 59 of 60 in `images`**, the only image without a `classification`,
+  captioned with the raw source filename (`FF26888_…_Haus_2_Haus_2_WE_5_…`). On #729 the very same
+  project put it in `floorplans`. ⇒ Run the filename/`WE`-token sweep over **both** arrays and
+  download any image lacking `classification`; one `curl` then yields the per-room m² that settle
+  the Wohnfläche-vs-Innenfläche question. *Why:* „`floorplans` has 3 entries" reads as „the plans
+  are covered" and you score the area on the lister's headline number alone.
   ⚠ **…but it is NOT reliably the LAST image — download the WHOLE gallery and build a contact
   sheet.** #726 (`aa2c696c-…`, 20 images): the Grundriss was **Bild 3**; the last image was a
   Kellergang photo. A "fetch the last image" shortcut would have (a) missed the plan entirely and
@@ -283,6 +292,13 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   confirmed a second outdoor space that does not exist; the sum-vs-plan comparison is the only
   cheap check that settles it. Same line also carries `Anzahl der Schlafzimmer/Badezimmer` and
   `Mindestmietdauer`, i.e. facts that exist nowhere else in the payload.
+  ⚠ **But the number in that field can itself be a TYPO — reconcile it arithmetically before
+  quoting it.** #731: `Balkon-Terrassen-Fläche: 10,52 m²` vs. Grundriss `10,25 m²` (digit swap).
+  Only 10,25 reproduces the advertised Wohnfläche (rooms 73,35 + 10,25 × 0,50 = 78,48 exactly);
+  10,52 would give 78,61. ⇒ Keep it as the tie-breaker against contradictory chips, but the
+  floorplan wins whenever `Zimmersumme + Außenfläche × {0,25|0,50}` does not land on the headline
+  m². *Why:* the field is otherwise treated as the hard number, and a 0,27-m² error is small enough
+  to copy unnoticed while proving the wrong Anrechnungsfaktor.
 - ⚠ **`classified.title` can be `undefined` outright** (#730, commercial lister) — the headline then
   lives only in `sections.mainDescription.headline`. Harmless if you already sweep
   `mainDescription.headline + classified.title + document.title` together for VERGEBEN, but

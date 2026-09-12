@@ -684,9 +684,27 @@ einheitsgenaue Grundriss zeigt nur **eine** Außenfläche. Auflösung ohne Bilde
 Balkon (die gestrichelte Linie im EG-Plan ist die Überdeckung durch den Balkon des 1. OG).
 ⇒ Regel: `Balkon-Terrassen-Fläche` gegen den Grundriss legen, bevor man einen zweiten Außenraum
 als vorhanden wertet.
-**Jede Einheit hat einen einheitsgenauen Grundriss** in `medias.floorplans[].description`
-(`FF26888_…_Haus_{N}_Haus_{N}_WE_{n}_…` = die Referenznummer `H{N}-{Etage}-{WE}`) — den immer ziehen,
+**Jede Einheit hat einen einheitsgenauen Grundriss** mit der Beschriftung
+`FF26888_…_Haus_{N}_Haus_{N}_WE_{n}_…` (= die Referenznummer `H{N}-{Etage}-{WE}`) — den immer ziehen,
 er beantwortet Zimmerflächen und die Flächenfrage.
+⚠ **Er liegt NICHT zuverlässig in `medias.floorplans[]` — bei #731 steckte er als vorletztes Bild
+in `medias.images[]` (Bild 59 von 60, ohne `classification`), während `floorplans` nur drei
+Musterwohnungspläne enthielt** (#729 hatte ihn umgekehrt in `floorplans`). ⇒ Immer **beide** Arrays
+nach dem `FF26888_…_WE_{n}`-Muster durchsuchen, sonst gilt die Einheit fälschlich als „nur
+Musterwohnung, kein einheitsgenauer Plan" und die Flächen-Gegenrechnung entfällt.
+⚠ **Die `Balkon-Terrassen-Fläche` aus `Stichworte` kann einen ZAHLENDREHER enthalten — die
+Flächen-Gegenrechnung entscheidet, nicht das Feld.** #731: Stichworte „10,52 m²", Grundriss
+„10,25 m²"; nur 10,25 reproduziert die beworbene Fläche (73,35 + 10,25 × 0,50 = 78,48 exakt),
+10,52 ergäbe 78,61. ⇒ Das Feld bleibt der Tie-Breaker gegen widersprüchliche Chips (#730), ist aber
+gegenüber dem Grundriss nachrangig, sobald die Summe nicht aufgeht.
+**Dritter Flächentyp der Charge, jetzt hart belegt — der 78,48-m²-Typ (H2-01-05 = #731; gilt
+geometriegleich für #624 H3-02-09 / 78,52 und #629 H2-02-09 / 78,48):** Wohnen 33,93 · Schlafen
+14,58 · Kind 10,66 · Flur 6,71 · Bad 5,80 · Abstell 1,67 = **73,35 m² beheizte Innenfläche**,
++ Balkon 10,25 × 0,50 = 78,48. ⇒ echte Innen-Kaltmiete **22,77 EUR/m²** statt 21,28, und die
+Innenfläche kippt über die 75-m²-Kante in **Spalte C = 15,72 (10,52–19,00)**, also beide Spalten
+nennen. Bemerkenswert: dieser Typ hat mit **9,1 % Flur** den effizientesten Schnitt der Charge und
+einen **größeren Wohnbereich (33,93) als der 85,45-m²-Typ (32,74)** — der Flächenaufpreis der
+großen Einheiten kauft Schlafzimmer- und Flurfläche, nicht Wohnfläche.
 ⚠ **Flächenfalle der Charge: der Balkon ist mit dem WoFlV-HÖCHSTFAKTOR 50 % in die „Wohnfläche"
 gerechnet.** Beim 85,45-m²-Typ (H1-01-04 = #632, H1-01-05 = #729, vermutlich auch H1-03-16 = #732):
 Zimmer summieren sich auf **80,56 m² beheizte Innenfläche** (Wohnen 32,74 · Schlafen 16,67 ·
@@ -721,7 +739,12 @@ Visualisierungen + ~9 Umgebungsfotos + ~9 Marketing-/Textkacheln; `classificatio
 falsch, `medias.images[].description` dagegen korrekt beschriftet.
 Nicht mit **#430 (Havel Quartier / MIRU, Bj. 2022, allod)** verwechseln — gleicher Ortsteil, anderes
 Quartier, andere Vertragsfakten (dort Indexmiete + 12 Mon. Mindestlaufzeit).
-Genutzt auf #624, #729, #730.
+**Chargen-Ökonomie (Stand #731):** nur die 78,5-m²-Einheiten (1.650–1.670) halten die reale
+Warmmiete (Kalt + NK + ~1,00–1,40 EUR/m² Heizkosten) mit **160–190 EUR Abstand unter dem
+2.200-EUR-Cap**; die 85-m²-Einheiten (1.800) landen **am** Cap, die 90-m²-Einheit (2.030) **darüber**.
+⇒ Der Cap ist in dieser Charge der eigentliche Diskriminator, nicht der EUR/m² (der über alle
+Einheiten in engen 21,0–22,5 liegt). Gescort: #729 4,2 · #730 4,1 · #731 4,3.
+Genutzt auf #624, #729, #730, #731.
 *Why:* fünf Geschwistereinheiten (#624/#628/#629/#630/#632) laufen als Einzel-Evaluationen; ohne den
 Anker recherchiert jede Mietspiegelfeld, § 556f, Anbieter und Lage neu — und übernimmt womöglich #430s
 Indexmiete-Fakten, die für dieses Quartier unbelegt sind.
