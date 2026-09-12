@@ -447,6 +447,26 @@ Baujahr — same lever as the exterior-shot fabric tells, but far more reliable.
 **Why:** the existing caption-shape rules all assume an interior/exterior *photo* and would either
 lift the D cap for a plan that shows no condition at all, or throw away the only hard must-have
 proof in the exposé.
+Confirmed a second time the same day on **#746** (expose 170475782, Am Stern, 62 m²/3 Zi) with a
+*plain b/w* unit plan captioned `IMG_0913.jpeg` — so the plan arrives under every caption shape,
+coloured or not; the tell is the downloaded pixels, never the caption. Same outcome (D 2,5,
+E 3,0: label **"Balkon"** hard-confirms must-have 1, Keller stays unconfirmed). Two extra readings
+the plan gives for free and both belong in the report: **all rooms opening off the Flur = no
+Durchgangszimmer** (a real Block-C plus on a ≤65 m² 3-Raum) and an **innenliegendes, fensterloses
+Bad** — and if no tub is drawn, the Badewanne nice-to-have stays *unconfirmed*, do not infer it.
+
+**Not every Mieternetzwerk Altvertrag sits BELOW the Mietspiegel-Spanne — score Block A on the
+position within the Spanne, not on the budget headroom.** #735 (500 EUR warm / 61 m²) reconstructed
+to 3,70–5,20 EUR/m² = at/below the *Unterwert* of every 1971–1990 × Spalte-C row → Bremse eingehalten
+with 22–45 % to spare → **A 5,0**. #746, same Ortsteil, same class, same day: 650 EUR warm / 62 m²
+reconstructs to 5,98–7,48 EUR/m² = **mean to above the Oberwert** → Bremse eher knapp *überschritten*
+→ **A 4,5**. Both are ~70–80 % under the user's caps, so budget headroom alone cannot tell them
+apart. The decisive consequence to write up is the **Bremsen-Puffer**: only the #735 shape has a
+legal ceiling that automatically absorbs the announced "Die Miete wird sich eventuell anpassen";
+the #746 shape has none, so the re-let estimate (Ortsteil-Neuvertragsniveau × m²) is the number
+that matters and the § 556g Abs. 3 lever is the tenant's only brake.
+**Why:** anchoring A on "650 EUR warm = 70 % under cap" gives every cheap tenant ad a flat 5,0 and
+the block stops discriminating — while the two ads genuinely differ on the one axis the user acts on.
 
 **The single photo cuts BOTH ways — read it for evidence against the ad too.** #619 (170113761,
 Drewitz, 4 Zi / 85 m²): the one image (`19642.jpg`, kitchen) showed a **Pantry-Kochnische with a
