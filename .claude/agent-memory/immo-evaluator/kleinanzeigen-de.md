@@ -118,6 +118,16 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     pinned Block E. Note `Altbau` and `Neubau` can BOTH be set (= Erstbezug nach Sanierung im Altbau),
     so neither one alone tells you the Baujahr — read the description for that. *Why:* without this
     list you have to infer amenities from prose and will silently miss a must-have.
+  - **…but the boolean list can be ENTIRELY ABSENT from the served HTML while the flags still exist in
+    the ad-targeting JSON** (#716: the second `ul.addetailslist` held only `Warmmiete 1.000 €`, yet the
+    targeting payload carried `Terrasse:true`, `Badewanne:true`, `Altbau:true`, `Haustiere_erlaubt:true`,
+    `WG_geeignet:true`). So the "no label ⇒ must-have unbelegt" test is only valid **after** checking the
+    targeting JSON — otherwise you declare a present amenity missing. Conversely, a flag that appears ONLY
+    there and is contradicted by silence in title, description and visible list is *unconfirmed*, not
+    proven: score the must-have as met but write "per Ad-Attribut, nicht in der Beschreibung belegt — bei
+    Kontakt verifizieren". Absence from BOTH sources is what actually pins Block E (#716: no `Keller`
+    anywhere → must-have fehlt). *Why:* on #716 reading only the visible list would have dropped
+    Terrasse/Badewanne/Haustiere and cost two must-haves instead of one.
   - **Machine-readable attribute dump: the ad-targeting JSON** (`%ENCODED_BIDDER_CUSTOM_PARAMS%` /
     `%DFP_TARGETS%` inline in a `<script>`) repeats the ad's fields as flat keys — `Preis`,
     `ExactPreis`, `Nebenkosten`, `Warmmiete`, `Kaution_/_Genoss._Anteile`, `Zimmer`, `Schlafzimmer`,
