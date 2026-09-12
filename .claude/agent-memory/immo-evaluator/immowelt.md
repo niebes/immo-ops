@@ -98,6 +98,14 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `sections.features` on every swap ad; `null` means "this lister left the Ausstattungsmaske empty",
   not "this feed has no Merkmale". *Why:* assuming the feed shape would have written „Keller
   unbestätigt" onto a listing that states it outright.
+  ⚠ **A `{icon:"rented", value:"vermietet"}` chip in `features.preview` (mirrored by
+  `sections.priceComparison.investmentValues[].is_rented = "ja"`) on a `distributionType:"RENT"` ad
+  does NOT mean Kapitalanlage/vermietet-verkauft — it means the unit is still OCCUPIED until the
+  `frei ab` date.** #765: RENT + `price.layout` `GERMAN_RENT` + chip „vermietet" + „frei ab
+  01.11.2026" = the sitting tenant leaves on 31.10. Score it as a normal Block-F future date (and as
+  the reason a Möbel-Abstandszahlung is offered), never as a sale or as unavailability. *Why:* the
+  chip reads like the IS24 „vermietet" flag on investment sales and would flip the object type; it is
+  also the corroboration that the `frei ab` date is current rather than a stale field.
   **⇒ Treat the node-script path as the DEFAULT first move on Immowelt, ahead of CiC.**
   Two gotchas in the harness itself: (a) set `IP_HEADLESS/IP_LOCALE/IP_TIMEZONE/IP_STORAGE_STATE` and
   `cwd: ROOT` in the spawn env (`tmp/drive.mjs` omits them); (b) the driver emits a **second** line
