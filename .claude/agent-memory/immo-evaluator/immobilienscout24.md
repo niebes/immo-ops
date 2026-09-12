@@ -40,6 +40,20 @@ the price-delta/negotiation framing and an additional unit does not.
 auto-generates them per house) and the numbers agree to ~0,2 %, so without the Etage/Objekt-Nr.
 check it would have been written up as a duplicate of an already-scored flat.
 
+**First, verify the HINT itself — "row #NNN carries the same title" is sometimes just wrong.**
+One `grep` of the tracker row + the old report's H1 costs nothing and can settle the question
+before any curl. #755 arrived flagged against **#009**; #009's title is *"Helle sanierte
+Familienwohnung im schönen Kirchsteigfeld-Potsdam!"* at Margarete-Buber-Neumann-Str. 5 — a
+different title AND a different street from #755's *"Geräumiges Familienappartement …"* at
+Ricarda-Huch-Str. 30. What the two actually share is only the **Vermieter and the Quartier**
+(Immonexxt runs the whole Kirchsteigfeld estate: #006 RHS 34, #007 RHS 28, #008 Am Hirtengraben 29,
+#009 M.-B.-Neumann-Str. 5, #219 RHS 42 — **all five exposés now 404**). Two consequences worth
+writing into the report: (1) say explicitly that the hint was refuted and on which field, rather
+than silently dropping it; (2) a landlord-cluster comparison table of the *scored* siblings
+(m² · Kaltmiete · EUR/m² · Etage · the one amenity that differs · score · 404-status) is far more
+useful than the duplicate check that was asked for — it is what showed that #755 is the cheapest
+EUR/m² of the cluster **and** the only unit without a Keller.
+
 ##### Cross-portal "re-list" claims: **normalise the RENT TYPE before you believe the delta**
 When the suspected earlier ad sits on another portal (typically a Kleinanzeigen Nachmieter post),
 the two prices are often **not the same quantity**. Private Kleinanzeigen ads routinely quote only
@@ -2985,6 +2999,19 @@ Wohnungsnummer WE 58"). `curl` it and `pdftotext` it: it confirms Zimmerzahl/Fl�
 *this* unit (and often reveals the Bauträger's Haftungsausschluss = "Planmaße", i.e. the m² are
 plan figures, not a WoFlV-Aufmaß). Seen on #537 (expose 169858137).
 
+**But `md5sum` the PDFs before believing the labels — two entries can be the SAME file.** #755
+(expose 170549738, Immonexxt, Ricarda-Huch-Str. 30) listed `Energieausweis.pdf` **and**
+`RHS_30_MWS_9_Ricarda-Huch-.pdf`; the second name reads exactly like the unit-numbered Grundriss
+above (`MWS 9` = Maxie-Wander-Str. 9, the building's second address) but the file is
+**byte-identical** to the Energieausweis. `curl` both to disk → `md5sum` → only `pdftotext` the
+distinct ones. Cost: one command; payoff: you neither report a Grundriss that does not exist nor
+pay a second pdftotext. Corollary for the report: with no Grundriss **and** no `PRICE_INFO`/
+`priceBar` section, "Grundriss anfordern" belongs in Next steps, and the Mietspiegel check has to
+run on the table alone (no address-precise band → the price-below-Mietspiegel scam High cannot
+fire in either direction).
+**Why:** the filename alone made it look like the einheitsgenaue Grundriss and the Block-C
+Raumaufteilung was about to be written up from a document that was never attached.
+
 #### On an Altbau/Denkmal the Energieausweis-PDF OVERRIDES `obj_yearConstructed` — and that one field decides the Mietpreisbremse
 `obj_yearConstructed` / "Baujahr:" can carry the **Sanierungs**jahr, not the Baujahr. #751 (expose
 170628529, Potsdamer Str. 199 Bornstedt) advertised `Baujahr: 2018` + `Letzte Modernisierung: 2018`;
@@ -3085,6 +3112,23 @@ Paul-Neumann-Str. 20) only revealed in the image that „Kind 1" is reachable **
 Balkon/Loggia exists anywhere on the plan — which independently confirmed `obj_balcony: n` and cost
 Block C a full point. Also read the bath: wanne + separate bodenebene Dusche are visible there long
 before any attribute list mentions them.
+
+##### Variant: the Grundriss carries an **embedded Lageplan** — it resolves the QUARTIER even when no header/caption names a street
+A new-build Grundriss often prints a small site plan beside the area schedule, with the surrounding
+**street names** and the **building letters** (H/I/J/K …) of the estate. That fires when every other
+address channel is dead (`obj_street/obj_houseNumber: no_information`, generic MAP line, no header
+text, no Telekom param) and the plan itself has no unit caption. It does not give a house number —
+it gives something usually more valuable: **the name of the Quartier**, which you then match against
+`grep -rl {street} reports/` to inherit the already-researched anchors of sibling evaluations
+(Energieausweis class of the estate, real transit — often better than the ad's own Lagetext,
+Nebenkosten level, whether the TG-Stellplatz is chargeable on top, landlord type). Seen on **#759**
+(expose 170410617): address-less private ad, "Waldstadt I" only; the plan's `Heinrich-Mann-Allee` +
+`Brunnenallee` + cluster H/I/J/K placed it in the **Brunnen Viertel** and made #510/#642/#691/#692
+usable as anchors. Cheap: download `fullImageUrl` of the `caption: "Grundriss"` media item and `Read`
+it as an image.
+**Why:** without it Block B rests on the ad's own Lagetext, which on #759 named a Bus/S-Bahn combo
+and omitted the tram + Bahnhof 350 m away — i.e. the listing *understated* its own location, and the
+Energieausweis (missing from the ad) would have stayed a blank instead of a quartier-anchored estimate.
 
 #### The Grundriss PDF is the ONLY check on the advertised Zimmerzahl — and it is often a bare image
 Three additions from #565 (expose 150385816, Graf-von-Schwerin-Str. 3 Nauener Vorstadt, Trend Immobilien):
@@ -5021,6 +5065,20 @@ ticked. So the rule is symmetric: the prose neither proves nor disproves a unit-
 token. Same run also gives the third `90-…` Objekt-Nr. data point: `90-1791910019` (5A) vs
 `90-1791900008` (5) vs `90-1791890030` (3A) — three houses, three prefix blocks, consistent with the
 building-discriminator rule above.
+**Refinement (#758, expose 170420228, Brunnenallee 1 — fourth block `90-1791840009`): this estate is
+NOT flat-rate priced, so a big €/m² gap is neither a dedup signal nor a scam signal.** The BUWOG
+Brunnenallee units span **13,73 · 15,16 · 15,30 · 16,50 · 16,68 · 16,70 EUR/m²** (#758 · #693 · #691 ·
+#692 · #510 · #642) — a ~22 % spread inside one Quartier of the same Baujahr 2018 / EEK B / Fernwärme
+stock. That is the opposite of the talyo-Tower and Vonovia-Kirchsteigfeld estates, where every unit
+lands on one round EUR/m² and rent carries zero identity information. Consequence: (a) here €/m² *is* a
+cheap discriminator, and (b) a unit ~10 % below every previously scored sibling is a genuine bargain,
+not a bait price — confirm it with `priceBar` (#758 sat at percentile 46, well above `minSimilarPrice`)
+and the exact 3,0000× Kaution, then score Block A on it. Practical consequence for Block A: only #758
+fell **inside** the Mietspiegel Spanne (2013–2020 × Spalte D = 12,34 / 10,90–14,23) while #692 ran
++33,7 % over it — so re-derive the Mietspiegel field per unit and never inherit a sibling's verdict.
+**Why:** the memory above teaches "same estate ⇒ rent+size carry no information", and applied to a
+BUWOG Brunnenallee ad that reflex either flags the 13,73 outlier as suspicious/duplicate or copies
+#692's "+33,7 % über der ortsüblichen Vergleichsmiete" onto a flat that is actually within the Spanne.
 
 ## Numeric MEDIA captions ("0","1","2"…) ≠ renders — download and look before capping Block D
 Memory elsewhere says numeric-ID captions on a Planung/Fertighaus listing mean catalog renders. On a
