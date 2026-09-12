@@ -2604,6 +2604,49 @@ ausdrücklich nicht, siehe `potsdam-mietspiegel.md`. Auf #701: 19,00 → ~17,4�
 **Warum:** der Freitext-Grep oben ist als Detektor richtig, liest sich aber wie ein Urteil; ohne
 diesen Absatz kostet jedes „teilmöbliert" im Titel eine sonst gut bewertete Wohnung.
 
+#### Eine reine **Höchstmietdauer** ohne Möblierung = Block G ~1,5–2,0, **kein globaler Deckel**
+#748 (expose 170710270, Zeppelinstr. 150 Brandenburger Vorstadt) sagt dreimal „24 Monate maximale
+Mietdauer (2 Jahre)!" — in `Objektbeschreibung`, `Ausstattung` UND `Sonstiges`, in keinem
+strukturierten Feld. Der Grep oben findet das korrekt, aber die Auflösung steht bisher nur in
+`immowelt.md` (#570, 4-Jahres-Befristung): ein **mehrjähriger Zeitmietvertrag ist weder
+Zwischenmiete noch Wohnen auf Zeit** → nur die Befristet-Regel aus `_shared.md` (2,0) in Block G,
+**nicht** der `no_zwischenmiete`-Deckel auf ≤2,0. Die Gegenindizien-Liste des Absatzes darüber
+entscheidet es und war hier komplett erfüllt: sauberer Kalt/NK-Split, Kaution glatte 3,00
+Nettokaltmieten, **unmöbliert sogar ohne EBK** (`obj_hasKitchen: n`), eigener Mieterkeller,
+konkretes „ab sofort". Eine *Höchst*mietdauer ist härter als eine Mindestmietzeit (Auszugspflicht
+statt Bindung) → 1,5 statt 2,0 ist vertretbar, mehr nicht.
+**Immer den § 575 BGB-Hebel als Next Step #1 ausschreiben und den Score-Swing beziffern:** der
+Befristungsgrund (Eigenbedarf / Abriss / Betriebsbedarf) steht nie im Exposé, muss aber bei
+Vertragsschluss schriftlich genannt werden — fehlt er, gilt das Mietverhältnis kraft Gesetzes als
+unbefristet. Auf #748: G 1,5 → ~4,5 = global 3,4 → 3,7, d. h. **eine E-Mail entscheidet die
+Wohnung**. Nebenbefund: eine 24-Monats-Befristung ist selbst ein Eigenbedarfs-/Verkaufsindiz →
+Block H deckeln, auch wenn der Vermarkter top bewertet ist (der Vermieter wird nicht genannt).
+**Warum:** der Möbliert-Absatz darüber suggeriert, jeder Auf-Zeit-Marker feuere den Hard Blocker;
+das hätte eine 3,4er-Wohnung auf ≤2,0 gedeckelt und den § 575-Hebel gar nicht erst gefunden.
+
+### „Musterfotos" stehen im TEXT_AREA, während die `MEDIA`-Captions völlig unauffällig sind
+Die Caption-Bucketing-Regeln weiter unten (real / Grundriss / Render) **versagen hier komplett**:
+#748 hatte 12 PICTUREs mit Captions `IMG_6006`…`IMG_6017` (blanke Kamera-Dateinamen),
+`Hausansicht 02` und `Grundriss` — kein einziger Render-/Musterwohnungs-Stamm. Erst der
+`Ausstattung`-Freitext sagte **„Musterfotos einer Vergleichswohnung"**: sämtliche Innenaufnahmen
+zeigen eine *andere* Wohnung. Konsequenzen:
+- **Kamera-Dateinamen als Caption (`IMG_\d+`, `DSC_\d+`, `20260912_\d+`) sind ein drittes
+  caption-loses Muster** neben dem Sortierindex (`"0"`,`"99999"`) — sie bedeuten „Anbieter hat nie
+  beschriftet", also **null Evidenz in beide Richtungen**. Nie als „echte Fotos" verbuchen, ohne
+  den Freitext gelesen zu haben.
+- Den Description-Keyword-Scan aus `_shared.md` um die Stämme **`Musterfoto`, `Vergleichswohnung`,
+  `baugleich`, `typengleich`, `Beispielwohnung`** erweitern — `Musterwohnung`/`ähnliche Wohnung`
+  allein greifen nicht.
+- Block D dann normal auf **3,0 deckeln** (Bestandsobjekt ohne Fotos der Einheit), und die einzigen
+  objektbezogenen Bilder benennen — hier `Hausansicht` + `Grundriss`. Der Grundriss bleibt trotz
+  des Disclaimers auswertbar und lieferte die Freisitz-Frage (kein Balkon) und das
+  **Durchgangszimmer** für Block C/E.
+- **Kein Scam-Signal** („Fotos einer anderen Immobilie", Medium): der Disclaimer ist eine
+  Selbstauskunft = Transparenz, analog zur „KI-generierte Visualisierung"-Caption-Regel. Ausdrücklich
+  als entkräftet ausschreiben, sonst hängt die Beobachtung wertend im Bericht.
+**Warum:** wer wie vorgesehen nur die Captions bucketet, zählt hier 11 „echte Fotos", vergibt Block D
+4,0 und schreibt „gut dokumentiert" über ein Exposé, in dem **kein einziges Bild die Wohnung zeigt**.
+
 ### `MEDIA` captions can flag AI-staging **per image** — the render rule is per-gallery, don't over-cap D
 `_shared.md`'s render/Visualisierung keyword scan is written against the *description*, so it reads
 as an all-or-nothing gallery verdict ("labels the images as non-real → cap Block D at 3.0"). On
