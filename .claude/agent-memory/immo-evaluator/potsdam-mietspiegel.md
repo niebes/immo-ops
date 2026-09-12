@@ -661,8 +661,37 @@ dem lokalen Angebotsband; Block A landet dort realistisch bei **4,0**, nicht 4,5
 Warmmiete ist unvollständig, real +60–90 EUR/Monat; (2) **keine Fotos/Grundrisse der konkreten Einheit**,
 nur Musterwohnung + Außen-Visualisierungen (Neubau-Ausnahme greift, Block D also nicht deckeln).
 Lage: Potsdam Hbf **~400–500 m / 5–7 Gehmin.** (RE1 Berlin ~25 Min., S7 Wannsee ~10 Min.) → Block B 4,8.
+**Vertrags- und Ausstattungs-Fixwerte (Stand #729, gelten für die ganze Charge — nicht neu prüfen):**
+**Mindestmietdauer 24 Monate** (auf Immowelt sowohl im `Stichworte`-Text als auch als strukturiertes
+Merkmal `features.details → Allgemeine Informationen → „24 Monate"`, Icon `rental-time`) ⇒
+**projektweiter Kündigungsausschluss**, Block G ≈ 3,8 statt 4,5+; auf IS24 fehlt das Feld ganz.
+Kaution stets als **„drei Monatsmieten"** formuliert (unpräzise: auf Warmmiete gerechnet wäre sie
+rechtswidrig — immer als Klärungspunkt notieren). **Keine Provision** (`hasBrokerageFee:false`),
+kein WBS, unbefristet, **keine Staffel-/Indexmiete**, **Energieausweis fehlt komplett**
+(`energy.hasScales:false`, nur „wird bei Besichtigung vorgelegt") ⇒ Block D max. 4,7.
+Ausstattung überall: **EBK inklusive, Personenaufzug, Keller, Bad mit bodengleicher Dusche —
+KEINE Badewanne, KEIN Garten, KEIN Gäste-WC**. Anbieter-Telefon **0331 58 18 60**.
+Ein **„Terrasse"-Chip ist eine Immowelt-KI-Anreicherung** (`enrichment:"ai"`), keine Vermieterangabe.
+**Jede Einheit hat einen einheitsgenauen Grundriss** in `medias.floorplans[].description`
+(`FF26888_…_Haus_{N}_Haus_{N}_WE_{n}_…` = die Referenznummer `H{N}-{Etage}-{WE}`) — den immer ziehen,
+er beantwortet Zimmerflächen und die Flächenfrage.
+⚠ **Flächenfalle der Charge: der Balkon ist mit dem WoFlV-HÖCHSTFAKTOR 50 % in die „Wohnfläche"
+gerechnet.** Beim 85,45-m²-Typ (H1-01-04 = #632, H1-01-05 = #729, vermutlich auch H1-03-16 = #732):
+Zimmer summieren sich auf **80,56 m² beheizte Innenfläche** (Wohnen 32,74 · Schlafen 16,67 ·
+Kind 12,43 · Flur 11,20 · Bad 5,80 · Abstell 1,72), 85,45 − 80,56 = **4,89 = 9,78 m² Balkon × 0,50**.
+⇒ echte Innen-Kaltmiete **22,34 EUR/m²** statt 21,06. Bei jeder weiteren Einheit dieselbe
+Gegenrechnung machen (Regelfall wären 25 % Anrechnung).
+**Quartiersgeometrie (Hausaufteilungsbild):** Haus 1 = Max-Planck-Str. **16** · Haus 2 = **15** ·
+Haus 3 = **14** · Haus 4 = **16A** · Haus 5 = **15A** · Haus 6 = **14A**; Haus 1 ist das
+**Nordwest-Eckhaus**. Max-Planck-Straße + blu-Parkplatz liegen **westlich**, die begrünten Innenhöfe
+und der bewaldete Brauhausberg **östlich** ⇒ **Ostbalkon = ruhige Hof-/Grünseite (Morgensonne),
+Westbalkon = Straßenseite (Abendsonne)** — das ist bei den spiegelbildlichen Zwillingen
+(#632 West / #729 Ost, sonst identisch in Fläche, Miete, Grundriss) der EINZIGE Unterschied.
+Fotolage: ~30 **echte** Fotos der fertigen **Musterwohnung** (Parkett, EBK, Bad) + ~10 Außen-
+Visualisierungen + ~9 Umgebungsfotos + ~9 Marketing-/Textkacheln; `classification` ist hier grob
+falsch, `medias.images[].description` dagegen korrekt beschriftet.
 Nicht mit **#430 (Havel Quartier / MIRU, Bj. 2022, allod)** verwechseln — gleicher Ortsteil, anderes
-Quartier, andere Vertragsfakten (dort Indexmiete + 12 Mon. Mindestlaufzeit). Genutzt auf #624.
+Quartier, andere Vertragsfakten (dort Indexmiete + 12 Mon. Mindestlaufzeit). Genutzt auf #624, #729.
 *Why:* fünf Geschwistereinheiten (#624/#628/#629/#630/#632) laufen als Einzel-Evaluationen; ohne den
 Anker recherchiert jede Mietspiegelfeld, § 556f, Anbieter und Lage neu — und übernimmt womöglich #430s
 Indexmiete-Fakten, die für dieses Quartier unbelegt sind.

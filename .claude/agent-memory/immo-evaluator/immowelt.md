@@ -162,6 +162,26 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   cap — `file`-ing the bytes and one Read is ~2 Bash calls and settles it. *Why:* here the count
   6 → 3 and the Grundriss both changed the report materially, and both were invisible in a
   complete, well-formed 655-KB payload.
+  ✅ **CHEAP FIX FIRST: every media object carries a human caption in `description` — and on a
+  professional lister that field is far more reliable than `classification`.** The key is
+  `description`, NOT `caption`/`title` (both absent), which is why it is easy to miss when you dump
+  `im.caption||im.title` and get blanks. #729 (Brauhausberg, locals Real Estate, 59 images +
+  4 floorplans): `description` gave „Titelbild" · „Wohnzimmer mit Balkonzugang" ·
+  „**Außenansicht - Visualisierung**" · „Schlafzimmer / **Digital-Home-Staging**" ·
+  „Hausaufteilung - Visualisierung" · „locals Immobilien" — i.e. the render-vs-photo and
+  marketing-vs-object split, per image, for free — while `classification` was wrong in both
+  directions on the SAME gallery (a real brick-facade close-up tagged `LOGO`, a team photo tagged
+  `COURTYARD`, a fountain sculpture tagged `SWIMMING_POOL`). And `floorplans[].description` is the
+  source filename, which on project lettings encodes the unit:
+  `FF26888_2026-07-27_…_Haus_1_Haus_1_WE_5_1900_2300_jpg` ⇒ Haus 1, WE 5 = the Referenznummer
+  `H1-01-05`, so the unit-specific plan is identifiable without opening a single image.
+  ⇒ **Standard order: dump `description` for all media first, then download only what it leaves
+  ambiguous** (blank/duplicate captions, the swap feed's unlabelled images, any image with no
+  `classification` key). On a 63-image professional gallery this turns a ~2-minute download +
+  5 contact-sheet Reads into one `node` line. It does NOT retire the download rule — the swap feed
+  still ships empty `description`s — it just stops it being unconditional. *Why:* the existing note
+  says „the labels are a guess, in both directions", which is true of `classification` but not of
+  `description`; without this you pay full gallery cost on every well-tagged commercial listing.
   ⚠ **…but it is NOT reliably the LAST image — download the WHOLE gallery and build a contact
   sheet.** #726 (`aa2c696c-…`, 20 images): the Grundriss was **Bild 3**; the last image was a
   Kellergang photo. A "fetch the last image" shortcut would have (a) missed the plan entirely and
