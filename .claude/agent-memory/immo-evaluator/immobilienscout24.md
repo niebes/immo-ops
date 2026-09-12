@@ -3282,6 +3282,59 @@ Two corollaries:
 contact to obtain a number that was never going to fit, or gets written up as "price unknown,
 cannot score" — when the plot area alone settles Block A for free.
 
+#### …but FIRST spend one WebSearch on the address — "Auf Anfrage" is usually only withheld on *this* channel
+Before bounding the price from below, run **one WebSearch on `street + house number + m² + Ort`**.
+Exclusive-looking objects are routinely **co-listed by a second broker who publishes the price**
+(#708, expose 170001357, Rudi-Ball-Str. 26 Groß Glienicke: IS24 "Auf Anfrage", while Kensington
+International listed the identical unit as **KBT-403 at 875.000 EUR**, and an older index of the
+same page said 895.000 — same address, same 206 m², same 216 m² plot). Confirm identity on the
+**address + Wohnfläche + Grundstück triple**, then quote both numbers as a price *and* as evidence
+the seller has already come down.
+- **This flips the #384 doctrine:** #384 deliberately did NOT fire the "price 40 %+ above target"
+  hard blocker because the number was *derived*. A co-listed asking price is **published, not
+  derived** → fire the blocker, and say in the report which channel the price came from.
+- **Also flag the channel risk:** IS24 said `obj_courtage: n` / "Provision für Käufer: Nein",
+  but the co-lister is a Makler who may charge 3,57 % (~31 k on 875 k). Next step must be
+  "anbahnen ausschließlich über den IS24-Anbieter".
+- **Transport note:** `WebFetch` returns **403** on `kensington-international.com` and on
+  `atlas.immobilienscout24.de`, and a browser-UA `curl` is 403 too. The price came out of the
+  **WebSearch result summary itself** — so read the summary, don't chase the page.
+**Why:** without the search, #708 would have been written up as "price unknown, estimated
+600–900 k, blocker not formally fired" — losing both the hard blocker and the −20.000 EUR price
+cut that is the single most useful fact for the user.
+
+### Kauf/Neubau: the advertised Wohnfläche can be ~20 % OUTDOOR area — always read the Grundriss PDF's per-floor table
+Bauträger-Reihenhäuser ("Townhouse") credit terraces at the legal maximum and market the sum.
+#708: `obj_livingSpace 205.9` decomposed in the Grundriss-PDF as EG 80,78 (Terrasse 15,15 **@33 %**)
++ OG 75,72 (Balkon 6,96 **@50 %**) + DG 49,40 (**Dachterrasse 62,80 @50 %**) → **39,88 m² of the
+205,90 is outdoor**, the enclosed/heated area is only **~166 m²**, and the "Dachgeschoss" is an
+18 m² Galerie plus a flat roof terrace — not a storey. § 4 WoFlV says Balkone/Terrassen count
+**in der Regel 25 %**, exceptionally 50 %; at 25 % the flat would be 187,25 m².
+- Report **both** EUR/m² axes (#708: 4.250 marketed vs **5.271 enclosed**) and score **Block C off
+  the enclosed figure while naming the marketed one** — #708 was +37 % over the 150 m² cap as
+  advertised but only +11 % enclosed, so C = 2,5 rather than #384's 1,0.
+- Cheapest extraction: `curl` the `REFERENCE_LIST type:PDF` "Grundriss" → `pdftotext` → the netto/
+  brutto per-floor table and the Anrechnungsfaktoren are in the plain text. Same trip also settles
+  **Keller** (floor enumeration) and the garden split (#708: Eingangsgarten 37,10 + Süd 90,90).
+- **`obj_lotArea == obj_usableArea == the Grundriss Brutto-Gesamtfläche` is an IS24 data-error
+  signature**: the Anbieter pasted the building's gross area into the plot field. #708 showed
+  "Grundstück 252,44 m²" while Grundriss and the co-lister both said **216 m²** — a 17 % error that
+  would have skewed the Bodenwert. Whenever those two fields are byte-identical, distrust the plot.
+- Also cross-check the room count: #708's `Schlafzimmer: 3` was 2 real bedrooms + an
+  "Arbeits-/Gästezimmer" in the Grundriss.
+**Why:** taking 205,90 m² at face value overstates the living space by ~25 %, understates EUR/m²
+by >1.000 EUR, and mis-scores Block C by a full point in either direction.
+
+### Kauf: the Energieausweis PDF is worth one `pdftotext` — it names the Gebäudetyp the ad hides
+#708's ad said "Townhouse"; the Energieausweis PDF said **"Einfamilienreihenmittelhaus"** —
+i.e. a terraced mid-house with two party walls, which changes the resale, noise and
+Gemeinschaftsanlagen picture. The PDF also carries Registriernummer, Aussteller + Ausstellungsdatum,
+Gültigkeit, Primärenergie vs Anforderungswert, H'T, and the Wärmeerzeuger-Baujahr — all of which
+turn a portal checkbox into verified evidence and are strong *entlastende* scam signals. Same
+`curl` + `pdftotext` as the Grundriss, so it costs one command.
+**Why:** "liegt vor" in the attribute list is an assertion; the PDF is the document. And the
+Gebäudetyp discrepancy is exactly the kind of thing the marketing copy is written to obscure.
+
 ### Kauf: MEDIA captions can leak the exact street address
 When `MAP.addressLine1` says "Die vollständige Adresse … erhältst du vom Anbieter", check the
 `MEDIA[].caption` list anyway — Grundriss scans are often captioned with the file name from the

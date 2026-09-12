@@ -222,6 +222,16 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     data-entry joke and the obvious move (treat the heading as the price) yields "0 EUR"; without the
     Kaution ÷ 3 route the ad has no Kaltmiete at all and the whole Mietspiegel/Mietpreisbremse check
     is unrunnable on an otherwise 4,1/5 flat.
+    - **Run Kaution ÷ 3 even when the Kaltmiete IS stated — then it is a COPIED-TEXT detector, not a
+      price derivation.** #715 spelled the split out in full (kalt 950 · NK 120 · Heiz 100 · warm
+      1.170, arithmetic closes) yet wrote "Kaution: 2.550 € (**3 Nettokaltmieten**)" — but 3 × 950 =
+      2.850, and 2.550 ÷ 3 = **850**. A self-labelled NKM multiple that doesn't match the ad's own
+      Kaltmiete is the classic residue of a description lifted from another/older ad with only the rent
+      overwritten. Report it as an inconsistency (the *amount* is still legal — 2,68 NKM is under the
+      § 551 cap, so don't call it an illegal Kaution), put it in Next Steps as a verbatim question, and
+      weigh it with the other provenance signals. *Why:* the existing rules only reach for Kaution ÷ 3
+      when the price is missing, so on a fully-priced ad the mismatch goes unnoticed — and on #715 it
+      was one of only two concrete traces that the text wasn't written for this flat.
     - **Follow-up (#703, same flat): an already-evaluated ad can be SILENTLY EDITED and then ALSO
       re-posted under a fresh ad-ID — and the repost's photo UUIDs are all-new.** The #594 ad
       (3483783446) still returns HTTP 200, but its `Warmmiete` had been raised 1.085 → 1.200 € and the
