@@ -10,6 +10,9 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
   `browsingContext is undefined`. Working recipe: `new_page` with an **empty** url → `navigate_page(url)`
   → `evaluate_script`. Returns 200 + title in ~2 s. If you already hit the timeout, call `new_page`
   (empty) again to get a fresh context; don't try to reuse the dead one.
+  **The empty `new_page` itself also times out cold sometimes** (first call of a session, 2026-09-12):
+  just call `new_page` (empty) a second time — it returned `about:blank` instantly and the rest of
+  the flow worked. Don't conclude the MCP server is down after one 120 s timeout.
 - No cookie/consent wall blocks content; page renders immediately. `document.body.innerText` on the
   item page is only ~5 KB and already contains **the whole Artikelmerkmale table, seller box,
   feedback and Standort** — one `evaluate_script` gets everything except the long description.
@@ -52,6 +55,13 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
   authoritative. If either is populated, what is sold is only the **Baulichkeit**, the land stays
   Pachtland → no Grundbuch, no Eigentum, and a short Pachtdauer means removal risk.
   *Why:* scoring such a listing as a land purchase inflates Block A and misses the real risk (G).
+  - **Kleingarten sub-case (the most common one in this search):** title says *"Suche Nachpächter"* /
+    description names a **KGV … e.V.** → Nachpacht under BKleingG, and the "Kaufpreis" is an **Ablöse**
+    for Laube + Anpflanzungen only. Even `Pachtdauer: unbegrenzt` is not security (§ 9 BKleingG
+    Kündigung stays). Score G low and check in the report: Vorstandszustimmung zum Pächterwechsel,
+    Wertermittlungsprotokoll des Vereins backing the Ablöse, Laube ≤ 24 m² incl. überdachtem Freisitz,
+    kein Dauerwohnen, ≥ 1/3 kleingärtnerische Nutzung, Vereinsbeitrag/Arbeitsstunden on top of the
+    Pacht. A recently built **Anbau** is the classic unproven-Genehmigung/Rückbau risk (seen #705).
 - `Bebauung: Kein Bauland` + `Empfohlene Nutzung: … keine Bebauung` on a listing that *shows a
   house* = the structure's Baugenehmigung/Bestandsschutz is unproven, not that there is no house.
 - `Grundstücksfläche (m²)` on Freizeit listings can be a tiny parcel (110 m² seen) — always read
@@ -60,4 +70,6 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
 ## Triage
 - Search is Brandenburg-state-wide, so listings are routinely 100+ km from Golm. The Cottbus/Spremberg/
   Lausitz southeast corner is ~128 km from Golm — far outside the ~50 km radius → location hard blocker.
-  Always check `Stadt / Kreis` + PLZ against the radius before scoring.
+  The **Oder corner (Frankfurt/Oder, Eisenhüttenstadt, Oder-Spree, PLZ 15xxx)** is the other recurring
+  offender: ~145 km / 1 h 50 min from Golm. Always check `Stadt / Kreis` + PLZ against the radius before
+  scoring — PLZ 03xxx and 15xxx are both auto-fails.
