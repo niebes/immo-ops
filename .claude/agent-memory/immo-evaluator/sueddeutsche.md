@@ -48,6 +48,24 @@ A caller ("this is almost certainly a re-list of #NNN") cannot tell the two apar
 
 *Why:* both shapes arrive with the identical prompt "identical numbers → the flat is back". Confirming that framing on an echo tells the user to act on a flat that has been gone for two months.
 
+**An echo does NOT imply the flat is gone — always test liveness separately before writing EXPIRED.**
+The #636 precedent (echo + dead source) makes "echo ⇒ EXPIRED" feel automatic; it isn't. Seen
+2026-09-12 (H49YRB = #692, Brunnenallee 5): SZ source link resolved to Immowelt
+`6ff28c4b-…`, already logged as #692's DUPE ⇒ echo — but IS24 `170272916` was still
+`publicationState: active` and the unit had simply **not been let** (`Bezugsfrei ab` pushed
+01.09. → 13.09.26). Correct outcome: **DUPE of #692, no new report number**, plus a dated
+addendum on the original report. So the decision is two independent axes: *echo vs. re-list*
+(source expose ID) **and** *live vs. dead* (one curl on the source portal's data route — for
+IS24 the mobile API). Bonus: a **pushed-back frei-ab date on a still-live echo is a
+negotiation lever** (flat is sitting unlet) and belongs in the addendum.
+*Why:* reading the echo verdict as "gone" would have retired a still-available 4,3/5 flat.
+
+Third correction class to harvest from a **live** echo (beyond the two above): SZ's price block
+is often *more complete* than our own older report — H49YRB listed `Warmmiete 1.498,16 ·
+Bruttokaltmiete 1.238,16 · NK 186,00 · Heizkosten 74,00` and matched IS24's `obj_totalRent`
+field-for-field, exposing a 4,20 EUR arithmetic slip in report #692 (1.493,96). Re-add the price
+block and fix the original report + its `listings.md` Notes rather than writing a new one.
+
 Two corrections worth harvesting even from a dead echo (cheap, and they pre-empt the *next* appearance):
 1. **Re-add the price block.** SZ's arithmetic is self-consistent, older reports' often are not — #228 recorded Warmmiete 766,82 where 517,82 + 170 + 115 = **802,82**.
 2. **Re-run the Mietspiegel anchor.** Old Waldstadt/Drewitz reports routinely scored Block A 5,0 off an Angebotsmieten anchor (9,01 / 12,60–13,50); against the qualified 2026 table the same flat is usually *above* the ortsübliche Vergleichsmiete (#228: 8,50 vs 6,46 EUR/m² = +31,6 %, Bremse überschritten). Same fix already applied to #227/#542.
