@@ -76,6 +76,33 @@ being different buildings. Treat a shared landmark as zero evidence.
 been written up as a re-list with a trivial price rise — inheriting #313's Dachterrasse/DG facts into
 a 2.-OG-Balkon flat and hiding a 500-EUR warm-rent gap that is the whole story of Block A.
 
+**The constructive flip side: when a Kleinanzeigen Nachmieter ad later appears on IS24, the IS24 twin
+is the PRICE-SPLIT RESOLVER — and the two ads will quote different warm rents.** A private KA ad
+carries one `Warmmiete` field and no split; IS24's structured `Kosten` block forces
+`Kaltmiete` + `Nebenkosten` + `Heizkosten enthalten ja/nein` + `Gesamtmiete`. #761 (expose 170376388)
+vs #694: KA said **1.885 warm**, IS24 said **1.425 kalt + 400 NK (Heizung enthalten) = 1.825 warm** —
+**60 EUR apart**, because the KA figure was the lister's eyeballed estimate. Procedure when you get
+the IS24 twin of an already-scored KA flat:
+1. **Identity proof is cheap and decisive here** — the Objektbeschreibung is usually copy-pasted
+   *verbatim*, and Kaution / Ablöse / Stellplatz-Preis / the income threshold match to the euro.
+   (`obj_objectnumber == obj_scoutId` on both = private lister, so the Objekt-Nr. test cannot run.)
+2. **Do NOT re-derive the older report — re-score only the blocks whose FACTS changed**, and say in
+   a section 0 which ones moved and why. On #761 only A (ambiguity gone) and E (structured
+   CHECK fields + a newly disclosed Gäste-WC/Haustiere) moved; 4,2 → 4,4.
+3. **Trust the IS24 split over the KA headline**, and corroborate with `Kaution ÷ 3` — if that lands
+   on the stated Kaltmiete (4.276 ÷ 1.425 = 3,0007), the IS24 numbers are the internally consistent
+   set and the KA one is the outlier. It also *retro-confirms* an older Kaution÷3 derivation.
+4. **Check whether the KA ad is still live** (plain `curl` + a browser UA; remember `data-soldlabel`
+   is a template attribute, see `kleinanzeigen-de.md`). Still live = **parallel reach expansion**,
+   not a re-list — so there is no "withdrawn and relaunched" framing, but there IS a real signal:
+   the lister paid for a second channel because the first one did not let the flat.
+5. **The price gap is a Medium "reposted with different prices" that you note and refute** (same
+   named person, price went *down*, the more detailed ad is the cheaper one) — verdict stays
+   Legitimate, but it becomes **contact question no. 1**, in writing.
+**Why:** without this the IS24 twin gets written up as a fresh listing (duplicating an existing
+report and losing #694's photo/landlord findings), or the 60-EUR discrepancy gets silently averaged
+away instead of being asked about.
+
 **The positive case — CONFIRMING a re-list, and what it is worth.** Two cheap checks settle it and
 both come from the same mobile-API path: (1) `OBJECT_INFO` Objekt-Nr. is the landlord's own stable
 unit key and usually names the unit outright (`Stein124 WE32-1` ↔ the "Grundriss WE32" PDF quoted in

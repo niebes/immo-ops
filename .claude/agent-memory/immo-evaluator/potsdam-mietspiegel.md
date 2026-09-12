@@ -977,7 +977,15 @@ aus direkt gegenüber den **Bahnkorridor mit abgestellten Regionalzügen**. Die 
 stammen fast alle aus der Zeit direkt nach dem Umbau (~2017/2019, Baustelle im Bild) — die Freiflächen
 davor sind inzwischen mit den sieben Neubaukomplexen bebaut, Blick *und* Schallweg haben sich also
 geändert. Foto-Alter deshalb immer mitlesen: es belegt das Objekt, nicht den heutigen Zustand.
-Genutzt auf #666, #694. *Why:* ohne den Anker recherchiert jede Jutekiez-Wohnung Baujahr, Ortsteil, § 556f
+**Feste Zahlen für die Einheit Lotte-Pulewka-Str. 41 (86 m², 3 Zi, Maisonette) — jetzt AUSGEWIESEN,
+nicht mehr abgeleitet (#761, IS24-Zwilling von #694):** **1.425 kalt + 400 NK inkl. Heizung =
+1.825 warm**, **16,57 EUR/m²**, Kaution **4.276 = 3,00 NKM exakt**, Stellplatz +50, Geschirrspüler-
+Ablöse 100. ⇒ Zwei Korrekturen am Anker: (1) der **NK-Satz der Fabrikhalle ist 4,65 EUR/m²**, nicht
+die aus #694 abgeleiteten 5,35 — wer 5,35 weiterreicht (wie #738), rechnet 60 EUR/Monat zu viel;
+(2) die Kleinanzeigen-Anzeige derselben Wohnung nennt **1.885 warm**, also 60 EUR mehr als der
+strukturierte IS24-Split — bei Jutekiez-Nachmietergesuchen auf Kleinanzeigen ist die Warmmiete eine
+Schätzung, die IS24-Zahl die konsistente (Kaution÷3 trifft die Kaltmiete auf 0,07 %).
+Genutzt auf #666, #694, #738, #761. *Why:* ohne den Anker recherchiert jede Jutekiez-Wohnung Baujahr, Ortsteil, § 556f
 und Mietspiegelfeld neu — und tippt bei „restaurierte Fabrik" leicht auf die Altbauzeile, was die
 Mietpreisbremse-Bewertung um 62 % verzerrt.
 
@@ -999,3 +1007,35 @@ nicht nur den Mittelwert ×1,1.
 compliant und einmal als Verstoß gemeldet, oder — schlimmer — der stärkste Verhandlungshebel eines
 gut gedämmten Baus geht verloren, weil man intuitiv annimmt, ein besserer Energieausweis
 rechtfertige eine höhere Miete.
+
+## Quartiers-Anker: **„Fontane Gärten", Bornstedter Feld (14469)** — Bj. 2022/23, § 556f, Ask 21–22 EUR/m²
+Die **Bonner Straße** taucht in keinem Ortsteil-Reflex auf und ist ohne diesen Anker nicht einzuordnen
+(IS24s eigener Preisinsights-Geocode schickt sie sogar nach `potsdam-nord/**nedlitz**`, während
+`geo_ot`/`obj_regio4` `bornstedt` sagen — beides Potsdam Nord, für Block A folgenlos).
+Fixwerte, die man nicht neu recherchieren muss:
+- **„Fontane Gärten" = Instone Real Estate, 108 Eigentumswohnungen in ACHT Stadtvillen A–H** auf
+  ~10.000 m² am Volkspark, erschlossen über **Georg-Hermann-Allee, Peter-Huchel-Str.,
+  Erich-Arendt-Str. und Bonner Str.**; erste 54 WE Ende 2022 bezugsfertig, Fertigstellung
+  2022/23 (Exposé-Baujahr **2023**). Erkennungszeichen im Grundriss-Bild: Kopfzeile
+  „**Villa {A–H}, {n}. Obergeschoss, Wohnung {Buchstabe}.{Etage}.{lfd. Nr.}**" plus ein
+  Lageplan mit acht Baukörpern A–H.
+- Mietspiegelfeld **ab 2021 · alle**; bei 60–75 m² (Spalte C) **15,72 (10,52–19,00)**, bei
+  75–90 m² (Spalte D) **16,73 (14,88–19,64)**.
+- **Erstbezug 2022/23 ⇒ § 556f BGB, Mietpreisbremse dauerhaft nicht anwendbar** (auch bei
+  Wiedervermietung). Kein § 556g-Abs.-3-Hebel — stattdessen als Risiko nennen, dass künftige
+  Mieterhöhungen keine gesetzliche Deckelung haben (Vertragstyp Index/Staffel erfragen).
+- **Preisniveau des Neubaugürtels Bornstedter Feld 2026: 19,7–22,4 EUR/m² kalt** — #639
+  (Bj. 2022, 88,9 m², 19,69), **#760 (Bonner Str. 6, Villa C, 73,1 m², 21,20)**, #756
+  (Georg-Hermann-Allee 127, Bj. 2023, 69 m², 22,39). Das ist +26…+42 % über ortsüblich und
+  +27…+44 % über dem stadtweiten Angebotsanker 15,51 ⇒ **quartiersüblich, aber der teuerste
+  Potsdamer Korridor**. Block A liegt hier typisch bei **3,5–4,0**, nicht bei 4,5 (Basis 5,0 aus
+  „Kaltmiete unter Budget" minus Mietspiegel-/m²-Cap-Abzug); erst ≥23 EUR/m² wäre neu.
+- **Eigentumsprojekt ⇒ jede Mietanzeige ist eine private ETW-Vermietung eines Einzeleigentümers**,
+  nicht institutioneller Mietbestand (Gegenstück zur BUWOG-Brunnenallee-Regel). Konsequenz für
+  Block H: Eigenbedarfs-/Verkaufsrisiko **Mittel–erhöht**, meist `verifiedBy: []`, keine Telefonnummer.
+- NK-Anker: 350 EUR auf 73,1 m² = **4,79 EUR/m² inkl. Fernwärme** (#760) gegen das Potsdamer Band
+  3,00–3,80 ⇒ die warme Seite ist im Quartier über Benchmark, immer als ✗ Con + Kontaktfrage setzen.
+*Why:* ohne den Anker ist eine Bonner-/Peter-Huchel-/Erich-Arendt-Adresse weder einer
+Baualtersklasse noch einem § 556f-Status zuzuordnen, und ein 21-EUR/m²-Aufruf liest sich entweder
+als Mietpreisbremsen-Verstoß (den es rechtlich nicht gibt) oder als „marktkonform" (was ihn gegen
+die ortsübliche Vergleichsmiete um ein Drittel zu günstig darstellt).

@@ -71,6 +71,16 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     which one the arithmetic + market level favour, and put "Kalt/Warm klären" first in next steps.
     *Why:* on #540 (a) implied 26,6 EUR/m² warm — impossible for Potsdam; declaring it a pure tie
     would have thrown away decidable evidence.
+    - **Run the Kaution ÷ 3 test on THIS variant too — it usually settles it outright, and it can
+      overturn the "score the conservative (a)" default.** The Kaution rule below is filed under the
+      no-NK case (#694), which makes it easy to skip when NK *is* filled. #767: heading 1.400 € ==
+      `Warmmiete` 1.400 €, `Nebenkosten` 250 €, no price sentence anywhere — but Kaution 3.450 ÷
+      (1.400 − 250) = **exactly 3,00 NKM**, while heading-as-Kaltmiete gives 3.450 ÷ 1.400 = **2,46
+      NKM**, a number no landlord computes. ⇒ heading = Warmmiete, kalt 1.150, and reading (b) is
+      *scored*, not merely mentioned. Order of operations: self-composing sentence → **Kaution ÷ 3**
+      → Haushaltseinkommen ÷ 3 → only then the conservative default.
+      *Why:* on #767 the conservative default would have reported 15,56 EUR/m² kalt instead of 12,78
+      and roughly doubled the apparent Mietpreisbremse overshoot on an ad that decides itself.
   - **Sixth price variant — the CLEAN one, and it still hides a trap: heading ≠ Warmmiete field, NO
     Nebenkosten field, and the prose names the total** (#593: heading 1.250 €, Warmmiete 1.600 €, kein
     NK-Feld; Beschreibung: "Die Gesamtmiete für die Wohnung **inkl. Stellplatz** und Betriebskosten-
@@ -152,6 +162,14 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     Wohnfläche from `ul.addetailslist` / the description, never from the targeting JSON.** *Why:*
     reading 160 there would have given 12,50 EUR/m² instead of 24,10 — a 48 % error that flips the
     Mietspiegel/Mietpreisbremse verdict and Block A.
+    - **`Wohnflaeche` and `Preis` in that payload are BUCKETS, not values — `ExactPreis` is the real
+      price.** #767 read `Wohnflaeche:"160"` for a 90-m² flat — the *same* "160" that #652 showed for
+      83 m², so it is a size band, not a one-off typo, and it will never match the ad. Same shape on
+      the price side: `Preis:"1500"` vs `ExactPreis:"1400"` (heading 1.400 €). Rule: take m² from
+      `ul.addetailslist`/description, take the price from `ExactPreis` (or the heading), and use the
+      payload only for the boolean amenity flags + `posterid`/`Verkaeufer`/`Tauschangebot`.
+      *Why:* two ads now prove `Preis`/`Wohnflaeche` are rounded band codes; quoting either as a fact
+      invents a price and a size the listing never stated.
   - **`og:latitude`/`og:longitude` are the PLZ centroid when no street address is given**, and for a
     PLZ that is mostly forest/water the pin lands in the middle of nowhere — #652 (14193 Grunewald)
     pinned 52,481662 / 13,204770, i.e. inside the Grunewald-Forst. Do NOT read that as a location
