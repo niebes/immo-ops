@@ -904,6 +904,41 @@ steht adressgenau `gut`/Zeile 138 (6,60 · **8,45** · 12,99) und die Mietpreisb
 belastbar statt „konservativ geschätzt". Layer-Name enthält das Jahr → im Januar auf
 `wohnlagenadr20NN` hochzählen.
 
+## Quartiers-Anker: **„Lotte", Edisonallee 14 + 16 (14473, Südliche Innenstadt / Zentrum Ost–Nuthepark)**
+Covivio-Neubau, **Baujahr 2021**, **50 WE à 52–110 m² (2–3 Zi)**, Projektseite `lotte.immo`; als
+„**Lotte + Kleist Quartier**" von Deutsche Wohnen entwickelt (Richtfest 11/2021, begrünte Dächer) und
+heute von der **Covivio Immobilien GmbH** vermietet. Objekt-Nr.-Schema **`C392.017294-0NN`** (NN =
+Mieteinheit) ⇒ **Geschwistereinheiten kommen laufend in den Scan**, und der beigefügte **Grundriss
+beschriftet die Einheit hausnummerngenau** („Mieteinheit 014 – 75,67 m² – 1. OG – 2. Einheit von
+links – Edisonallee 16") — damit ist die Dublettenfrage ohne Zusatzabfrage entschieden.
+Fixwerte, die man nicht neu recherchieren muss:
+- **Mietspiegelfeld `ab 2021 · alle EEK`.** Bei 75,67 m² = Spalte **D (>75–90)** = **16,73
+  (14,88–19,64)** → zulässig 18,40; Spaltenkante beachten (die 3-Zi-Einheiten liegen bei ~75 m²):
+  Spalte **C (>60–75)** = **15,72 (10,52–19,00)** → zulässig 17,29.
+- **§ 556f BGB: Erstbezug nach dem 01.10.2014 ⇒ Mietpreisbremse dauerhaft nicht anwendbar**, auch bei
+  Wiedervermietung. Kein § 556g-Hebel — dafür **keine gesetzliche Deckelung**, und Covivio schließt
+  standardmäßig eine **Indexmietenvereinbarung über 10 Jahre + 12 Monate Mindestmietdauer** (steht im
+  `Ausstattung`-Block, nicht in `Sonstiges`). Das ist das Block-A/G-Risiko dieses Quartiers.
+- **Preisniveau 2026: 16,87 EUR/m² kalt** (#752, 75,67 m², 1.276,50 EUR) = **+0,8 % auf den
+  ortsüblichen Mittelwert**, +8,8 % auf den Angebotsanker 15,51, **56. Perzentil** des adressgenauen
+  `priceBar` (ähnliche Angebote 10,70–18,20) ⇒ quartiersüblich, kein Preisbefund in beide Richtungen.
+- **Gebäudestandard (gilt für alle 50 WE): Fernwärme + Fußbodenheizung, Bedarfsausweis Klasse B,
+  Endenergie 66,4 / Primärenergie 13 kWh(m²·a)** (Ausweis vom 25.02.2021), Personenaufzug, bodentiefe
+  Fenster, Dachbegrünung, Fahrradräume innen/außen, Stellplätze separat anmietbar, **Balkon + Keller
+  laut Vermietertext bei jeder Wohnung** (die IS24-Ausstattungsmaske meldet trotzdem `obj_cellar: n`).
+  ⚠ Der Ausstattungstext behauptet an einer Stelle „Gaszentralheizung" — Textbaustein, Energieausweis
+  und `obj_heatingType: district_heating` sagen Fernwärme.
+- **Nebenkosten-Anker: 4,15 EUR/m² inkl. Heizung** (314 EUR auf 75,67 m², davon 197 Heizkosten) —
+  über dem Potsdamer Richtwert 3,00–3,80, aber bei 66,4 kWh ≈ 3,6× des rechnerischen Bedarfs ⇒
+  **bewusst konservativ kalkuliert, eher Guthaben als Nachzahlung**; als Con nennen, nicht als Risiko.
+- **Block B ≈ 4,3.** ~1,0 km östlich Potsdam Hbf (7 Min. ÖPNV / 5 Min. Rad / 15 Min. zu Fuß; ab Hbf
+  RE1 Berlin ~25 Min., S7 Wannsee ~10 Min.), **Bus 694 + N14 vor der Haustür**, Nuthepark direkt,
+  Supermärkte 5 Gehminuten, A115 ~10 Min. Abzüge: **Nuthestraße (B2) als „Direktanbindung"** = Lärm,
+  Wohnungsseite nie im Exposé, und **`obj_telekomInternetAvailable: false`** an der Adresse.
+**Why:** ohne den Anker kostet jede der 50 Einheiten dieselbe Runde (Baujahr, Ortsteil, § 556f,
+Mietspiegelfeld, Energiewerte) — und die Spaltenkante bei ~75 m² plus die Indexklausel im
+*Ausstattungs*block sind genau die zwei Stellen, an denen man sich sonst vertut.
+
 ## Quartiers-Anker: **Jutekiez / alte Jutespinnerei (14473, Lotte-Pulewka-Str. / Wiesenstr.)**
 Ehemalige **Jutespinnerei, Baujahr 1863** (älteste erhaltene auf dem europäischen Festland), ab 2014 aus
 der Ruine denkmalgerecht zu Lofts umgebaut, fertig **2017/2019** (Quellen nennen beide Jahre — offene

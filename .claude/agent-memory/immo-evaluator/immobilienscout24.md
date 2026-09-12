@@ -1056,6 +1056,22 @@ that also omits it, or the text advertising a substitute ("Dachboden ausgebaut")
 **Why:** a lone real `obj_condition` looked like the curated-mask signal and would have deleted a
 plainly advertised EBK.
 
+**Refinement (#752): the ≥2-positives test is NECESSARY but not SUFFICIENT — one `n` that the prose
+demonstrably refutes disqualifies the WHOLE mask, however many `y`s stand next to it.** #752 (expose
+170602850, Covivio, Edisonallee 16, Bj. 2021) passes the curated-mask test on paper —
+`obj_balcony: y`, `obj_lift: y`, two CHECK rows, `obj_condition: well_kept`, gewerblicher Anbieter —
+so the inverse test would have read the lone `obj_cellar: n` as a deliberate negative and deleted a
+must-have (Block E 4,0 → 2,0, global −0,20). But the same mask also carries **`obj_hasKitchen: n`
+while the Ausstattung text itemises the EBK down to the appliances** ("Elektro-Ceranherd, Kühl-/
+Gefrierkombi, Geschirrspüler, Dunstabzugshaube, Spülenschrank") — a provable false negative.
+⇒ **Procedure: before trusting any `n`, check every OTHER `n` in the mask against the TEXT_AREAs.
+One refuted `n` ⇒ fall back to the #504 "unset, not absent" reading for all of them** and score from
+the prose. Here the Keller is granted twice (building-level "Ein Balkon und ein Keller gehören immer
+mit dazu!" *and* unit-level "Ein Keller sowie ein Abstellraum in der Wohnung") ⇒ credit it, but keep
+"Keller schriftlich bestätigen" as contact question #1.
+**Why:** the ≥2-positives rule was written to stop `n`-inflation, and applied mechanically it now
+over-corrects in the opposite direction — the EBK contradiction is the cheap, decisive counter-test.
+
 **Third reading — `obj_x = n` while the TEXT_AREA grants the amenity is usually neither "unset" nor a
 lie: the amenity exists but is NOT part of the Mietvertrag.** On a curated commercial mask, read the
 Ausstattung sentence to its end before calling it a contradiction. Seen on #525 (expose 169803650,
@@ -2913,6 +2929,38 @@ Wohnungsnummer WE 58"). `curl` it and `pdftotext` it: it confirms Zimmerzahl/Fl�
 *this* unit (and often reveals the Bauträger's Haftungsausschluss = "Planmaße", i.e. the m² are
 plan figures, not a WoFlV-Aufmaß). Seen on #537 (expose 169858137).
 
+#### On an Altbau/Denkmal the Energieausweis-PDF OVERRIDES `obj_yearConstructed` — and that one field decides the Mietpreisbremse
+`obj_yearConstructed` / "Baujahr:" can carry the **Sanierungs**jahr, not the Baujahr. #751 (expose
+170628529, Potsdamer Str. 199 Bornstedt) advertised `Baujahr: 2018` + `Letzte Modernisierung: 2018`;
+the attached Ausweis read **„Baujahr Gebäude 1890 / Sanierung 2017"**. The tell is the exposé text
+(„generalsaniert", „Baudenkmal", Stuck/Dielen on the photos) contradicting a Neubau-Baujahr —
+whenever those two disagree, **curl the Ausweis first and let it win**. The swing is the whole
+verdict: Potsdam-Mietspiegel „bis 1948 · EEK D · Spalte E" = **8,87 EUR/m²** vs „2013–2020" =
+12,39 — i.e. the same 14,30-EUR/m² ask is either +46,5 % over the zulässige Miete or compliant.
+Three further things only the PDF gives:
+- **The full street address** the exposé withholds (`MAP.addressLine1` = "Die vollständige Adresse
+  … erhältst du vom Anbieter"). Often the `REFERENCE_LIST` **label alone leaks it** —
+  `regEnergieausweisPotsdamerStr1` — so you know it before downloading. This also entkräftet the
+  Low "no exact address" scam signal.
+- **Klasse + Kennwert** when `ATTRIBUTE_LIST` says only „Energieausweis: liegt vor" (116,9 kWh/(m²·a)
+  Endenergie ⇒ D), plus Gebäudetyp, Anzahl Wohnungen (= how big the landlord's portfolio in this
+  house is, Block H) and the Ausstellergültigkeit.
+- **The objective test for „Sanierung auf Neubaustandard"**, which is the Mietspiegel's own rule for
+  whether a Modernisierung moves the Baualtersklasse: compare page 2's **Primärenergiebedarf
+  Ist-Wert vs. Anforderungswert** and **HT' Ist vs. Anforderung** (#751: 129,0 vs 47,2 kWh/(m²·a);
+  0,72 vs 0,38 W/(m²·K)). Miles off ⇒ the old Baualtersklasse stands, and you can say so with a
+  number instead of an opinion. (Only a Bedarfsausweis carries these; a Verbrauchsausweis does not.)
+**Why:** believing the exposé's „Baujahr 2018" puts a 1890er Denkmal in the 2013–2020 row and turns a
++46,5-%-Mietpreisbremse case into „marktkonform" — the single largest scoring error available on an
+Altbau, and it costs one `curl`.
+
+Same run, the **Grundriss-PDF's Flächenaufstellung shows HOW the Freisitze are weighted into the
+advertised Wohnfläche** — #751 listed „Terrasse (50 %): 2,47 · Balkon (100 %): 5,20" inside the
+115,26 m². A **100-%-Balkon is not WoFlV-konform** (§ 4: max. 50 %, Regelfall 25 %). Recompute: the
+interior area (here ~107,6 m² ⇒ 15,32 statt 14,30 EUR/m²) is the honest Block-A basis, and the
+overstatement is a negotiating argument — but check it against the **BGH-10-%-Schwelle** before
+calling it a Minderungsanspruch (here only −3,4 %, so it is leverage, not a claim).
+
 #### Third payload shape: the attachment is **the ad's OWN earlier version** (`Anzeige_YYYY-MM-DD`) = a free rent history
 On a long-lived private exposé the "Weitere Dokumente" PDF can be a printout of the *same* Scout-ID
 from years ago (#750, expose 64419106, Am Neuen Markt 2 Potsdam: `Anzeige_2012-07-31`). Plain
@@ -3073,6 +3121,14 @@ Kündigungsausschluss|Mindestmietzeit` on every rental before scoring — Indexm
 financial risk, Mindestmietdauer → Block G lock-in. Both cost ~1,0 in their block.
 **Why:** the attribute lists look complete, so it's easy to score G = 5,0 ("all rules met") on a
 flat that actually locks the tenant in for 18 months with CPI-indexed rent.
+⚠ **Grep ALL TEXT_AREAs, not just `Sonstiges` — a Bestandshalter buries the same clause in
+`Ausstattung`.** #752 (expose 170602850, Covivio, Edisonallee 16) put *"Die Mindestmietdauer des
+unbefristeten Mietvertrages beträgt 12 Monate. Bei Abschluss des Mietvertrages wird eine
+**Indexmietenvereinbarung über 10 Jahre** geschlossen."* as the second-to-last paragraph of the
+**Ausstattung** block, between the Heizungsbeschreibung and the Besichtigungsfloskel; its `Sonstiges`
+block was pure Unternehmens-/Compliance-Marketing. So run the regex over the concatenation of every
+`TEXT_AREA.text` (Objektbeschreibung + Ausstattung + Lage + Sonstiges) — cost is identical, and on a
+§ 556f-Neubau the Indexklausel is the whole Block-A risk (no Mietpreisbremse cap above it).
 
 #### Corollary — on a **private Nachmietergesuch**, `obj_baseRent` is the OUTGOING tenant's rent, and the rent YOU would pay can be announced only in free text
 Distinct from the #552 range-vs-`obj_baseRent` case: here the structured figures are exact and internally
