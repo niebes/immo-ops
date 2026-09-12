@@ -207,6 +207,14 @@ Eiche/Potsdam Hauskauf).
 **Why:** without the control test you can't distinguish "this listing is dead" from "IS24 changed the API
 and every evaluation in this batch is about to be mislabelled EXPIRED".
 
+**Nach dem 404 den Objekttext trotzdem retten: `mapio.net` cached ihn, per curl erreichbar.** Der
+EXPIRED-Report muss nicht bei „nur Suchmetadaten, alles unbekannt" enden — eine WebSearch nach
+`"{Straße} {Ort} {Objekttyp} mieten"` führt auf `mapio.net/expose/{id}/` mit vollständiger
+Objektbeschreibung/Ausstattung/Sonstiges/Anbieter **und dem Inseratsdatum** (= Standzeit, trennt
+„vermietet" von „Köder zurückgezogen"). Details/Fallen: **[[mapio-net]]**. Seen on #733 (expose
+170405942, Orville-Wright-Str. 74b Bornstedt: 404 an der Quelle, aber Bj. 2008, Indexmietvertrag
+mit 2 J Mindestlaufzeit, ausgebaute EBK und Anbieter Haferkamp Immobilien GmbH aus dem Cache).
+
 ### Don't run the deaktiviert/expired regex against the bot-wall page
 Plain curl to the web exposé returns **HTTP 401 + the "Ich bin kein Roboter" page**, whose *own* text
 contains "…hast du die Cookies für unsere Seite **deaktiviert**" and "JavaScript deaktiviert". So
@@ -302,6 +310,19 @@ at all**, so there was no priceBar band. Two workarounds:
   block further down; the residual NK is then arithmetic on an estimate, never an Anbieterangabe.
   **Why:** #615 (2026-08-20) quoted `obj_baseRent` 665 as "exakte Vertragsmiete" on a payload whose
   ratio was 0,70 — the #552 sentence keeps producing that error, so run the ratio test every time.
+  ⚠ **Same test, other end: a ratio of exactly 1,00 means there is NO Warmmiete in the payload.**
+  When a lister leaves the Nebenkosten field empty, `obj_totalRent == obj_baseRent` and IS24 prints
+  the Kaltmiete a second time as **"Gesamtmiete"** in the Kosten-Liste *and* as **"Warmmiete"** in
+  `TOP_ATTRIBUTES`/`header.shareMessage` — it looks like a genuine all-inclusive rent but is an
+  artefact. The tell that it is an empty field rather than a real Inklusivmiete: the Kaltmiete row is
+  still labelled **"Kaltmiete (zzgl. Nebenkosten)"**, and "Heizkosten in Nebenkosten enthalten: Ja"
+  sits there with no NK position to be contained in. Report Warmmiete as **unknown + an estimated
+  band** (2,50–3,00 EUR/m² incl. Heizung for older Bestand) and test THAT band against
+  `max_warmmiete`, exactly as with the 0,70 case. #713 (expose 170387138, 117 m² Grunewald): the
+  "1.800 € Warmmiete" the header advertises is really 1.800 kalt ⇒ ~2.090–2.150 warm, i.e. the flat
+  goes from "comfortably inside the 2.200er cap" to "ungedeckelt, dicht am Limit".
+  **Why:** taking the echoed figure at face value books a 117-m²-Wohnung as an Inklusivmiete and
+  silently removes ~300 EUR/Monat from Block A.
 - With no priceBar, fall back to the Potsdam Mietspiegel field **bracketed over the unknown
   Baualter/EEK** (these ads never state Baujahr or Energieausweis) and always name the Angebots anchor
   too — see [[potsdam-mietspiegel]] / `_shared.md`.
