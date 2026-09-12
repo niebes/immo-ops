@@ -194,6 +194,27 @@ Zimmer + ~m² + ~Miete**, then the old-scoutId **404** test to prove only one ad
 85→84 m², Kaltmiete 1.155→1.134 (−1,8 %), old exposé 404 → confirmed re-list.
 **Why:** applying the "identical Objekt-Nr. = same unit" rule literally here returns *no match* on
 two ads for the same flat, so a confirmed re-list gets scored as a brand-new listing.
+Refinements from the TENANT_NETWORK re-list #743 (170616842) vs #618 (170153489), same
+"Herr Leonhard Inkofer", Babelsberg Süd, 73→74 m²:
+- **Diff `obj_totalRent` (warm), never the Kaltmiete** — the Kaltmiete is IS24's 70-%-back-computation
+  (see the "derived from the Warmmiete" block), so it moves whenever the warm rent does and carries no
+  independent information. Identical `obj_totalRent` **to the cent** (1.325) across two ads is the
+  strongest single number you get.
+- **Title, description AND photos are all regenerated on a re-list** — new auto-title, new
+  Floskeltext, a different photo subset (here: Küche+Wohnzimmer instead of Küche+Bad). So none of
+  them is a discriminator; but one *shared* photo (the same kitchen frame) still settles identity.
+- **Re-read the new description anyway: it can disclose what the older ad withheld.** #743's text
+  named the **street** ("in der August-Bebel-Straße") while #618 had no address path at all (no
+  `obj_telekomInternetUrlAddition`). Never inherit "Adresse nicht ermittelbar" from the predecessor
+  report without re-reading.
+- **Carry the older report's photo findings forward as evidence for the same flat** (#618's bath shot
+  = Dachschräge + Badewanne) and state the source; over the chain you accumulate rooms that no single
+  ad shows.
+- **An unchanged price + a pushed-back Bezugstermin (17.09.→08.10.) after ~3 weeks on market is the
+  headline user-fact**: no competition, and the move-in date is demonstrably movable — which is
+  exactly the Block-F double-rent penalty. Put it in Next steps as the first ask.
+**Why:** without the warm-to-warm rule a Mieternetzwerk re-list looks like a price change, and
+without the re-read the new ad's only genuinely new fact (the street) gets thrown away.
 
 ## Mobile-API **404 `ERROR_RESOURCE_NOT_FOUND`** = removed exposé → EXPIRED (distinct from "deaktiviert")
 A 404 from `api.mobile.immobilienscout24.de/expose/{id}` returns a JSON `{"error": "... Request failed
@@ -352,6 +373,26 @@ titled marketing caption — always download + Read them. **Skip `dwebp` entirel
 ends in `.../format/webp/quality/80`; edit that path segment to `format/jpg` and the CDN serves a
 JPEG the Read tool opens directly** (one `curl -sL`, no conversion step). `dwebp` is installed as a
 fallback if a URL shape ever resists the swap. Verified on #558.
+
+**Fifth case: the single "photo" is a GRUNDRISS — it moves Block E, never Block D.** #735 (expose
+170405609, Max-Born-Str., Am Stern) had `obj_picturecount: 1` with an iOS-UUID caption
+(`480fefe3-ca3a-45c2-8c4a-7b9755`), and the download turned out to be a phone shot of a *coloured
+floor plan*, not a room. Two consequences that pull in opposite directions, so decide them
+separately: (a) real-photo count is still **0** (`_shared.md` excludes Grundriss/Lageplan), so the
+Block-D cap **does** fire — and with Baujahr/`obj_condition`/`obj_interiorQual`/`obj_firingTypes`/
+Energieausweis all empty it drops through to **2,5** (#621 rule); a Grundriss proves the *Schnitt*,
+never the *Substanz*. (b) But it is the strongest **amenity** evidence of any single image: room
+labels are printed on it, so "Loggia" hard-confirms the Balkon/Terrasse must-have against
+`obj_balcony: n` (untouched-mask false negative), the drawn tub confirms the Badewanne nice-to-have,
+and you can read separate-vs-open kitchen and Durchgangszimmer straight off it → E rose from the
+both-unconfirmed 2,5 to **3,0** (Keller stays unconfirmed — a unit plan never shows Kellerabteile,
+so do not credit it). It also **dates the building**: a 3-Raum/61 m² plan with a Loggia and a
+flur-erschlossener WBS-70-Zuschnitt picks the 1971–1990 Mietspiegel row on an ad that states no
+Baujahr — same lever as the exterior-shot fabric tells, but far more reliable.
+**Why:** the existing caption-shape rules all assume an interior/exterior *photo* and would either
+lift the D cap for a plan that shows no condition at all, or throw away the only hard must-have
+proof in the exposé.
+
 **The single photo cuts BOTH ways — read it for evidence against the ad too.** #619 (170113761,
 Drewitz, 4 Zi / 85 m²): the one image (`19642.jpg`, kitchen) showed a **Pantry-Kochnische with a
 two-plate hob and no oven** — a hard, documented Ausstattung *negative* in an otherwise data-free
@@ -372,6 +413,38 @@ caption shape). Seen on #620 (expose 170050119, Bornstedt): one iOS-UUID shot of
 camera-real, no cap fired.
 **Why:** an unfamiliar caption shape is the only thing standing between "download and look" and a
 wrongly-fired render cap.
+
+**The single image can be a GRUNDRISS wearing a camera-original caption — `obj_picturecount: 1` is
+NOT `1 real photo`. Download before you decide the Block-D cap, and mine the plan when it is one.**
+#741 (expose 170664384, Bornstedt, 4 Zi/86 m²) shipped exactly one `MEDIA` PICTURE captioned
+`IMG_6398.jpeg` — the classic phone-original shape — and it turned out to be a **photographed CAD
+floor plan** (metric scale bar + Nordpfeil), not an interior shot. Two consequences that pull in
+opposite directions, so you must look at the pixels to get either one right:
+- **Block D:** photo-evidence counting excludes Grundriss/Lageplan, so real photos = 0 → the **3,0
+  cap DOES fire** even at `picturecount: 1`. Reading the caption alone would have skipped the cap.
+- **Block E:** a Grundriss is the single richest amenity source a Mieternetzwerk ad can carry — far
+  better than an interior snap. #741's plan settled, in one image, **Loggia present** (must-have
+  Balkon CONFIRMED, overturning `obj_balcony: n`), **Badewanne** in the second bath (nice-to-have),
+  **two bathrooms**, a **separate kitchen with dining area**, and an **AB = Abstellraum inside the
+  unit** — which is explicitly NOT a Mieterkeller, so the Keller must-have stays *unconfirmed*
+  rather than being credited to the AB. One must-have confirmed + one unconfirmed + one nice-to-have
+  confirmed lands E at **3,0** (above the 2,5 both-unconfirmed band, below the 4,0 all-met case).
+- Bonus: a CAD plan with scale bar, Nordpfeil, Loggia, 2 Bäder and an open kitchen/dining zone is a
+  usable **Baualter bracket** (post-2000 stock) when Baujahr and address are both missing — state it
+  as an inference and still report the Mietspiegel as a bracket.
+**Why:** on #741 the caption said "phone snap", the pixels said "floor plan". Trusting the caption
+would have skipped the D cap AND thrown away the only evidence in the entire exposé that the
+Balkon must-have is met — a full point of E and a wrongly uncapped D in the same run.
+
+**`REFERENCE_LIST` "Preisentwicklung zu dieser Region" geocode can name a DIFFERENT Ortsteil than
+`geo_ot`/`obj_regio4` — it is a price *region*, not the flat's Ortsteil.** #741: every geo field said
+`bornstedt` / `Bornstedt` / `Potsdam_Nord` while the link pointed at
+`/potsdam/noerdliche-vorstadt/nauener-vorstadt`. Both sit in PLZ 14469 and both are Potsdam-Nord, so
+Block B is unaffected — resolve the conflict in favour of `geo_ot` + `MAP.addressLine2` (per the
+#557 rule) and note the disagreement as widened location uncertainty, don't re-derive the Ortsteil
+from the link. **Why:** the link is quoted in this file as a corroborator of the geo cluster (#557);
+when it disagrees, treating it as equal evidence starts a pointless Ortsteil hunt on a listing whose
+address is withheld anyway.
 
 **`PRICE_RATING.fairPrice` is the fallback price sanity check when `PRICE_INFO`/`priceBar` is absent.**
 Mieternetzwerk payloads often ship a `PRICE_RATING` section (`status: FAIR_OFFER`, `label: "Geprüfte
@@ -2497,6 +2570,11 @@ A price-lowered rental carries `{"type":"REDUCED_PRICE","originalPrice":"1.911 �
 Always divide Kaution by BOTH `text` and `originalPrice` before writing the Nettokaltmieten multiple.
 **Why:** scoring Kaution against the current rent alone books an illegal-deposit finding without the
 explanation, and the reduction itself is free evidence for the rent-cap argument.
+**"usually" is not "always" — run the division, don't assume the breach.** #740 (expose 156654081,
+allod, −10 % 1.982,40 → 1.793,60) had the Kaution **re-derived on the NEW rent**: 5.380,80 = exactly
+3,00 × 1.793,60 (and 2,71 × the original) ⇒ legal, nothing to flag. A professional Verwalter usually
+re-generates the whole Kosten block when it re-prices. So the finding is whichever of the two
+divisions lands on 3,00 — reporting a § 551 breach off the pattern alone would invent one.
 
 **Second, score-deciding variant: the reduction is a CONTRACTUAL, TEMPORARY Mietminderung for a known
 building defect — `originalPrice` is the rent you will actually pay.** Here the discount is not a
@@ -3205,6 +3283,28 @@ Außenbereich aufbereitet … Sie geben **nicht den tatsächlichen Zustand** des
   Sonstiges for `renoviert|entrümpelt|aufbereitet`.
 **Why:** the Virtual-Staging rung reads as "labelled AI imagery is exculpatory", which would have scored
 a house whose entire visible condition is machine-generated at 4,75 on the seller's word alone.
+
+##### Middle rung — **generic KI-Boilerplate in Sonstiges + room-named, UNlabelled captions ⇒ −0,5, not the 3,0 cap**
+The most common 2026 shape sits between the two rungs above and needs its own verdict. #740 (expose
+156654081, allod, Am Magazin 7 Havel Quartier "MIRU", Bj 2022): `TEXT_AREA "Sonstiges"` ends with
+*"Hinweis zum Einsatz von KI: **Einzelne** Bilder und Texte … mithilfe künstlicher Intelligenz erstellt,
+**bearbeitet oder optimiert**. Abbildungen können zudem digital bzw. virtuell **möbliert** sein … Maßgeblich
+sind die tatsächlichen Gegebenheiten"* — while **no caption carries a KI-/Visualisierungs-Präfix** and all
+14 captions name real rooms (Wohnzimmer, Loggia, Badezimmer, Gäste-Bad, 3× Außenansicht) + 1 Grundriss.
+Decide on three tests, in this order:
+1. **Caption prefixes** — `^KI-Visualisierung|^Visualisierung|Virtual Staging` present? none here ⇒ the
+   counter-rung above does not fire.
+2. **Which verb the disclaimer uses** — `möbliert`/`optimiert`/`bearbeitet` = the *furniture/lighting* is
+   synthetic; `renoviert`/`entrümpelt`/`aufbereitet` = the *condition* is synthetic (only the latter caps D).
+3. **Scope word** — "**Einzelne** Bilder" (some) vs "alle/die Bilder". A hedging "einzelne" is a blanket
+   legal disclaimer, not a declaration that the gallery is generated.
+Verdict for the 1-no / 2-möbliert / 3-einzelne combination: **Block D −0,5**, no cap, no scam signal —
+and still name it explicitly as a ✗ con ("Bilder teils KI-bearbeitet/virtuell möbliert → Zustand nur
+eingeschränkt verifizierbar") plus an on-site photo-gegencheck in Next steps, per `_shared.md`'s
+"always surface it". **Why:** applying the literal `_shared.md` keyword rule ("text labels images as
+non-real ⇒ cap D at 3,0") to this boilerplate would cap a documented 2022 Neubau with EEK-B-PDF,
+Grundriss-PDFs and 14 room-specific photos at 3,0 — and because nearly every large Verwalter now
+appends this paragraph, it would silently cap *most* Potsdam Neubau ads.
 - Same exposé shows the transparency pattern worth crediting in Block H: Sanierungsbedarf in the
   **first sentence** of Objektbeschreibung, Virtual Staging labelled, **Weitwinkel disclosed**
   ("alle Fotos im Weitwinkelformat aufgenommen" → tell the user to measure rooms on site),
