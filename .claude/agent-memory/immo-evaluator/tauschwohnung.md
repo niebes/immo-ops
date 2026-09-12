@@ -63,6 +63,19 @@ Babelsberg, Zentrum Ost, Potsdam West oder der Berliner Vorstadt." Two things to
     die Fahrräder"** maps straight onto `swap_offer.lacks` (kein Keller, kein Stellplatz) — cite it
     as a real con, not a soft one, when the partner marks it as important.
 
+**New trigger shape: the Suche as a CAUSAL life-event clause — `Da wir …, sind wir auf der Suche
+nach …`.** #720 (Immowelt `c300f737-…`, Anbieter-ID 402432, Potsdam West): „**Da wir seit März
+Nachwuchs haben, sind wir auf der Suche nach** einer größeren Wohnung in Potsdam (Bornstedt,
+Potsdam-West) **mit mindestens 4 Zimmern**." No `Ich suche`, no `SUCHE:`, no `daher suchen`, no
+`im Gegenzug` — the documented triggers all miss it; what marks it is the **`auf der Suche nach`**
+noun phrase plus a leading causal clause. ⇒ Add `auf der Suche nach|Da wir .{0,60}(sind wir|suchen)`
+to the grep set. The kill axis itself is the already-documented one (Nachwuchs/upsize + a numbered
+`mindestens 4 Zimmer` floor), and #720 is its cleanest instance yet: side 1 scored **4,2/5** — tied
+with #719 for the best Tauschwohnung ever — on a flat that is +1 Zimmer, +19,81 m² **and** ~275 EUR
+cheaper warm than our own Golm flat, and side 2 still failed on four axes at once. *Why:* two
+consecutive record side-1 scores have now died on the room floor; the pull to "surface it anyway" is
+strongest exactly here, and the trigger that finds the Suche is the only thing standing in the way.
+
 **But "downsizer" is NOT automatically a side-2 pass — a second, independent kill axis is a
 qualitative BAUSUBSTANZ requirement, which our 2024 Neubau can never satisfy.** #579 was the first
 genuine downsizer (offers 4 Zi/89 m², seeks 3 Zi) and still failed categorically: the Suche was

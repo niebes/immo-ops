@@ -263,6 +263,18 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
     Dächerblick and never names a Balkon, with 0 `Balkon|Terrasse|Loggia|Dachterrasse` hits in
     628 KB of HTML). *Why:* without reading the `enrichment` flag you cannot tell a lister's
     positive assertion from the portal's guess, and the two carry very different confidence.
+    ✅ **One-read version: the payload carries a TOP-LEVEL `classified.aiEnrichments` array listing
+    exactly which chips are machine-derived** — `[{icon,value,rawValue}]`, e.g. #720
+    `[{"icon":"parking-lots","value":"Stellplatz","rawValue":"hasParking"}]`. It sits next to
+    `tags`/`rawData`, not inside `sections.features`, so one read separates lister-asserted from
+    AI-guessed features without walking every chip for an `enrichment` key. The `rawValue` is the
+    portal's internal boolean name (`hasParking`) and is the better thing to quote.
+    ⚠ **And #720 is the case where the AI chip is flatly WRONG, not just weak:** the `Stellplatz`
+    chip was derived from „Vor dem Haus gibt es einen großen **Parkplatz**, auf dem man mit einem
+    **Bewohnerparkausweis** kostenlos parken kann" + a bike shelter — i.e. public resident parking,
+    **no mitvermieteter Stellplatz at all**. The #663 rule ("cite the prose, not the chip") is
+    therefore not a formality: on an amenity the profile actually scores, read the source sentence
+    or you write a Stellplatz into the report that does not exist.
   - **The photo-classification regexes can return an empty histogram on a page that clearly has
     photos** (#661: both the escaped and the plain `classification.name` forms matched 0, yet the
     gallery header said "Alle 17 Bilder ansehen"). Fallback that worked: count `/Bild \d+/g` in
