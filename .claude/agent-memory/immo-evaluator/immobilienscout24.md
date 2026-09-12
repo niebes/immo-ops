@@ -4741,3 +4741,80 @@ grepen. Wiederholt gesehen bei #566, #576, #586, #678, #679 (alle Potsdam, Vonov
 **Why:** nach den Captions allein zählt man 7 "echte" Fotos, vergibt D ≈ 4,3 für ein "renoviertes"
 Bad und verschweigt die Renovierungskosten — der Zustand ist in Wahrheit vor der Besichtigung
 komplett unbelegt.
+
+## Kauf/Bestandshaus: `obj_lotArea` gegen die im Beschreibungstext genannte Grundstücksfläche diffen — Abweichung = **der Kaufgegenstand ist noch nicht vermessen**
+Auf Kauf-Exposés ist die Grundstücksfläche **zweimal** angegeben (strukturiert in `obj_lotArea` /
+TOP_ATTRIBUTES "Grundstück", und nochmal im Fließtext der Objektbeschreibung). Weichen sie ab, ist das
+kein Tippfehler, sondern der Hinweis, dass die Parzelle **erst mit dem Verkauf geteilt und vermessen
+wird**. Gesehen auf **#706** (expose 170714342, EFH Siedlung Eigenheim/Teltower Vorstadt): 813 m²
+strukturiert vs. „ca. 890 m²" im Text, Ursprungsgrundstück 1.253 m². 77 m² Differenz × ~600 EUR/m²
+Bodenwert = **~46.000 EUR**, also weit mehr als Rundungsrauschen. Bekannt aus dem
+Fertighaus-/Bauträger-Kontext (unvermessener Kaufgegenstand), tritt aber genauso beim **ganz normalen
+Bestandshaus** auf, wo nichts im Exposé darauf hinweist.
+Dieselbe Textstelle trägt fast immer die Folgelasten mit sich — gezielt auf `Teilung|vermessen|
+Vermessung|zweite[rn]? Reihe|Geh-, Fahr- und Leitungsrecht|Rückbau|zurückzubauen` grepen:
+1. **Grunddienstbarkeit** (Geh-, Fahr- und Leitungsrecht) über das *gekaufte* Grundstück zugunsten des
+   neu entstehenden Hinterliegergrundstücks → Block G **und** Block B (der Neubau steht später direkt
+   hinter dem Garten, Bauverkehr über die eigene Zufahrt).
+2. **Rückbaupflicht auf Käuferkosten** (hier Garage + Gehwegplatten, 5.000–15.000 EUR) als Bedingung
+   dafür, dass die Teilung überhaupt vollziehbar ist — und sie kassiert das Nice-to-have
+   `garage_or_stellplatz`, obwohl auf den Fotos eine Garage steht.
+3. **Teilungs-/Vermessungskosten hälftig** — kleiner Posten, gehört aber in die Vollkostenrechnung.
+**Why:** aus den Strukturfeldern allein liest sich #706 als normaler Hauskauf mit Garage auf
+813 m². Ohne diesen Diff stehen eine Dienstbarkeit, eine vierstellige Rückbaupflicht, ein
+46.000-EUR-Flächenwiderspruch und ein künftiger Nachbarneubau nicht im Report — Block G wäre 4,0
+statt 2,5 und die vier stärksten Verhandlungshebel des Falls blieben ungenannt.
+
+## Wenn `obj_street: no_information`: die **Captions der Grundriss-Bilder** lesen — sie tragen den internen Objektschlüssel des Maklers
+Ergänzung zur Grundriss-Caption-Regel oben (dort: Wohnungsnummern auf Miet-Exposés). Auf **Kauf**-
+Exposés mit unterdrückter Adresse kodiert die Caption regelmäßig Straßenkürzel + Hausnummer:
+#706 = `90864 Objekt Hege16 EG` / `… OG` / `… KG` → Hausnummer 16, Straße „Hege…". Das ist ein
+**Hinweis, keine Tatsache** — als konkrete Kontaktfrage an den Makler formulieren („ist es Nr. 16 in
+der …?"), nie als Adresse in den Report schreiben. Die Captions liegen im `MEDIA`-Abschnitt der
+Mobile-API-Antwort, kosten also nichts extra.
+**Why:** `TRAVELTIME` ist bei unveröffentlichter Adresse blockiert und Block B muss sonst rein aus
+`geo_ot` + Lagetext geschätzt werden; ein Hausnummern-Hinweis macht aus „irgendwo in der Siedlung"
+eine beantwortbare Frage (und ist zugleich der billigste Cross-Portal-Dedup-Anker).
+
+## `obj_condition: ripe_for_demolition` ("Abbruchreif") auf einem `housebuy`-Inserat = das Produkt ist ein GRUNDSTÜCK
+Ein Hauskauf-Exposé kann im `ATTRIBUTE_LIST "Bausubstanz & Energieausweis"` als **einziges** Attribut
+`Objektzustand: Abbruchreif` führen (`adTargetingParameters.obj_condition: ripe_for_demolition`).
+Dann sind `Wohnfläche`, `Zimmer` und vor allem der Header-Wert **`Kaufpreis X €/m²` reine Buchwerte** —
+IS24 rechnet den Preis stur auf eine Wohnfläche um, die niemand bewohnen kann. Gesehen auf #707
+(expose 170582508, Sternstr. 45 Potsdam-Drewitz, 490.000 EUR / 160 m² / 1.250 m²).
+So scoren, damit der Bericht nicht in die Budget-Falle läuft:
+- **Block A nicht auf `Kaufpreis ≤ Cap` = 5,0 laufen lassen.** Die Kennzahl ist **EUR/m² Grundstück**
+  gegen den Bodenrichtwert, und die Budgetfrage lautet: Kaufpreis **+ `FINANCE_COSTS.additionalCosts`
+  + Abriss + Neubau**. Faustwerte, die sich bewährt haben: Abriss Wohnhaus + Nebengebäude
+  30.000–60.000 EUR (mit Asbest eher oben), schlüsselfertiges EFH 130–150 m² 400.000–550.000 EUR.
+  Auf #707 ergab das 0,9–1,1 Mio. gegen ein 500-k-Budget — bei nominal "2 % unter Cap".
+- **Block D = 1,0** (unterhalb "sanierungsbedürftig 1,5"), auch wenn die Fotos eine intakte Ziegelhülle
+  mit gedecktem Dach zeigen. Der Verkäufer erklärt den Bestand selbst für wertlos und verkauft
+  "ohne Gewähr hinsichtlich des baulichen Zustandes".
+- **Block E ehrlich diskontieren:** Keller-CHECK und `obj_noParkSpaces` hängen am Abbruchobjekt;
+  dauerhaft ist nur das Grundstück (Must-have Garten). Regelwert minus ~0,5.
+- **Block F ist nicht "sofort verfügbar":** `Bezugsfrei ab` steht auf heute, bewohnbar ist es erst in
+  18–24 Monaten (Bauvoranfrage → Abrissgenehmigung → Abbruch → Neubau).
+- **Block G trägt die ganze Unsicherheit:** Baurecht ist typisch nur *behauptet*
+  ("nach den vorliegenden Angaben zum Bebauungsplan … Zulässigkeit ausschließlich durch den Käufer
+  zu prüfen") — ohne B-Plan-Nummer, Baufenster, Bauvoranfrage; dazu Abrissgenehmigung (Denkmal-/
+  Erhaltungssatzung im alten Dorfkern!), Erschließung (auf #707 war **nur der Stromanschluss**
+  bestätigt) und Altlasten (Stall/Hof, Schwerkraft-/Kohleheizung → Öltank).
+- **Scam-Check bleibt normal:** der `PRICE_INFO.priceBar` rettet die Einordnung — auf #707 lag das
+  Angebot im 15. Perzentil, aber **über** `minSimilarPrice` → das "20 % unter Markt"-High-Signal feuert
+  ausdrücklich nicht, obwohl der Preis optisch billig wirkt.
+- **Fotos auf Sonderabfall absuchen:** wellige Faserzement-/Wellplatten im Hof, alte Dacheindeckung von
+  Scheune/Stall = Asbestverdacht, fünfstellige Entsorgungsposition. Steht in keinem Feld.
+- Mehrere Aufnahmedaten in den `MEDIA`-Captions (`20240623_…` neben `20260625_…`) = das Objekt wurde
+  **schon Jahre vorher vermarktet** → lange Standzeit, Verhandlungsspielraum. Kein Scam-Signal.
+**Why:** mechanisch angewandt liefert die Rubrik "Kaufpreis ≤ Ziel → 5,0" plus ein bestandener
+`price_per_m2`-Check eine 3,9–4,1 für ein Grundstück, auf dem gar kein Haus steht — und verschweigt,
+dass nach dem Kauf noch ein zweites Budget in derselben Größenordnung fällig wird.
+
+**Adress-Leak Nr. 4 (Kauf/Bestand): der Schriftfeld-Stempel alter Bauunterlagen in "Weitere Dokumente".**
+Auf Abbruch-/Altbestandsangeboten sind die angehängten PDFs oft **Schwarzpausen** (z. B. ein
+Heizungsplan "Schwerkraft-Gebäudeheizung 90/70"). `pdftotext` liefert **null Bytes** (reines Scan-Bild) →
+`pdftoppm -jpeg -r 100 -f 1 -l 1 plan.pdf out` + Read. Das Schriftfeld nennt auf #707 im Klartext
+**"Fam. Horn, Drewitz, Sternstr. 45"**, obwohl `obj_street/obj_houseNumber: no_information` und MAP nur
+"14480 Drewitz, Potsdam" zeigt — plus lichte Geschosshöhe und die Original-Heizungsart (= Altlasten-Hinweis).
+Ergänzt die drei bekannten Leaks (Telekom-base64, MEDIA-Captions, Grundriss-Kopfzeile).
