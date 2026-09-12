@@ -296,6 +296,23 @@ Quartier gegensätzlich aus, weil die m²-Spalte springt:
 - **>90 m² (Spalte E)** → **10,28 (7,91–13,71)**, zulässig **11,31 EUR/m²** ⇒ derselbe Vermieter,
   dasselbe Baujahr, dieselbe Ausstattung ist **konform** (#689, 93,51 m², 10,66 EUR/m², 60,78 EUR/Mon.
   *unter* der Grenze). Spalte E ist im 1991–2008-Feld auffällig weit — das ist der ganze Grund.
+  ⚠ **…aber die 10,28 gelten nur für die Zeile `D,E,F,G`. Der Bestand hat EEK C *und* D, und in
+  Spalte E kostet der bessere Ausweis den Mieter 0,37 EUR/m².** Bei **EEK C** greift die Zeile
+  `A+,A,B,C` = **9,91 (8,71–12,70)** → zulässig nur **10,90 EUR/m²**. #728 (Anni-von-Gottberg-Str.
+  8 a, **4 Zi / 95,6 m² / 11,42 EUR/m²**, EEK C 79 kWh): +15,2 % über dem Mittelwert und
+  **+49,49 EUR/Mon. (+4,7 %) über zulässig** — während dieselbe Zahl in der D,E,F,G-Zeile konform
+  gewesen wäre. Also: in Spalte E **zuerst die EEK-Klasse lesen, dann die Zeile ziehen**; der
+  bessere Energieausweis macht die Rüge stärker, nicht schwächer (gleiches Muster wie #678 in
+  Spalte C). Gegenprobe nach oben nicht vergessen: 11,42 liegt **unter** dem Oberwert 12,70, für
+  Konformität reichen 10,38 EUR/m² = nur 17 % der Strecke Mittel→Oberwert, und die Merkmalsliste
+  (renoviertes Bad, Gäste-WC, Loggia, Mieterkeller, Isolierverglasung, Vollwärmedämmung,
+  Fernwärme) trägt das ⇒ Befund „grenzwertig, über Spanneneinordnung deckbar", nicht „Verstoß".
+  ⇒ Die vollständige Nicht-Monotonie der zulässigen Miete im Quartier lautet damit:
+  **C 10,21–10,40 · D 9,91–10,01 (Minimum) · E 10,90 (EEK C) bzw. 11,31 (EEK D–G)**.
+  Merkmal des Bestands, das die Einordnung stützt: 4-Zimmer-Wohnungen haben hier **separates
+  Gäste-WC, separate ~13-m²-Küche und Abstellraum**, aber **keine EBK und (in Nr. 8 a) keinen
+  Aufzug** — die beiden Mindermerkmale gegen die vielen Mehrmerkmale rechnen, statt pauschal den
+  Mittelwert zu nehmen.
 ⇒ Die m²-Reihenfolge der zulässigen Miete ist **nicht monoton**: C 10,40 → **D 9,91 (Minimum)** →
 E 11,31. Deshalb immer die Spalte ziehen, nie „je größer desto konformer" schließen.
 **Spaltenkante 75 m² ist im Quartier der Normalfall** (die 3-Zi-Wohnungen liegen bei 73–78 m²), also

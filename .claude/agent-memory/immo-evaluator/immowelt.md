@@ -143,6 +143,25 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   scoring D** — the count alone cannot distinguish a photo from a Grundriss on this feed.
   ⚠⚠ **Extend that: on the Tauschwohnung-GmbH feed, fetch the GRUNDRISS on EVERY ad regardless of
   gallery size — it is routinely present, and it is the best identity key the feed has.**
+  ⚠⚠ **…and it is NOT a swap-feed property: the same three lies fire on a big COMMERCIAL lister.**
+  #728 (`9d5fa76d-…`, **Vonovia Kundenservice GmbH**, 6 images, `hasFloorPlan:false`,
+  `floorplans:[]`): Bild 4 carried **no `classification` key** and is the **Grundriss** — and it
+  was the single most valuable field of the whole evaluation (unit id „WOHNUNG 31-24", real area
+  **94,92 m²** vs. advertised 95,6, and the fact that the chip-advertised „**Balkon**" is a
+  **LOGGIA 4,57 m², [2,29 m²] angerechnet** — i.e. ~2,3 m² of the "Wohnfläche" is outdoor space,
+  which moves the €/m² from 11,42 to 11,78 on the heated interior). ⇒ The rule is portal-wide:
+  **any image without a `classification` key gets fetched and Read, on every feed.**
+  ⚠⚠ **Worse — a classification that IS present can be flatly WRONG, so the count of "real
+  photos" cannot be derived from the histogram either.** Same ad: Bild 5 `LOGO` and Bild 6
+  `ENERGY_CERTIFICATE` are both **Vonovia marketing banners** (a Grünstrom ad and a „Mein Vonovia
+  App" ad) — no logo tile, and emphatically not an Energieausweis-Skala (the real certificate is
+  in `sections.energy`, fully populated). So `images.length` 6 = **3 real object photos + 1
+  Grundriss + 2 ad banners**. The documented „subtract LOGO and GMAP" fix is not enough: the
+  labels are a *guess*, in both directions. ⇒ On any gallery ≤ ~8 images, download all of them
+  and build the contact sheet before quoting a photo count or applying the Block-D no-real-photos
+  cap — `file`-ing the bytes and one Read is ~2 Bash calls and settles it. *Why:* here the count
+  6 → 3 and the Grundriss both changed the report materially, and both were invisible in a
+  complete, well-formed 655-KB payload.
   ⚠ **…but it is NOT reliably the LAST image — download the WHOLE gallery and build a contact
   sheet.** #726 (`aa2c696c-…`, 20 images): the Grundriss was **Bild 3**; the last image was a
   Kellergang photo. A "fetch the last image" shortcut would have (a) missed the plan entirely and
