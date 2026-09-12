@@ -2933,6 +2933,14 @@ A price-lowered rental carries `{"type":"REDUCED_PRICE","originalPrice":"1.911 �
 Always divide Kaution by BOTH `text` and `originalPrice` before writing the Nettokaltmieten multiple.
 **Why:** scoring Kaution against the current rent alone books an illegal-deposit finding without the
 explanation, and the reduction itself is free evidence for the rent-cap argument.
+**When the division DOES land on the old rent, still score Block G = 2,0, not a softened 2,5.**
+`_shared.md` maps "Kaution > 3 Nettokaltmieten" to 2,0 categorically, and #512 (3,27 NKM) applied it;
+#757 (expose 170436810, Ketzinerstr. 77 Fahrland) is the small-overshoot case — Kaution 4.200 =
+exactly 3 × the pre-cut 1.400 = **3,11 ×** the current 1.350, i.e. only 150 EUR / 3,7 % over — and the
+sympathetic framing above ("not a landlord overcharging") tempts a 2,5. Put the mitigation in the
+prose, keep the number at 2,0. **Why:** the same pattern at two different magnitudes scored 2,0 and
+2,5 would make two tracker rows non-comparable over a 0,05 swing that moved the global score across
+the 3,9/4,0 "strong candidate" line.
 **"usually" is not "always" — run the division, don't assume the breach.** #740 (expose 156654081,
 allod, −10 % 1.982,40 → 1.793,60) had the Kaution **re-derived on the NEW rent**: 5.380,80 = exactly
 3,00 × 1.793,60 (and 2,71 × the original) ⇒ legal, nothing to flag. A professional Verwalter usually
