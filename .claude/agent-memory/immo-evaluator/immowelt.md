@@ -148,6 +148,15 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   threshold would have skipped all of it. *Why:* the swap feed carries no Referenznummer that dedups
   across portals (it is the syndicator's Anbieter-ID), so the Grundriss caption is the only
   cross-portal identity key — and it is one `curl` away.
+  ⚠⚠ **…and that includes a gallery of exactly ONE image, which can be the Grundriss and nothing
+  else.** #724 (`b2aa0284-…`, Anbieter-ID 148536): `images.length` = 1 („Bild 1"),
+  `hasFloorPlan:false`, `floorplans:[]`, no `classification` — and that single image is a furnished
+  architectural plan with the Tauschwohnung watermark, captioned „**WE 65.01**". Real-photo count
+  = **0**, so Block D is capped at 3,0 on a Neubau that would otherwise have scored 5,0 — a full
+  1,0-point swing decided by one `curl`. Note the unit key can be a bare `WE {n.nn}` with **no
+  `Haus {N}` part**, so dedup on the `WE` token alone. ⇒ The rule is unconditional now: on this
+  feed fetch and Read **every** image lacking `classification`, gallery size 1 included; never
+  read „1 Bild" as „1 Foto".
   Bonus once you do: the plans carried per-room m², Raumhöhen (2,44–2,53 m), „1 m Linie"/„2 m Linie" Dachschräge
   markers (⇒ the advertised 130 m² is Grundfläche, WoFlV-Wohnfläche is lower ⇒ the real EUR/m² is
   higher), a second bathroom, and the definitive absence of any Balkon/Terrasse. *Why:* this inverts

@@ -515,6 +515,17 @@ also Richtung **Unterwert** (6,51) statt Mittelwert schiebt.
 *Why:* mit dem 1991–2008-Feld (9,10) wirkt derselbe Altbau-Preis „nur" 2,5× statt 2,9× ortsüblich,
 und die Verhandlungs-/§-556g-Rechnung im Report ist um mehrere hundert Euro zu niedrig.
 
+**Die dritte Zeile im Ortsteil: `ab 2021` — und dort kippt das ganze Delta ins Gegenteil.** Neben
+Gründerzeit (`bis 1948`) und Nachwende (`1991–2008`) gibt es in Babelsberg Nord junge Neubauquartiere,
+z. B. das **„Wohnprojekt Altes Filmstudio Babelsberg"** (Erstbezug 11/2021, direkt am Park Babelsberg).
+Feld `ab 2021` · Spalte D (>75–90 m²) = **16,73 (14,88–19,64)** — also *über* dem Angebotsanker von
+15–18 EUR/m². Auf #724 (76 m², 1.200 kalt = **15,79 EUR/m²**) heißt das: **5,6 % UNTER ortsüblich**,
+und wegen § 556f (Erstvermietung nach 01.10.2014) ist die **Mietpreisbremse gar nicht anwendbar**.
+⇒ Vor dem § 556g-Reflex immer erst das Baujahr prüfen: im Ortsteil ist der Hebel bei Altbau/Nachwende
+der Normalfall, beim Post-2021-Bestand **existiert er nicht** und der Preis ist sogar günstig.
+*Why:* mit dem Ortsteilanker („Babelsberg Nord ⇒ +95 % über Mietspiegel, § 556g-Hebel") wäre auf einer
+mietspiegelkonformen Neubauwohnung eine Rüge konstruiert und Block A grundlos abgewertet worden.
+
 **Mikrolage: `Alt Nowawes` ist die Hauptdurchgangsstraße mit Gleisen in der Fahrbahn** (Tram 94/99,
 Bus 694, Nachtbus N14; Haltestelle „Alt Nowawes" zwischen Rathaus Babelsberg und
 **Humboldtring/Nuthestraße** — die mehrspurige Ausfallstraße liegt am westlichen Ende, ca. lng 13,089).

@@ -19,7 +19,7 @@ scam signal. *Why:* scoring #550 off the fields would have invented a 100-m²-Ha
 kalt that does not exist, and inverted the two-sided match (their Suche read as their offer).
 
 ## Side-2 base rate: our 2-Zi/54-m² Golm offer only serves DOWNSIZERS
-#492, #505, #533, #541, #550, #578 all failed side 2 on the same axis — the partner wants to
+#492, #505, #533, #541, #550, #578 (später auch #667, #683, #719, #720, #722, **#724**) all failed side 2 on the same axis — the partner wants to
 *enlarge* (≥3–5 Zi, 70–100 m², family households), and the Golm flat is the small end of the
 market. Side 1 kept passing (3,5–4,3/5), so the cost was a full evaluation each time.
 ⇒ Read the Suche's **direction** (vergrößern vs. verkleinern / "weniger Miete") FIRST; if they
@@ -547,6 +547,12 @@ prices usually sit ABOVE the Mittelwert, not below.
   instead. ⇒ Rule of thumb: swap €/m² near the Angebotsanker ⇒ young contract, Mietpreisbremse
   check; swap €/m² at half the Angebotsanker ⇒ Altvertrag, successor-rent question. *Why:* writing
   "Bestandsmiete, günstig geerbt" on a 14,67-EUR/m² ad would invert the actual risk.
+  ✅ **Dritter Zustand, erstmals auf #724: Neubau-Vertrag, der UNTER der ortsüblichen Miete liegt.**
+  15,79 EUR/m² ≈ Angebotsanker (junger Vertrag, Erstmieter seit 11/2021) **und** −5,6 % unter dem
+  Mietspiegelfeld `ab 2021`, dazu § 556f ⇒ keine Bremse. Hier ist *weder* ein Altvertrag zu erben
+  *noch* ein § 556g-Hebel zu ziehen: das Repricing-Risiko beim Mieterwechsel ist bereits eingepreist
+  und reicht nur bis zum Spannen-Oberwert. ⇒ Die Kontaktfrage „Vertrag übernommen oder neu?" bleibt
+  richtig, aber ihr Hebel ist klein — nicht mit „±1,5 Punkte in Block A" bewerten wie bei #608.
 
 ## Even on IS24 the object-specific twg.click link is NOT guaranteed — check "Weitere Links" first
 Some IS24 swap exposés carry only the **generic** `https://twg.click/is24-homepage` in the
