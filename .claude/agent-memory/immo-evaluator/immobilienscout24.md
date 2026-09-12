@@ -795,6 +795,22 @@ from firing.
 breaks all three profile price limits, and it is the exact number the search-result metadata carries,
 so nothing downstream corrects it.
 
+**Once you have the street, `grep -ri "{Strasse}" data/listings.md reports/` supplies all THREE
+missing Block-A inputs at once — and the re-let worst case then becomes a hard number, not a caveat.**
+The street-grep is already documented above for Baujahr/Verwalter; on a Mieternetzwerk ad it also
+yields (a) the quarter's **NK spread**, which narrows/widens the 3,00–4,50 EUR/m² reconstruction band
+to locally observed values, and (b) the quarter's **current landlord ask**, which is a far sharper
+re-let anchor than the Ortsteil average (same logic as the `pipeline.md` sibling rule for the private
+Nachmietergesuch class, one paragraph up — it applies to `isTenantNetwork: true` too). Then state the
+worst case explicitly: `m² × sibling_ask + estimated_NK` tested against **both** budget caps. #745
+(expose 170535882, Am Speicher 91 m², warm 1.900): siblings #168/#166/#740 in the same Neubauquartier
+gave Bj. 2022 + EEK B, an NK spread of **2,59 / 4,10 / 5,00 EUR/m²** (≈220 EUR/Monat swing on 91 m²,
+worth naming as a research item), and an ask of **19,00–19,50 EUR/m²** → re-let ≈ 2.080–2.185 EUR warm,
+i.e. still inside both caps. **Why:** "Die Miete wird sich eventuell anpassen" otherwise stays an
+unquantified worry that either gets ignored or silently sinks Block A; computed, it was the finding
+that justified a 4,5 instead of a hedge. Note the NK spread also shows the generic 3,00–4,50 band can
+understate a Neubau-Quartier's real NK — quote both bands rather than replacing one with the other.
+
 **Refinement to the reconstruction: a SIBLING REPORT'S NK rate for the SAME BUILDING beats the generic
 3,00–4,50 EUR/m² band, and the spread is worth hundreds of euros.** The 3,00–4,50 band is a city-wide
 prior; when your own `reports/` already contain a unit in the same building, use *that* NK rate as the
