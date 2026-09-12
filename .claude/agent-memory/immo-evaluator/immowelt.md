@@ -89,6 +89,14 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   nothing else of substance (`documents.files:[]`, `areaDescription`/`extendedInfoDescription` are
   bare `{headline}` stubs). *Why:* `d.sections.features.preview` throws on `null` and reads like a
   broken parse of an otherwise complete 616-KB payload.
+  ⚠ **…but `features: null` is a per-AD property, NOT a property of the Tauschwohnung-GmbH feed —
+  do not generalize #721.** #722, same feed, same `documents.files:[]` / stub-`areaDescription`
+  shape, had a normal `features` = `{preview: [5 chips], details: null}` (Dachgeschoss/2. Geschoss,
+  Einbauküche, **Keller**, **Badewanne**, Bodenbelag Holzdielen — i.e. a must-have and a
+  nice-to-have both positively asserted, none carrying an `enrichment` flag). ⇒ Read
+  `sections.features` on every swap ad; `null` means "this lister left the Ausstattungsmaske empty",
+  not "this feed has no Merkmale". *Why:* assuming the feed shape would have written „Keller
+  unbestätigt" onto a listing that states it outright.
   **⇒ Treat the node-script path as the DEFAULT first move on Immowelt, ahead of CiC.**
   Two gotchas in the harness itself: (a) set `IP_HEADLESS/IP_LOCALE/IP_TIMEZONE/IP_STORAGE_STATE` and
   `cwd: ROOT` in the spawn env (`tmp/drive.mjs` omits them); (b) the driver emits a **second** line
@@ -109,6 +117,29 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   and the must-haves blind on a listing whose photos are the ONLY evidence (the Tauschwohnung feed
   states no Baujahr, no EA, no Merkmale). On #721 the sheet proved Gründerzeit + two bathrooms +
   a Badewanne + one room in raw shell — none of it in the text.
+  ⚠ **Correction (#722): the JPEG-vs-WebP answer is per-URL and depends on the request headers, and a
+  bare `curl -A <UA>` can fail outright with exit 92 (HTTP/2 stream error) on some image URLs while
+  succeeding on others in the SAME gallery.** Image 1 came back JPEG on a plain curl; image 2 failed
+  92 on three retries (and 52 = empty reply with `--http1.1` alone). What fixed it: **`--http1.1`
+  PLUS a browser image Accept header** — `-H 'Accept: image/avif,image/webp,image/apng,image/*,*/*;q=0.8'`
+  → HTTP/1.1 200 and a *genuine* WebP (`RIFF … VP8`) that `dwebp` decodes normally. ⇒ Standard image
+  recipe: `curl -s --http1.1 -A <Chrome UA> -H '<image Accept>' -o x.bin <url>`, then `file x.bin` and
+  branch (`cp` → `.jpg` for JPEG, `dwebp` for RIFF/WebP). *Why:* a 92 on one image of a two-image
+  gallery reads as "the gallery is unavailable" and leaves Block D scored blind on exactly the
+  listings where the images are the only evidence.
+- ⚠⚠ **`tags.hasFloorPlan:false` + `domains.medias.floorplans:[]` can BOTH lie — the Grundrisse then
+  sit in `medias.images` and inflate the photo count, so the Block-D "no real photos" cap is silently
+  missed.** #722 (`b308b2f6-…`, Tauschwohnung GmbH): `images.length` = 2, `floorplans` = `[]`,
+  `hasFloorPlan` = false, no `classification` key on either image (the documented swap-feed shape) —
+  and **both images are architectural floor plans** (Bauantragspläne, „Tauschwohnung" watermark). So
+  the real-photo count is **0**, not 2, and D must be capped at 3,0. ⇒ On any listing whose photo
+  count is small (≤ ~4) AND whose images carry no `classification`, **fetch and Read them before
+  scoring D** — the count alone cannot distinguish a photo from a Grundriss on this feed. Bonus once
+  you do: the plans carried per-room m², Raumhöhen (2,44–2,53 m), „1 m Linie"/„2 m Linie" Dachschräge
+  markers (⇒ the advertised 130 m² is Grundfläche, WoFlV-Wohnfläche is lower ⇒ the real EUR/m² is
+  higher), a second bathroom, and the definitive absence of any Balkon/Terrasse. *Why:* this inverts
+  two documented rules at once — „`floorplans:[]` is the definitive no-Grundriss answer" and
+  „`images.length` is the exact photo count" — and both errors push the score the same wrong way.
 - ⚠ **A live, complete page is NOT proof the flat is available — read the ad TITLE for `VERGEBEN`.**
   #712 (`001f6218-…`, Tauschwohnung GmbH): HTTP 200, `blocked:false`, 623 KB payload, every field
   populated, `tags.isNew:true` — and `classified.title` = „**TAUSCHWOHNUNG VERGEBEN:**

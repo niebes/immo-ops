@@ -105,6 +105,33 @@ to keep:
   *Why:* five consecutive swaps in one batch died on a stated room floor, so the reflex by #721 is to
   write the sixth discard from the pattern. The rule exists precisely for the case where the pattern
   has no evidence behind it — and it is, so far, the only route to a candidate at all.
+  ✅ **The control case that makes the distinction concrete: #722, the very next ad, same portal,
+  same 5 Zi / 2.000 EUR headline — and it DISCARDS.** (Immowelt `b308b2f6-…`, Anbieter-ID 333539,
+  130 m² DG-Maisonette am Luisenplatz.) Its Suche is one plain sentence in the same three-sentence
+  boilerplate slot where #721 had nothing: „**Ich suche für mich und meine Jungs (10 und 14) in der
+  Innenstadt eine Wohnung mit 3+ Zimmern, wobei die 3 Zimmer keine Durchgangszimmer sein sollten.**"
+  ⇒ *stated* floor 3+ Zimmer + 3-Personen-Haushalt ⇒ deterministic side-2 fail against our 2 Zi.
+  Keep three things: (a) **`3+ Zimmern` is a floor written without any documented trigger word** — no
+  `mindestens`, no `min.`, no `ab`; add the bare `\d\+ ?Zimmer(n)?` shape to the numeric sweep;
+  (b) the qualifier „**keine Durchgangszimmer**" is a *layout* requirement — it means 3 genuinely
+  separate rooms and is unanswerable by a 2-room flat even before the count is compared;
+  (c) this is a real DOWNSIZER (130 m² → 3+ Zi) with **no Mietobergrenze at all**, and our
+  −974,75 EUR/month kalt is the largest rent lever the `swap_offer` has ever had — it still loses,
+  confirming #667: only the stated floor decides. Write the #721-vs-#722 contrast into the report so
+  the reader sees the rule is "Suche *absent*", not "Suche *unfavourable*".
+
+### The counterparty can be the EIGENTÜMER, not an outgoing tenant — and that changes three things
+#722: „**Ich bin der Eigentümer, also ist die Kaltmiete verhandelbar!**" The poster owns the flat and
+is himself looking to *rent* elsewhere, so the „swap" is really an exchange of tenancies-for-tenancy.
+Consequences worth scoring: (1) **no Vermieter-consent gate on their side** — he *is* the Vermieter,
+so only our own `swap_offer.landlord_consent` (DIBAG / Bayerische Städte- und Wohnungsbau) remains;
+(2) the documented rule „the advertised rent is the partner's ALTVERTRAG, not our price" **does not
+apply** — it is his asking price, it would genuinely be our rent, and he says it is negotiable;
+(3) Block H moves the *other* way: an owner who rents his own flat out and lives in a rental keeps a
+textbook Eigenbedarf claim, so the private-landlord risk is higher than on a tenant-to-tenant swap,
+not lower. Tell: the phrase `ich bin der Eigentümer|als Eigentümer` in the description. *Why:* the
+whole Tausch doctrine assumes a tenant on the far side; reading #722 that way would have invented a
+consent gate that isn't there and priced an Altvertrag that doesn't exist.
 
 **But "downsizer" is NOT automatically a side-2 pass — a second, independent kill axis is a
 qualitative BAUSUBSTANZ requirement, which our 2024 Neubau can never satisfy.** #579 was the first
