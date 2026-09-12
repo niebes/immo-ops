@@ -101,6 +101,56 @@ anchors it is ~3,9× the amtlicher Oberwert and +36 % over the regional Angebots
 Block-A story and the only real negotiating lever.
 Speckgürtel values above are from the Kreis-PM and are the *official* ones.
 
+| **Klein Kreutz – Saaringen** (Ortsteil der **kreisfreien Stadt Brandenburg an der Havel**, 14776, ~5 km NO des Zentrums, gegliedert in Dorfkern / Kiekeberg / Alte Weinberge / Neue Weinberge) | amtlich **58** Wohn-/Mischbebauung, Spanne **45–100**, Stichtag 01.01.2026 (veröffentlicht 09.03.2026), **0,0 % y-o-y** (nach +5,5 % in 2025) · Landwirtschaft 1,00 · Forst 0,25 | `bodenrichtwerte-deutschland.de/.../brandenburg-an-der-havel/klein-kreutz---saaringen` (understating family → eher Untergrenze). **Eigener Gutachterausschuss**, weil kreisfrei: Klosterstr. 14, 14770 Brandenburg a. d. H., Tel. 03381 586203 / 586205 / 586237. Used on #764 (2.300 m² zu 76,09 EUR/m² = **1,31× des Gemeindemittels**, auf einer Fläche die gar kein Wohnbauland ist). |
+
+## Erholungs-/Wochenendgrundstück: „Bestandsschutz" im Exposé ist ein **Baurechts-Befund**, kein Extra
+Die Nutzungsart entscheidet hier mehr als jede Zahl, und sie steht selten als Feld im Exposé —
+sie steckt in drei Formulierungen, die zusammen **§ 35 BauGB Außenbereich** bedeuten:
+1. **„… (Bestandsschutz)"** hinter dem Gebäude. Der Verkäufer sagt damit selbst, dass das Haus nur
+   stehen darf, *weil* es schon steht — ein heute genehmigungsfähiger Bau bräuchte das Argument nicht.
+2. **„als Wochenend-/Feriendomizil herrichten"** — die Zweckbestimmung ist Erholung, **nicht Dauerwohnen**.
+3. **Kein Energieausweis.** Auf einem Wochenendhaus mit < 4 Monaten Jahresnutzung ist das nach
+   **§ 104 GEG** (vormals EnEV) legitim — also **kein Scam-Signal und kein Block-D-Abzug**, sondern ein
+   *drittes unabhängiges Indiz*, dass es kein Wohngebäude ist. Nicht als „fehlende Angabe" abbuchen.
+
+**Gegenprobe in einem einzigen Fetch: die B-Plan-Liste der Gemeinde.** Für Klein Kreutz führt die
+Stadt nur **B-Plan „Am Kiekeberg"** + **Klarstellungs- und Abrundungssatzung Klein Kreutz/Saaringen** —
+**kein Wochenendhausgebiet nach § 10 BauNVO, nichts für den Bereich Weinberge**. Eine
+Klarstellungssatzung stellt nur die *Grenze* des im Zusammenhang bebauten Ortsteils klar; eine
+Hangparzelle am Waldrand neben einem Acker liegt regelmäßig außerhalb. ⇒ Reihenfolge: Objekttyp
+lesen → Gemeinde-B-Plan-Liste holen → erst dann Block A rechnen.
+
+**Die zwei Sätze, die in den Report gehören (und den Preis erklären):**
+- **Kein Dauerwohnen, kein Neubau, keine wesentliche Erweiterung.** Die Privilegierungen des
+  § 35 Abs. 4 BauGB knüpfen an ein *zulässigerweise errichtetes Wohngebäude* an — ein Wochenendhaus
+  ist keines, die Ausnahmen greifen also nicht.
+- **⚠ Bestandsschutz + „sanierungsbedürftig" ist die gefährliche Kombination.** Geht die Instandsetzung
+  über Erhaltung hinaus und wird die Substanz weitgehend ersetzt (identitätsändernde Instandsetzung /
+  Neuerrichtung), **erlischt der Bestandsschutz** — und übrig bleibt ein unbebaubares Grundstück.
+  Der Käufer bezahlt also genau das Gebäude, dessen Sanierung sein eigenes Baurecht zerstören kann.
+  Das ist der zentrale, unquantifizierte Wertverlustpfad und gehört in Block G, nicht in eine Fußnote.
+
+**Rechenweg, der den Block-A-Befund trägt** (Fortschreibung der „BRW ist eine CEILING"-Regel oben):
+Bodenwert *als ob Wohnbauland* = Fläche × Gemeinde-BRW → das ist die **Obergrenze**; realistischer
+Erholungswert ≈ 25–40 EUR/m² im *weiteren Metropolenraum* (unter dem 40–80-Band des Berliner Umlands).
+Differenz zum Angebot = was Gebäude + Hoffnung kosten. #764: 2.300 × 58 = 133.400 als Obergrenze,
+realistisch 57.500–92.000 gegen 175.000 Forderung ⇒ **83–117 TEUR zahlen einen sanierungsbedürftigen
+68-m²-Bungalow von 1968 unter Bestandsschutz**. Danach **immer die All-in-Rechnung** anschließen
+(Erwerb + GrESt/Notar + Sanierung + Kleinkläranlage), denn *die* sprengt den Cap, nicht der Kaufpreis:
+#764 nominal −12,5 % unter Cap, all-in 258–325 TEUR = **+29 bis +63 % darüber**.
+
+**Erschließung auf dieser Klasse ist fast nie das, was „teilerschlossen" suggeriert.** „Wasser-
+versorgung über einen **Brunnen**" heißt **kein Trinkwasseranschluss** (Anzeige beim Gesundheitsamt +
+TrinkwV-Analyse nötig, und er ersetzt keinen Anschluss- und Benutzungszwang), und wenn **Abwasser im
+Exposé überhaupt nicht vorkommt**, ist von *keinem* Kanal auszugehen → Grube/Kleinkläranlage
+**8.000–15.000 EUR** zwingend. Das ist Stufe 5 der Erschließungsleiter aus `_shared.md`, auch wenn
+Strom und sogar **Glasfaser** anliegen (beides sagt über Wasser/Abwasser nichts).
+
+**SchuldRAnpG immer mitprüfen.** DDR-Erholungsgrundstücke fallen häufig unter das
+**Schuldrechtsanpassungsgesetz** und sind dann mit einem kündigungsgeschützten Nutzer belastet.
+Steht wie auf #764 ausdrücklich „NICHT verpachtet oder vermietet" im Exposé, ist das ein echtes
+Plus — aber es gehört als Zusicherung in den Kaufvertrag, nicht als geglaubte Exposé-Zeile in den Report.
+
 ## Land-/forstwirtschaftliche Flächen — a separate BRW class, split by **two regional zones**
 The table above and the `_shared.md` one are **Wohnbauland only**. A Grünland/Acker/Wald parcel is
 valued off a completely different, much simpler BRW set — and Brandenburg publishes it in **two

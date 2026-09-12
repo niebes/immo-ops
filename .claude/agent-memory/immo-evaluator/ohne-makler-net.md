@@ -44,6 +44,15 @@ print that window.
 - **`Privatangebot`** marker + `Angebot von: {Klarname}` → private seller, no
   agency; the site is by construction provisionsfrei ("Keine Maklercourtage"),
   so provisionsfrei is NOT a differentiator here and shouldn't inflate Block G.
+- **`Objekttyp` is OM's own legal classification and it routes the listing to the right
+  profile search — read it before scoring.** `Objektart: Grundstück` + **`Objekttyp: Freizeit`**
+  means OM itself files the plot as a *Freizeit-/Erholungsgrundstück*, not as Bauland.
+  On 491744 that (plus "Bestandsschutz" + "Wochenend-/Feriendomizil" in the prose) was the
+  whole finding: it belongs in the `Brandenburg Freizeitgrundstück` search (cap 60.000),
+  where the 175.000 ask is +192 % and trips the "40 %+ over target" hard blocker — while
+  against the plot-purchase cap of 200.000 it looks comfortably in budget. **Score it in
+  the search it was triaged into, but always state the cross-classification**, otherwise a
+  hard-blocker object reads as a 2,8.
 - Watch the **Sonstiges** block for deal-structure landmines that appear nowhere
   else (e.g. "Verkauf als Share Deal bis zu 100 % der KG-Anteile") — that belongs
   in Block G, not the description dump.
@@ -57,9 +66,34 @@ print that window.
   Grundbuch ~2 % ≈ 11.008 €. Recompute from the Bundesland's GrESt rate; don't
   quote OM's figure as fact.
 
-## Photo count
-Gallery images are `.../immobilie/{id}/picture/{n}/medium.jpg` — count distinct
-`{n}` with `grep -oE 'picture/[0-9]+'`. Only index 0 = single photo.
+## Photo count — ⚠ the `picture/{n}` method is DEAD, it undercounts to 1
+The legacy path `.../immobilie/{id}/picture/{n}/medium.jpg` now only ever renders
+**index 0** (the og:image/preview). The real gallery is served from a separate
+imgproxy host:
+```
+https://media.ohne-makler.net/rs:fit:1920:1080/q:90/{base64}?sig=...&exp=...
+```
+Count them, and confirm they belong to this listing, by base64-decoding the path
+segment — it is the S3 key `s3://om-listings/upload/pictures/OM/{id}/{slug}`:
+```bash
+grep -oE 'src="(https://media\.ohne-makler\.net/[^"]+)"' om-{id}.html   # dedupe, then
+python3 -c "import base64,sys; print(base64.b64decode(sys.argv[1]+'=='*3).decode())" {b64}
+```
+**Why:** on 491744 `grep 'picture/[0-9]+'` returned exactly 1 while the listing
+actually has 7 gallery photos. A count of 1 (≈ "no real photos") would have
+wrongly fired the `_shared.md` rule that caps Block D at 3.0 and forces a
+"no photos" ✗ con — i.e. the stale selector silently *changes the score*.
+Download + Read the images: OM sellers are private, and the photos carry the
+encumbrances the text omits (on 491744: a Freileitungs-Holzmast at the entrance,
+Bauschutt piles, and a slope so steep the usable plot is up a flight of steps).
+
+**Expect screenshots of OTHER portals in the gallery.** Private OM sellers
+cross-post and re-upload phone screenshots — 491744's image 3 was a Kleinanzeigen-
+style app gallery frame complete with "2 von 11" counter and an Amazon ad banner.
+Read that as (a) sloppiness, **not** fraud, and (b) free intelligence: the counter
+tells you the full series (11 photos, incl. the interiors OM lacks) exists
+elsewhere and can be requested. Never count such a frame as a real property photo.
+
 **Do not keyword-grep the whole HTML for render terms** (`3D`, `Visualisierung`):
 the site chrome advertises `OM-360° Immobilien-Scan` and OM's service menu, which
 produces false positives. Only count render keywords inside the description/Lage text.
