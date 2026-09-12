@@ -455,6 +455,19 @@ the plan gives for free and both belong in the report: **all rooms opening off t
 Durchgangszimmer** (a real Block-C plus on a ≤65 m² 3-Raum) and an **innenliegendes, fensterloses
 Bad** — and if no tub is drawn, the Badewanne nice-to-have stays *unconfirmed*, do not infer it.
 
+**On a FULLY documented ad the Grundriss is not a gap-filler but a REFEREE — it routinely refutes
+both the prose and the Hauptkriterien, and only the plan is right.** #749 (expose 162635219, 4 Zi /
+93 m² Eiche, 21 photos + plan) contradicted the ad on two points at once: (1) the Objektbeschreibung
+claimed „vier große Zimmer, welche über den T-förmigen Flur zu erreichen sind" while the plan shows
+**Küche AND Zimmer 4 reachable only through Zimmer 1** (doors drawn on the shared wall) — a Block-C
+minus and the WG-geeignet CHECK is then misleading; (2) Hauptkriterien said **„Badezimmer: 2"** but
+plan + text agree on **1 Vollbad + 1 Gäste-WC** — IS24's `Badezimmer` counter **includes the
+Gäste-WC**, so never quote it as "two bathrooms". Rule: on any ad that HAS a plan, read the door
+marks and the room labels *before* copying the description's layout sentence or the Hauptkriterien
+room counters into Block C.
+**Why:** the description's sentence reads like a Block-C plus ("alle Zimmer separat erschlossen")
+and would have been copied straight into the report; the free plan turns it into a documented minus.
+
 **Not every Mieternetzwerk Altvertrag sits BELOW the Mietspiegel-Spanne — score Block A on the
 position within the Spanne, not on the budget headroom.** #735 (500 EUR warm / 61 m²) reconstructed
 to 3,70–5,20 EUR/m² = at/below the *Unterwert* of every 1971–1990 × Spalte-C row → Bremse eingehalten
@@ -1182,9 +1195,15 @@ four surrogates instead of guessing:
    future (or absurdly early), discard surrogate 5 and fall back to 6 — don't report the bogus date.
 6. **Calibrate the Scout-ID band against the repo's own reports** — the cheapest surrogate and it needs
    no network call: `grep -o "expose/1[0-9]\{8\}" reports/*.md`, sort by ID, and read the month off each
-   report's filename date. That yields an ID→month ladder (e.g. ~167,4 M ≈ May 2026, ~168,5 M ≈ mid-Jun,
-   ~169,0 M ≈ early Jul, ~169,9 M ≈ Aug 2026, i.e. roughly **0,5 M IDs/month in 2026**), so any ID can be
-   dated to ±1–2 months. Regenerate the ladder each time rather than memorising numbers — it drifts.
+   report's filename date. **Take the MAX ID per month, not the min/average** — reports also cover
+   recycled old exposés, so the monthly *minimum* is noise and only the leading edge tracks "now".
+   One-liner: `for f in reports/*.md; do d=${f//[^0-9-]/}; …` → simply
+   `grep -o "expose/1[0-9]\{8\}"` per file, pair with the report-date month, then `awk` the max per month.
+   Ladder regenerated **2026-09-12** (leading edge): 05/26 **168,06 M** · 06/26 **168,94 M** ·
+   07/26 **169,66 M** · 08/26 **170,31 M** · 12.09.26 **170,71 M** ⇒ **~0,65–0,88 M IDs/month, avg
+   ≈0,75 M** (≈25 k/day). The older "~0,5 M/month" figure in this file was **too low and over-aged
+   every listing by ~50 %** — use 0,75 until the next regeneration. So any ID can be dated to ±1–2
+   months. Regenerate the ladder each time rather than memorising numbers — it drifts.
    Used on #591: ID 160.189.185 ⇒ the exposé has been online since ~2024 (~1,5–2 years), which is both a
    negotiating lever and a demand signal. **Plots sit far longer than flats** — #497 (159,6 M) was the
    same shape — so a low ID on a `livingbuysite` is normal, not a red flag.
@@ -1197,7 +1216,12 @@ four surrogates instead of guessing:
    the gallery mean it is an ID.
    **…but the sequence-ID scheme is still MONOTONIC, so calibrate it instead of discarding it.** Pull
    two known-recent exposés with the same curl and read their suffixes: in Aug 2026 they were
-   ~2.075–2.079 Mrd, ~7 days apart ⇒ **~0,49 M media-IDs/day**. A target sitting at 1.624 Mrd is then
+   ~2.075–2.079 Mrd; **band refreshed 2026-09-12: same-day fresh exposés (170575726 / 170602850 /
+   170628529 / 170710270 / 170714342) sit at 2.087–2.090 Mrd ⇒ ~0,65 M media-IDs/day** over the
+   late-Aug→12-Sep interval (the older 0,49 figure now under-ages; recalibrate, it is cheap — the
+   other evaluators' scratchpad JSONs from the same batch are free calibration points).
+   Cost-free trick: the suffix also appears on **attached PDFs** (`cloudfront.net/{uuid}-{id}.pdf`),
+   so a photo-less exposé with a Selbstauskunft/Grundriss PDF can still be dated. A target sitting at 1.624 Mrd is then
    ~2,5 years back — an *independent* second age estimate to corroborate surrogate 5 or 6, and the only
    one available when the epoch decode is bogus. Used on #643: Scout-ID 142,8 M (vs 170,0–170,2 M for
    Aug-2026 exposés, ~23 k IDs/day ⇒ ~3 years) and media-ID 1,624 Mrd (epoch-valid: 22.06.2021) agreed
