@@ -54,6 +54,20 @@ Decken", Loft/Fabriketage are *physical building-era* criteria — no amount of 
 a Neubau 2024 with ~2,50 m standard ceilings into one; treat them exactly like an explicitly stated
 deal-breaker, not a soft must-have. Note the direction still helps on the *numeric* axes (their rent
 1.375 EUR kalt vs our 1.025,25 → budget fits), so the report must say which axis actually decided.
+**The cleanest side-2 PASS shape so far — an ALL-CAPS `SUCHE:` label, and it is a new trigger.**
+#712 (Immowelt `001f6218-…`, Anbieter-ID 210693, Tauschwohnung-GmbH-Feed): the whole Suche is one
+labelled line at the end of the Eckdaten block — „**SUCHE: Kleine Wohnung (1-2 Zimmer) in Potsdam
+oder dem Westen von Berlin.**" Every axis passes our Golm offer *without any leniency*: Zimmer
+1–2 ✓ (we are 2), Stadt **Potsdam wörtlich genannt** ✓ (no commuter-belt allowance needed), no
+m²-Floor ✓, no Mietobergrenze ✓, no Must-haves ⇒ our fehlender Balkon/Keller harmless.
+⇒ Two things to keep: (a) **add the bare uppercase label `SUCHE:` to the trigger list** — it
+contains no verb of wanting and sits in the middle of a dash-list, so the documented triggers
+(`Ich suche`, `im Gegenzug`, `mindestens`, `Tausche … gegen`, `Du suchst`) do not reach it in that
+form; (b) the base rate is real but not a law — a **downsizer to 1–2 Zimmer who names Potsdam**
+is exactly the profile `swap_offer` was built for, so do not pre-declare side 2 dead.
+(This one died anyway: the ad title said „VERGEBEN" and side 1 failed on Ortsteil + fehlendem
+Balkon. Worth a targeted feed filter on `1-2 Zimmer` + `Potsdam` rather than on Berlin geography.)
+
 **Third kill axis: an explicitly NUMBERED Mindestfläche.** The Tauschwohnung-GmbH template Suche is
 frequently one fully-quantified sentence at the end of the description, in a fixed shape:
 *"Ich suche nach einem Tausch in **{Stadt}** mit **mindestens {N} Zimmern** und einer Größe von

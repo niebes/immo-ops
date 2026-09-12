@@ -124,8 +124,12 @@ liegt, ist in Berlin der **Normalfall**, nicht die Ausnahme — trotzdem jedes M
     Nachschlagen per Nominatim auf die PLZ prüfen; der Bezirk entscheidet nur den Anker, die
     Mietspiegelzeile hängt an Baualter × Wohnlage × m².
     **Das Müllpaar `district:"Grunewald"` + og:title „Westend" ist im Tauschwohnung-Feed der
-    Regelfall (#655, #656, #657, #658, #683, #696, #711) — beweglich ist nur die PLZ (10585, 10627,
-    13629, 14059 …). Nie aus `district` schließen; immer PLZ → Nominatim.** Zusätzliche
+    Regelfall (#655, #656, #657, #658, #683, #696, #711, **#712**) — beweglich ist nur die PLZ
+    (10585, 10627, **10779**, 13629, 14059 …). Nie aus `district` schließen; immer PLZ → Nominatim.**
+    ⚠ **Auch das `city`-Feld kann einen fremden BEZIRK behaupten:** #712 = PLZ **10779 →
+    Schöneberg, Bezirk Tempelhof-Schöneberg**, während `city` „Charlottenburg-Wilmersdorf" sagt
+    (wie #696 mit 13629/Spandau). Der Angebotsanker ist also nicht nur der falsche Ortsteil,
+    sondern der falsche Bezirk — erst PLZ geokodieren, dann Anker wählen. Zusätzliche
     Gratis-Gegenprobe: `sections.location.geometry` ist bei diesen Anzeigen das **Grunewald-Polygon**
     (Bbox 13,1876–13,2727 O / 52,4665–52,5087 N) — liegt der PLZ-Zentroid außerhalb dieser Box, ist
     die Grunewald-Angabe widerlegt, ohne eine zweite Quelle zu ziehen (#711: 10627-Zentroid
