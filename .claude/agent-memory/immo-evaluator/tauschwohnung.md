@@ -177,6 +177,23 @@ land on opposite sides of P (on #597: +2,5 % vs +21,5 %), so say which reading y
     Say in the report which axis decided; here size/city were perfect and only P mattered.
     Frequency note: #597 and #598 both landed on the same day, so a rent cap under ~1.000 EUR is
     currently the most common side-2 kill on the Kleinanzeigen swap flow, not a rarity.
+    - **…and it is NOT Kleinanzeigen-specific: the Immowelt/Tauschwohnung-GmbH feed produces the
+      same shape.** #727 (Immowelt `8991a275-…`, Anbieter-ID 479086, Berliner Vorstadt, 95 m²/3 Zi,
+      1.200 EUR kalt): *„Die Kaltmiete beträgt 1200 €. **Ich suche ein Zuhause mit mindestens
+      2 Zimmern in Potsdam für maximal 600 €.**"* — the purest single-axis kill of the series so
+      far: Zimmer-Floor **2** (we are exactly 2 ✓), Stadt **Potsdam** literally named with **no
+      Ortsteil list** (Golm ✓), **no** Mindestfläche, **no** Ausstattungswunsch, no household size.
+      Every documented axis passes *without leniency* and the written number still kills it
+      (+70,9 % kalt / +102,5 % warm over P). ⇒ Do not soften a stated P because every other axis
+      passed — and say in the report that P was the sole decider.
+    - **Sharpen the diagnostic: P ≈ HALF their own current rent = structurally unreachable.**
+      #598 was 1.150 → 700 (−39 %), #727 is 1.200 → 600 (**−50,0 %**). The bigger the cut, the
+      more certain it is that our Golm flat (freifinanzierter 2024er Neubau, **Indexmiete**, i.e.
+      priced at the top of the Potsdam Mietspiegel and rising) can never serve them — their exit
+      motive is price, and ours is the most expensive €/m² class in the table. A P below ~700 EUR
+      in Potsdam can be treated as a determined fail on sight.
+      Cheap triage win: a prefilter on `max(imal)|bis (zu)? \d{3} ?(€|Euro)` with a value under
+      ~1.000 EUR would have caught #597, #598 and #727 before any evaluation.
 **Fourth kill axis: the WOHNKONSTELLATION Suche — they want MULTIPLE units, or a household size
 that no single flat of ours serves.** #606 (Kleinanzeigen, 14478 Potsdam): *"Am liebsten in einem
 Haus **ZWEI Wohnungen mit 2 Zimmern**, oder 2,5 oder 3 oder 4… Auch eine **Gemeinschaft** wäre

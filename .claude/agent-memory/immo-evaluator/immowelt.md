@@ -151,6 +151,18 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `file` each, never branch on the `.webp` suffix), and one `+append/-append` contact sheet answered
   photo-count, Zustand, Balkon, Badewanne, Keller (Kellergang mit Verschlägen) and Tiefgarage in a
   single Read. ⇒ Cost is one Bash call; make the whole gallery the default, not the tail.
+  ⚠ **Shell trap in that recipe: write the URL list with a TRAILING NEWLINE (or feed the loop from
+  an array) — `while read -r u; do …; done < urls.txt` silently drops the LAST url when the file
+  ends without `\n`.** #727: `writeFileSync(urls.join('\n'))` → 15 urls in the file, 14 downloaded,
+  no error anywhere; `montage` was the only thing that complained (missing `15.png`). On this feed
+  the last image is a coin-flip for the Grundriss (#723) — so a silent off-by-one is exactly the
+  miss the whole-gallery rule exists to prevent. Check `ls imgs/ | wc -l` against
+  `images.length` before building the sheet.
+  ✅ **Calibration counter-example — `hasFloorPlan:false` + `floorplans:[]` is sometimes simply
+  TRUE.** #727 (`8991a275-…`, Tauschwohnung GmbH, 15 images, no `classification`): all 15 are real
+  photos, no plan anywhere ⇒ real-photo count 15, Block-D cap does not fire. The flags lie often
+  enough to make downloading mandatory, but do not pre-conclude „there must be a hidden Grundriss";
+  report what the contact sheet shows.
   #723 (`64e0a0da-…`, 9 images, `hasFloorPlan:false`, `floorplans:[]`, no `classification`):
   Bild 9 was the KW-Development plan „**Haus I – WE 8**" with per-room m² and **Wohnfläche gesamt
   ca. 74,84 m²**. Three payoffs the text alone never gives: (a) real-photo count 8, not 9;
