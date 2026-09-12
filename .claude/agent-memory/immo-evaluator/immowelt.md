@@ -661,10 +661,44 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
   `sections.price.base.main.value.main.value = "auf Anfrage"` · `priceComparison.hasMainPrice = false`
   · the visible `Preisdetails` block. *Why:* when the task is literally "find the hidden price", a
   numeric field deep in the payload reads like the answer and produces a fabricated Kaufpreis.
+  ✅ **…and a hidden price is usually RECOVERABLE in one extra driver call: pull the IS24
+  *Ortsteil search-results page* for the same property class and read the price off the twin.**
+  #762 (`2c697ec0…`, Grundstück Ringstraße 80, Neu Fahrland): Immowelt said „Preis auf Anfrage"
+  in all four fields, while the same agency's cross-post on
+  `immobilienscout24.de/Suche/de/brandenburg/potsdam/{regio}/{ortsteil}/grundstueck-kaufen`
+  showed **„650.000 € · 832 m² · ab 416 m² · Ringstraße 80"** — same title text, same street,
+  same area. The search page is a plain `{title, innerText}` eval on the SAME stealth driver
+  (`blocked=false`, ~3,5 k chars, ~60 s) and needs no expose id, no mobile-API token and no
+  geocode hunting — the human-readable IS24 URL pattern is enough. It also delivered two
+  bonuses the Immowelt page hid: the **sibling half-plot** listed separately (325.000 € /
+  416 m², same €/m² — which is what Immowelt's „ab 416 m²" means), and the **full local comp
+  set** (9 plots with price + m²) that Block A otherwise costs a WebSearch to assemble.
+  ⇒ On any priceless Immowelt Kauf-expose with a *published address or Ortsteil*, make the IS24
+  Ortsteil-Trefferliste the next call, before any WebSearch.
+  ⚠⚠ **Do NOT trust the WebSearch answer text for the price — it fabricates plausible numbers.**
+  Same listing, two searches, two different confident answers: **„750.000 €"** and **„720.000 €"**,
+  both quoting the right street and the right 832 m², both wrong (real: 650.000). The linked
+  results were only *search/landing pages*, and the summarizer synthesized a figure from the
+  surrounding listings. *Why:* the instruction „spend one WebSearch before concluding the price
+  is unknown" is right, but the usable output of that search is the **list of portal URLs**, never
+  the prose answer — a fabricated price walks straight into the 40 %-over-budget hard-blocker
+  decision.
 - **Provision terms are spelled out in the Preisdetails block** — rate, when it becomes due, and
   crucially whether a **same-rate contract with the seller** exists (= § 656c BGB split confirmed).
   Read it verbatim; it is a real Block-G differentiator (#396 was clean and 2,38 %; #384's IS24 twin
   tried to bind the Maklervertrag to the mere Exposé-Abruf at 3,57 %).
+- **Grundstück (PLOT) exposés have a SHORTER `sections` set — `energy` is absent outright, so a
+  generic miner crashes on `d.sections.energy` and reads like a broken parse.** #762: sections =
+  `location,description,hardFacts,key,price,features,documents,mortgage,partnerAd,sellerLeadLink,
+  priceComparison,mainDescription,areaDescription,extendedInfoDescription` — no `energy`
+  (legitimate: no building), no `floorplans`. Always `|| null` the optional sections in the mine
+  script. The plot-specific payload is in **`features.preview`**, whose icons ARE the
+  Erschließungsgrad: `site-development-state: "voll erschlossen"` +
+  `development-infrastructure: "Strom, Gas, Telekommunikation, Wasser"` (+ `with-view: "Fernblick"`,
+  `plotSpace`, `availability`). Those two chips are the Block-D input — read them instead of
+  guessing from prose. What a plot expose still never ships: **Flurstücksnummer, Lageplan,
+  Katasterauszug** (`documents` empty, `floorplans: []`), so Zuschnitt/Teilungslinie stay unbelegt
+  and belong in Next Steps.
 - **Fertighaus / "projektiert" listings are build offers, not properties — detect them before scoring.**
   Tells (all on #514, 13ccf669, allkauf haus): `Zustand der Immobilie: **Projektiert**` in the
   Bausubstanz block · description opens "Diese *projektiert geplante* …" · `Preisdetails` →
