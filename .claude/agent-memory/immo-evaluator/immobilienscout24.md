@@ -1652,6 +1652,27 @@ Three tie-breakers, in order of strength:
    the Lage text describes *that* plot.
 Corroborators: `MAP` "Adresse erhältst du vom Anbieter", `obj_street: no_information`, `TRAVELTIME.isBlocked`.
 **allkauf "Pro Time" house-only €/m² band — mind the storey count.** #367 3.586 + #377 3.953 are both single-storey **bungalows**; #422 (expose 169283494, Uetz-Paaren, 2-storey EFH 136 m², 3.013 EUR/m²) shows the band runs **DOWN to ~3.000 for multi-storey** (roof/Bodenplatte amortised over two floors). So don't read a sub-3.586 allkauf figure as "plot excluded / implausibly cheap house" on a Mehrgeschosser — 3.013 is normal house-only there. The plot-inclusion residual test still settles it: 3.013 − (752 m² × 200–300 EUR/m² BRW) leaves 1.355–1.908 EUR/m² house-only = below the 2.000–2.450 Ausbauhaus band ⇒ plot OUT, even more clearly than #377. Note #422's charitable plot-included reading (513–585 T EUR, 3–17 % over) sat *closer* to budget than #377's because its headline was lower — so the two scenarios straddle the 40 % blocker; carry the two-row table + yes/no email as Next-step 1 (like #381), don't average.
+**Third Mehrgeschosser datapoint + the residual test's blind spot (small plots).** #709 (expose
+170458879, allkauf "Pro Time", Marquardt, 2-storey EFH 134 m², 435.000 EUR = **3.246 EUR/m²**)
+confirms the multi-storey house-only band as **~3.000–3.250**. But its **residual test came out
+inconclusive and must NOT be used to overrule the exhaustion test**: the plot is only **482 m²**, so
+482 × 300–350 EUR/m² (Marquardt BRW) leaves 1.988–2.167 EUR/m² house-only — *inside* the 2.000–2.450
+schlüsselfertig band, i.e. it reads "plot could be included". Rule: **the residual test only has power
+when the plot is big enough to move the headline** (#422's 752 m² moved 150–226 T EUR; 482 m² moves
+only 145–169 T). On plots ≲500 m², rank it below tie-breakers 1 (exhaustion list) and 3 (boilerplate
+Lage) and say in the report that it is inconclusive. On #709 exhaustion + band both said plot OUT →
+660–758 T EUR all-in (+32…+52 %), capped 2,0 (uncapped 2,7), charitable reading 540–612 T (+8…+22 %).
+**Two extra one-glance tells for a catalog batch ad, both present on #709:** (a) `OBJECT_INFO`
+`Objekt-Nr.` in the **calendar-week schema** `4406-313-kw36-31053` (same family the Kleinanzeigen note
+records as `3801-313-kw28-…`) — a kw-stamped Objekt-Nr. means the ad is a weekly marketing batch, not
+a property; (b) the `MEDIA` captions repeat that Objekt-Nr.'s tail (`350771-**31053**-1-g`), so caption
+IDs and Objekt-Nr. sharing a number = one catalog media set spread over many ads.
+**`Etagenzahl: 2` ≠ two full storeys — read the Grundriss room labels.** #709's OG rooms carry **two
+area figures** (Eltern `15,23 m²` / `16,81 m²`, Kind 1 `13,62` / `15,14`): the smaller is the
+Dachschrägen-reduced Wohnfläche, ~8–10 % below the footprint, i.e. the "2nd storey" is a knee-wall DG.
+Also worth mining the plan on these catalog offers: the Badewanne (nice-to-have, in no text field) and
+the blue **"bauseits"** markings (Küche/Sanitärmöbel = buyer-supplied) — both score-relevant, neither
+in any structured attribute.
 **Score it both ways and say so.** When inference (not disclosure) drives the call, run Block A under BOTH
 scenarios; on #377 the no-plot reading gave 755–915 T EUR (51–83 % over) and even the charitable
 plot-included reading gave 604–671 T EUR (21–34 % over), so the budget verdict held either way and the
