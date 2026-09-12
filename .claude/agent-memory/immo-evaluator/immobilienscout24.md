@@ -207,6 +207,30 @@ Refinements from the TENANT_NETWORK re-list #743 (170616842) vs #618 (170153489)
   named the **street** ("in der August-Bebel-Straße") while #618 had no address path at all (no
   `obj_telekomInternetUrlAddition`). Never inherit "Adresse nicht ermittelbar" from the predecessor
   report without re-reading.
+- **The ZERO-delta re-list is its own case, and the delta being 0 is the most valuable fact in the
+  report — do not file it as "nothing changed".** #742 (170640796) vs **#116** (167170821), same
+  "Frau Cindy Wuttke", 14480 Am Stern, 68 m² / 3 Zi: `obj_totalRent` 1.880 and BOTH displayed bands
+  (1.250–1.382 kalt / 1.786–1.974 warm) byte-identical after **3 months**, old scoutId 404. Combine
+  it with the **Bezugstermin, which slips past a second time** (23.07.2026 → 09.09.2026, both
+  already elapsed at evaluation) and you get a hard market verdict the payload otherwise can't
+  give: *~3 months on the portal, no successor, no price cut*. Use it three ways — (a) it
+  **corroborates a Block-A "this ask is out of band" finding** (turns "the number looks implausible"
+  into "the market has already rejected it"); (b) it says the tenant will not move on price, so
+  make **Mietbeginn** the negotiation target instead (which is exactly what the elapsed date costs
+  in Block F); (c) it still does NOT fire the "reposted with different prices" Medium — same
+  inserent, delta 0,0 % — say "observed and entkräftet". Photo count can still move on a zero-delta
+  re-list (#116 had 0, #742 has 1), consistent with the "photos are regenerated" line above.
+  **Also re-check the predecessor's block scores rather than inheriting them:** #116 fired the
+  "2+ must-haves missing = 1,0" rule on an untouched `obj_*` mask, which the false-negative rule
+  forbids — a re-list is the moment to correct that, and the correction must be named in the report
+  so the re-score doesn't read as arbitrary.
+- **Validate `contact.phoneNumbers[].text` structurally before reading anything into it.** #742
+  listed a "Festnetznummer" `+49 491 5561895691`: area code 0491 = **Leer/Ostfriesland**, ~450 km
+  from the flat, and 3+10 = **13 national digits**, longer than any German number. With
+  `callButtonState: "hidden"` it is unreachable anyway ⇒ an IS24 placeholder/garbage entry. Report
+  it as a one-line data oddity in Block H, **never as a scam signal** (it is not on the signal list,
+  and an over-priced ad is not a bait pattern). Related, already seen on #621: a **mobile** number
+  filed under the `Festnetznummer` label — so the label is unreliable in both directions.
 - **Carry the older report's photo findings forward as evidence for the same flat** (#618's bath shot
   = Dachschräge + Badewanne) and state the source; over the chain you accumulate rooms that no single
   ad shows.
@@ -730,6 +754,54 @@ from firing.
 **Why:** quoting `obj_baseRent` as the price gives a 4,0–5,0 Block A on a flat whose real rent
 breaks all three profile price limits, and it is the exact number the search-result metadata carries,
 so nothing downstream corrects it.
+
+**Refinement to the reconstruction: a SIBLING REPORT'S NK rate for the SAME BUILDING beats the generic
+3,00–4,50 EUR/m² band, and the spread is worth hundreds of euros.** The 3,00–4,50 band is a city-wide
+prior; when your own `reports/` already contain a unit in the same building, use *that* NK rate as the
+load-bearing reading and quote the generic band as the conservative bracket. #738 (expose 170303885,
+Lotte-Pulewka-Str., Jutekiez Potsdam): generic band → KM 1.443–1.589, but #694 had derived **5,35 EUR/m²
+NK** for the very same 1863 converted factory hall (high rooms + large steel-muntin windows ⇒ genuinely
+high heat share) → KM **1.361**. A 228-EUR spread on one flat, and the same-building figure is the more
+probable one. Report the full band, name which end is load-bearing and why.
+**Why:** the generic band alone hands Block A a 1,6-EUR/m² uncertainty on a listing where a sibling
+report had already measured the answer.
+
+**Grep `data/pipeline.md` as well as `data/listings.md` + `reports/` when hunting same-street siblings —
+the live scan queue holds ads that are not evaluated yet, and a LATER ad often carries the house number
+an earlier report lacked.** On #738 the pipeline line for `170376388` read "Lotte-Pulewka-**Str. 41**"
+while the already-written report #694 for that same flat only had "PLZ 14473 + Prosa-Landmarke". It also
+independently confirmed #694's Kaution-derived Kaltmiete (1.425) as a *stated* figure, turning a
+derivation into a fact, and gave an address-precise live ask to score the new flat against.
+**Why:** the existing "grep the tracker for the street" rule named only `data/listings.md reports/`, so
+the sharpest anchor (an unevaluated sibling sitting in the same scan) was being missed.
+
+**An OLD-fabric exterior photo does NOT imply an old Baualtersklasse — a Denkmal CONVERSION picks the
+conversion-year row.** The existing exterior-photo rule reads fabric tells to date *post-1990* buildings;
+the inverse trap is sharper. #738's single photo showed limewashed irregular 19th-c. brickwork and
+**Rundbogenöffnungen** — which alone would point at the `bis 1948 · kein EA` row (8,17 EUR/m² in Spalte
+E). The decisive detail is the **fit-out inside the old opening**: steel-muntin glazing, a modern
+**projecting steel balcony with flat-bar railing set into the arch**, a full-height grey entrance-door
+pair with side light, new large-format paving. Historic shell + unmistakably contemporary inserts =
+**gutted conversion**, so the Mietspiegel rule "nur Sanierung auf Neubaustandard rückt die Klasse" fires
+and the row becomes the conversion year (2013–2020 → 12,39). That is a **factor 1,5** on the ortsübliche
+Vergleichsmiete and flips the Mietpreisbremse verdict. Corollary: a first-use-as-housing date after
+01.10.2014 also triggers **§ 556f** (permanently exempt) — so read a conversion photo for the *inserts*,
+not the masonry.
+**Why:** scoring the masonry would have booked "+71…+101 % über Mietspiegel" on a flat that is in fact
+market-conform for its class, and would have missed the § 556f exemption entirely.
+
+**On a TENANT_NETWORK ad the Objekt-Nr. is a per-ad UUID, so a same-building duplicate suspicion often
+CANNOT be settled — say so instead of guessing.** #738 vs #666: same converted hall, 4 Zi, 97 vs 98 m²,
+both tenant-posted from a sitting contract, and #666's Warmmiete was itself *derived* with a worst case
+(1.797–1.846) that brackets #738's stated 1.880. Objekt-Nr. `90145ef5-b0e0-407a-b6ba-de21eef22378` =
+random UUID ⇒ the identity test is unavailable, and the old-scoutId-404 test only works IS24↔IS24 (the
+sibling was on Immowelt, which returns **HTTP 403 to curl** — resolving it needs a browser). Correct
+output: score it as a new listing, write an explicit "open identity question" section listing the
+match indicators *and* the counter-evidence (here: #666 documents a Terrasse + included Stellplatz and a
+13,9 % lower warm rent; the hall holds 29 units of 67–125 m², so a ~97 m² 4-Zi is a common type), and
+turn it into one cheap contact question ("Terrasse? Stellplatz? welche Einheit?").
+**Why:** an unresolvable dedup either silently drops a live listing or silently inherits another flat's
+facts; naming it as open costs one paragraph and the answer arrives with the first reply anyway.
 
 **The genuinely data-free variant: NEITHER `PRICE_INFO`/`priceBar` NOR `PRICE_RATING` is present.**
 Both fallbacks above can be absent at once (#676: sections were only MEDIA/TOP_ATTRIBUTES/TAG_LIST/
