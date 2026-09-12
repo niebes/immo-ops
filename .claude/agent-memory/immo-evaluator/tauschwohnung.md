@@ -46,6 +46,23 @@ let the momentum carry you into a Swap-candidate: re-read the room/area floor, i
 that has ever decided these. And say so explicitly in the report, because a reader who sees three ✓
 will otherwise re-litigate the discard.
 
+**Highest side-1 score so far still died on the room floor — and the Suche was mid-prose, not
+labelled.** #719 (Immowelt `aae3a265-…`, Anbieter-ID 388078, Babelsberg): their flat scored **4,2/5**,
+the best Tauschwohnung yet (540 EUR kalt / 8,18 EUR/m², Mietpreisbremse eingehalten, **all** must-haves
+AND both nice-to-haves — Balkon *und* Terrasse, Keller, Garten, Badewanne). Side 2 still failed
+deterministically: „Leider ist es uns **zu viert** zu eng …, daher **suchen eine 4-Zimmerwohnung** in
+Babelsberg, Zentrum Ost, Potsdam West oder der Berliner Vorstadt." Two things to keep:
+  - **Trigger:** the Suche can sit in the *middle* of a narrative paragraph, introduced by
+    `daher suchen …` — no `Ich suche`, no `SUCHE:` label, no `mindestens`. Add `daher suchen|wir
+    suchen|suchen (wir )?eine` to the grep set; the reason clause („zu viert zu eng") is what marks
+    it, not a keyword.
+  - **A high side-1 score must not soften side 2.** A 4-person household upsizing out of 66 m² can
+    never take our 54,19 m²; the flat being excellent for *us* is irrelevant. Same "don't let
+    momentum carry you" failure mode as #683, one step earlier in the process.
+  - Secondary axis worth naming in the report: an explicitly **„Wichtig: Unterstellmöglichkeit für
+    die Fahrräder"** maps straight onto `swap_offer.lacks` (kein Keller, kein Stellplatz) — cite it
+    as a real con, not a soft one, when the partner marks it as important.
+
 **But "downsizer" is NOT automatically a side-2 pass — a second, independent kill axis is a
 qualitative BAUSUBSTANZ requirement, which our 2024 Neubau can never satisfy.** #579 was the first
 genuine downsizer (offers 4 Zi/89 m², seeks 3 Zi) and still failed categorically: the Suche was

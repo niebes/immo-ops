@@ -97,6 +97,29 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   12-month-old ad is a tell, not freshness. ⇒ **Add a case-insensitive
   `vergeben|bereits vergeben|nicht mehr verfügbar|reserviert` sweep over `classified.title` +
   `document.title` to the first call**; a hit = EXPIRED, stop before extraction.
+  ⚠ **…but `classified.title` is NOT reliably the ad headline — on the Tauschwohnung-GmbH feed it
+  holds the whole DESCRIPTION text.** #719 (`aae3a265-…`): `classified.title` was the 1,5-KB
+  Beschreibung („Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: 388078)…"), while
+  the real headline „TAUSCHWOHNUNG Suchen 4, bieten 3 Zimmer Altbau" lived **only** in
+  `sections.mainDescription.headline` (`document.title` is the generic „Wohnung 66 m² 540 € zur
+  Miete …" SEO string and carries no lister wording; `<h1>` count is 0). ⇒ Sweep
+  **`sections.mainDescription.headline` + `classified.title` + `document.title` together**. *Why:*
+  the #712 EXPIRED test is worthless on a feed where the headline is not in the field it reads —
+  a „VERGEBEN" headline would pass unseen.
+- ⚠ **`sections.location.geometry` is the Ortsteil POLYGON, not the flat's point — it cannot
+  falsify a district label.** #719: `district:"Babelsberg Nord"` while the description says
+  „Süd-Babelsberg"; `geometry` was a `MultiPolygon` (box ≈ 52,389–52,411 N / 13,077–13,139 O)
+  covering the whole Babelsberg area, and `isAddressPublished:false` means there is no point
+  anywhere in the payload. The polygon is drawn from the **same lister-chosen geo id** as the
+  `district` string (`rawData.geoIdHierarchy`), so it is not independent evidence. ⇒ When
+  `district` and the prose disagree, say the Teillage is unresolved and score the shared parent
+  Ortsteil; only an actual address settles it. *Why:* callers ask for the geometry cross-check as
+  if it were a coordinate pair — treating a polygon centroid as "the flat's location" invents a
+  precision that isn't there.
+- Minor: on RENTALS `sections.priceComparison` carries only `{hasMainPrice, isSale:false,
+  pricePerSqm, legalText}` — **no `data.value` / `low` / `high` / `markerPosition`**. The rich
+  percentile panel documented under „KAUF listings" is a Kauf-only feature; don't hunt for it on a
+  Mietwohnung (#719).
 - **Cheap liveness test — one `javascript_tool` call.** A deleted exposé still returns HTTP 200 and a normal-looking shell; the tell is that `document.body.innerText` collapses to **~540 chars** (nav + footer only) and contains **"Anzeige gelöscht — Diese Anzeige wurde bereits gelöscht"**, with `document.title` a bare `"Immowelt"` instead of the listing headline. So the standard first call (`{L, title, head:t.slice(0,900)}`) already answers liveness: `L < ~1000` ⇒ dead, stop, mark EXPIRED. Confirmed #542. *Why:* arriving from an aggregator you don't yet know if the ad is alive; this costs nothing and avoids extracting a phantom.
 - **invisible-playwright works first-try** (2026-07-11, #310): `new_page` → title already shows price/m²/address; `document.body.innerText` returns the FULL expose in one `evaluate_script` (no truncation), incl. Merkmale, Mietkosten, Sonstiges, Anbieter name + rating. No consent wall. Real gallery `<img>`s ARE present in the DOM here (filter out `/shared/images/` placeholders) — the "photos absent from DOM" note below was observed under CiC only.
 - **Mine the embedded JSON, not the rendered text, once you have the raw `innerHTML`.** One blob near the end of the document holds everything in clean form: `"hardFacts":{...,"facts":[{"type":"numberOfRooms"…},{"type":"livingSpace"…}],"price":{…}}`, `"sections":{"location":{"address":{"street","district","zipCode","city"},"geometry":{coordinates}}}`, the media array (`url` + `description` = the original filename + `classification.name`), and `"floorplans":[]` / `"videos"` / `"virtualTours"`. `floorplans:[]` is the definitive "no Grundriss" answer.
