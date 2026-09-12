@@ -78,6 +78,17 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   feature stays unconfirmed" rule can now be **resolved instead of hedged** — parse `details` and the
   list is complete either way (`details:null` = the preview WAS everything; `details.categories`
   populated = here is the rest).
+  ⚠ **…unless `sections.features` is `null` OUTRIGHT — then there is no Merkmale list at all and the
+  rule above has nothing to resolve.** #721 (`ddfc7e62-…`, Tauschwohnung GmbH): `sections.features`
+  === `null`, not `{preview, details:null}`. So there is no Ausstattungsmaske that could be left
+  unticked — the must-haves are **unanswerable**, not "declared absent". Consequence for scoring:
+  a 0-hit `balkon|terrasse|keller` sweep on such a page is **weaker evidence than usual**, because
+  those fields were never offered to the lister; say "unbestätigt" and put the question in Next
+  Steps rather than scoring it as missing-and-known. The Tauschwohnung-GmbH feed is the reliable
+  producer of this shape — it ships `location`, `hardFacts`, `price`, `key`, `mainDescription` and
+  nothing else of substance (`documents.files:[]`, `areaDescription`/`extendedInfoDescription` are
+  bare `{headline}` stubs). *Why:* `d.sections.features.preview` throws on `null` and reads like a
+  broken parse of an otherwise complete 616-KB payload.
   **⇒ Treat the node-script path as the DEFAULT first move on Immowelt, ahead of CiC.**
   Two gotchas in the harness itself: (a) set `IP_HEADLESS/IP_LOCALE/IP_TIMEZONE/IP_STORAGE_STATE` and
   `cwd: ROOT` in the spawn env (`tmp/drive.mjs` omits them); (b) the driver emits a **second** line
@@ -86,6 +97,18 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   "CiC FIRST on Immowelt" line in `evaluate.md`, which should be rewritten.*
   It is the cheapest *first* move, not just a CiC fallback: one `node` script (spawn driver → wait for `{ready:true}` → one `eval` cmd) answered liveness in ~40 s with no MCP round trip and no permission prompt. A **deleted** expose comes back as `title:"Immowelt"`, `L:542`, "Anzeige gelöscht" — i.e. this path alone settles the aggregator-EXPIRED question.
   Verified 2026-08-15 (#596): expose fetched in well under a minute, `blocked=false`, **no truncation** — one call returned `innerText` + the whole 632 KB `documentElement.innerHTML`. Wrap it with your own `setTimeout` kill so a stall fails fast. Two passes is the cheapest shape: pass 1 = `{title, innerText, imgs}` for liveness + fields, pass 2 = raw `innerHTML` to disk for the offline keyword/JSON mining below. *Why:* CiC is not always available, and without this the doctrine's only remaining tier is the one that wedges.
+- **Downloading the gallery: `mms.immowelt.de/*.webp` actually serves JPEG — `dwebp` fails, just
+  rename to `.jpg`.** #721: all 12 images came back `BITSTREAM_ERROR` from `dwebp`, while `file`
+  reported „JPEG image data, JFIF 1.01, 1024x768". The `.webp` in the URL is content-negotiated and
+  the driver/curl gets JPEG regardless of Accept header. Recipe that works: pull
+  `domains.medias.images[].url` from the payload, `curl -A <Chrome UA>` each one (the `ci_seal` query
+  param is mandatory — strip it and you get 403), `cp x.webp x.jpg`, then
+  `convert \( 1.jpg … +append \) … -append -resize 1800x contact.png` and Read the contact sheet.
+  One Read then answers Zustand, Badezimmer, Balkon-Sichtung and Baualter together. *Why:* the
+  `dwebp` failure reads as "the images are corrupt/unavailable" and pushes you into scoring Block D
+  and the must-haves blind on a listing whose photos are the ONLY evidence (the Tauschwohnung feed
+  states no Baujahr, no EA, no Merkmale). On #721 the sheet proved Gründerzeit + two bathrooms +
+  a Badewanne + one room in raw shell — none of it in the text.
 - ⚠ **A live, complete page is NOT proof the flat is available — read the ad TITLE for `VERGEBEN`.**
   #712 (`001f6218-…`, Tauschwohnung GmbH): HTTP 200, `blocked:false`, 623 KB payload, every field
   populated, `tags.isNew:true` — and `classified.title` = „**TAUSCHWOHNUNG VERGEBEN:**

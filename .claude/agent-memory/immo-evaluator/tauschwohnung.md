@@ -76,6 +76,36 @@ cheaper warm than our own Golm flat, and side 2 still failed on four axes at onc
 consecutive record side-1 scores have now died on the room floor; the pull to "surface it anyway" is
 strongest exactly here, and the trigger that finds the Suche is the only thing standing in the way.
 
+**The OTHER outcome shape: an ad with NO Suche at all — and that is the only thing that has ever
+reached `Swap-candidate`.** #721 (Immowelt `ddfc7e62-…`, Anbieter-ID 449780, Babelsberg Nord, 5 Zi /
+110 m² / 2.000 EUR kalt): the whole description is three sentences of platform boilerplate —
+*„Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: 449780) Willkommen in meiner
+geräumigen 110 m² Wohnung … Ich freue mich auf einen Wohnungstausch!"* — and **the full documented
+trigger set returns zero hits over the 616-KB payload** (`Ich suche`, `wir suchen`, `daher suchen`,
+`auf der Suche nach`, `Da wir …`, `im Gegenzug`, `SUCHE:`, `Du suchst`, `Tausche … gegen`,
+`Gesuchte`, `mindestens|min\.|ab \d+ ?m²`, `maximal|max\. Miete`, `zwei Wohnungen|Gemeinschaft`,
+`für \d Personen|zu klein|Familie|Nachwuchs`). There are **no structured search fields either** —
+the Immowelt feed of the Tauschwohnung GmbH carries no NUXT `search` dict, no `selectedGeos`, no
+`radius`, so the #610 „`radius: 0` settles the area axis" shortcut has nothing to read. Three things
+to keep:
+  - **Distinguish "no Suche" from "Suche I failed to find".** Zero hits on the *complete* trigger
+    set **plus** a description under ~500 chars that is entirely boilerplate = genuinely absent.
+    Confirm by checking the description length, not by adding more greps.
+  - **Then `evaluate.md` step 4 forces the lenient outcome: surface as `Swap-candidate`, flagged
+    "Suche unknown — verify on contact". Do NOT substitute the base rate for the missing text.**
+    The temptation is strong and it is wrong: on #721 the a-priori is terrible (we would be asking a
+    5-Zimmer/110-m² household to take 2 Zi / 54,19 m² — **−50,7 % Fläche, the biggest downsize
+    `swap_offer` has ever demanded**), but "5-room households don't seek 2 rooms" is a statistic, not
+    a stated floor, and the rule discards only on a *stated* one.
+  - **Write the verdict as "Side 2 unanswered, not passed", and pre-commit the decision rule in Next
+    Steps** — one message asking only for the Suche, no documents; a reply naming any Zimmer-Floor
+    ≥3 or Mindestfläche ≥60 m² → immediate `Discarded`. Two axes do genuinely favour us and belong in
+    the message: Golm **is** Potsdam (same city, no commuter-belt leniency needed) and our
+    1.025,25 EUR kalt is **974,75 EUR/month cheaper** — the largest rent lever the offer has ever had.
+  *Why:* five consecutive swaps in one batch died on a stated room floor, so the reflex by #721 is to
+  write the sixth discard from the pattern. The rule exists precisely for the case where the pattern
+  has no evidence behind it — and it is, so far, the only route to a candidate at all.
+
 **But "downsizer" is NOT automatically a side-2 pass — a second, independent kill axis is a
 qualitative BAUSUBSTANZ requirement, which our 2024 Neubau can never satisfy.** #579 was the first
 genuine downsizer (offers 4 Zi/89 m², seeks 3 Zi) and still failed categorically: the Suche was
