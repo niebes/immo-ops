@@ -997,7 +997,29 @@ plus die drei Havelländer. Hier die ganze Liste (Quelle: MIL Brandenburg / Kabi
 - (+ Potsdam selbst und die übrigen Altfälle der 19er-Liste)
 
 **Nicht auf der Liste** und daher regelmäßig als Gegenprobe gebraucht: **Beelitz**, Michendorf,
-Borkheide, Brück, Nauen, Ketzin, Brandenburg an der Havel.
+Borkheide, Brück, Nauen, Ketzin, Brandenburg an der Havel, **Schwielowsee** (Caputh/Ferch/Geltow).
+
+### Gemeinde **Schwielowsee** (Caputh / Ferch / Geltow, 14548, Potsdam-Mittelmark) — Komplettsatz
+Läuft regelmäßig in die Potsdam-Wohnungssuche ein, weil Caputh nur ~8 km von Golm liegt.
+- **Mietpreisbremse: NICHT anwendbar, und zwar aus zwei unabhängigen Gründen** — (1) Schwielowsee
+  steht **nicht** auf der 36-Gemeinden-Liste ab 01.01.2026 (aus PM nur Kleinmachnow, Nuthetal,
+  Stahnsdorf, Teltow, Werder (Havel)); (2) bei Baujahr ab 2014 greift zusätzlich **§ 556f BGB**.
+  Beide nennen, sonst liest es sich, als gäbe es noch einen Hebel.
+- **Kein qualifizierter Mietspiegel.** Ortsüblicher Proxy = gleichaltriges **Potsdamer** Feld,
+  ausdrücklich als Proxy kennzeichnen (für Bj. 2013–2020, >90 m²: 12,39 (10,31–14,00)).
+- **Angebotsanker 2026:** Gemeindeschnitt Wohnungen **≈ 12,42 EUR/m²** (Q1/2026, +3,3 % ggü. 2025);
+  **gefragte Wohnlagen ≈ 17,56 EUR/m²**, günstigere Lagen ≈ 14,40. Die Spreizung ist groß — ein
+  Preis nahe 12 ist in Caputher Premiumlage **günstig**, nicht verdächtig.
+- **Verkehr:** Bahnhof **Caputh-Schwielowsee**, **RB23 ca. 13 Min. nach Potsdam Hbf, aber nur
+  Stundentakt**; Bus 607/613. Nach **Golm** immer mit Umstieg in Potsdam Hbf ⇒ ~30–40 Min.
+  ⇒ faktisch autoaffin, deshalb **immer nach Stellplatz fragen** (in Exposés hier oft gar nicht
+  erwähnt). Zweiter Bahnhof Caputh-Geltow liegt auf derselben Linie.
+- **Block B = 3,0** für Wohnungen: außerhalb des Suchgebiets (Nachbargemeinde, `acceptable_areas`
+  leer ⇒ *kein* Hard Blocker), aber die Lagequalität (Schwielowsee-Ufer, Caputher Gmünd mit Fähre,
+  volle Nahversorgung im Ort) trägt gegen die Gebietsabweichung an. Kalibriert auf #714.
+*Why:* ohne diesen Block wird für jede Caputh-Wohnung Regulierungsstatus, Proxy-Feld und
+RB23-Taktung neu recherchiert — und die Reflexannahme „Brandenburger Nachbargemeinde → reguliert
+wie Werder" ist hier falsch.
 **Merke außerdem:** § 549 Abs. 2 Nr. 1 BGB nimmt **Wohnraum zum vorübergehenden Gebrauch**
 (möbliert/auf Zeit/Monteur) ohnehin aus den §§ 556d ff. heraus — bei solchen Anzeigen also
 beide Begründungen nennen (Gemeinde reguliert ja/nein **und** § 549), nie nur eine.
