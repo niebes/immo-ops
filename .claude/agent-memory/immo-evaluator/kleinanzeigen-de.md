@@ -42,6 +42,18 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     derived NK 417). Always do the arithmetic; report both the stated and the derived NK and put
     "NK klären" in next steps. *Why:* silently trusting the NK field overstates the monthly cost by
     the delta, and trusting the Warmmiete hides that one of the poster's numbers is wrong.
+    - **Sub-case that is decidable by pure arithmetic: the stated `Warmmiete` is LOWER than the
+      heading** (#718: heading 1.350 €, Nebenkosten 250 €, `Warmmiete` **1.300 €**). Unlike #520
+      (where warm > kalt and only the delta is wrong) this is *internally impossible*, so one field
+      is simply junk — do NOT treat it as a #356-style coin flip. Default to the form's own
+      semantics: Kleinanzeigen's Immobilien form labels the headline field **"Preis" = Kaltmiete**
+      with Nebenkosten/Warmmiete as separate optional fields, so score heading = Kaltmiete and
+      derive warm = heading + NK, present the stated Warmmiete as the discarded reading in a
+      two-row table, and put "Kalt/Warm klären" first in next steps. Sanity-check whether BOTH
+      readings clear the profile caps — if they do, the ambiguity costs nothing but a contact
+      question; if they straddle a cap, escalate it to the top of the report.
+      *Why:* on #718 the two readings are 17,31 vs 13,46 EUR/m² — both inside the 18-EUR/m² cap, so
+      the honest move is to score the conservative one and ask, not to agonise over which is real.
   - **Third price variant — heading == "Warmmiete" field WHILE NK *and* a separate "Heizkosten" field
     are both filled** (#522: heading 898 €, Warmmiete 898 €, Nebenkosten 125 €, Heizkosten 125 €).
     Unlike #356 (NK empty) the ad gives you enough to derive the other reading, so present BOTH as a
@@ -293,6 +305,17 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
       *Why:* Reading 14 images to find one costs ~14× the tokens, and the ratio test is one Bash call.
   - **0 gallery images happens on ordinary private ads too**, not just Tauschwohnung ads — cap Block D
     at 3,0 when it's 0.
+    - **A 1-image ad can still be a 0-real-photo ad: the single image is sometimes a phone snapshot of
+      an old architect's Bauzeichnung** (#718 — 1084×1600, whole 3.OG level, hand-annotated,
+      "ZWISCHENPODEST 2. ZU 3.OG"). Apply the D cap as if there were no photos (condition
+      unverifiable), but mine the drawing anyway — on #718 it alone supplied the **Baualtersklasse**
+      (blueprint style + Zwischenpodest-WC ⇒ Altbau ≤1948, which sets the Mietspiegel field and
+      therefore the whole Mietpreisbremse verdict), the **absence of a Balkon** (turns an unstated
+      must-have into a positively-refuted one) and a **room-count contradiction** (drawing shows
+      4 Zimmer + Küche on the ~78 m² footprint the ad sells as "3 Zimmer"). Do not credit its
+      fixtures as current equipment (the tub drawn in the Bad is the 1919 Urzustand).
+      *Why:* counting it as "1 photo" skips the D cap, and ignoring it throws away the only
+      evidence on the ad for Baujahr, Balkon and Zuschnitt.
   - **Counting photos: DEDUPE the `data-imgsrc` URLs — the raw grep count is 2× the real photo count.**
     Each gallery photo is emitted twice, once as `…?rule=$_59.AUTO` (thumb strip) and once as
     `…?rule=$_57.AUTO` (main slide), same image UUID. So count *unique* UUIDs:
