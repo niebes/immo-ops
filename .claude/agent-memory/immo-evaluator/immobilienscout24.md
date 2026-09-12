@@ -596,6 +596,25 @@ gap is this large.
 **Why:** without the re-let line, Block A scores a rent the user will never sign; with the scam signal
 fired, a perfectly normal below-market Altvertrag reads as fraud.
 
+**Inverse case — a Mieternetzwerk rent ABOVE the Ortsteil's own Angebots level exists; test the
+direction, don't assume "Altvertrag = billig".** #747 (expose 170468907, Waldstadt I, 60 m², 3 Zi):
+735 EUR kalt = **12,25 EUR/m²** against a Waldstadt I/II new-contract level of **8,5–11 EUR/m²**
+(#123/#227/#504/#622) and ~+72–77 % over the ortsübliche Vergleichsmiete of every plausible Bestands-
+Baualtersklasse. Three consequences the below-market template gets backwards:
+- The re-let estimate flips from **risk to opportunity** — "Die Miete wird sich eventuell anpassen"
+  can mean *downward*, and § 556e only lets the landlord carry the Vormiete forward, never raise past
+  it. So the § 556g Abs. 3 Auskunft is not a footnote, it is Block A's headline lever.
+- **Block A stays high on the budget axis and must be docked on the relative axis**: 61 % under
+  `max_kaltmiete` still earns the 5,0 base, then −0,5 Mietspiegel (`_shared.md`) and a further −0,5
+  for "over its own Ortsteil level AND an unexplained NK quota, with no `priceBar` to check it" →
+  4,0. Scoring it 4,8 like a genuine Altvertrag (#622) hides the whole finding.
+- **Cross-check the NK/m² in the same breath**: 315 EUR/60 m² = 5,25 EUR/m² vs the Potsdam norm
+  3,00–3,80. A high kalt *and* high NK points at the ad, not at a wrong m² denominator (the existing
+  one-directional NK rule) — report it as an open cost question.
+**Why:** the two documented precedents (#614, #622) both ran below market, so the class reads as
+"sitting tenant's cheap old contract" by reflex; applied here it would have praised a flat that is the
+most over-Mietspiegel Bestand rent we have scored in Waldstadt I and skipped the one real lever.
+
 **Same rule applies to the plain-private Nachmietergesuch class (`isTenantNetwork: false`) — and
 there the sharpest re-let anchor is usually sitting in `pipeline.md` already.** When the SAME street
 has landlord-marketed sibling units live in the same scan, quote those instead of an Ortsteil average:
