@@ -717,6 +717,14 @@ Ortsteile, Must-haves EBK + Balkon, max 1.100 EUR warm) are the real, load-beari
 reports (and into `potsdam-mietspiegel.md`) as verified facts.
 
 ## Getting the partner's Suche (the side-2 input) — no browser needed
+⚠ **Von Immowelt aus gibt es keine Abkürzung zur NUXT-Suche: `tauschwohnung.com/wohnung/{Referenznummer}`
+ist ein 404.** Die Immowelt-`Referenznummer` auf Tauschanzeigen ist die **Anbieter-ID** (= die Zahl aus
+„Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: N)"), **nicht** die Housing-ID der
+Plattform — geprüft #711 (424471 → HTTP 404, „Seite nicht vorhanden"). Gleiche Falle wie bei der
+IS24-Objekt-Nr. weiter unten. ⇒ Von Immowelt/Kleinanzeigen aus **immer** auf den Freitext setzen; den
+curl nur ausgeben, wenn ein echter `twg.click`-Link im Inserat steht. Kein Verlust, solange die Suche
+quantifiziert ist (#711: „mindestens 4 Zimmern und 100 m² … Maximalmietpreis 2250 Euro" — vollständig).
+
 The IS24 expose NEVER contains the Suche. The expose's "Weitere Links" section has an
 **"Original-Exposé"** link (`https://twg.click/is24-{objektNr}-NN`) that 302s to the
 tauschwohnung.com detail page — plain `curl -sL` with a Firefox UA returns the full SSR

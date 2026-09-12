@@ -123,6 +123,18 @@ liegt, ist in Berlin der **Normalfall**, nicht die Ausnahme — trotzdem jedes M
     Tauschanzeigen genau das (`city:"Charlottenburg-Wilmersdorf"`, `district:"Grunewald"`). Bezirk vor dem
     Nachschlagen per Nominatim auf die PLZ prüfen; der Bezirk entscheidet nur den Anker, die
     Mietspiegelzeile hängt an Baualter × Wohnlage × m².
+    **Das Müllpaar `district:"Grunewald"` + og:title „Westend" ist im Tauschwohnung-Feed der
+    Regelfall (#655, #656, #657, #658, #683, #696, #711) — beweglich ist nur die PLZ (10585, 10627,
+    13629, 14059 …). Nie aus `district` schließen; immer PLZ → Nominatim.** Zusätzliche
+    Gratis-Gegenprobe: `sections.location.geometry` ist bei diesen Anzeigen das **Grunewald-Polygon**
+    (Bbox 13,1876–13,2727 O / 52,4665–52,5087 N) — liegt der PLZ-Zentroid außerhalb dieser Box, ist
+    die Grunewald-Angabe widerlegt, ohne eine zweite Quelle zu ziehen (#711: 10627-Zentroid
+    52,5080 / 13,3030 = ~2,1 km östlich davon ⇒ Charlottenburg).
+- **Charlottenburg (Ortsteil, 10585/10625/10627/10629): 18,02 EUR/m² Mittel, Spanne 10,58–26,65**
+  (Websuche 09/2026, #711); IS24 Q2/2026 nennt für den Ortsteil **20,92**, für den **Bezirk**
+  Charlottenburg-Wilmersdorf ~**15,30**. Bezirks- und Ortsteilwert liegen also ~37 % auseinander —
+  immer den Ortsteilwert zitieren und die Quelle dazu. Eine Tausch-/Bestandsmiete um 10 EUR/m² liegt
+  hier ~44 % unter dem Angebotsanker und trotzdem **innerhalb** der ortsüblichen Spanne (6–12).
 - **Grunewald (14193): 17–22 EUR/m²** — Spitzensegment Berlins, steht so auch als
   `max_price_per_m2: 22` in der Suchgruppe "Berlin Grunewald flat rental" in `config/profile.yml`.
   Ein Inserat **über 22** ist damit teuer *selbst am Angebotsmarkt*, nicht nur gegen den Mietspiegel

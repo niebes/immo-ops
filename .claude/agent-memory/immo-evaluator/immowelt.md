@@ -110,7 +110,13 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
       is unsafe by this rule — the Altbau-Seitenflügel conclusion is probably still right, but it was
       not actually established.
   - **`rawData.tags` is a free re-check/dedup panel: `{"has3DVisit","hasBrokerageFee","isNew"}`.**
-    ⚠ **…but `tags` is OPTIONAL — on swap/Tauschwohnung ads `rawData` can carry only
+    ⚠ **The panel lives in TWO places and the key set VARIES — `Object.keys()` before reading a
+    field.** #711 (`2bbd4e87-…`, Tauschwohnung GmbH): `rawData` had no `tags`, but the *top-level*
+    `classified.tags` did, with a different set — `{hasBrokerageFee, isNew, hasFloorPlan,
+    hasVirtualTour, hasVideo}`, **no `has3DVisit`**. So before concluding "this ad has no tags",
+    check `d.tags` as well as `d.rawData.tags`. Bonus: `hasFloorPlan` is a one-field Grundriss
+    check that agrees with `domains.medias.floorplans.length`.
+    ⚠ **…and `tags` is OPTIONAL — on swap/Tauschwohnung ads `rawData` can carry only
     `{distributionType, propertyType, geoIdHierarchy, distributionSubType}` and no `tags` at all**
     (#710, `f7e26e14-…`, Tauschwohnung GmbH). Then `hasBrokerageFee`/`isNew` are simply unavailable —
     `Object.keys(d.rawData)` first, and fall back to a case-insensitive `provision|courtage` sweep for
@@ -167,6 +173,15 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
     a differing rating is NOT evidence against a dupe, and neither number should override the
     independent ProvenExpert/Jacasa figures used in Block H.
   - **The `Merkmale` list can legitimately hold a single entry** (#596: only `Bezug: 2026-08-31T00:00:00Z`). That is a real, extremely sparse listing, not a failed extraction — don't keep re-fetching looking for the missing Ausstattung.
+  - ⚠ **On the Tauschwohnung-GmbH feed the images carry NO `classification` key at all** — each
+    entry is just `{id, key, url, description:"Bild N"}` (#711, 5 images). So the
+    photo-classification amenity probe below is simply **unavailable** on swap ads; that is a feed
+    property, not a failed parse, and it must not be read as "no outdoor photo ⇒ no Balkon".
+    Photo COUNT still works (`medias.images.length`, matches the „Alle N Bilder ansehen" headline),
+    and realness is settled by fetching one `url`: a genuine amateur photo comes back ~37–60 KB at
+    1024×768 (`curl … | file`), a logo/placeholder tile is tiny and uniform. *Why:* without this you
+    either burn calls hunting a classification histogram that was never emitted, or you cap Block D
+    for "no real photos" on a listing with five of them.
   - **Photo classifications double as an amenity probe.** 12 photos all classified as interior rooms (LIVING_ROOM/BEDROOM/KITCHEN/BATHROOM/HALLWAY/CLOSET/HOME_OFFICE) with **no** outdoor/balcony frame is decent evidence that there is no Balkon/Terrasse when the text is silent — enough to take the Block-E must-have penalty, phrased as "not evidenced" rather than "confirmed absent".
 - **Second "no Energieausweis" shape — the lead-gen prompt, and it means NO data, not an exemption.**
   `sections.energy = {features:[{type:"heatingSystem",…}], hasScales:false}` and the page renders
