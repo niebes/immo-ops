@@ -414,6 +414,20 @@ camera-real, no cap fired.
 **Why:** an unfamiliar caption shape is the only thing standing between "download and look" and a
 wrongly-fired render cap.
 
+**Fifth form — and the only one that carries a DATE: `WhatsApp Image YYYY-MM-DD at 0`** (IS24 truncates
+the caption at ~30 chars, so the time is cut off). Phone-original like the other four → no cap. But
+unlike them the caption **timestamps the shoot**, so read it as a second datum: on #734 (expose
+170422294, Kirchsteigfeld) the two shots were dated **27.04.2026** on an ad evaluated 12.09.2026 and
+showed a **stripped, empty** flat (no EBK, only a freestanding hob, bare walls) — which contradicts the
+Mieternetzwerk framing "posted by the *current* tenant, Nachvermietung ab Oktober". Use it two ways:
+(a) a caption date months before the scan = the flat has plausibly stood **empty** since then ⇒ staleness
++ a price-negotiation lever, and a first-contact question ("steht sie schon leer, ist der Termin
+verschiebbar?"); (b) an **empty** flat in the photos is a *positive* — nothing to take over, so the
+Möbelübernahme/Ablöse leg of the Mieternetzwerk warning falls away; say so instead of boilerplating it.
+**Why:** the four documented forms are all undated, so the existing rule stops at "it's a real photo";
+the WhatsApp form hands over the one date the payload otherwise lacks entirely (there is no
+`onlineSince` in the mobile API), and it reframed both Block F and Block G on #734.
+
 **The single image can be a GRUNDRISS wearing a camera-original caption — `obj_picturecount: 1` is
 NOT `1 real photo`. Download before you decide the Block-D cap, and mine the plan when it is one.**
 #741 (expose 170664384, Bornstedt, 4 Zi/86 m²) shipped exactly one `MEDIA` PICTURE captioned
