@@ -25,6 +25,21 @@ flat, i.e. a normal Vonovia rental rather than the landlord channel of a swap. G
 either invents an Ablöse-free "landlord channel" that does not exist, or drops a genuinely new listing
 as a duplicate.
 
+**Cheapest first test in a same-address cluster: divide Kaltmiete by m². If it lands on a round
+EUR/m², the whole house is priced off one table and rent+size carry ZERO identity information.**
+talyo. lists the Drewitz Hochhaus "Tower" (Gerlachstraße 31/33, 14480) at **exactly 13,00 EUR/m²
+across every unit** — #293 1.219,27/93,79 and #753 1.221,87/93,99 both = 13,00, and #361
+(1.379,17/106,09) too. So two ads that differ by 2,60 EUR rent and 0,20 m² look like the same flat
+and are not: `obj_floor` **5 vs. 19 von 22** plus Objekt-Nr. `1236/WE172` settle it in one curl.
+The NK/Heizkosten also scale with m² (140,69/123,80 vs. 140,99/123,13), so the "Nebenkosten
+structure" discriminator degrades to noise in this kind of estate — use Etage + Objekt-Nr. only.
+Then curl the OLD scoutId: 169130837 (#293) is **404**, i.e. that unit is gone and the new ad is an
+*additional* unit, not a re-list — say which of the two it is in the report, because a re-list gets
+the price-delta/negotiation framing and an additional unit does not.
+**Why:** #753 arrived pre-flagged "#293 carries the same title"; the titles ARE identical (talyo
+auto-generates them per house) and the numbers agree to ~0,2 %, so without the Etage/Objekt-Nr.
+check it would have been written up as a duplicate of an already-scored flat.
+
 ##### Cross-portal "re-list" claims: **normalise the RENT TYPE before you believe the delta**
 When the suspected earlier ad sits on another portal (typically a Kleinanzeigen Nachmieter post),
 the two prices are often **not the same quantity**. Private Kleinanzeigen ads routinely quote only
@@ -398,6 +413,22 @@ ends in `.../format/webp/quality/80`; edit that path segment to `format/jpg` and
 JPEG the Read tool opens directly** (one `curl -sL`, no conversion step). `dwebp` is installed as a
 fallback if a URL shape ever resists the swap. Verified on #558.
 
+**Counter-case to the "`IMG_####` = phone-original = trustworthy" rule: a big gallery can still be
+0 real interior photos. Two independent checks — the caption WORD and what the frame shows.**
+Commercial Verwalter mark example shots in the caption itself: #753 (expose 170575726, talyo.,
+Gerlachstr. 31/33) had `obj_picturecount: 17` with **15 captions literally reading `BEISPIELFOTO`**
+— a machine-readable equivalent of the `_shared.md` "Visualisierung/Symbolbild" keyword scan, so
+grep the MEDIA captions for it *before* the description text. The remaining two were
+`IMG_4155`/`IMG_0707`, which the caption-shape rule above scores as trustworthy phone originals —
+but downloading them showed the **building from the street** and the **entrance foyer**: zero frames
+of the advertised unit. So the Block-D 3,0 cap fires at `picturecount: 17`. **Rule: count real
+photos of the INTERIOR OF THIS UNIT, not real photos.** Exterior/foyer shots are not worthless
+though — the facade frame independently confirmed `obj_balcony: n` (continuous glass curtain wall,
+no balconies on any storey), which upgraded "must-have unconfirmed" to "must-have absent" and is
+usually the hardest amenity fact in a data-poor ad.
+**Why:** counting 2 `IMG_####` captions as real photos would have skipped the D cap and implied the
+flat's condition was verifiable, when not one pixel of its interior is shown.
+
 **Fifth case: the single "photo" is a GRUNDRISS — it moves Block E, never Block D.** #735 (expose
 170405609, Max-Born-Str., Am Stern) had `obj_picturecount: 1` with an iOS-UUID caption
 (`480fefe3-ca3a-45c2-8c4a-7b9755`), and the download turned out to be a phone shot of a *coloured
@@ -668,6 +699,14 @@ Scoring consequences:
 - **Block C carries the ambiguity** — don't score the stated figure at face value and don't silently
   substitute your hypothesis. #555: C 3,5 (5,0 if it's really 80 m², ~2,5–3,0 if 180 m² is real,
   since 180 is 50 % over `max_m2` 120), with the note that C isn't final until the tenant confirms.
+  **Calibration scale for an OVER-`max_m2` flat (the `_shared.md` rubric only defines UNDER-minimum
+  penalties, so every run re-invents this):** don't mirror the rubric symmetrically — an over-size
+  flat is usable where an under-size one is not, and the cost consequence the cap exists for is
+  already carried by Block A. Anchors: **+50 % → C 2,5–3,0** (#555, 180 m²), **+25 % → C 3,0**
+  (#744, expose 170615262, 150 m² / 6 Zi in Bornstedt, also +20 % over `max_rooms`). Score the
+  residual harm explicitly (NK/heating on the extra m², furnishing, cleaning), not the raw overshoot.
+  **Why:** a strict mirror of "below minimum by 20 %+ → 1,0" would have put a flat that is 27 % under
+  the Warmmiete cap at C 1,0 and dragged the global score a full 0,3 below what the listing deserves.
 - **Do NOT let it fire the "price >20 % below Mietspiegel" High scam signal** — it is a data-entry
   artefact, and these ads carry no `priceBar` to confirm an address-precise band anyway. Report it as
   a data-quality warning in its own section, and make "Wohnfläche laut Mietvertrag?" contact
@@ -695,6 +734,7 @@ On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese
 - **On a Mieternetzwerk exposé the decoded Telekom address is the ONLY address you get — sanity-check WHAT the building is, not just where it is.** With `media: []` / `obj_picturecount: 0` there is no photo to corroborate it (contrast the photo-verification corollary further down). On #557 it decoded to Lerchensteig 49, 14469 Potsdam — publicly documented as the AWO "Wohnanlage Bornim", a Gemeinschaftsunterkunft in Modul-/Containerbauweise that the Landeshauptstadt rents from AWO Bezirksverband Potsdam e.V. A privately posted 4-Zi-/75-m²-Nachvermietung there does not obviously fit. One WebSearch on "{Strasse} {Hausnr} {PLZ} {Ort}" costs little and belongs in the workflow whenever the exposé is photo-less; report it as a **data-integrity flag + contact question #1**, not as a scam signal (the price sat *above* the priceBar band, so no bait pattern).
   - **But `obj_telekomInternetUrlAddition` is NOT always there — when it is missing there is NO address path at all, so stop hunting.** #612 (expose 168700892, Drewitz 14480) carried only `obj_telekomInternetUrlBase` (the generic Telekom tariff URL, present on every exposé) with **no** `…UrlAddition`, plus `obj_street`/`obj_houseNumber` = `no_information`, `MAP.addressLine1` = "Die vollständige Adresse der Immobilie erhältst du vom Anbieter.", `TRAVELTIME.isBlocked: true`, and a description that names no street. Confirm the absence with one `grep -c telekomInternetUrlAddition {payload}` → `0`. (Same shape again on **#618** (expose 170153489, Babelsberg Süd 14482) — i.e. this is a recurring Mieternetzwerk variant, not a #612 one-off; the "decoded Telekom address is the ONLY address you get" line above must be read as "…when it is present at all".) Consequences to write into the report rather than re-derive: the flat is only **PLZ-genau** locatable, the tracker-grep-by-street trick and the WebSearch building lookup (Baujahr/EEK/Verwalter) are both **unavailable**, so Block B falls back to the Ortsteil prior and the Mietspiegel row must be **bracketed** over the plausible Baualtersklassen (Drewitz: 1971–1990 field ~6,26/6,88 vs. 1991–2008 field ~9,91 — a swing that flips the Mietpreisbremse verdict from "+12–23 % darüber" to "−22 % darunter"). Make "Straße/Hausnummer?" a first-contact question.
   **Why:** the sentence above reads as if the Telekom param is always available; spending a search pass on an address that simply is not in the payload wastes the evaluation, and silently picking one Baualtersklasse fakes precision the listing does not support.
+  - **Fourth state: the street can be named in the DESCRIPTION ALONE** (title purely generic, e.g. "Wohnen mit Charakter: 3-Zimmer-Wohnung in Potsdam"), with `…UrlAddition` absent. Don't require the title/description *pair* of the third state below — one generator slot is enough. Apply the same consistency test (does the named street lie inside `geo_ot`/`obj_zipCode`?) and then the street is usable. #745 (expose 170535882): description "in der Straße **Am Speicher**" + `geo_ot: südliche_innenstadt` / 14473 → Speicherstadt, street-precise, no house number. **Why:** reading the third state as "needs both" downgrades a usable street to PLZ-only.
   - **Third state, between "Telekom address" and "PLZ only": the STREET can be named in the auto-generated TITLE *and* the auto-generated description while `…UrlAddition` is absent.** The rule above ("the title's place name is noise") was written against a *city* mismatch (#557 said Brandenburg a. d. Havel for a Potsdam flat) — it must NOT be read as "ignore the title's street". IS24's generator interpolates the tenant's form fields, so when title and description independently carry the **same street** and that street is consistent with `geo_ot` / `obj_regio4` / `obj_zipCode`, you have a **street-precise (not house-number-precise)** location for free. Test it that way: does the named street actually lie inside the stated PLZ/Ortsteil? If yes, use it — for Block B, for the tracker-grep-by-street trick, and for the WebSearch building lookup. Seen on **#648** (expose 169762664): `…UrlAddition` absent, `obj_street`/`obj_houseNumber` = `no_information`, `TRAVELTIME.isBlocked: true` — yet TITLE "Zuhause mit drei Zimmern **in der Hubertusallee**" + description "Dieses einladende Apartment **in der Hubertusallee**" + `geo_ot: grunewald` + `obj_zipCode: 14193` pin it to one Grunewald street. Still bracket the Baualtersklasse (a street is not a building) and make "Hausnummer?" a contact question — a long street can straddle very different noise/traffic situations at its two ends.
   **Why:** treating the missing Telekom param as "PLZ only" would have thrown away a usable street on a listing that had literally no other data, and downgraded a `preferred_areas` bullseye to a coarse Ortsteil guess.
   - **Fourth, best state: `TITLE.title` IS the bare postal address, house number included** — e.g. `"Stormstraße 16"` as the entire title (#737, expose 170312602, Potsdam West), while `MAP.addressLine1` = "Die vollständige Adresse … erhältst du vom Anbieter.", `TRAVELTIME.isBlocked: true`, `obj_street`/`obj_houseNumber` = `no_information` and **no** `…UrlAddition`. Recognise the shape: a title that is *only* a street + number (no room count, no m², no adjectives) is the tenant typing the address into the title field — i.e. **house-number-precise location for free** on an ad whose every structured address field is withheld. Validate once (does the street lie in `obj_zipCode`/`geo_ot`?), then use it for Block B, the tracker-grep-by-street, and the Atlas lookup below. Don't let the "the title's place name is noise" rule (#557, a *city* mismatch) talk you out of it.
@@ -2461,6 +2501,12 @@ nor garden and pays ~1,7× the headline.
 - **A wrong/missing UA fails as `HTTP 200` + a ZERO-BYTE body, not as an error status.** Don't read
   the 200 as success — always `wc -c` the output. (An iOS-style UA like `ImmoScout24_2.0_iOS` also
   yields the empty 200; only the `ImmoScout24_1410_35_._` Android form returns JSON.) Seen on #377.
+  **Fourth failure mode: `curl` exit 1 + `%{http_code}` = `000` + NO output file written at all.**
+  That is a connection-level failure (TLS/DNS/edge reset), not an API or listing state — `wc -c`
+  then errors with "Datei nicht gefunden", which looks alarming but means nothing. Just re-run with
+  `_1410_35_._`; #744 (2026-09-12) went `000` on `_1410_30_._` and returned the full 12 KB JSON on
+  the immediate retry. So the modes are FOUR: 000/no file (retry), 403+HTML (~900 B, stale minor
+  version → retry), 200+0 bytes (wrong UA family), 404+JSON (221 B — the ONLY one meaning EXPIRED).
   **Why:** a `-w "%{http_code}"` check alone says 200 and looks like the listing has no data.
   Corollary (#603, 08/2026): the UA string handed down in an orchestrator prompt is NOT
   automatically the working one — a plausible-looking `ImmoScout24_2.6.1_10.2.1_._` produced the
