@@ -349,6 +349,21 @@ Waldanteil, kein Wohngebiet; taugt als Gegenprobe gegen ein falsches `district`.
 Gartenstadt-Aufstockung/Staffelgeschoss oder — wahrscheinlicher — das oberste Vollgeschoss eines
 5-geschossigen P2-Riegels, vom Inserenten so genannt. Aufzug dort praktisch nie.
 
+**Korrektur/Ergänzung (#767): 14480 „Drewitz" hat einen ZWEITEN, völlig anderen Teil — den
+historischen Ortskern „Alt Drewitz".** Dort ist ein Dachgeschoss der Normalfall, nicht die Anomalie:
+gewachsenes Dorf mit Satteldächern, Ziegel-Hofspeichern/Vierseithof-Resten und der **Alt Drewitzer
+Dorfkirche** (auf Anzeigenfotos gut erkennbar — Fernblick über rote Ziegeldächer, gelber Kirchsaal
+mit schwarzem Turmaufsatz). Baualtersklasse dort **bis 1948**, nicht 1971–1990 — der
+Großsiedlungs-Reflex zieht sonst 5,63–6,06 statt 7,83–9,15 EUR/m² (Spalte D) und erzeugt eine
+doppelt so große scheinbare Mietpreisbremsen-Überschreitung. Erkennungsmerkmale in der Anzeige:
+„Ortskern"/„historisches Flair", **sehr kleine Hausgemeinschaft („nur 3 Parteien")**, Innenhof statt
+Balkon, Velux-Dachfenster + alter, weiß gestrichener Dachstuhl auf den Fotos, kein Aufzug.
+Wohnlage/Block B deutlich besser als die Siedlung (ruhig, grün, Dorfkirchenblick), Anbindung
+identisch gut (Bus/Tram 96/99, Stern-Center, RB ab Rehbrücke ~18 Min. Berlin-Charlottenburg).
+Preisniveau dort 2026: **12,78 EUR/m² kalt** für ein saniertes 90-m²-DG (Angebotsanker-Niveau).
+*Why:* ohne diese Zweiteilung wird jede 14480-Anzeige reflexhaft als Platte gescort — Lage zu
+schlecht, Mietspiegelfeld zu billig, beides falsch.
+
 ## Ortsteil-Anker: **Waldstadt II (14478) — `Zum Jagenstein` / `Saarmunder Str.` ist NICHT Plattenbau**
 Waldstadt II löst reflexhaft die Großsiedlungs-Regel oben aus (Feld 1971–1990). Für **eine** Adresse
 ist das falsch: das Quartier **Zum Jagenstein / Saarmunder Straße** ist ein **Neubauquartier der

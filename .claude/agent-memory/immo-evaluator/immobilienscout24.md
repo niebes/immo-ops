@@ -796,6 +796,22 @@ priceBar puts the rent mid-band with no bait pattern.
 **Why:** the existing rule only covered the >40 m²/room direction, so a 14 m²/room flat read as
 "within range, C = 5,0" — scoring a layout the household would reject and treating a doubly-printed
 generator field as confirmed.
+**Third failure mode of `obj_noRooms`: it counts a room that does not exist YET.** On a *private*
+ad the owner may enter the room count the flat *could* have. #754 (expose 165906612, Leipziger Str.
+62 Potsdam) advertises **4 Zimmer** in title, `obj_noRooms` and `Schlafzimmer: 3`, while its own
+Objektbeschreibung says "zwei behaglichen Schlafzimmern … Stand heute hat es 2 sehr geräumige
+Schlafzimmer und 1 grosses Wohnzimmer" and "lässt sich **auf Wunsch in zwei Zimmer teilen**" — and
+the Grundriss photo shows **3× "Zimmer"**. So the flat is a 3-Zimmer today. Cheap detector, costs
+nothing: **grep the TEXT_AREA for `teilen|teilbar|abtrennen|Trennwand|auf Wunsch` and open the
+Grundriss image and literally count the room labels**; the m²/Zimmer ratio does NOT catch this
+(101 m²/4 Zi = 25,3 is perfectly normal). Note that here the exposé **contradicts itself** —
+`Schlafzimmer: 3` vs. "zwei Schlafzimmern" — which is the tell that one of the numbers is aspirational.
+Score the count you can see on the Grundriss, put the corrected figure in the report header and the
+tracker `rooms` column, and make "wer teilt das Zimmer, auf wessen Kosten, mit welcher Genehmigung?"
+a contact question.
+**Why:** taken at face value #754 is a 4-Zi/101 m² flat at the budget cap; corrected it is a 3-Zi
+flat at the same money, which is the whole Block-A/Block-C story. The generator-field rule above
+only covers *wrong* room counts, not *future* ones.
 **The rule is one-directional — an abnormally HIGH NK/m² does NOT indict the m².** A too-small
 denominator would raise EUR/m² *and* NK/m² together, but on #621 (170042920, Eiche) the kalt figure
 13,50 EUR/m² was market-conform while NK ran 486 €/84 m² = **5,79 EUR/m²**, ~2× the Potsdam norm.
@@ -848,7 +864,7 @@ On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese
   - **Third state, between "Telekom address" and "PLZ only": the STREET can be named in the auto-generated TITLE *and* the auto-generated description while `…UrlAddition` is absent.** The rule above ("the title's place name is noise") was written against a *city* mismatch (#557 said Brandenburg a. d. Havel for a Potsdam flat) — it must NOT be read as "ignore the title's street". IS24's generator interpolates the tenant's form fields, so when title and description independently carry the **same street** and that street is consistent with `geo_ot` / `obj_regio4` / `obj_zipCode`, you have a **street-precise (not house-number-precise)** location for free. Test it that way: does the named street actually lie inside the stated PLZ/Ortsteil? If yes, use it — for Block B, for the tracker-grep-by-street trick, and for the WebSearch building lookup. Seen on **#648** (expose 169762664): `…UrlAddition` absent, `obj_street`/`obj_houseNumber` = `no_information`, `TRAVELTIME.isBlocked: true` — yet TITLE "Zuhause mit drei Zimmern **in der Hubertusallee**" + description "Dieses einladende Apartment **in der Hubertusallee**" + `geo_ot: grunewald` + `obj_zipCode: 14193` pin it to one Grunewald street. Still bracket the Baualtersklasse (a street is not a building) and make "Hausnummer?" a contact question — a long street can straddle very different noise/traffic situations at its two ends.
   **Why:** treating the missing Telekom param as "PLZ only" would have thrown away a usable street on a listing that had literally no other data, and downgraded a `preferred_areas` bullseye to a coarse Ortsteil guess.
   - **Fourth, best state: `TITLE.title` IS the bare postal address, house number included** — e.g. `"Stormstraße 16"` as the entire title (#737, expose 170312602, Potsdam West), while `MAP.addressLine1` = "Die vollständige Adresse … erhältst du vom Anbieter.", `TRAVELTIME.isBlocked: true`, `obj_street`/`obj_houseNumber` = `no_information` and **no** `…UrlAddition`. Recognise the shape: a title that is *only* a street + number (no room count, no m², no adjectives) is the tenant typing the address into the title field — i.e. **house-number-precise location for free** on an ad whose every structured address field is withheld. Validate once (does the street lie in `obj_zipCode`/`geo_ot`?), then use it for Block B, the tracker-grep-by-street, and the Atlas lookup below. Don't let the "the title's place name is noise" rule (#557, a *city* mismatch) talk you out of it.
-  - **Given an address, `atlas.immobilienscout24.de` / `orte.immobilienscout24.de` gives you the missing Baujahr + Gebäudetyp without a browser.** URLs: `https://orte.immobilienscout24.de/adresse/{ort}-{plz}-{strasse-slug}-nr-{n}` and `https://atlas.immobilienscout24.de/adresse/{plz}-{ort}-{strasse-abk}-{n}` (both 200 on the same content). **WebFetch gets 403 — use `curl` with a normal Firefox UA + `Accept-Language: de-DE`**, strip tags, and grep the paragraph after the `{Straße} {Nr}, {PLZ} {Ort}` heading: it states Gebäudetyp, **Wohneinheiten, Stockwerke and the build decade** ("ein ansprechendes Mehrfamilienhaus, das in den 1970er Jahren erbaut wurde … 15 Wohneinheiten … fünf Stockwerke"), plus a "Geschätzte Miete ~ N €/m²" and a Kauf-Schätzwert. ⚠ The page says outright the text is **KI-gestützt auf Grundlage von Marktdaten und statistischen Modellen** — quote it as an *indication* with that caveat, never as an amtliche Angabe, and corroborate with a WebSearch on neighbouring house numbers (#737: Stormstr. 20/21 independently dated to the 1970s). On a Mieternetzwerk ad this is usually the ONLY Baualtersklasse evidence there is, i.e. it decides which Mietspiegel row Block A is scored against.
+  - **Given an address, `atlas.immobilienscout24.de` / `orte.immobilienscout24.de` gives you the missing Baujahr + Gebäudetyp without a browser.** URLs: `https://orte.immobilienscout24.de/adresse/{ort}-{plz}-{strasse-slug}-nr-{n}` and `https://atlas.immobilienscout24.de/adresse/{plz}-{ort}-{strasse-abk}-{n}`. **Use the `orte.` form — the `atlas.` one now answers `301` to curl** (#754, 09/2026; curl does not follow it without `-L`, and the redirect target may fold single house numbers into a `…-62-63` range page). Two further limits found on #754, both of which turn this from "the Baujahr source" into "sometimes no source at all": (a) **the build decade is optional** — the paragraph can read only "Mehrfamilienhaus · N Wohneinheiten · vier Stockwerke" with **no year/decade at all**, so don't budget on it; (b) **the text is partly CIRCULAR — it re-states the live listing's own `adTargetingParameters`** ("keinen Aufzug oder Keller … kein Garten" exactly mirrored `obj_lift/obj_cellar/obj_garden = n`). So it is **not** independent corroboration of the exposé's amenity fields; only Gebäudetyp/Wohneinheiten/Stockwerke/Baujahr and the Schätzwerte are genuinely external. When it yields no Baujahr, score Block A against the **whole plausible Baualtersklasse range** and say so, rather than guessing one row. **WebFetch gets 403 — use `curl` with a normal Firefox UA + `Accept-Language: de-DE`**, strip tags, and grep the paragraph after the `{Straße} {Nr}, {PLZ} {Ort}` heading: it states Gebäudetyp, **Wohneinheiten, Stockwerke and the build decade** ("ein ansprechendes Mehrfamilienhaus, das in den 1970er Jahren erbaut wurde … 15 Wohneinheiten … fünf Stockwerke"), plus a "Geschätzte Miete ~ N €/m²" and a Kauf-Schätzwert. ⚠ The page says outright the text is **KI-gestützt auf Grundlage von Marktdaten und statistischen Modellen** — quote it as an *indication* with that caveat, never as an amtliche Angabe, and corroborate with a WebSearch on neighbouring house numbers (#737: Stormstr. 20/21 independently dated to the 1970s). On a Mieternetzwerk ad this is usually the ONLY Baualtersklasse evidence there is, i.e. it decides which Mietspiegel row Block A is scored against.
   **Why:** without these two the #737 evaluation would have been "PLZ-genau, Baualter unbestimmbar" and the Mietspiegel bracket would have had to span 1949–2024 instead of 1949–1990.
 - **IS24 AUTO-GENERATES both the title and the description on Mieternetzwerk ads, and the title's
   room count can be flat WRONG.** #562 (expose 169624466, Marquardt) is live-titled *"**1-Zimmer**
@@ -863,6 +879,35 @@ On the web page, body shows "Angeboten von der:dem aktuellen Mietenden" / "Diese
   count alone.
   **Why:** the wrong title is the *live* one (so it can't be dismissed as an extraction glitch, cf.
   the "s"/"t" stub case) and it contradicts a hard profile filter.
+  - **Corollary for DEDUP: the generated title is shared verbatim by dozens of unrelated exposés, so
+    a router "CONFIRMED match, same title" on a Mieternetzwerk ad is worth NOTHING.** #768
+    (170313541) arrived attached to tracker row #216 on a "confirmed" title match of *"Wohnen mit
+    Charakter: 3-Zimmer-Wohnung in Potsdam"* — a template shared by 11+ unrelated reports. Refute or
+    confirm on fields the generator does not produce, in this order: **street** (see next bullet),
+    **channel** (`isTenantNetwork`/`obj_privateOffer` vs. a named commercial agent — a tenant ad and
+    an agent ad are by definition different *ads*, even for one flat), **`obj_objectnumber` shape**
+    (a **UUID** like `8f6d0135-3df5-4f92-895a-e253398d41fa` is the private/freemium class, i.e. no
+    landlord key at all — same "absence is the discriminator" rule as the `== obj_scoutId` echo),
+    then m²/Warmmiete. Finally `curl` the OLD scoutId: #216's 168872802 → **404**, so not even a
+    parallel dual-listing. **Why:** taken at face value, a live Mieternetzwerk ad would have been
+    filed as an update to an *Applied* row whose agent ad has been dead since 11.07.2026.
+  - **The generated description's OPENING clause often names the STREET verbatim — read it before
+    applying the "no `obj_telekomInternetUrlAddition` ⇒ no address path, stop hunting" rule.** #768
+    had no `…UrlAddition`, `obj_street`/`obj_houseNumber` = `no_information` and
+    `TRAVELTIME.isBlocked: true`, yet sentence 1 read *"Diese 3-Zimmer-Wohnung **in der
+    Peter-Behrens-Straße** bietet…"*. So the correct order is: description-opening → Telekom decode
+    → PLZ-only fallback. **With a street but no house number, sweep 3–4 house numbers through
+    `orte.immobilienscout24.de/adresse/{ort}-{plz}-{strasse-slug}-nr-{n}`** (curl + Firefox UA, per
+    the atlas/orte recipe) — Nr. 3/5/7 all returned "Mehrfamilienhaus, 12 Wohneinheiten, 3–4
+    Stockwerke, **nach 2010 erbaut**" plus a "Geschätzte Miete ~16 €/m²", which is a *street-wide*
+    build-era band and enough to pick the Mietspiegel Baualtersklasse and decide § 556f. Grep the
+    stripped HTML for `erbaut`/`Wohneinheiten`/`Geschätzte Miete` — the paragraph sits far below the
+    nav boilerplate, so a head-of-page dump shows nothing. ⚠ Keep the KI caveat: the Nr.-3 text says
+    "keinen Aufzug" while report #323 documents a Personenaufzug at Nr. 3-3a — **a same-street
+    tracker report outranks the KI text on any concrete Ausstattung fact**. **Why:** without the
+    description-first step this flat was "PLZ-genau only" ⇒ no Baualtersklasse, no sibling-report
+    grep, no §-556f verdict; with it, #323 supplied Baujahr 2015, the Fernwärme NK/m² used to
+    reconstruct the missing Kaltmiete, and the Keller/Staffelmiete priors.
 - **The `TAG_LIST` "Nachvermietung ab {Monat}" date can already be in the PAST on a brand-new ad.**
   #562: tag "Nachvermietung ab April" + text "ab dem 15.04.2026 verfügbar", on an exposé whose
   Scout-ID sits in the current band and that was first scanned 11.08.2026 with

@@ -12,6 +12,19 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   - Spec `list` items: Wohnfläche, Etage, Wohnungstyp (Erdgeschosswohnung…), "Verfügbar ab",
     "Online-Besichtigung", and **"Tauschangebot" → "Kein Tausch"** (use this to confirm a genuine
     rental vs a swap — even when the title says "Nachmieter").
+  - **"Wohngemeinschaft"/"WG" in the description is NOT automatically a room share** — in
+    owner-written ads for small houses it routinely means the *Hausgemeinschaft*. #767: "Eine
+    familiäre, gemütliche **Wohngemeinschaft** auf Augenhöhe … Weniger Haus, mehr Zuhause. **Nur 3
+    Parteien**" on a whole 90-m² flat. Four cheap checks decide it, and all four must agree before
+    you write "WG": (1) breadcrumb / `ct`+`tcat` = **203 Mietwohnungen** vs Kleinanzeigen's separate
+    "Auf Zeit & WG" category (cat 203 is weak evidence alone — see the Wohnen-auf-Zeit section — but
+    decisive *together with* the rest); (2) the ad rents a **complete unit** (own Einbauküche, own
+    Bad, own Keller in the detail list); (3) **Kaution ÷ Kaltmiete ≈ 3** on the *whole* rent — a room
+    share's deposit never lands on exactly 3 NKM of the full flat; (4) no `WG_geeignet` /
+    `Mitbewohner` / "Zimmer in" anywhere. Mirror-image trap: `WG_geeignet:true` in the targeting JSON
+    means "suitable for a WG", not "is a WG".
+    *Why:* on #767 the orchestrator flagged the WG wording as a possible hard mismatch; treating the
+    word as the listing type would have discarded the highest-scoring Kleinanzeigen flat of that run.
   - Second `list`: Nebenkosten + Warmmiete. (Kaltmiete = the top price heading — BUT for
     Genossenschafts/Nachmieter ads the top heading is often the **Warmmiete**, and the true
     Kaltmiete/Heizkosten/Betriebskosten split only appears in the free-text description. Always
