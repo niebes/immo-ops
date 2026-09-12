@@ -138,5 +138,60 @@ plus a low-four-digit Aufwuchs against a 30.000 EUR ask. Quote the Wohnbauland f
 product being sold). Framing it as "27× BRW" alone reads as an accusation; framing it as "a Bauerwartung
 that § 8 LWaldG + § 35 BauGB will not deliver" is the finding.
 
+## Havelland: `_shared.md`'s „25–110" band is **WESThavelland only** — the Berlin-nahe NW-Speckgürtel is 2–3× that
+The SSOT table's Havelland entries (Paulinenaue ~42, Premnitz 65–120, Westhavelland-Band 25–110)
+all describe the **rural west**. The Gemeinden that actually touch Berlin — **Falkensee,
+Schönwalde-Glien, Brieselang, Wustermark, Dallgow-Döberitz** — sit in a completely different price
+world, and using the 25–110 band there understates by 2–3×.
+
+| Gemeinde | Wohnbauland EUR/m² | Source & confidence |
+|---|---|---|
+| **Schönwalde-Glien** (HVL, grenzt an Berlin-Spandau, 14621, OT Paaren im Glien / Schönwalde-Dorf / -Siedlung / Perwenitz / Grünefeld / Wansdorf / Pausin) | amtlich **112** Wohn-/Mischbebauung, Spanne **7–440**, Stichtag 01.01.2026, **−6,7 % y-o-y** · Angebot **309** (164–605, 444 Objekte / 24 Mon., −2,5 % y-o-y) · Gewerbe 31, Landwirtschaft 1,65, Forst 0,35 | `bodenrichtwerte-deutschland.de` (amtlich, understating family) + `aktuelle-grundstueckspreise.de` (both families). **Keine Ortsteilwerte** bei beiden Aggregatoren → für eine Parzelle BORIS-BB punktgenau. Used on #763 (614 m² zu 244,30 EUR/m²: −21 % unter Angebotsmittel, innerhalb des amtlichen Bandes, über dem Gemeindemittel = marktkonform). |
+
+⚠ **Die beiden Aggregatoren nennen für dieselbe Gemeinde ZWEI amtliche Mittelwerte, die sich um
+Faktor 1,85 unterscheiden — bei fast identischer Spanne.** Für Schönwalde-Glien:
+`bodenrichtwerte-deutschland.de` **112** (7–440, Stichtag 01.01.2026) vs.
+`aktuelle-grundstueckspreise.de` **207** (7–460, Stichtag 01.01.2024). Beide behaupten „amtlicher
+Bodenrichtwert". Die Spannen stimmen praktisch überein, also ist der **Mittelwert der unbrauchbare
+Teil** (unterschiedliche Gewichtung/Nutzungsartenmischung) und **nur die Spanne belastbar**.
+⇒ Bei einer solchen Kollision: beide Zahlen nennen, den Mittelwert ausdrücklich für wertlos
+erklären und gegen die **Spanne** + den **Angebotsanker** einordnen. *Why:* je nachdem welchen man
+nimmt, liest sich dasselbe Angebot als „+118 % über BRW" oder „+18 % über BRW" — der Block-A-Befund
+hinge an der Wahl des Aggregators.
+
+⚠ **Der Gemeinde-Mittelwert ist bei einer B-Plan-Neubauparzelle systematisch der falsche Anker.**
+Er mischt Acker-, Gewerbe- und Hinterlandzonen ein (daher Spannen wie 7–440). Eine voll erschlossene
+Parzelle in einem rechtskräftigen B-Plan-Gebiet liegt **erwartungsgemäß deutlich über** dem
+Gemeindemittel; das ist kein Aufpreisbefund. Der aussagekräftige Vergleich ist der **Angebotsanker**
+(bzw. Parallelangebote im selben B-Plan-Gebiet).
+
+## Plot-Doktrin (portalunabhängig) — zwei Moves, die sich auf #763 bezahlt gemacht haben
+
+**1. Den im Exposé genannten B-Plan-NAMEN wörtlich suchen — die Gemeindeseite widerlegt das Exposé.**
+#763 zitierte „Bebauungsplan: **Behindertengerechte Siedlung Chausseestraße** — Gemeinde
+Schönwalde-Glien OT Paaren im Glien" und behauptete dazu „**Einzel- oder Doppelhäuser**" +
+„ideal für ein Einfamilienhaus mit Garten". Eine Suche nach dem exakten Plannamen fand die Seite der
+Gemeinde: der Plan läuft heute als „**Siedlung Chausseestraße, 1. Änderung**" und ist öffentlich als
+Plan für **56 DOPPELhäuser** beschrieben. Möglicherweise hat genau die 1. Änderung das Einzelhaus
+zugelassen — belegt ist es nicht. ⇒ **Ein genannter B-Plan-Name ist eine prüfbare Behauptung, kein
+Beleg.** Eine WebSearch auf den wörtlichen Namen liefert regelmäßig Gemeindeseite, Amtsblatt-PDFs und
+Geoportal-Link, und ein Widerspruch zur Exposé-Bauweise (Einzel- vs. Doppelhaus) ändert das Produkt
+grundlegend. Ebenso auf einen **sprechenden Plannamen** achten: „Behindertengerechte Siedlung" kann
+Barrierefreiheits-Festsetzungen oder sogar eine Zweckbindung tragen. Standard-Next-Step: Gemeinde-
+Hauptamt + Geoportal (für Schönwalde-Glien: +49 3322 2484-10, `hauptamt@schoenwalde-glien.de`,
+`geoportal-schoenwalde-glien.de`).
+
+**2. ⚠ Es gibt in Brandenburg KEINEN allgemeinen gesetzlichen 30-m-Waldabstand in der BbgBO.**
+Die naheliegende Annahme („Waldrandparzelle ⇒ 30 m Bauverbot ⇒ 614 m² faktisch unbebaubar") ist
+falsch: die BbgBO regelt nur **Abstandsflächen von 0,4 H, mindestens 3 m**; Waldabstände laufen in
+Brandenburg über die **Baugrenzen des B-Plans** bzw. brandschutzrechtliche Auflagen der unteren
+Bauaufsicht (und das BbgWaldG regelt nur Feuer/Rauchen innerhalb 50 m). ⇒ Bei einem **rechtskräftigen
+B-Plan** ist die Frage planerisch bereits erledigt — die offene Größe ist nicht „der Waldabstand",
+sondern **Lage und Tiefe des Baufensters**, und die steht in keinem Exposé (Immowelt-Plotexposés
+liefern nie Lageplan/Flurkarte). Formuliere es als Baufenster-Frage an die Gemeinde, nicht als
+Metervorschrift. *Why:* die erfundene 30-m-Regel hätte auf #763 eine kaufbare Parzelle als
+unbebaubar abgewertet.
+
 **Review cadence:** Potsdam-Mittelmark publishes each March for the 01.01. Stichtag; re-check every
-spring. Roskow was reported unchanged year-on-year; the agrarian rates likewise.
+spring. Roskow was reported unchanged year-on-year; the agrarian rates likewise. Havelland publishes
+via a havelland.de press release rather than BORIS-BB — re-check each January.
