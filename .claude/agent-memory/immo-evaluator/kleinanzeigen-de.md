@@ -374,6 +374,34 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     same ad: a content-free machine-generated-sounding description that only paraphrases the spec
     fields, no address, no Baujahr, no Energieausweis. *Why:* on #594 this was the only reason to
     doubt an otherwise clean 4,1/5 ad — and none of it is visible unless you actually Read the images.
+  - **The cheapest provenance test of all — the gallery's ASPECT RATIO, no image Reading needed.**
+    The CDN **preserves the source aspect ratio** across every rule (verified #715: the same UUID
+    returns 1280×943 at `$_57`, 960×707 at `$_59`, 200×147 at `$_2` — all 1,357). So the ratio you
+    measure is the *uploader's* crop, not a portal artefact, and one `file -b` over the downloaded set
+    is a complete test. Read it as:
+    - **Camera-native ratios** (4:3 = 1,333 · 3:2 = 1,5 · 16:9 · the 900×1600 portrait phone case) →
+      ordinary owner/tenant photos.
+    - **One odd ratio among native ones** → that's the Grundriss/scan (the #642 rule above).
+    - **EVERY image on the SAME non-native ratio** (#715: all 5 at exactly 1280×943 = 1,357) → the
+      whole set went through one export/crop pipeline, i.e. **Exposé or portal-viewer material**, not
+      photos taken for this ad. Fire the Medium "photos from different properties / re-used marketing
+      material" signal *as a stated suspicion* — it is weaker than the #594 baked-in-app-chrome case
+      (which is proof), so do **not** cap Block D; the photos still show one consistent property.
+      Corroborate with the usual companions: no Grundriss, no Baujahr, no Energieausweis, no house
+      number, `Eckdaten:`-style description.
+    ⚠ **Missing EXIF is NOT evidence either way** — Kleinanzeigen strips Make/Model/CreateDate from
+    every upload, so `exiftool` returns bare dimensions on honest and dishonest ads alike.
+    *Why:* on #715 this was the only thing separating "anonymous 1-day-old account with a suspiciously
+    good flat" from "anonymous 1-day-old account with a lifted exposé", and it costs one `file -b`
+    plus two extra curls instead of Reading the whole gallery.
+  - **Account age is a computable scam signal: diff "Aktiv seit" (`#viewad-contact`) against the
+    posting date (`#viewad-extra-info`).** #715: account created 10.09.2026, ad posted 11.09.2026, and
+    `s-bestandsliste.html?userId=…` returned exactly 1 ad → the Medium "new portal account, single
+    listing" signal fires on hard numbers instead of a feeling. Both dates are already in the page you
+    parsed; the ad count comes from the bestandsliste curl you make anyway. Note the asymmetry with the
+    badge rule above: positive-feedback badges *suppress* this signal, a same-week account *confirms*
+    it. *Why:* "Privater Nutzer, no name" describes most honest private ads too — the date delta is
+    what makes it reportable.
 
 ## EXPIRED / deleted detection (important)
 - A deleted or reserved ad still renders the FULL cached listing — it does NOT 404 or show
