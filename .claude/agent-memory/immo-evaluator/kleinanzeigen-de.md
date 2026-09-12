@@ -441,6 +441,22 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
 - **`#viewad-locality` on these ads is useless for the Ortsteil** — it renders as "{PLZ} Brandenburg -
   Potsdam" (Bundesland, not Bezirk). The real Ortsteil is only in the description prose ("liegt im
   schönen Bornstedt"). *Why:* Block B would otherwise be scored blind on the PLZ alone.
+  - **The TITLE can name a DIFFERENT Ortsteil than the description — trust the description.** #717:
+    title "…in ruhiger Lage, **Jägervorstadt**" vs. description saying **Bornstedt** twice ("unsere
+    3-Raumwohnung … in Bornstedt", "Ebenfalls in Bornstedt"), both inside PLZ 14469 so the PLZ can't
+    arbitrate. The description is the tenant's own prose and repeats the Ortsteil for BOTH sides of the
+    swap (offer + Suche); the title is the platform-generated/SEO half. Report the conflict, score on
+    the description. *Why:* the locality rule above only warns that `#viewad-locality` is empty of
+    Ortsteil — it implies the title is safe, and on #717 it wasn't.
+- **The cleanest Suche form: a two-block "Unsere Wohnung: / Unsere Wunschwohnung:" bullet pair.** #717
+  listed the offered flat under `Unsere Wohnung:` and the Suche under `Unsere Wunschwohnung:` as bullet
+  lists (4 Zimmer · Erdgeschoss/1. Etage · möglichst Terrasse oder kleiner Garten · ebenfalls in
+  Bornstedt), plus a one-line motive sentence ("Da unsere Familie **mehr Platz benötigt**, suchen wir
+  eine 4-Raumwohnung"). Grep anchors: `Unsere Wunschwohnung|Wunschwohnung:|Unsere Wohnung:`. When this
+  pair exists the Suche is fully structured — do NOT fall back to the "Suche unknown → lenient" rule.
+  *Why:* all the Suche heuristics above hunt for prose sentences; this ad states everything in bullets
+  and a trigger-grep for "Wir suchen" alone would have found only the motive line, missing the
+  Etage/Außenfläche/Ortsteil criteria that decide side 2.
 - The Suche is often not a "Wir suchen …" sentence but an **intent clause buried mid-description**
   ("Wir möchten uns vergrößern und möchten im waldstadt 1 oder 2 bleiben" = bigger flat + stay in
   that Ortsteil). Read the whole description as the Suche, not just sentences starting with "Suche".
