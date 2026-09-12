@@ -2913,6 +2913,42 @@ Wohnungsnummer WE 58"). `curl` it and `pdftotext` it: it confirms Zimmerzahl/Fl�
 *this* unit (and often reveals the Bauträger's Haftungsausschluss = "Planmaße", i.e. the m² are
 plan figures, not a WoFlV-Aufmaß). Seen on #537 (expose 169858137).
 
+#### Third payload shape: the attachment is **the ad's OWN earlier version** (`Anzeige_YYYY-MM-DD`) = a free rent history
+On a long-lived private exposé the "Weitere Dokumente" PDF can be a printout of the *same* Scout-ID
+from years ago (#750, expose 64419106, Am Neuen Markt 2 Potsdam: `Anzeige_2012-07-31`). Plain
+`curl -sL` + `pdftotext`, no auth. It yields three things nothing else in the payload gives:
+- **A KM/NK/Heizkosten diff over the whole holding period** — 855/145/230 (2012) → 1.160/180/360
+  (2026) = +35,7 % kalt, **+56,5 % Heizkosten**, Fläche/Zimmer unverändert. A moderate, upward,
+  internally consistent trajectory is a strong *entlastendes* scam signal (bait ads underprice),
+  and the outsized heating-cost rise is direct Block-A/D evidence of a thermally poor building —
+  useful exactly when there is no Energieausweis.
+- **The landlord's real name + postal address + phone + e-mail**, which the current exposé withholds
+  (AGENTS_INFO had `address: ""`, `verifiedBy: []`). Identity for Block H at zero cost.
+- **Field-level drift between the two ad versions**, which is the cheapest way to catch a stale
+  checkbox: `Garage/Stellplatz` read "Parkhaus" in 2012 and "Außenstellplatz" in 2026 while the
+  Sonstiges text still said "Parkplatz im 100 m entfernten Parkhaus anmietbar" → the 2026 field is
+  a data-entry error, not a mitvermieteter Stellplatz. Same for "zwei kleine Austritte" (2012) vs
+  "ein ca. 2 m² großer Austritt" (2026).
+**Why:** the label looks like dead weight next to an Energieausweis/Grundriss PDF, so it gets
+skipped — and with it the only price history, the only landlord identity and the only proof that an
+amenity checkbox contradicts the text.
+
+### A very low Scout-ID (legacy exposé) is NOT evidence of a stale ad — four fields settle it
+Scout-IDs in the 6×,×××,××× range are ~2012 vintage, and an orchestrator will flag them as
+"suspiciously old, check if still available". Usually they are **legacy exposés that the same
+private owner reactivates at every tenant turnover**, so the *record* is old while the *ad* is days
+old. Decide it on: (1) `header.publicationState == "active"` (not the "deaktiviert" stub, not a
+404); (2) **`contact.freemiumSettings.dateStarted`** = the actual (re-)publication timestamp — on
+#750 it was 2 days old; (3) a **future** `Bezugsfrei ab`; (4) media-IDs — newer interior shots carry
+a much higher image ID than the original exterior ones (689,004,761 vs 1,015,673,901), i.e. the
+gallery was topped up later. Never mark such a listing EXPIRED on the ID alone, and do not let the
+ID age fire the "old/abandoned listing" reading. Corollary: on these, `freemiumSettings.dateEnding`
+(72 h) is a **hard contact deadline** — put "anfragen HEUTE, Fenster endet {date time}" at the top
+of Next steps.
+**Why:** #750 arrived with an explicit "very low expose id ⇒ check whether it is genuinely still
+available" warning; taken at face value it would have been reported EXPIRED or hedged, when it was
+in fact a 2-day-old republication of a 4,4/5 flat whose free contact window closed the next day.
+
 #### Bauträger-Vorvermietung: no "Weitere Dokumente" list at all → the data sits on the **project landing page** in "Weitere Links"
 On a **multi-unit Neubau pre-letting** (one exposé per unit, `OBJECT_INFO` Objekt-Nr. = the unit key
 like `H1-00-02`, `Bezugsfrei ab` a year+ out) there is frequently **no `REFERENCE_LIST "Weitere
