@@ -904,6 +904,12 @@ high heat share) → KM **1.361**. A 228-EUR spread on one flat, and the same-bu
 probable one. Report the full band, name which end is load-bearing and why.
 **Why:** the generic band alone hands Block A a 1,6-EUR/m² uncertainty on a listing where a sibling
 report had already measured the answer.
+⚠ **Nachtrag #761 — a sibling's *derived* NK rate is still a derivation; replace it the moment a
+sibling STATES one.** The 5,35 EUR/m² above came from #694 via `Warmmiete − (Kaution÷3)`. When the
+same flat was cross-posted to IS24 (expose 170376388), the structured `Kosten` block gave
+**400 EUR NK auf 86 m² = 4,65 EUR/m²** — the derivation overshot by 0,70 EUR/m² (60 EUR/Monat).
+So rank the NK evidence: **stated split > sibling-derived rate > city band**, and say which tier
+you are on. (The 1863 Jute hall's real, stated rate is 4,65 — use that, not 5,35.)
 
 **Grep `data/pipeline.md` as well as `data/listings.md` + `reports/` when hunting same-street siblings —
 the live scan queue holds ads that are not evaluated yet, and a LATER ad often carries the house number
@@ -2694,6 +2700,20 @@ channel expires**. Put the expiry into Next steps as a deadline ("bis 27.08. ans
 with `AGENTS_INFO` (`verifiedBy: []`, no address, `phoneNumbers: []`, first-name+initial like
 "Dominic H.") → that combination is the **Block H 1,5 "missing/suspicious listing signals"** profile
 and the **Medium** "new account, minimal profile" scam signal. Seen on #681.
+
+⚠ **`freemiumPeriodActive: false` with a `dateEnding` in the PAST does NOT mean the ad is dead or
+uncontactable — check `contact.mailButtonState` instead.** #760 (expose 150377458, Bonner Str. 6
+Bornstedt): window `30.08.2026 → 03.09.2026`, `freemiumPeriodActive: false` on 12.09., yet
+`publicationState: active`, `mailButtonState: active`, `callButtonState: inactive` (no phone) and a
+future Bezugstermin. So the free 72/96-h *contact promo* expired while the listing kept running.
+Two consequences: (1) never write a Next-step deadline that has already passed — phrase it
+"Freemium-Fenster lief am {date} aus, Nachrichten-Button aktiv ⇒ weiterhin über das Formular
+erreichbar"; (2) with `freemiumPeriodActive: false`, `dateStarted` is the **RE-publication** date,
+not the first publication — cross-read it against the Scout-ID ladder + photo captions (here: ID
+150,4 M ⇒ ad object ~06/2024, captions `20240405_…` ⇒ photos 05.04.2024, re-listed 30.08.2026), which
+turns it into the #507 "recycled ad" reading and a concrete negotiating lever (`obj_highDemand: false`).
+**Why:** the expired window reads like "you can no longer contact this lister" and invites either a
+bogus deadline in Next steps or an EXPIRED verdict on a perfectly live listing.
 **Why:** without dateStarted every ad reads as undated, and the user can miss a contact window that
 closes in days on exactly the cheap listings worth a speculative message.
 
