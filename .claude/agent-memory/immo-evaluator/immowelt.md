@@ -288,6 +288,10 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   reconciliation distinguishes „lister lied about the area" from „lister used the legal upper
   Anrechnungsfaktor" — two very different Block-A/C conclusions from the same headline number.
   *Why:* both fields are the ones an evaluator copies verbatim, and each error moves Block A/G.
+  **Fourth sibling: the `price.base` Heizkosten row can carry `alt: "nicht in Warmmiete enthalten"` while
+  the displayed Warmmiete DOES include it.** #783: KM 506,15 + NK 120 + HK 130 = Warmmiete 756,15 exactly,
+  yet the HK row says "nicht in Warmmiete enthalten" (and `breakdown.excluded` lists it). Re-add the
+  line items; trust the arithmetic, not the label — otherwise you add HK twice (886 instead of 756).
 - ⚠⚠ **`rawData.propertyType:"APARTMENT"` does not mean it is a building — Immowelt lists
   HAUSBOOTE / Floating Homes as ordinary „Wohnung zur Miete" with nothing in the structured payload
   to tell you.** #725: `propertyType:"APARTMENT"`, `distributionType:"RENT"`, normal hardFacts,
