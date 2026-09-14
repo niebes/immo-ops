@@ -1303,7 +1303,17 @@ four surrogates instead of guessing:
    deadline to contact before the ad loses visibility → always put it in Next steps.)
 2. **`MEDIA[].caption`** — camera-original captions are timestamps: `20151208_111118` = 08.12.2015, 11:11.
    That dates the *photos*, i.e. the underlying ad object.
-3. **`adTargetingParameters.obj_cId`** — a low customer ID = long-standing account.
+3. **`adTargetingParameters.obj_cId`** — a low customer ID = long-standing account. **It is also the
+   re-list identity key on PRIVATE ads**, where the Objekt-Nr. only echoes the Scout-ID (see the
+   `obj_objectnumber == obj_scoutId` section): identical `obj_cId` + identical m²/Kaution/floor/
+   Bezugsfrei across two Scout-IDs + old ID 404 = same lister re-posting the same unit. It also
+   rules out a copy-cat scam (a hijacked copy runs under a *different* account). Seen #770 vs #760
+   (cId 20002201, Fontane Gärten): the re-post **stripped all 6 photos + Grundriss, changed the
+   Hausnummer 6→4, and added "Indexmiete + Mindestmietdauer 24 Monate"**. So diff the TEXT_AREA
+   head and `obj_picturecount`, not just price. Carry the old report's photo evidence forward as
+   "per predecessor" but still apply the D cap, since the live ad shows nothing.
+   *Why:* with no Objekt-Nr. and a new house number, the ad reads as a sibling unit in the same
+   estate. Scoring it fresh would have missed the worse contract terms that are the real change.
 4. **Internal date references in the TEXT_AREAs** ("Im April 2026 wurde eine neue Gasheizung eingebaut")
    + `Bezugsfrei ab` — these date the *text*.
 5. **The UNIX epoch suffix inside `MEDIA[].fullImageUrl` / every attached PDF url** — IS24 names
@@ -2737,6 +2747,12 @@ nor garden and pays ~1,7× the headline.
   the FIRST call; never spend a round trip on the prompt's UA.** The 0-byte case is also the most dangerous one to misread on an EXPIRED check:
   it looks like "no data" and invites the EXPIRED verdict, but the real 404 has a 221-byte JSON
   body — so retry with the Android UA BEFORE running the control curls.
+  **FIFTH failure mode, the worst one: a wrong UA can return HTTP 200 + a full, valid JSON of a
+  DIFFERENT exposé.** #771 (2026-09-14): UA `ImmoScout_27.3_26.0_._` on `/expose/170765580` returned
+  34 KB of plausible data for **134897508** (Leipziger Str. 64, 73 m², 1.370 EUR). `wc -c` passes and
+  nothing looks broken. **Always assert `header.id == requested scoutId`** (and the title vs. the prompt
+  hint) before extracting any field; the Android UA then returned the correct listing.
+  **Why:** without the id check the whole report gets scored on someone else's flat.
 
 ### The EMPTY private exposé: `obj_picturecount: 0` + **no `TEXT_AREA` section at all** — what still carries information
 A private freemium ad can ship with zero photos AND zero Objektbeschreibung/Ausstattung/Lage text
