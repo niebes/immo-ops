@@ -328,6 +328,10 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   confirmed a second outdoor space that does not exist; the sum-vs-plan comparison is the only
   cheap check that settles it. Same line also carries `Anzahl der Schlafzimmer/Badezimmer` and
   `Mindestmietdauer`, i.e. facts that exist nowhere else in the payload.
+  ⚠ **On project lettings `hardFacts.livingSpace` can be a COPIED sibling value — re-add the unit plan every time.**
+  #789 (H6-00-01): advertised 90,23 m² = the Haus-5 twin's figure (79,73 + 21,06 × 0,5), but the Haus-6 plan shows
+  79,60 m² + a **28,62 m²** terrace (× 0,5 = 93,91). The `Balkon-Terrassen-Fläche` Stichwort (28,62) was the only
+  text-side hint that this unit differs. *Why:* copying the sibling's headline would have missed the batch's largest terrace.
   ⚠ **But the number in that field can itself be a TYPO — reconcile it arithmetically before
   quoting it.** #731: `Balkon-Terrassen-Fläche: 10,52 m²` vs. Grundriss `10,25 m²` (digit swap).
   Only 10,25 reproduces the advertised Wohnfläche (rooms 73,35 + 10,25 × 0,50 = 78,48 exactly);
