@@ -22,6 +22,14 @@ kalt that does not exist, and inverted the two-sided match (their Suche read as 
 #492, #505, #533, #541, #550, #578 (später auch #667, #683, #719, #720, #722, #724, **#778** — „gegen mindestens 5 Zimmer … alternativ zwei 3-Raum-Wohnungen im gleichen Haus", i.e. axes 3+4 in one sentence) all failed side 2 on the same axis — the partner wants to
 *enlarge* (≥3–5 Zi, 70–100 m², family households), and the Golm flat is the small end of the
 market. Side 1 kept passing (3,5–4,3/5), so the cost was a full evaluation each time.
+**Object-type variant — the Suche names a HAUS.** #779 (Immowelt, ID 117524, Fahrland 3 Zi/81 m²):
+„Wir sind auf der Suche nach einem **kleinen Häuschen mit Garten**, für unsere Familie." Grep
+`Haus|Häuschen|Einfamilienhaus|Reihenhaus|DHH` in the Suche: our only offer is a flat, so this is a
+categorical fail even though „mit Garten" superficially matches our ~29 m² EG garden. Don't let the garden
+hit read as a near-miss.
+**Dedup trap, seen twice (#696, #779):** the orchestrator's numeric re-list matcher flags swap ads as
+„DUPE of #484" on ~950/80/3 alone. Dedup Tauschwohnung ads on **Anbieter-ID** (#484 = 139363), never on
+price/m²; one grep of the ID settles it.
 ⇒ Read the Suche's **direction** (vergrößern vs. verkleinern / "weniger Miete") FIRST; if they
 name ≥4 Zimmer or a 3+-person household, side 2 is a deterministic fail and the rest of the
 evaluation is only worth doing for the record. Worth proposing a triage prefilter

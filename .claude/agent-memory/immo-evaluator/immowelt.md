@@ -324,6 +324,9 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   floorplan wins whenever `Zimmersumme + Außenfläche × {0,25|0,50}` does not land on the headline
   m². *Why:* the field is otherwise treated as the hard number, and a 0,27-m² error is small enough
   to copy unnoticed while proving the wrong Anrechnungsfaktor.
+- ⚠ **On the swap feed `classified.title` can hold the whole DESCRIPTION** (#779: the full boilerplate
+  with `<br>`s), while the real headline is `mainDescription.headline`. Never read `title` as the ad title.
+  Same ad, again a lone „Bild 1" = the developer Grundriss („Wohnung 13, ca. 81,75 m²"), i.e. the #724 case.
 - ⚠ **`classified.title` can be `undefined` outright** (#730, commercial lister) — the headline then
   lives only in `sections.mainDescription.headline`. Harmless if you already sweep
   `mainDescription.headline + classified.title + document.title` together for VERGEBEN, but
