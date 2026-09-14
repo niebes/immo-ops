@@ -19,7 +19,7 @@ scam signal. *Why:* scoring #550 off the fields would have invented a 100-m²-Ha
 kalt that does not exist, and inverted the two-sided match (their Suche read as their offer).
 
 ## Side-2 base rate: our 2-Zi/54-m² Golm offer only serves DOWNSIZERS
-#492, #505, #533, #541, #550, #578 (später auch #667, #683, #719, #720, #722, **#724**) all failed side 2 on the same axis — the partner wants to
+#492, #505, #533, #541, #550, #578 (später auch #667, #683, #719, #720, #722, #724, **#778** — „gegen mindestens 5 Zimmer … alternativ zwei 3-Raum-Wohnungen im gleichen Haus", i.e. axes 3+4 in one sentence) all failed side 2 on the same axis — the partner wants to
 *enlarge* (≥3–5 Zi, 70–100 m², family households), and the Golm flat is the small end of the
 market. Side 1 kept passing (3,5–4,3/5), so the cost was a full evaluation each time.
 ⇒ Read the Suche's **direction** (vergrößern vs. verkleinern / "weniger Miete") FIRST; if they

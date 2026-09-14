@@ -249,6 +249,13 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `Haus {N}` part**, so dedup on the `WE` token alone. ⇒ The rule is unconditional now: on this
   feed fetch and Read **every** image lacking `classification`, gallery size 1 included; never
   read „1 Bild" as „1 Foto".
+  ⚠ **…and a lone „Bild 1" can also be a platform STOCK PLACEHOLDER — neither the flat nor a
+  plan.** #778 (`7a203645-…`, Anbieter-ID 129319): the single unclassified image was a stock photo
+  of hands holding a decorative plate („Tanze aus der Reihe") with the Tauschwohnung watermark, while
+  the text said „Fotos gern auf Anfrage". The watermark makes it look like a genuine upload.
+  ⇒ Real-photo count 0, D cap 3,0, and do NOT fire the „photos from different properties" scam
+  signal (the placeholder does not pretend to be the flat). Tell: a description that promises photos
+  „auf Anfrage".
   Bonus once you do: the plans carried per-room m², Raumhöhen (2,44–2,53 m), „1 m Linie"/„2 m Linie" Dachschräge
   markers (⇒ the advertised 130 m² is Grundfläche, WoFlV-Wohnfläche is lower ⇒ the real EUR/m² is
   higher), a second bathroom, and the definitive absence of any Balkon/Terrasse. *Why:* this inverts
