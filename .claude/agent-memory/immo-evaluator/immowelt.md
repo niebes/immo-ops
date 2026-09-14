@@ -324,6 +324,14 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   floorplan wins whenever `Zimmersumme + Außenfläche × {0,25|0,50}` does not land on the headline
   m². *Why:* the field is otherwise treated as the hard number, and a 0,27-m² error is small enough
   to copy unnoticed while proving the wrong Anrechnungsfaktor.
+- ✅ **`sections.documents.files[]` can hold the Bauträger Grundriss as a TEXT PDF — `pdftotext -layout` gives the
+  per-room m² table (incl. „Balkon 2,6 m² (5,2 m²)" + SUMME) without reading any image.** #781 (locals,
+  „Grundriss Bauträger", Fontane Gärten E.3.16): plain `curl -A <UA>` on the `ci_seal` URL, no Accept header
+  needed. Check `documents.files` before downloading `floorplans[]` images. *Why:* the plan images need a
+  Read per image; the PDF settles the Wohnfläche reconciliation in one Bash line.
+- ✅ **Media `description` suffix „ - (KI generiert)" marks virtual-staging images** (#781: 4 of 54, each
+  paired with the real empty-room shot of the same caption). These are honest labels on an existing flat:
+  subtract them from the real-photo count; they do NOT trigger the D-cap or a scam signal.
 - ⚠ **On the swap feed `classified.title` can hold the whole DESCRIPTION** (#779: the full boilerplate
   with `<br>`s), while the real headline is `mainDescription.headline`. Never read `title` as the ad title.
   Same ad, again a lone „Bild 1" = the developer Grundriss („Wohnung 13, ca. 81,75 m²"), i.e. the #724 case.

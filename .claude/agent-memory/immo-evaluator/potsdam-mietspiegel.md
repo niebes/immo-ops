@@ -1232,6 +1232,10 @@ Fixwerte, die man nicht neu recherchieren muss:
   Block H: Eigenbedarfs-/Verkaufsrisiko **Mittel–erhöht**, meist `verifiedBy: []`, keine Telefonnummer.
 - NK-Anker: 350 EUR auf 73,1 m² = **4,79 EUR/m² inkl. Fernwärme** (#760) gegen das Potsdamer Band
   3,00–3,80 ⇒ die warme Seite ist im Quartier über Benchmark, immer als ✗ Con + Kontaktfrage setzen.
+  Zweiter Datenpunkt #781 (**Georg-Hermann-Allee 126 = Villa E**, Penthouse E.3.16, 107,3 m², Bj. 2022,
+  Gas + FBH, locals Real Estate): NK+HK pauschal **625 EUR = 5,82 EUR/m²**, Kalt 19,31 (nach Senkung von
+  20,32) ⇒ Spalte E (>90 m²) = 15,14 (10,90–17,86): +8 % über dem Oberwert, knapp UNTER dem Quartierskorridor.
+  Große Einheiten hier reißen den Warm-Cap über die NK, nicht über die Kaltmiete — Warm immer zuerst prüfen.
 *Why:* ohne den Anker ist eine Bonner-/Peter-Huchel-/Erich-Arendt-Adresse weder einer
 Baualtersklasse noch einem § 556f-Status zuzuordnen, und ein 21-EUR/m²-Aufruf liest sich entweder
 als Mietpreisbremsen-Verstoß (den es rechtlich nicht gibt) oder als „marktkonform" (was ihn gegen
