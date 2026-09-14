@@ -453,6 +453,20 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     badge rule above: positive-feedback badges *suppress* this signal, a same-week account *confirms*
     it. *Why:* "Privater Nutzer, no name" describes most honest private ads too — the date delta is
     what makes it reportable.
+  - **Fake-ad pattern: a REAL corporate address + another building's photos. Grep the Standort
+    street against our own data before scoring anything.** #775: a private account created 4 days
+    before posting (1 ad) gave "Maxie-Wander-Straße 6, 14480". `grep -n "{Straße}" data/listings.md`
+    showed that house is **Vonovia stock, Bj. 1995, no Aufzug, 12,10 EUR/m²** (#678). The ad claimed
+    1. OG + Aufzug + EBK at 16,67 EUR/m², with NK+Heiz 3,33 EUR/m² against the building's known 4,9–5,3.
+    All 5 photos (uniform 834×1116) showed a **Gründerzeit Altbau**: Dielen, Segmentbogenfenster, a
+    cast-iron balcony railing and a facade opposite. That contradicted both the Baujahr and the ad's
+    own "Design-Vinylboden". Read the photos for **building-age tells** against the address's known
+    Baualter, not only for app chrome/aspect ratio. A mismatch proves "photos from a different
+    property" (Medium) outright. Other tells: the account name echoing the street ("maxi" ↔ Maxie-Wander),
+    a private poster at a Vonovia/ProPotsdam/Genossenschaft address, "Online-Besichtigung: Möglich" ticked.
+    *Why:* the ad was internally consistent (kalt+NK+Heiz = warm, Kaution exactly 3 NKM, all caps
+    cleared), so every price heuristic above passed it as a clean ~4,2 flat. Only the address-vs-own-data
+    diff and the photo-vs-Baujahr check exposed it.
 
 ## EXPIRED / deleted detection (important)
 - A deleted or reserved ad still renders the FULL cached listing — it does NOT 404 or show
