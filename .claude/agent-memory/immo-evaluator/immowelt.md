@@ -198,9 +198,11 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   captioned with the raw source filename (`FF26888_…_Haus_2_Haus_2_WE_5_…`). On #729 the very same
   project put it in `floorplans`. **#732 repeated #731 exactly** (`floorplans` = 3× „Musterwohnung",
   real plan = Bild 59 of 60, `FF26888_…_Haus_1_Haus_1_WE_16_…`, again the sole image with no
-  `classification`); **#784 made it 3-for-3** (H1-02-10 → Bild 59 of 60, `…_WE_10_…`) ⇒ on this lister the `images`-tail is now the *likelier* home of the plan, and
-  **"the only image lacking `classification`" is the reliable selector** — one `node` filter finds it
-  without downloading anything. ⇒ Run the filename/`WE`-token sweep over **both** arrays and
+  `classification`); **#784 made it 3-for-3** (H1-02-10 → Bild 59 of 60, `…_WE_10_…`) — **but #785 (H1-02-11, same batch,
+  same day) put it back in `floorplans[0]`** (59 images + 4 floorplans, no unclassified image). So the
+  placement is a per-ad coin-flip on this lister, NOT a pattern. *Why:* checking only the images-tail
+  selector would have reported "no unit plan" on #785. The selector that covers both: filter
+  `images` (no `classification`) AND `floorplans` for the `FF\d+|WE_` filename token in one `node` pass. ⇒ Run the filename/`WE`-token sweep over **both** arrays and
   download any image lacking `classification`; one `curl` then yields the per-room m² that settle
   the Wohnfläche-vs-Innenfläche question. *Why:* „`floorplans` has 3 entries" reads as „the plans
   are covered" and you score the area on the lister's headline number alone.
