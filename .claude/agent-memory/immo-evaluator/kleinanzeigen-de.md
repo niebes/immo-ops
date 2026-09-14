@@ -432,6 +432,16 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
       number, `Eckdaten:`-style description.
     ⚠ **Missing EXIF is NOT evidence either way** — Kleinanzeigen strips Make/Model/CreateDate from
     every upload, so `exiftool` returns bare dimensions on honest and dishonest ads alike.
+    - **When the ad settles nothing about price, check the poster's SIBLING ad in the same building
+      before falling back to the default.** Posters like #774 (investor KG with 2 units) apply one
+      Kaution rule to every unit. Using the `s-bestandsliste` curl, compute Kaution ÷ heading for each
+      ad under both readings. The reading where a sibling's Kaution would exceed 3 NKM is the wrong
+      one: #774's sibling gave 3.000 ÷ (1.210 − 250) = 3,13 NKM, so heading = Kaltmiete for both.
+      The same sibling also showed that the **Ortsteil label is a poster-picked dropdown tied to the
+      URL location suffix**: same building, one ad `-24192` "Dahlem", the other `-24194` "Grunewald",
+      both PLZ 14193. Trust PLZ + title over the Ortsteil label.
+      *Why:* on #774 there was no price sentence, no Warmmiete field and no clean Kaution multiple, so
+      the sibling was the only non-guess evidence for the price reading and for the Ortsteil.
     *Why:* on #715 this was the only thing separating "anonymous 1-day-old account with a suspiciously
     good flat" from "anonymous 1-day-old account with a lifted exposé", and it costs one `file -b`
     plus two extra curls instead of Reading the whole gallery.

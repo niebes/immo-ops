@@ -571,6 +571,17 @@ prices usually sit ABOVE the Mittelwert, not below.
   und reicht nur bis zum Spannen-Oberwert. ⇒ Die Kontaktfrage „Vertrag übernommen oder neu?" bleibt
   richtig, aber ihr Hebel ist klein — nicht mit „±1,5 Punkte in Block A" bewerten wie bei #608.
 
+## "Potsdam Nord" in a Suche LITERALLY includes Golm — area axis passes, don't mark it a miss
+Potsdam's official Sozialraum II "Potsdam Nord" = Bornim, Bornstedt, Eiche, **Golm**, Grube, Nedlitz
+(potsdam.de / Bürgerbudget Sozialraum 2). So a Suche naming "Potsdam Nord" is met by our offer
+without leniency; only a *named* Ortsteil (e.g. "Bornstedt") next to it softens that to a near-miss.
+#776 (Kleinanzeigen 3512001996): passed area + Fahrstuhl (our EG + Personenaufzug is the best fit for
+the pensioner households who ask for a lift), died on "Wir **benötigen** eine Dreizimmerwohnung".
+Also on #776: a private DIY swap can be posted by a **relative as proxy** ("Meine Eltern haben …") —
+the Suche's motive is then proximity to the poster ("bei uns in der Nähe"), and Block H has no tenant
+voice at all. *Why:* without the Sozialraum fact the area axis reads as a fail and hides that the
+room floor alone decided.
+
 ## Even on IS24 the object-specific twg.click link is NOT guaranteed — check "Weitere Links" first
 Some IS24 swap exposés carry only the **generic** `https://twg.click/is24-homepage` in the
 `REFERENCE_LIST` titled "Weitere Links" (it 302s to the tauschwohnung.com front page with utm

@@ -2985,8 +2985,17 @@ substantive lives in `ATTRIBUTE_LIST` + `MEDIA` captions + an external Landingpa
 - The **actual Vermieter/Bauträger is never named** (only the Makler in `AGENTS_INFO`) → Block H
   ceiling ~4,2 even for a well-rated agency.
 Seen on #624 (expose 170152491, locals Real Estate, "Wohnen am Brauhausberg").
+- **Cross-check the Immowelt twin of the same project for the contract terms.** Immowelt exposés of
+  the Brauhausberg charge (#729/#730/#731) carry **"Mindestmietdauer 24 Monate" as a structured
+  feature**; the IS24 payload of the same units has no such field at all. So on IS24 score G as
+  "24-Monats-Bindung wahrscheinlich" (~4,1), not "unknown" (~4,5) and never "keine" (#628 gave 4,8).
+- **Later-uploaded exposés of the charge DO carry a unit-specific Grundriss, captioned with a raw CAD
+  filename** (`FF26888_2026-07-28_48719_82669`): no "Grundriss" stem, no WE label. Download it: room
+  areas + Nordpfeil give the heated inner area (balcony counted at 50 %) and the true balcony
+  orientation. #769 (expose 170735834, H5-02-17) had it; #628 (earlier upload) did not.
 **Why:** the existing rule says Staffel/Index live in `Sonstiges`; when `Sonstiges` is process
-boilerplate, a clean grep result reads as a confirmed absence and Block G gets a free 5,0.
+boilerplate, a clean grep result reads as a confirmed absence and Block G gets a free 5,0. The
+filename-caption plan is skipped by every stem-match on `Grundriss|Musterwo`.
 
 ### Always curl to an expose-ID-specific filename — the scratchpad is SHARED
 Write to `expose-{scoutId}.json`, never a generic `e.json`/`expose.json`. Parallel evaluator
