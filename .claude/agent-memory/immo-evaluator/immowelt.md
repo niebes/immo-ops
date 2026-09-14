@@ -107,6 +107,9 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   chip reads like the IS24 „vermietet" flag on investment sales and would flip the object type; it is
   also the corroboration that the `frei ab` date is current rather than a stale field.
   **⇒ Treat the node-script path as the DEFAULT first move on Immowelt, ahead of CiC.**
+  ⚠ **The `snippet` must be a bare EXPRESSION (`{title: document.title, html: …}`), NOT an arrow function** — the driver wraps it as
+  `page.evaluate("() => ({snippet})")`, so `() => ({…})` returns a function object and the reply is `{ok:true, blocked:false, result:null}`
+  (#786). Looks like an empty page; it isn't.
   Two gotchas in the harness itself: (a) set `IP_HEADLESS/IP_LOCALE/IP_TIMEZONE/IP_STORAGE_STATE` and
   `cwd: ROOT` in the spawn env (`tmp/drive.mjs` omits them); (b) the driver emits a **second** line
   `{"ok":true}` after the result — write the result to a file on the first non-`ready` message and
@@ -201,7 +204,9 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `classification`); **#784 made it 3-for-3** (H1-02-10 → Bild 59 of 60, `…_WE_10_…`) — **but #785 (H1-02-11, same batch,
   same day) put it back in `floorplans[0]`** (59 images + 4 floorplans, no unclassified image). So the
   placement is a per-ad coin-flip on this lister, NOT a pattern. *Why:* checking only the images-tail
-  selector would have reported "no unit plan" on #785. The selector that covers both: filter
+  selector would have reported "no unit plan" on #785. **#786 (H1-03-15) = `floorplans[0]` again → 3 images-tail / 2 floorplans.**
+  Same batch also varies the **Merkmal chips per unit**: #786 had no `Keller` chip (`details:null` ⇒ list complete) while
+  #732/#784/#785 carried it — never copy sibling must-haves, read each unit's chips. The selector that covers both: filter
   `images` (no `classification`) AND `floorplans` for the `FF\d+|WE_` filename token in one `node` pass. ⇒ Run the filename/`WE`-token sweep over **both** arrays and
   download any image lacking `classification`; one `curl` then yields the per-room m² that settle
   the Wohnfläche-vs-Innenfläche question. *Why:* „`floorplans` has 3 entries" reads as „the plans
