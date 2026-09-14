@@ -198,7 +198,7 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   captioned with the raw source filename (`FF26888_…_Haus_2_Haus_2_WE_5_…`). On #729 the very same
   project put it in `floorplans`. **#732 repeated #731 exactly** (`floorplans` = 3× „Musterwohnung",
   real plan = Bild 59 of 60, `FF26888_…_Haus_1_Haus_1_WE_16_…`, again the sole image with no
-  `classification`) ⇒ on this lister the `images`-tail is now the *likelier* home of the plan, and
+  `classification`); **#784 made it 3-for-3** (H1-02-10 → Bild 59 of 60, `…_WE_10_…`) ⇒ on this lister the `images`-tail is now the *likelier* home of the plan, and
   **"the only image lacking `classification`" is the reliable selector** — one `node` filter finds it
   without downloading anything. ⇒ Run the filename/`WE`-token sweep over **both** arrays and
   download any image lacking `classification`; one `curl` then yields the per-room m² that settle
