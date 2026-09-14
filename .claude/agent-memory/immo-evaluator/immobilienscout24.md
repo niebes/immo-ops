@@ -1327,6 +1327,19 @@ four surrogates instead of guessing:
    the six photos carry `-1918070251…-1918070734`, which decodes to **October 2030**, i.e. impossible.
    There the suffix is a plain sequential picture ID, not a timestamp. Rule: if the decode lands in the
    future (or absurdly early), discard surrogate 5 and fall back to 6 — don't report the bogus date.
+   ⚠ **A decode that lands plausibly in the PAST can still be bogus — check it against the photos'
+   season, the time of day and the Baujahr.** #773 (expose 134897508, Leipziger Str. 64, Bj. 2021):
+   suffixes `-1541127337…-1541127697` decode to **02.11.2018, 04:01 CET**, yet the photos show lush
+   summer foliage, daylight and a building finished in 2021. Reported as-is, that would have been a
+   false "photos predate construction → different property" scam signal. Treat as a media-ID.
+   *Also seen there:* 9/16 captions literally `"testfilename"` — an upload-tool artefact on a
+   re-run private ad, not a fraud tell.
+
+**Mobile API UA: use exactly `ImmoScout24_1410_35_._` and ALWAYS assert `header.id` == the requested
+Scout-ID before trusting a field.** 2026-09-14 (parallel batch, #773): an iOS-style UA
+`ImmoScout_27.3_26.0_._` returned HTTP 200 with a *different* listing's full JSON (a request for
+170765580 got 134897508's payload). A cross-wired payload looks completely valid — only the id check
+catches it, and without it one listing gets scored with another's data.
 6. **Calibrate the Scout-ID band against the repo's own reports** — the cheapest surrogate and it needs
    no network call: `grep -o "expose/1[0-9]\{8\}" reports/*.md`, sort by ID, and read the month off each
    report's filename date. **Take the MAX ID per month, not the min/average** — reports also cover
@@ -3006,6 +3019,18 @@ plausible German listing, wrong property. If two reads of the same file disagree
 collision and re-curl to a unique name rather than trusting either read.
 **Why:** an undetected overwrite means scoring one listing's blocks against another listing's
 data, producing a confidently wrong report with no error anywhere.
+**Second cause of the same symptom (2026-09-14, #772): a non-standard UA
+(`ImmoScout_27.3_26.0_._`, without the "24") returned HTTP 200 + a COMPLETE JSON for an unrelated
+listing (134897508, Leipziger Str. 64) for expose 170749994.** So "wrong listing" is not only a
+file collision. It is a fifth UA failure mode, and it passes every size/status check. Rule: after every
+fetch, assert `header.id == requested scoutId` (the first dump line should print it) before
+reading any field.
+
+### A gallery image captioned `Bildschirmfoto …` can be the GRUNDRISS — always open it
+#701 wrote it off as "Bildschirmfoto, Inhalt unbekannt / kein Grundriss". On the re-list #772 (same
+image) it was a scanned floor plan with a room-by-room m² table (Wintergarten 8,97 m², no balcony).
+That decided Block E against a lister-set `obj_balcony: y` and exposed a WoFlV issue (Wintergarten
+counted in full). Screenshot captions are the private lister's upload name, not the content.
 
 ### JSON shape (parse `.sections[]` by `.type`)
 - `header`: `publicationState` (`active` = live; else likely EXPIRED), `realEstateType`,

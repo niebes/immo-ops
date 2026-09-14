@@ -208,6 +208,10 @@ Three things to take from that shape:
     END of the description — after the tauschwohnung.com boilerplate paragraph.** "Für {N} Personen
     ist unsere Wohnung zu klein" with N ≥ 3 is a deterministic upsize fail. Read the description to
     the last line; grep `für (drei|vier|fünf|\d) Personen|zu klein|Familie|Nachwuchs|Kind`.
+    **Add the adjective form `\d-köpfig|(drei|vier|fünf|sechs)köpfig`** — #777 (Immowelt, ID 103773,
+    Neuer Garten 3 Zi/83 m²) wrote „Wir sind eine **5-köpfige Familie** und auf der Suche nach einer
+    4 oder 5 Zimmerwohnung", which the `Personen` pattern misses (`Familie` catches it only by luck).
+    Side 1 scored 4,3 and side 2 still died on the room floor, same as #719/#720.
   - **Positive-form area clause: "Bevorzugt A, B, C … aber bietet gern alles an" = lenient PASS**,
     the mirror image of #578's "alle Bereiche außer A, B, C". A named preference list that ends in an
     openness clause never fails side 2 on area — do not record it as "our Ortsteil not on their list".

@@ -219,6 +219,11 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   the last image is a coin-flip for the Grundriss (#723) — so a silent off-by-one is exactly the
   miss the whole-gallery rule exists to prevent. Check `ls imgs/ | wc -l` against
   `images.length` before building the sheet.
+  ⚠ **Second shell trap: the Bash tool runs zsh, where an unmatched glob is a hard error
+  (`no matches found: *.jpg`) that kills the WHOLE command line** — so
+  `montage $(ls *.jpg *.png | sort -n) …` aborts when the gallery is all-WebP (no `.jpg` exists).
+  #777: 12/12 images decoded fine, montage never ran. Glob only the extension(s) actually present,
+  or decode everything to `.png` first and glob `*.png`.
   ✅ **Calibration counter-example — `hasFloorPlan:false` + `floorplans:[]` is sometimes simply
   TRUE.** #727 (`8991a275-…`, Tauschwohnung GmbH, 15 images, no `classification`): all 15 are real
   photos, no plan anywhere ⇒ real-photo count 15, Block-D cap does not fire. The flags lie often
