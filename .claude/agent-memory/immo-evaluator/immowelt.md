@@ -204,7 +204,7 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `classification`); **#784 made it 3-for-3** (H1-02-10 → Bild 59 of 60, `…_WE_10_…`) — **but #785 (H1-02-11, same batch,
   same day) put it back in `floorplans[0]`** (59 images + 4 floorplans, no unclassified image). So the
   placement is a per-ad coin-flip on this lister, NOT a pattern. *Why:* checking only the images-tail
-  selector would have reported "no unit plan" on #785. **#786 (H1-03-15) = `floorplans[0]` again → 3 images-tail / 2 floorplans.**
+  selector would have reported "no unit plan" on #785. **#786 (H1-03-15) + #787 (H5-00-05) = `floorplans[0]` again → 3 images-tail / 3 floorplans.**
   Same batch also varies the **Merkmal chips per unit**: #786 had no `Keller` chip (`details:null` ⇒ list complete) while
   #732/#784/#785 carried it — never copy sibling must-haves, read each unit's chips. The selector that covers both: filter
   `images` (no `classification`) AND `floorplans` for the `FF\d+|WE_` filename token in one `node` pass. ⇒ Run the filename/`WE`-token sweep over **both** arrays and
