@@ -234,7 +234,7 @@ Extractor snippets (for `scan_method: invisible-playwright` portals — a `{port
 
 `scan.mjs` records any 0-card extraction as `bot_defense` / selector drift. That classification
 is a GUESS, and on 2026-08-02 it was wrong for 2 of 4 flagged portals. Probe the live page in
-the stealth browser first and split the outcome four ways:
+the stealth browser first and split the outcome five ways:
 
 | What the probe shows | Real cause | Fix |
 |---|---|---|
@@ -242,6 +242,7 @@ the stealth browser first and split the outcome four ways:
 | Page renders fully, `bot:false`, cards present | **Headless-only block** | Move `playwright` → `invisible-playwright` + snippet (BBG, E&V) |
 | Cards appear on one probe, vanish on the next | **Async client render** | ASYNC snippet that polls (Sparkasse) |
 | Configured URL 404s / no results route exists | **Reconfigure** | Find the real listing surface — often an SEO page, not a search route |
+| A portal that used to work suddenly yields 0; HTTP 200, no bot wall, but the old URL **redirects** to a generic page, old card selectors/link patterns are gone, results ignore the old filters | **Site relaunch** | Check `curl -sL -w '%{url_effective}'` on the configured URL first — rebuild the extractor on the new surface (SEO location pages / new search params from the sitemap), don't build a stealth snippet (immobilien.de, 2026-09-15) |
 
 Reusable probe harness (the stealth driver speaks newline-JSON on stdin; **strip the snippet's
 trailing `;` exactly as `scan.mjs:652` does**, or the driver's `() => (…)` wrap becomes a syntax
