@@ -434,6 +434,14 @@ kalt sind dort unplausibel → sie zeigen an, dass die genannte Zahl die **Warmm
 *Why:* der Waldstadt-Reflex hätte 5,63 gezogen → „+125 % über Mietspiegel, § 556g-Rüge" auf einem
 markt- und mietspiegelkonformen Preis, und hätte zusätzlich die kalt/warm-Frage falsch entschieden.
 Siehe [[kleinanzeigen-de]] für die Adress-/WebSearch-Route, die das Baujahr auf einer 0-Foto-Anzeige liefert.
+**Gegenrichtung: NUR 16 A–E ist Neubau — `Tiroler Damm 1` ist 1960er Waldstadt-Blockbau** (4 Geschosse,
+WDVS-gedämmt, Treppenhaus-Risalit, Trockenboden, Kellergang mit offenen Rohren; #795). Eine WebSearch
+auf „Tiroler Damm" liefert *nur* das ProPotsdam-Projekt → nie die Straße pauschal als Neubau werten,
+Hausnummer + Fassadenfoto entscheiden. Dort stand „Baujahr: unbekannt" + **„Baujahr laut Energieausweis
+2014"** — das ist das Modernisierungs-/Ausweisjahr, nicht Erstbezug (IS24-Tooltip sagt das selbst);
+wer es als Baujahr nimmt, zieht Feld 2013–2020 (11,66) statt 1949–1970 (6,48) und schaltet per § 556f
+fälschlich die Mietpreisbremse ab. *Why:* bei 18,33 EUR/m² kalt kippt daran „konform/ausgenommen" vs.
+„+183 % über Mittelwert".
 
 ## Quartiers-Anker: **Brunnen Viertel, `Brunnenallee` (14478, Waldstadt I / Teltower Vorstadt)**
 Dritte Waldstadt-Falle, gleiche Bauart wie die zwei oben: PLZ 14478 löst den Plattenbau-Reflex aus,

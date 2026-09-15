@@ -469,7 +469,11 @@ nice-to-have outright, and its fit-out age brackets the missing Baujahr. Generic
 titled marketing caption — always download + Read them. **Skip `dwebp` entirely: the `fullImageUrl`
 ends in `.../format/webp/quality/80`; edit that path segment to `format/jpg` and the CDN serves a
 JPEG the Read tool opens directly** (one `curl -sL`, no conversion step). `dwebp` is installed as a
-fallback if a URL shape ever resists the swap. Verified on #558.
+fallback if a URL shape ever resists the swap. Verified on #558 (re-verified #795: any `resize/WxH` works).
+⚠ The Bash tool's shell is **zsh**: a download loop doing `set -- $p` / unquoted `$var` splitting does
+NOT word-split there, so every curl hits a malformed URL and saves a few-byte ASCII error body that
+looks like "the CDN refused format/jpg". Wrap such loops in `bash -c '…'`. *Why:* on #795 this cost
+three round trips chasing a non-existent CDN change.
 
 **Counter-case to the "`IMG_####` = phone-original = trustworthy" rule: a big gallery can still be
 0 real interior photos. Two independent checks — the caption WORD and what the frame shows.**
@@ -581,6 +585,18 @@ Ziolkowskistraße, both 1.200 warm) looked like a re-list on the price alone; th
 (4 vs 3), m² (77 vs 72), tenant name and Bezugsdatum. Discriminate on `obj_noRooms` + m² +
 `AGENTS_INFO.name` + availability — never on the bands, and not on the UUID `obj_objectnumber`
 (per-ad, proves nothing).
+
+**The positive identity test across two IS24 ads by a PRIVATE poster: `adTargetingParameters.obj_cId`
+(+ `obj_cwId`) is the IS24 ACCOUNT id — identical = same poster.** Verified per-account, not generic
+(#735 21016671, #746 21197185, #739/#794 21164109). A Mieternetzwerk tenant often re-posts the same
+flat as a *normal* private ad (`isTenantNetwork: false`, `AGENTS_INFO.name` shortened to initials
+"C. S."), with no Objekt-Nr. link and a new title — cId + a byte-identical photographed Grundriss
+settle it in one curl. The re-post is worth fully reading anyway: unlike the tenant-network mask it
+carries the `ATTRIBUTE_LIST`s (Etage, Keller/Balkon checks, Heizungsart, Kaution), and its Kalt/NK
+fields are **tenant-typed placeholders** — the real Vormiete is in the prose ("Aktuell beträgt die
+Warmmiete 810 €", vs. fields 950/250/1.200). Seen #794 (170029187) = #739 (170303660), both live.
+**Why:** without cId the re-post looks like a fresh 4-Zi flat with a new street hint, gets scored
+from the placeholder 950 kalt, and a second contact to the same tenant goes out.
 
 **Fifth form — and the only one that carries a DATE: `WhatsApp Image YYYY-MM-DD at 0`** (IS24 truncates
 the caption at ~30 chars, so the time is cut off). Phone-original like the other four → no cap. But

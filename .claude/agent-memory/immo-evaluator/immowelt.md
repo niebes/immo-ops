@@ -729,6 +729,19 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
   is unknown" is right, but the usable output of that search is the **list of portal URLs**, never
   the prose answer — a fabricated price walks straight into the 40 %-over-budget hard-blocker
   decision.
+- ⚠ **Portfolio sellers (THE GROUNDS "FAHRLAND HOMES", Ref `14476-xx`) run baugleiche sister houses with
+  IDENTICAL Baujahr/m²/Zimmer/Energieausweis values — a "same m² + rooms + EA" match is NOT a re-list.**
+  #796 vs #394: both 1998 / 110 m² / 6 Zi / D 122,3 kWh, yet different houses, both live at once.
+  The keys that discriminate: `sections.key` Referenznummer (IS24 `obj_objectnumber`), `plotSpace`
+  (IS24 `obj_lotArea`), the Energieausweis PDF **file title/address + Registriernummer** (`pdftotext`),
+  and IS24 `obj_rented`. Beware: the same ad mixed THREE unit ids (Ref 14476-06 · EA "An den Leddigen 81"
+  · Grundriss image headed "14476-22 Am Spitzen Berg 81") — the Grundriss image is a type plan of
+  another unit, so never use its header as the address. Fast cross-check: IS24 Ortsteil search via the
+  driver, then `indexOf(title)` in the innerHTML for the expose id → mobile API for both ids.
+  *Why:* the orchestrator's DUPE hypothesis would otherwise have folded a vacant house into a
+  vermietet one. Also: the scratchpad `imgs/` dir can hold **stale files from an earlier session** —
+  #796 showed 12 images for a 10-image gallery (2 foreign Tauschwohnung pics); use a fresh dir or
+  compare `ls | wc -l` to `images.length`.
 - **Provision terms are spelled out in the Preisdetails block** — rate, when it becomes due, and
   crucially whether a **same-rate contract with the seller** exists (= § 656c BGB split confirmed).
   Read it verbatim; it is a real Block-G differentiator (#396 was clean and 2,38 %; #384's IS24 twin
