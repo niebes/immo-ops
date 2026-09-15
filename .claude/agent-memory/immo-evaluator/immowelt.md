@@ -801,6 +801,16 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
   `geometry` = Ortsteil polygon, builder 30 km away). Same #419/#381 pattern.
   *Why:* without this, #697 passes the #514 checklist as an existing villa and the whole evaluation
   argues about a resale price that was never on offer.
+  ⚠ **Third variant (#798, allkauf „Pure Home 1", Groß Glienicke): the plot is PRICED IN but still not
+  sold.** `hardFacts.locationDescription` (= the „Lage" text) says „Kalkulatorische Referenzfläche: 600 m².
+  **Kalkulatorischer Grundstücksanteil: 300.000 EUR** … Das Grundstück wird separat vom Eigentümer
+  erworben … Das Haus kann auch auf einem anderen geeigneten Grundstück realisiert werden." So the
+  headline = house + a notional plot figure. Subtract that figure to get the house share, and do NOT redo
+  the #709 „add a plot on top" scenario (that would double-count ~300 T EUR). Garten/Lage still count as
+  unsecured. Same record also lied `RESALE` + `isNewBuildProject:false`, while `energy.features` held
+  `Zustand: Projektiert` + `Haustyp: KfW 40` (reliable here). Gallery `LOGO`/`HOUSE_FACADE` tiles included
+  two allkauf ad banners („ab 198.999 €", „PV-Aktion"). *Why:* reading this as house-only inflates all-in
+  by the plot twice and fires the 40 % hard blocker wrongly.
 - **Watch the tail of the description for a digital-staging disclaimer** — e.g. "Einige Räume sowie
   die Außenanlage wurden digital gestaltet und dienen ausschließlich als Inspiration." It sits AFTER
   the prose and before "Mehr anzeigen", so a truncated read misses it. It is *partial* staging on an
