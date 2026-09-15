@@ -1028,6 +1028,21 @@ Läuft regelmäßig in die Potsdam-Wohnungssuche ein, weil Caputh nur ~8 km von 
 *Why:* ohne diesen Block wird für jede Caputh-Wohnung Regulierungsstatus, Proxy-Feld und
 RB23-Taktung neu recherchiert — und die Reflexannahme „Brandenburger Nachbargemeinde → reguliert
 wie Werder" ist hier falsch.
+
+### Gemeinde **Stahnsdorf** (14532, Potsdam-Mittelmark) — Komplettsatz (#799, 2026-09-15)
+Läuft in die Potsdam-Wohnungssuche ein (Immowelt-Radius), liegt aber auf der **Berliner** Seite von Potsdam.
+- **Mietpreisbremse: Gemeinde REGULIERT** (36er-Liste ab 01.01.2026) — Gegenteil von Schwielowsee.
+  Bei Neubau (Bj. ab 2014) trotzdem kein Hebel wegen **§ 556f BGB**; beides nennen.
+- **Kein qualifizierter Mietspiegel.** Proxy = gleichaltriges Potsdamer Feld, als Proxy kennzeichnen
+  (ab 2021, >90 m²: 15,14 (10,90–17,86)).
+- **Angebotsanker 2026:** Ø ~16,5 EUR/m² (Spanne ~12,7–21,1; miet-check 16,54). immoportal „Neubau ab
+  2021 26,04" ist unplausibel hoch — nicht als Anker verwenden.
+- **Verkehr:** keine Bahn im Ort; **Bus 601 direkt Potsdam Hbf ~32 Min, 20-Min-Takt** (regiobus PM);
+  Richtung Berlin per Bus zum Bhf Teltow (S25/S26, RE3). **Golm ≈ 50–55 Min** mit Umstieg Hbf; Auto ~30 Min.
+- **Block B = 2,5** für Wohnungen: außerhalb Suchgebiet (kein Hard Blocker, `acceptable_areas` leer),
+  unter Schwielowsee (3,0) kalibriert — weiter von Golm, keine Bahn, Orientierung Richtung Berlin.
+*Why:* Stahnsdorf steht in der Kauf-Suche als acceptable_area, NICHT in der Miet-Suche — ohne diesen
+Block wird der Status verwechselt und Regulierung/601-Takt neu recherchiert.
 **Merke außerdem:** § 549 Abs. 2 Nr. 1 BGB nimmt **Wohnraum zum vorübergehenden Gebrauch**
 (möbliert/auf Zeit/Monteur) ohnehin aus den §§ 556d ff. heraus — bei solchen Anzeigen also
 beide Begründungen nennen (Gemeinde reguliert ja/nein **und** § 549), nie nur eine.
