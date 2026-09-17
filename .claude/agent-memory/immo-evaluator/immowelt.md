@@ -825,6 +825,41 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
   `Zustand: Projektiert` + `Haustyp: KfW 40` (reliable here). Gallery `LOGO`/`HOUSE_FACADE` tiles included
   two allkauf ad banners („ab 198.999 €", „PV-Aktion"). *Why:* reading this as house-only inflates all-in
   by the plot twice and fires the 40 % hard blocker wrongly.
+  ⚠ **Fourth variant (#810, allkauf „Gebiet NORD", Marquardt, `…-kw38-…`): the ad says NOTHING about the
+  plot at all — and silence is the commonest case, so have a decider ready that does not depend on the
+  prose.** `hardFacts.locationDescription` was pure boilerplate („Das Haus befindet sich in Marquardt,
+  einem attraktiven Standort…"): no „nicht im Preis enthalten" (#697), no „Kalkulatorischer
+  Grundstücksanteil" (#798), and `commissionFee.value` was Immowelt's generic „kann … eine Provision
+  beinhalten" rather than the #514 „auf dem Grundstück möglich" tell. Two tests settle it without prose:
+  (1) **Erschöpfungstest** — the „Zu allen Häusern gehört:" list enumerated 24 items down to *Steckdosen*
+  and named no Baugrundstück, no Bodenplatte, no Erschließung, no Außenanlagen, no Küche; (2) **band test**
+  — the allkauf house-ONLY €/m² band in this tracker is **3.013–3.953** (#422 3.013 · #709 3.246 · #514
+  3.155 · #367 3.586 · #419 3.921 · #377 3.953). #810's headline 3.618 sat mid-band ⇒ house-only; had the
+  plot been included at the local asking rate the residual would be **2.256 €/m²**, below every observed
+  value. Keep the band updated — it is the only quantitative handle when the text is silent, and the
+  plot-in/plot-out answer moves all-in by ~200 T EUR. *Why:* the documented tells are all *textual*, so a
+  boilerplate Lage text reads as „no information" and invites scoring the sticker price.
+  ✅ **Calibration on the same ad: the #809 Preisdetails degradation is NOT chronic — count the items, do
+  not assume.** One day after #809's single bogus „Provision für Käufer (19 %)" line, #810's
+  `price.breakdown.groups[].items` carried **all four** entries (Notar 1,5 % · GrESt 6,5 % · Provision
+  3,57 % · Grundbuch 0,5 %) and each multiplied out exactly against the Kaufpreis, total consistent. So the
+  rule stays „count `items`, recompute only if < 4" — do not pre-emptively discard Immowelt's total.
+  ⚠ But `tags.hasBrokerageFee:false` contradicting a printed „Provision für Käufer (3,57 %)" is now
+  2-for-2 (#798, #810): on a Bauträger/Fertighaus ad the 3,57 % is Immowelt's **boilerplate assumption**,
+  not an Anbieter price — report it as unconfirmed (here 18.865 €) and make §§ 656c/d BGB a contact question.
+  ⚠ **Media `classification` lied in both directions again, and `description` is useless on this feed
+  (bare „Bild N") — so the cheap caption shortcut does not apply to allkauf; download the gallery.**
+  #810: Bild 1 tagged `HOUSE_FACADE` is an allkauf **ad banner**, Bild 5 tagged `YARD` is a **stock photo
+  of a family in a forest**; only the `LOGO` and `FLOORPLAN` tags were right. Real-object photo count was
+  **0** of 11 (2 banners + 1 stock + 8 CGI renders). No D cap (Neubau exception) — but the renders showed a
+  **carport, terrace, fence and landscaped garden that are in no leistungsposition**, i.e. the images
+  overstate the contract scope. *Why:* on a build offer the gallery is the main source of the „what am I
+  actually buying" error, and the histogram alone would have reported 4 exterior photos of the object.
+  ✅ **Cheap win worth repeating: sum the two catalogue floorplans before scoring C.** #810's EG 73,63 +
+  OG 72,63 = 146,26 m² against an advertised 146,04 (0,15 % off), with no Dachschräge markers and 2,75 m
+  lichte Raumhöhe on both full storeys ⇒ the advertised area *is* the WoFlV area and the €/m² needs no
+  upward correction — the opposite of #798, where the OG Dachschräge cut ~7 m². Two Reads settle whether
+  Block A's €/m² is honest.
 - **Watch the tail of the description for a digital-staging disclaimer** — e.g. "Einige Räume sowie
   die Außenanlage wurden digital gestaltet und dienen ausschließlich als Inspiration." It sits AFTER
   the prose and before "Mehr anzeigen", so a truncated read misses it. It is *partial* staging on an
