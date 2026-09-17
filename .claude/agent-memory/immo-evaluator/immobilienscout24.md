@@ -453,7 +453,7 @@ identical 1.450 kalt / 1.850 warm, 115 vs. 116 m², same EG+Souterrain-Duplex wi
 - **Still cross-check the tenant ad on contact** — who actually selects (owner vs. tenant proposal)
   is unclear, and the tenant is a free witness for the Vermieter's identity.
 **Why:** routed as a plain re-list, the 200 on the old ID reads as "duplicate ads, ignore", and the
-whole价 resolution + the Vormiete proof get thrown away.
+whole price resolution + the Vormiete proof get thrown away.
 
 ### Gallery photographed OFF A SCREEN = the lister is not the owner of the images
 On #802 all 11 pictures showed a **monitor bezel, a mouse/text cursor ("+") and a cut-off text column
