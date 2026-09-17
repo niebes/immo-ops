@@ -296,6 +296,30 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
          tracker can be stale within days, and the Kaution moves with it, so the Kaution ÷ 3 Kaltmiete
          silently changes too. Cheap: one curl of the old URL, diff `#viewad-details`.
       3. `data-soldlabel="Verschenkt"` persists on the edited old ad — still not "sold".
+      4. **`data-soldlabel` is a TEMPLATE attribute on EVERY ad's `<h1>`, live ones included — it is
+         NEVER a liveness test.** #807 found `data-soldlabel="Nicht mehr verfügbar"` on a live *and* on
+         a withdrawn ad, and a substring grep for `nicht mehr verfügbar` returns exactly 1 hit on each.
+         There is no `#viewad-sold` / `is-sold` / `class="*sold*"` marker either, and a **withdrawn ad
+         still serves HTTP 200 with the complete cached detail page** (price, spec list, gallery,
+         contact block) — so every content-based liveness check passes on a dead ad. The only reliable
+         test is the poster's inventory: `curl ".../s-bestandsliste.html?userId={id}"` and check whether
+         the ad-ID still appears. On #807 the old flat ad was absent from its account's 20 remaining ads
+         (all Mercedes parts/radios/CDs, zero Immobilien) ⇒ genuinely withdrawn.
+      5. **A repost can move to a DIFFERENT ACCOUNT**, which breaks the `posterid + …` dedupe tuple in
+         (1). #807: the same Alt-Drewitz flat reappeared under a brand-new posterid (account 13 days
+         old) four days after the original account dropped it. Dedupe on
+         `m² + Zimmer + Etage + NK + Verfügbar-ab + description hash` and treat `posterid` as optional.
+      6. **Photo md5 forensics discriminate a LANDLORD re-list from a COPIED-AD scam** — the positive
+         test (1) lacks. Download both galleries at `rule=$_57.JPG` and `md5sum` them. Byte-identical
+         renders ⇒ the **same original camera files** were re-uploaded (a copier only has the published
+         CDN renders, which re-encode to different bytes); and any photo in the NEW ad that is **absent
+         from the old** ⇒ the poster holds unpublished originals ⇒ owner/landlord with access to the
+         flat, not a copier. On #807, 7 of 11 matched by md5 and 4 were previously unpublished; together
+         with a shared Mercedes-enthusiast Berlin+Potsdam footprint across both accounts that settled it
+         as a legitimate re-list. Score it, but drop Block H (verifiability lost: the old account's
+         12-year history and positive badges do not transfer) and fire the two Medium scam signals
+         ("reposted with different prices", "new account") ⇒ *Proceed with Caution*, with
+         identity-verification as step 1 of Next Steps rather than avoidance.
       *Why:* without (1) the repost looks like a second, distinct Fahrland flat and earns a duplicate
       report; without (2) the tracker keeps a Kaltmiete that the poster abandoned.
   - **Seventh price variant — `Warmmiete` is the ONLY money field AND there is no Kaution** (#803).
@@ -412,6 +436,13 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
       (`representativeOfPage: true`), so they identify the ad's lead photo, never its gallery size.
       Useful side effect: each sidebar ImageObject carries the neighbour ad's full `title` +
       `description`, which is why keyword greps for "Tauschangebot" false-positive (see below).
+    - **Scope EVERY keyword sweep to `title + #viewad-description-text + the ul.addetailslist blocks`
+      (~2–3 KB) — never to "everything after `id="viewad-title"`".** That slice is ~157 KB on a normal
+      detail page because the recommended-ads sidebar sits inside it. On #807 the unscoped sweep
+      returned `befristet: 12 · möbliert: 6 · Nachmieter: 18 · WBS: 3 · Balkon: 14 · Terrasse: 21`
+      for an ad whose own text contains **none** of them (properly scoped: all 0). Every one of those
+      is either a hard-blocker term or a must-have, so an unscoped sweep manufactures blockers that
+      would cap the score at ≤2.0 *and* invents amenities the flat does not have.
   - Kaution field may read **"Kaution / Genoss.-Anteile"** → for a Genossenschaftswohnung this is
     refundable cooperative shares, NOT a deposit and NOT an advance-fee scam signal; the low rent is
     the coop structure, not too-good-to-be-true. *Why:* otherwise you'd wrongly flag scam + illegal Kaution.
