@@ -279,6 +279,26 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
       3. `data-soldlabel="Verschenkt"` persists on the edited old ad — still not "sold".
       *Why:* without (1) the repost looks like a second, distinct Fahrland flat and earns a duplicate
       report; without (2) the tracker keeps a Kaltmiete that the poster abandoned.
+  - **Seventh price variant — `Warmmiete` is the ONLY money field AND there is no Kaution** (#803).
+    The Kaution ÷ 3 recovery above then has nothing to bite on. Fallback, in this order: (1) a
+    **Betriebskosten-Anker from an already-evaluated flat in the SAME building/quarter** (EUR/m²
+    warm-Aufschlag, see [[potsdam-mietspiegel]] — Brunnen Viertel = 3,47 EUR/m²): kalt ≈ warm −
+    anker × m²; (2) failing that, the generic 3,00–4,00 EUR/m² band. Always label the number
+    **"abgeleitet"**, quote the resulting range, and check that the Mietspiegel verdict holds
+    across the whole range — if it does, say so, because that is what makes the derivation
+    load-bearing rather than a guess. *Why:* a Warmmiete-only ad otherwise has no Kaltmiete at all,
+    so Block A, the €/m² cap and the Mietpreisbremse check are all unrunnable; and comparing the
+    *Warmmiete* against a Kaltmiete band (the tempting shortcut) fabricates a ~20 % overpricing.
+  - **A Nachmieter ad with NO Ablöse is worth stating explicitly as a plus.** Grep
+    `Ablös|Abschlag|Abstand|übernehmen|Übernahme` over the own-ad text (before `viewad-title`);
+    0 hits on #803 including a fitted kitchen. *Why:* the Ablöse is the default expectation on
+    tenant ads (#324 ≈ 2.300 EUR, #540 "Abschlagszahlung"), so its absence is a real, quantifiable
+    advantage the report should name — not a non-finding to pass over in silence.
+  - **On a tenant's Nachmieter ad, the stated rent is the BESTANDSMIETE — always price the
+    re-letting risk.** The landlord signs a *new* contract and may re-price to the quarter's asking
+    band; where the Mietpreisbremse is switched off by § 556f (post-01.10.2014 Erstbezug) there is
+    no legal ceiling at all. Quantify it in Block A (#803: band ⇒ up to +124 EUR/month) instead of
+    scoring the advertised figure as if it were the offer.
   - **The poster's OTHER ads reveal their ROLE, which the flat ad never states.** Same
     `s-bestandsliste.html?userId={id}` call as the PLZ-triangulation recipe below, read for a different
     purpose: on #703 the Fahrland flat sat alongside ten **household clear-out** ads from the same
