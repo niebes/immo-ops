@@ -202,6 +202,24 @@ land on opposite sides of P (on #597: +2,5 % vs +21,5 %), so say which reading y
       in Potsdam can be treated as a determined fail on sight.
       Cheap triage win: a prefilter on `max(imal)|bis (zu)? \d{3} ?(€|Euro)` with a value under
       ~1.000 EUR would have caught #597, #598 and #727 before any evaluation.
+    - **P stated as a WARM ceiling that is BELOW the poster's own current WARM rent ⇒ the sharpest
+      determined fail of the series, even when every other axis passes.** #804 (Kleinanzeigen
+      3386976335, Anbieter-ID 438279, Am Stern): 3 Zi / 60 m² / 845 EUR warm, Suche = „1,5 bis
+      2-Zimmer-Wohnung bis ca. 45 m² in Potsdam, **idealerweise bis 500 € Warmmiete**". Three axes
+      pass **without any leniency** — direction ✓ (genuine downsizer), Zimmer ✓ (our 2 hits the top
+      of „1,5 bis 2" exactly), Stadt ✓ (Potsdam literally named, Golm needs no commuter-belt
+      allowance) — the #684/#685 profile the `swap_offer` was built for. It still dies: our
+      1.214,93 EUR warm is **2,43× P**, and our **Kaltmiete alone is +105 % over their WARM ceiling**.
+      Three things to keep: (a) when P is written as *warm*, compare warm-to-warm first, then show
+      that even kalt-vs-warm overshoots — that second line is what makes the fail unarguable;
+      (b) **P < their own current rent** is the decisive diagnostic (845 → 500 = −40,8 %): they are
+      downsizing **for price**, and our freifinanzierter 2024er Indexmiete-Neubau moves the wrong way
+      — a swap would raise their warm rent +43,8 % against today; (c) a stated **m² ceiling** („bis
+      ca. 45 m²", we are 54,19 = +20,4 %) is a *cost* cap in this shape, not a space wish, so it
+      confirms rather than softens the rent fail. ⇒ Write explicitly in the report that rooms/city/
+      direction all passed and only P decided, otherwise the next reader re-litigates the discard
+      (same failure mode as #683). *Why:* the pull toward "surface it anyway" is strongest exactly on
+      this profile — it is the one that keeps *almost* working.
 **Fourth kill axis: the WOHNKONSTELLATION Suche — they want MULTIPLE units, or a household size
 that no single flat of ours serves.** #606 (Kleinanzeigen, 14478 Potsdam): *"Am liebsten in einem
 Haus **ZWEI Wohnungen mit 2 Zimmern**, oder 2,5 oder 3 oder 4… Auch eine **Gemeinschaft** wäre

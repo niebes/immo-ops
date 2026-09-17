@@ -4,6 +4,25 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
 
 ## Getting the data
 - **Detail pages (`/s-anzeige/...`) are plain-curl accessible** — a simple `curl -A "Mozilla/5.0 ... Firefox"` returns the full 200 HTML with every field (title `#viewad-title`, price `#viewad-price`, locality `#viewad-locality`, `#viewad-details` list incl. Standort street address, `#viewad-description-text`, seller block with "Aktiv seit", gallery elements). Only the SEARCH pages bot-block headless. *Why:* on 2026-07-13 the invisible-playwright driver was crashed session-wide; curl evaluated #324 with zero browser. Prefer curl for single-listing evals.
+- **⚠ SCOPE every keyword sweep and every photo count to THIS ad's own DOM — the page embeds ~10
+  FOREIGN ads in full.** The sidebar ("Weitere Anzeigen") ships each recommended ad as complete
+  JSON-LD: its whole `description` text **and** its `contentUrl` image. A page-wide grep therefore
+  reads other people's flats. On #804 a raw `grep -i WBS` hit **"WBS erforderlich"** and `möbliert`
+  hit "vollständig möbliert" — both belonged to strangers' ads (Anbieter-IDs 365155 / 354175), and
+  taken at face value each one fires a **hard blocker** (WBS without WBS / furnished cap ≤2,0) on a
+  clean listing. Same mechanism inflates photos: 11 distinct `prod-ads/images/...` URLs page-wide,
+  but **1** belonged to the ad (1 own + 10 sidebar thumbnails).
+  ⇒ Sweep only inside `#viewad-description-text`; count photos only from `data-imgsrc` (dedupe by
+  image UUID — the same picture appears as `?rule=$_59.AUTO` and `$_57.AUTO`) or a container scoped
+  to `#viewad-product`. Cross-check with `grep -o "Anbieter-ID: [0-9]*"`: more than one ID on the
+  page = foreign ads present, and only the one in `#viewad-description-text` is yours.
+  *Why:* a page-wide sweep produces both false hard blockers and an inflated photo count — two
+  independent ways to misscore an ad, and neither announces itself.
+- **A gallery of "1 image" is often ZERO real photos — the single image is the Grundriss.** Check what
+  it is (download + view) before scoring Block D; a floor plan does not verify condition, so the
+  "no real photos ⇒ cap D at 3,0" rule still applies (#804: only a watermarked Grundriss, while the ad
+  claimed "frisch renoviert im April 2025"). Upside: the plan is load-bearing evidence elsewhere — it
+  settled Balkon-vs-Terrasse against the checktags and proved 3 genuinely separate rooms (#606 check).
 - A cookie consent overlay appears ("Willkommen bei Kleinanzeigen", buttons "Alle akzeptieren" /
   "Datenschutzeinstellungen"). It does NOT block `read_page` — full listing DOM renders behind it,
   so you can extract everything without touching the banner. Do not click "Alle akzeptieren".
@@ -547,6 +566,13 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   any structured list — a plain sentence like "Wir suchen eine 4-Raum-Wohnung in Potsdam bis max. 900€
   Kaltmiete." Always read the description for Side 2 of the swap match. *Why:* the spec `list` only
   carries THEIR flat (Wohnfläche/Zimmer/Wohnungstyp); the Suche is prose-only.
+  - **Cleanest Kleinanzeigen form: a `Gesucht:` label on its own line, after a dashed divider, at the
+    very end of the description** (#804: a `-----` rule, then "**Gesucht:** 1,5 bis 2-Zimmer-Wohnung
+    bis ca. 45 m² in Potsdam, idealerweise bis 500 € Warmmiete."). Add the bare label `Gesucht:` to
+    the trigger set next to `SUCHE:` / `Unsere Wunschwohnung:` — like those it carries **no verb of
+    wanting**, so `Ich suche|wir suchen|auf der Suche nach` all miss it. The divider is the tell that
+    the offered-flat half has ended. *Why:* the ad's own prose never says "suche"; a verb-based grep
+    records "Suche unknown" and pushes a determined fail into lenient/near-miss territory.
   - **Sometimes the Suche is ONLY in the title** ("TAUSCHWOHNUNG Suche bezahlbare 4 Zimmerwohnung in
     Babelsberg-Nord") and the description describes only the OFFERED flat + platform boilerplate.
     Read BOTH; the title states what they seek, the description/spec-list what they offer — the
