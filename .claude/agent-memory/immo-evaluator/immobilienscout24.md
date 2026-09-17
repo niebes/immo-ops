@@ -5,6 +5,16 @@ CAPTCHA ("Ich bin kein Roboter") on navigation — wait ~8 s and re-check; most 
 
 **Why:** asking the user to solve a CAPTCHA that would have auto-solved wastes their attention (see [[feedback-captcha-wait]]).
 
+### Mobile API: a WRONG User-Agent returns `HTTP 200` with a ZERO-BYTE body — never read that as EXPIRED
+`api.mobile.immobilienscout24.de/expose/{id}` only answers to the app UA `ImmoScout24_1410_35_._`
+(use `curl -s --compressed`). An invented/other app UA (tried: `ImmoScout24_4.9.1_iPhone`) still returns
+**`200` with `size_download=0`** — no error, no redirect, no JSON. Always print the status *and* the byte
+count (`-w 'http=%{http_code} size=%{size_download}\n'`) and treat `size=0` as **wrong UA, retry**, never
+as a deleted listing. Confirmed 2026-09-17 on expose 170912489: empty with the iPhone UA, full 11 KB
+payload with the documented UA on the very next call.
+**Why:** an empty 200 looks exactly like a pulled exposé, so the evaluation would have been filed as
+EXPIRED (or escalated to a browser, which the parallel-run policy forbids) for a perfectly live listing.
+
 ### Confirming/refuting a "same flat as #NNN" suspicion: rent+size is NOT a discriminator in a portfolio estate
 Bulk landlords price a whole estate off one m²-table, so several distinct units carry almost the same
 Kaltmiete and m² (Vonovia in Potsdam-Kirchsteigfeld sits at ~10,3–10,6 EUR/m² across #107/#200/#208/
