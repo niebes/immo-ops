@@ -425,6 +425,54 @@ for these. Seen on #362 (expose 169397785, Waldstadt II).
 **Why:** the TAG_LIST id identifies the listing class before you go looking for a criteria table
 that doesn't exist, and priceBar substitutes for the missing Mietspiegel data.
 
+### The VERMIETER-TWIN of a still-live tenant ad: `isTenantNetwork` false vs. true on the same flat
+A Mieternetzwerk ad and a second, **private non-tenant-network** ad for the *same* flat routinely run
+**in parallel** — the old-scoutId-404 re-list test then returns **200**, and that 200 is the finding,
+not a dead end. Seen on **#802** (expose 170846764) vs **#118** (167200178), Kaiser-Friedrich-Str. 8 Eiche:
+identical 1.450 kalt / 1.850 warm, 115 vs. 116 m², same EG+Souterrain-Duplex with two baths.
+- **Identify it on `isTenantNetwork` + `AGENTS_INFO.title`**, never on rent+m²: the tenant ad says
+  "Aktuelle:r Mieter:in", the twin is `obj_privateOffer: true` / `isTenantNetwork: false`. The
+  **Objekt-Nr. discriminator inverts here**: the tenant ad carries a Mieternetzwerk **UUID**
+  (`1bef33bf-…`), the private twin carries `objectnumber == scoutId`. Neither is a landlord unit key,
+  so that test proves nothing — decide on the channel fields instead.
+- **A Zimmer-/m²-Differenz does NOT refute the match.** 6 Zi/116 m² vs. 5 Zi/115 m² was pure counting:
+  the tenant text lists a *Durchgangszimmer* the owner doesn't count. Match on **rent to the euro +
+  street + bath count + floor**, and expect the two ads to disagree on room count, EBK, Stellplatz
+  price and Bezugstermin.
+- **What the twin is WORTH — three things the tenant ad cannot give:**
+  1. **It resolves the range.** The tenant ad's headline is an IS24 **estimate** ("1.230–1.360 €",
+     ±5 % around `obj_baseRent`, plus the "Miete wird sich eventuell anpassen" notice); the owner ad
+     has a real `ATTRIBUTE_LIST "Kosten"`. Corroborate with **Kaution ÷ 3** (4.350 ÷ 1.450 = 3,00).
+     Re-score only the blocks whose facts actually moved (#118 had Block A at 2,5 purely for that
+     ambiguity) and say so in a section 0.
+  2. **§ 556e Abs. 1 Vormiete becomes PROVABLE.** The sitting tenant's own ad documents what is
+     currently paid — if the new ask equals it, a rent above Mietspiegel+10 % is probably lawful.
+     Write the Mietpreisbremse finding that way instead of booking a flat violation.
+  3. **No Möbelübernahme.** Per CLAUDE.md pursue the landlord channel; the tenant notice explicitly
+     announces a furniture talk.
+- **Still cross-check the tenant ad on contact** — who actually selects (owner vs. tenant proposal)
+  is unclear, and the tenant is a free witness for the Vermieter's identity.
+**Why:** routed as a plain re-list, the 200 on the old ID reads as "duplicate ads, ignore", and the
+whole价 resolution + the Vormiete proof get thrown away.
+
+### Gallery photographed OFF A SCREEN = the lister is not the owner of the images
+On #802 all 11 pictures showed a **monitor bezel, a mouse/text cursor ("+") and a cut-off text column
+at the right edge** — someone opened the *other* (tenant) ad on a PC and photographed it. Captions
+were plain `IMG_53xx` camera names, so nothing in the metadata flagged it; **only looking at the
+images does.**
+- Score it as the **Medium** "photos from different properties / not the lister's material" signal,
+  plus the usual Medium for `verifiedBy: []` + no address + no phone + 72-h freemium ⇒ **Block H 1,5**,
+  verdict **Proceed with Caution**, and make identity/Eigentumsnachweis + an insistence on an
+  in-person (not "Online-Besichtigung") viewing the first Next step.
+- **Do NOT cap Block D for it.** The rooms are genuinely observable, so the "no real photos → 3,0"
+  rule does not fire; grade condition normally off what the frames show.
+- **Weigh the refutation explicitly:** a scraper cannot invent the exact house number, a Kaution that
+  is exactly 3× the rent, the Modernisierungsjahr, the Heizungsart and a coherent later Bezugstermin —
+  and a bait ad **underprices**, whereas #802 sat at the *top* of the address-precise `priceBar` band.
+  That combination keeps it at Caution rather than "Likely Scam".
+**Why:** the tell is invisible in the JSON and easy to miss when the photos otherwise look fine; but
+read alone it also tempts an over-call — the price direction is what settles the verdict.
+
 **Don't count on `PRICE_INFO` being there — and you don't need it for the price itself.** On #552
 (expose 169553135, Charlottenstr. 67, Nördliche Innenstadt) the payload had **no `PRICE_INFO` section
 at all**, so there was no priceBar band. Two workarounds:

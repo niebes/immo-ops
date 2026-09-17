@@ -942,6 +942,22 @@ ein Baujahr oder einen Energieausweis. Was man deshalb nicht neu recherchieren m
 Nicht-Tausch-Pfad im eigenen Haus ist — und Baujahr/Keller/Indexmiete werden dort sonst jedes Mal
 als „unbekannt" gescort, obwohl sie firsthand feststehen.
 
+## Ortsteil-Anker: **Eiche (14469, Potsdam Nord)** — Nachbar-Ortsteil von Golm, Einfamilienhaus-Prägung
+Kommt laufend in den Scan (#100, #118, #137, #145, #169, #170, #249, #298/#299/#331, #802) und grenzt
+direkt an **Golm**, den Top-Präferenz-Ortsteil — Block B daher regelmäßig **4,5** (preferred, aber
+ÖPNV nur per **Bus 609/638**, ~8 Min. zum Bahnhof Golm/Sanssouci, ~20 Min. zum Hbf).
+⚠ **Exposé-Lagetexte behaupten dort gern eine „S-Bahn-Linie S7" — Eiche hat KEINEN S-Bahn-Anschluss**
+(die S7 endet in Potsdam Hbf). Das ist generierter Boilerplate, nie als Standortvorteil werten.
+Bebauung: Misch aus Ein-/Zweifamilien- und kleinen Mehrfamilienhäusern, dazu Neubau-Inseln an der
+Kaiser-Friedrich-Straße (#161/#182: Bj. 2024, 18,04 EUR/m²) — **kein Ortsteil-Reflex möglich, Baujahr
+immer erfragen**. Die Spannweite der beobachteten Kaltmieten ist entsprechend extrem:
+**~10,0 EUR/m² (Bestand, #137/#145/#249)** bis **18,04 EUR/m² (Neubau 2024)**.
+Adressgenaue `priceBar` Kaiser-Friedrich-Str. 8 (09/2026): ähnlich **8,50–12,60**, gesamt 7,00–15,30 —
+also rund **19 % unter** dem stadtweiten Angebotsanker 15,51, d. h. Eiche ist im Bestand die *günstige*
+Ecke Potsdams und ein Angebot am oberen Bandrand ist dort trotzdem kein Köderpreis.
+*Why:* ohne den Anker wird für jede Eiche-Anzeige neu recherchiert, und der „S7"-Satz im Exposé hat
+Block B schon einmal fälschlich nach oben gezogen.
+
 ## Umland: **Beelitz-Heilstätten** — eigener Mietanker + die 20-Minuten-Lüge der Exposés
 Der Scan liefert laufend Neubau-**Reihenhäuser zur Miete** aus dem QUARTIER BEELITZ-HEILSTÄTTEN
 (#207, #326, #336, #486, #611). Zwei Dinge, die sonst jedes Mal neu recherchiert werden:
