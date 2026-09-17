@@ -550,6 +550,21 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   while the Warmmiete is only in the description text (or NK in the spec list) — and the prose form is
   often "**Die Miete beträgt 1600 € mit Nebenkosten**" (= Warmmiete; derive NK = warm − heading, and say
   it's derived, #505).
+  - **Counter-case: the heading IS the Warmmiete and the prose says so outright** — #806 (Anbieter-ID
+    410390, Kirchsteigfeld): heading `702 €` + *"**Die Warmmiete beträgt 702 €.**"*, with no NK, no
+    Heizkosten, no Kaution field at all. Grep `Die Warmmiete beträgt|Die Miete beträgt|Warmmiete\s*:`
+    before defaulting the heading to Kaltmiete. **But do not stop at the self-declaration — test it
+    against the local NK anchor**, because the poster's label can be wrong: 702 warm on 89,5 m² leaves
+    only 228–263 € kalt (2,55–2,94 EUR/m²) once the Kirchsteigfeld NK+Heiz anchor of 4,90–5,30 EUR/m²
+    is subtracted, i.e. implausible even for geförderten Wohnungsbau, while reading it as *Kaltmiete*
+    gives 7,84 EUR/m² (−13 % unter ortsüblich), which fits a 90er-Altvertrag cleanly. Present both
+    readings as a two-row table (#718 convention), score the conservative one, and check whether both
+    clear the profile caps — when they do, the ambiguity is a contact question, not a scoring problem.
+    *Why:* taking the prose label at face value would have implied a rent so low it reads as a
+    belegungsgebundene WBS-Wohnung, inventing a hard blocker out of a mislabelled field.
+  - **Spec list rounds the m² that the prose states exactly** (#806: `Wohnfläche 89 m²` vs prose
+    "89,5 m²") — take the area from the description when both exist; at a Mietspiegel column edge
+    (75/90 m²) that half metre decides the column.
 - **Tauschwohnung-GmbH ads frequently ship NO cost/legal fields at all** — no Nebenkosten, no
   Warmmiete, no Kaution, no Baujahr, no Energieausweis anywhere in the page (#358). Report these as
   "nicht angegeben" and say Mietpreisbremse isn't checkable; don't hunt for a second list that isn't

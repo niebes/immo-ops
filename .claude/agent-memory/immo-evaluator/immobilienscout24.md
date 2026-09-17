@@ -501,6 +501,27 @@ usually the hardest amenity fact in a data-poor ad.
 **Why:** counting 2 `IMG_####` captions as real photos would have skipped the D cap and implied the
 flat's condition was verifiable, when not one pixel of its interior is shown.
 
+**Third machine-readable caption WORD, alongside `BEISPIELFOTO`: `KI-Generiert` — and it usually
+means the gallery is HALF real, so the D cap does NOT fire.** IS24 labels disclosed virtual staging
+in the per-image `caption` field, so `grep -c 'KI-Generiert'` over `MEDIA[].caption` settles the
+real-vs-render split from the mobile API alone — no pixel forensics, no downloading. The recurring
+shape is **alternating pairs**: a real room shot (`Eingang`, `Wohnzimmer`, `Küche`, `Bad`, `Garten`
+…) immediately followed by its AI-staged twin. #800 (expose 170939118, Von Poll, DHH Golm) had
+`obj_picturecount: 22` = **12 real + 10 `KI-Generiert`**. Handling, which differs from the
+`BEISPIELFOTO` case above on every point:
+- The real half is genuine interior evidence of *this* object → the `_shared.md` "no real photos"
+  **cap at D 3,0 does not fire**. Score D from the real frames only.
+- The disclosure is the portal's own, not concealment → **never a scam signal** (contrast
+  `_shared.md`'s "stock photos" medium flag, which needs concealment).
+- But the renders show the **post-renovation target state**, so on a `need_of_renovation` /
+  `interiorQual: simple` object they sell exactly the gap the score must punish. Add an explicit
+  ✗ con ("N of M gallery images are AI renders of the renovated state — ignore them when viewing")
+  and say so in Next Steps; the title's word for this is usually „**Entwicklungspotenzial**".
+**Why:** the existing caption rules only cover "all examples → cap D" and "phone-original →
+trust it". A half-and-half gallery matches neither: capping D at 3,0 would ignore 12 genuine
+photos, while counting all 22 as real would let renderings of a house that does not exist yet
+carry the condition score on an EEK-H Sanierungsobjekt.
+
 **Fifth case: the single "photo" is a GRUNDRISS — it moves Block E, never Block D.** #735 (expose
 170405609, Max-Born-Str., Am Stern) had `obj_picturecount: 1` with an iOS-UUID caption
 (`480fefe3-ca3a-45c2-8c4a-7b9755`), and the download turned out to be a phone shot of a *coloured
