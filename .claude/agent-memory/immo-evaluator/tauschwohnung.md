@@ -201,7 +201,15 @@ land on opposite sides of P (on #597: +2,5 % vs +21,5 %), so say which reading y
       motive is price, and ours is the most expensive €/m² class in the table. A P below ~700 EUR
       in Potsdam can be treated as a determined fail on sight.
       Cheap triage win: a prefilter on `max(imal)|bis (zu)? \d{3} ?(€|Euro)` with a value under
-      ~1.000 EUR would have caught #597, #598 and #727 before any evaluation.
+      ~1.000 EUR would have caught #597, #598, #727 **and #808** before any evaluation — four full
+      evaluations spent on an arithmetic fail, which is the case for actually building it.
+      #808 (Immowelt `e81abcad-…`, Anbieter-ID 409294, Potsdam West, side 1 = 4,1/5) is the variant
+      where **P is not labelled kalt or warm** — „maximal 800 Euro im Monat", against their own
+      **1.549 EUR warm** (−48,4 %). Don't spend a call deciding which it is: test P against BOTH of
+      ours and report the weaker overshoot too (800 vs. our 1.025,25 **kalt** = +28,2 % is already
+      fatal, warm = +51,9 %), exactly as in the #804 shape above. It also stacks a room floor
+      („**mindestens 3 Zimmern**", we offer 2) on top — so the ceiling was not even the only kill
+      axis, and a downsizing poster (3,5 Zi → „ab 3") still lands a floor above our 2 Zi.
     - **P stated as a WARM ceiling that is BELOW the poster's own current WARM rent ⇒ the sharpest
       determined fail of the series, even when every other axis passes.** #804 (Kleinanzeigen
       3386976335, Anbieter-ID 438279, Am Stern): 3 Zi / 60 m² / 845 EUR warm, Suche = „1,5 bis
