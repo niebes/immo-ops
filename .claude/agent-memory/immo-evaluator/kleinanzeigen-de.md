@@ -507,6 +507,19 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   ortskundige prose, account active for years — so none of the GmbH-swap heuristics (0 images,
   boilerplate opener, gewerblicher Nutzer) fire. *Why:* on #357 only the "Nur Tausch" field and the
   title bracket distinguished a swap from a regular rental; scoring it as rentable would have been wrong.
+  - **…and the `Tauschangebot` field can be ABSENT ENTIRELY on a private DIY swap, not just on the
+    GmbH feed (#524).** #805's `ul.addetailslist` held only Wohnfläche/Zimmer/Schlafzimmer/
+    Badezimmer/Etage/Wohnungstyp/Online-Besichtigung — **no `Tauschangebot` row in either value**,
+    and the Anbieter is an ordinary private account (since 2013, 4 ads, three positive badges). The
+    only structured proof of a swap is then the **title** ("Tausche … **gg.** …" — note the
+    abbreviated `gg.` with a period) plus a description split into two labelled blocks,
+    `Suche: …` / `Biete: …`. ⚠ Do **not** look for the GmbH boilerplate opener
+    ("Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: …)") to confirm it: a raw-HTML
+    grep for that string returns hits from the **sidebar** "Das könnte dich auch interessieren"
+    ads' JSON-LD (#805 matched Anbieter-IDs 371941/401396 that belong to *other* listings), which is
+    the documented sidebar false-positive. Restrict every swap grep to `#viewad-description-text`.
+    *Why:* absent the field, a field-driven reader logs a plain rental; a boilerplate-driven reader
+    attributes a foreign Anbieter-ID to this ad.
   On these, the Suche is a proper "Wir suchen …" paragraph under a "TAUSCHWOHNUNG" heading in the
   description, and the price heading = **Warmmiete** (the detail list confirms it) with Kaltmiete/NK
   never stated → Mietpreisbremse not checkable, say so instead of splitting an invented NK.

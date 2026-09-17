@@ -367,17 +367,59 @@ After eleven straight discards on a room/area floor (#492, #505, #533, #541, #55
 "Suche nennt ≥3 Zi / ≥60 m²" would **not** have caught this one; it needs axes 6 and the rent proxy.
 (#685 then went one step further and passed side 2 outright — see the Swap-candidate section above.)
 
-⇒ Seven-axis side-2 check, in this order: (1) direction/size (vergrößern, "mehr Platz", "für N
+**Eighth kill axis: the AUSSTATTUNGS-MUSS — one amenity the partner declares mandatory that sits in
+`swap_offer.lacks`. The first axis ever to decide a swap on EQUIPMENT instead of
+direction/rooms/m²/rent/area, and the first case where FIVE axes passed.** #805 (Kleinanzeigen
+3514854537, privater DIY-Tausch, Zeppelinstr. Potsdam West, 92 m²/3 Zi Altbau-DG, 831 kalt):
+„Suche: kleinere **2 oder 3 Zimmer-Wohnung** mit **Garten zur Alleinnutzung oder Balkon/Terrasse**
+in P-West oder einem Stadtteil VOR der Langen Brücke … **Keller ist ein Muss.**" … „Wäre auch
+interessiert an einer Wohnung bspw. in Geltow, Werder, **Marquardt** oder Neu-Fahrland."
+  - **Every other axis passed, most of them without any leniency:** Richtung ✓ (echter Downsizer),
+    Zimmer ✓ (2 trifft „2 oder 3" exakt), Ort ✓ (Golm liegt nördlich der Havel ohne Brücken-Nadelöhr,
+    und sie nennt selbst das an Golm grenzende Marquardt), Garten ✓ — und zwar auf der *stärkeren*
+    Hälfte ihrer Disjunktion, denn unser ~29-m²-Garten ist „zur **Allein**nutzung", während ihre
+    eigene Wohnung nur einen Gemeinschaftsgarten hat, Miete ~ (+23,4 % kalt / +12,4 % warm, kein P
+    genannt ⇒ lenient PASS). Entschieden hat das Wort **„Muss"**.
+  - **Regelgrundlage:** `evaluate.md` Schritt 4 macht ein von uns nicht erfüllbares Must-have nur
+    dann zum Hard Fail, wenn der Partner es *als Deal-Breaker ausspricht*. `ein Muss` / `zwingend` /
+    `unbedingt` / `Bedingung` ist genau diese Aussprache — **und ein Keller ist an einem
+    EG-Neubau 2024 nicht nachrüstbar**, also kein Verhandlungsspielraum wie bei einer Miete.
+    Grep-Set für die Achse: `ist ein Muss|zwingend|unbedingt|Bedingung|muss (vorhanden|dabei) sein`
+    gegen die Begriffe aus `swap_offer.lacks` (**Keller · Balkon · Stellplatz**).
+  - **Zweiter Fundort derselben Anforderung: die HARD-FACTS-CHECKLISTE am Textende.** #805 schließt
+    mit „schreibt mir gern direkt mit den Hard Facts: Größe, Zimmer, Warmmiete, **Keller ja/nein**
+    **Stellplatz ja/nein**, Parkmöglichkeiten…" — eine abgefragte Ja/Nein-Liste ist eine *zweite*
+    Nennung der Kriterien und bestätigt, welche davon hart sind. Immer bis zur letzten Zeile lesen.
+  - **Merke für die Lage-Achse in Potsdam:** „VOR der Langen Brücke / VOR der Humboldtbrücke" bzw.
+    „nicht unterhalb der Havel (Waldstadt, Am Stern, Kirchsteigfeld)" ist eine **topologische**
+    Ausschlussformel, keine Ortsteilliste — Golm/Marquardt/Neu-Fahrland liegen auf der *gewünschten*
+    Seite. Nicht reflexhaft als geschlossene Aufzählung im Sinne von #710 lesen.
+  - **Seite 1 war 4,3/5 — gleichauf mit #723 der höchste Tauschwohnungs-Score der Serie** (beide
+    Must-haves *und* beide Nice-to-haves erfüllt, 9,03 EUR/m², Mietpreisbremse grenzwertig
+    eingehalten). Wieder gilt #719: ein Spitzen-Seite-1-Score darf Seite 2 nicht aufweichen. Die
+    „falls sie regulär als Nachmiete auftaucht, sofort zugreifen"-Folgezeile ist hier aber korrekt
+    (vgl. #610: erst den Seite-1-Wert prüfen, bevor man sie schreibt).
+  - **Neue Trigger-Form, die billigste bisher: die zweigeteilte Beschreibung mit den Labels
+    `Suche:` … `Biete:`.** Bei privaten DIY-Tauschanzeigen steht die Suche als *allererster* Absatz
+    unter dem wörtlichen Label `Suche:` und die eigene Wohnung darunter unter `Biete:` — kein Verb
+    des Wollens, also greift keiner der dokumentierten Trigger (`Ich suche`, `auf der Suche nach`,
+    `im Gegenzug`, `SUCHE:` als Zeilenende). Grep `^\s*Suche:` und `Biete:` an den Anfang des
+    Trigger-Sets; das Titelmuster „Tausche X **gg.** Y" (Abkürzung mit Punkt) gehört zur
+    `gg`/`gegen`-Familie aus [[kleinanzeigen-de]].
+
+⇒ Eight-axis side-2 check, in this order: (1) direction/size (vergrößern, "mehr Platz", "für N
 Personen zu klein" → fail), (2) qualitative Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen →
 fail), (3) explicit numeric floor/ceiling (mindestens m² / maximal EUR → arithmetic fail), (4)
 Wohnkonstellation (zwei Wohnungen / Gemeinschaft → fail, we can only offer one unit), (5) `radius: 0`
 + named Ortsteile (→ area fail, leniency does not apply), (6) **Ort-Richtungsumkehr** (they already
 live where we offer and target **another city** → area fail, leniency does not apply; silent when
 their target Ortsteil is inside our own city, see the #685 bound above), (7) **implicit
-rent ceiling** = their own Kaltmiete when none is written. All seven belong in the same triage
-prefilter — axes (3), (6) and (7) are the cheapest to automate (regex on the description; city+price
-comparison off the search-result row), axis (5) the cheapest to read (one NUXT field), axis (4) is
-the cheapest to get WRONG. *Why:* on #579 the favourable direction made the swap look promising
+rent ceiling** = their own Kaltmiete when none is written, (8) **Ausstattungs-Muss** that maps onto
+`swap_offer.lacks` (Keller/Balkon/Stellplatz declared `ein Muss`/`zwingend` → fail; see #805 above).
+All eight belong in the same triage
+prefilter — axes (3), (6), (7) and (8) are the cheapest to automate (regex on the description;
+city+price comparison off the search-result row), axis (5) the cheapest to read (one NUXT field),
+axis (4) is the cheapest to get WRONG. *Why:* on #579 the favourable direction made the swap look promising
 right up to the last clause of the title; on #597 the favourable *rent* direction did the same, and
 only the stated 70-m²-Minimum settled it; on #684 the size fit perfectly and only (6)+(7) decided.
 

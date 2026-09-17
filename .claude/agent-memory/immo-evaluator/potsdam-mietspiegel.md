@@ -485,6 +485,22 @@ Fixwerte, die man nicht neu recherchieren muss:
   gutschreiben**. Nutzbare Gegenprobe zur Heizkostenvorauszahlung: 52 kWh/m²·a × Fläche × ~0,13 EUR/kWh
   ÷ 12 ≈ **0,56 EUR/m²/Monat** (72,74 m² → ~41 EUR); die BUWOG-Exposés setzen ~0,99 EUR/m² an, sind also
   **konservativ kalkuliert** ⇒ Nachzahlungsrisiko gering, das im Report als Plus nennen.
+- **Betriebskosten-Anker des Quartiers: 3,47 EUR/m²/Monat warm-Aufschlag** (= NK 188 + Heiz 75 auf
+  75,77 m², #758 Brunnenallee 1; Heizkosten sind dort **nicht** in den NK enthalten). Damit lässt
+  sich eine Anzeige, die **nur eine Warmmiete** nennt, in Kaltmiete zerlegen: kalt ≈ warm −
+  3,47 × m². Erstmals gebraucht auf **#803** (Brunnenallee 1-7, 78 m², nur „Warmmiete 1.450 €",
+  keine Kaution ⇒ die Route Kaution ÷ 3 war nicht verfügbar): 1.450 − 271 = **1.179 = 15,12 EUR/m²**.
+  Immer als *abgeleitet* kennzeichnen und die Bandbreite mitliefern (NK 3,00–4,00 EUR/m² ⇒
+  14,59–15,59 EUR/m²) — die Mietspiegel-Einordnung ist über das ganze Band stabil, die Aussage
+  hängt also nicht am Punktwert. *Why:* ohne den Anker ist eine Warmmiete-only-Anzeige im Quartier
+  gar nicht bewertbar, und die naheliegende Abkürzung (Warmmiete gegen das Kaltmieten-Band
+  15,16–16,70 halten) macht aus einem markt­konformen Aufruf einen scheinbaren Schnäppchen- bzw.
+  Scam-Fall.
+- **Brunnenallee 1-7 ist die Hausnummern-Spanne EINES Blocks — gleiche Nummer + gleiche Etage heißt
+  dort nicht gleiche Wohnung.** #803 (2. Etage, 78 m², bewohnt bis 30.11.2026) und #758
+  (Brunnenallee 1, 2. Etage, 75,77 m², **leer ab 13.09.2026**) sind verschiedene Einheiten — eine
+  Wohnung kann nicht gleichzeitig leer und bewohnt sein. Das Vakanzdatum ist bei diesem Quartier
+  das schärfste Dedup-Kriterium, schärfer als Adresse/Etage/m².
 - **Bestätigt (#692): die Häuser Nr. 3/3a/5/7a sind tatsächlich der institutionelle BUWOG-Mietbestand.**
   Die in #642 formulierte Zwei-Schichten-Regel hat sich damit an einem Fall verifiziert — eine laufende
   Brunnenallee-Anzeige der BUWOG Immobilien Treuhand GmbH ist eine der 240 Mietwohnungen, **nicht** der
