@@ -14,8 +14,24 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   but **1** belonged to the ad (1 own + 10 sidebar thumbnails).
   ⇒ Sweep only inside `#viewad-description-text`; count photos only from `data-imgsrc` (dedupe by
   image UUID — the same picture appears as `?rule=$_59.AUTO` and `$_57.AUTO`) or a container scoped
-  to `#viewad-product`. Cross-check with `grep -o "Anbieter-ID: [0-9]*"`: more than one ID on the
-  page = foreign ads present, and only the one in `#viewad-description-text` is yours.
+  to `#viewad-product`.
+- **Contamination is NOT always present — run the check, never assume either way.** #811 (Makler
+  Kauf-Anzeige) served **zero** foreign ads: 1 ad id and 2 own images on the whole page, while
+  #804–#807 the day before were all heavily contaminated. Assuming contamination is as wrong as
+  assuming its absence.
+- **⚠ The contamination check to use is the AD-ID COUNT, not `Anbieter-ID`.**
+  `grep -o "Anbieter-ID: [0-9]*"` is unreliable: on #811 it returned **0 matches** although the
+  seller block was fully present, so an empty result means "field absent", *not* "clean page" —
+  it silently looks identical to a clean page and tells you nothing. Use instead:
+  `grep -o '/s-anzeige/[^"]*/[0-9]\{10\}-' | sed 's/.*\///' | sort -u | wc -l` → **1 = clean**
+  (only its own ad), >1 = foreign ads embedded. Cross-check with the count of distinct
+  `prod-ads/images/` UUIDs, which must match your own gallery count.
+  The seller's numeric id is **not** in an "Anbieter-ID" label either — read it from
+  `profileUserId = "..."` or the `s-bestandsliste.html?userId=` link, which is also the only
+  reliable liveness test (see the EXPIRED section).
+  *Why:* the recommended `Anbieter-ID` grep fails open — it reports "clean" on every page where the
+  label is missing, which is exactly when you most need to know whether a `WBS`/`möbliert`/
+  `befristet` hit belongs to a stranger's ad and would fire a false hard blocker.
   *Why:* a page-wide sweep produces both false hard blockers and an inflated photo count — two
   independent ways to misscore an ad, and neither announces itself.
 - **A gallery of "1 image" is often ZERO real photos — the single image is the Grundriss.** Check what
