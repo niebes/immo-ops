@@ -15,6 +15,34 @@ payload with the documented UA on the very next call.
 **Why:** an empty 200 looks exactly like a pulled exposé, so the evaluation would have been filed as
 EXPIRED (or escalated to a browser, which the parallel-run policy forbids) for a perfectly live listing.
 
+### Parallel runs SHARE the scratchpad — write the curl output to `scratchpad/e{NNN}/`, never `scratchpad/e.json`
+Parallel evaluators spawned by one orchestrator get the SAME session scratchpad dir. On #817 a generic
+`scratchpad/e.json` was overwritten between the curl and the parse by another agent's exposé (171078524,
+Am Speicher, 1.815 kalt / 114,87 m²). Nothing errored; it just parsed as a different flat. Always
+use a per-report subdir (`scratchpad/e817/e.json`), and check that `header.id` == the requested scoutId
+before scoring.
+**Why:** a silent swap puts another listing's price, m² and amenities into this report.
+Also: this file is >500 KB and the Read tool refuses it whole. Grep for headings (`grep -n '^#'`) and
+read by offset.
+
+### Android WhatsApp caption `IMG-YYYYMMDD-WA0000.jpg` = dated phone original (sibling of the `WhatsApp Image …` form)
+#817 (171052633): the single photo `IMG-20200510-WA0000.jpg` was the tenant's own balcony shot from
+**10.05.2020**. It is real (no cap) and it confirms the Balkon. The date also shows a ≥6-year Altvertrag,
+which makes the "Miete wird sich eventuell anpassen" re-let risk concrete (quantify it against the Ortsteil ask).
+
+### Parallel runs: never curl to a generic filename in the scratchpad — sibling evaluators share it
+Under parallel evaluation the scratchpad dir is shared, and `-o e.json` was overwritten mid-run by another
+evaluator's exposé (#814 read expose 171078524 / Am Speicher instead of 170198523). Write to a per-report
+subdir (`scratchpad/e{NNN}/`) and assert `header.id == scoutId` before parsing.
+**Why:** a silently swapped payload scores the wrong flat under the right URL.
+
+### Parallel runs SHARE the session scratchpad — save the API JSON as `expose-{scoutId}.json`, never `e.json`
+Evaluators fanned out in parallel get the same scratchpad dir. A fixed name like `e.json` gets overwritten
+by a sibling's curl between your fetch and your parse. Always check `header.id` / `OBJECT_INFO` Scout-ID
+== the ID you asked for before extracting anything. Seen 2026-09-23 on #820 (171005034): the second read
+returned 171052633 (Teltower Vorstadt, 88 m², 910 kalt, a sibling's Mieternetzwerk ad).
+**Why:** otherwise you score another agent's flat under your report number, with no error anywhere.
+
 ### Confirming/refuting a "same flat as #NNN" suspicion: rent+size is NOT a discriminator in a portfolio estate
 Bulk landlords price a whole estate off one m²-table, so several distinct units carry almost the same
 Kaltmiete and m² (Vonovia in Potsdam-Kirchsteigfeld sits at ~10,3–10,6 EUR/m² across #107/#200/#208/
@@ -687,6 +715,9 @@ Mieternetzwerk framing "posted by the *current* tenant, Nachvermietung ab Oktobe
 + a price-negotiation lever, and a first-contact question ("steht sie schon leer, ist der Termin
 verschiebbar?"); (b) an **empty** flat in the photos is a *positive* — nothing to take over, so the
 Möbelübernahme/Ablöse leg of the Mieternetzwerk warning falls away; say so instead of boilerplating it.
+Second dated form: a Samsung camera name with the separators stripped, **`YYYY-MM-DDHH.MM.SS{digits}`**
+(e.g. `2026-08-2212.50.52144806127203` on #814 = shot 22.08.2026 12:50). Phone-original, no cap; read the
+date the same way (on #814 it showed a still-occupied, furnished flat → Möbelablöse leg stays live).
 **Why:** the four documented forms are all undated, so the existing rule stops at "it's a real photo";
 the WhatsApp form hands over the one date the payload otherwise lacks entirely (there is no
 `onlineSince` in the mobile API), and it reframed both Block F and Block G on #734.
