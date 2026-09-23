@@ -121,8 +121,9 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   rename to `.jpg`.** #721: all 12 images came back `BITSTREAM_ERROR` from `dwebp`, while `file`
   reported „JPEG image data, JFIF 1.01, 1024x768". The `.webp` in the URL is content-negotiated and
   the driver/curl gets JPEG regardless of Accept header. Recipe that works: pull
-  `domains.medias.images[].url` from the payload, `curl -A <Chrome UA>` each one (the `ci_seal` query
-  param is mandatory — strip it and you get 403), `cp x.webp x.jpg`, then
+  `domains.medias.images[].url` from the payload, `curl -A <Chrome UA>` each one (if the URL carries a
+  `ci_seal` query param keep it — stripped it 403s; but #825's payload URLs had NO `ci_seal` at all
+  and downloaded fine as-is, so use `images[].url` verbatim and don't go hunting for a seal), `cp x.webp x.jpg`, then
   `convert \( 1.jpg … +append \) … -append -resize 1800x contact.png` and Read the contact sheet.
   One Read then answers Zustand, Badezimmer, Balkon-Sichtung and Baualter together. *Why:* the
   `dwebp` failure reads as "the images are corrupt/unavailable" and pushes you into scoring Block D

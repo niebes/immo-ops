@@ -201,8 +201,10 @@ land on opposite sides of P (on #597: +2,5 % vs +21,5 %), so say which reading y
       motive is price, and ours is the most expensive €/m² class in the table. A P below ~700 EUR
       in Potsdam can be treated as a determined fail on sight.
       Cheap triage win: a prefilter on `max(imal)|bis (zu)? \d{3} ?(€|Euro)` with a value under
-      ~1.000 EUR would have caught #597, #598, #727 **and #808** before any evaluation — four full
+      ~1.000 EUR would have caught #597, #598, #727, #808 **and #825** before any evaluation — five full
       evaluations spent on an arithmetic fail, which is the case for actually building it.
+      (#825, Immowelt ID 417623, Nördliche Innenstadt DG: „etwas kleineres Zuhause in Potsdam, maximal
+      700 Euro Miete, mindestens 30 m²" vs. own 1.450 kalt = −51,7 %; city/m²/direction all passed.)
       #808 (Immowelt `e81abcad-…`, Anbieter-ID 409294, Potsdam West, side 1 = 4,1/5) is the variant
       where **P is not labelled kalt or warm** — „maximal 800 Euro im Monat", against their own
       **1.549 EUR warm** (−48,4 %). Don't spend a call deciding which it is: test P against BOTH of
