@@ -301,6 +301,10 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   the displayed Warmmiete DOES include it.** #783: KM 506,15 + NK 120 + HK 130 = Warmmiete 756,15 exactly,
   yet the HK row says "nicht in Warmmiete enthalten" (and `breakdown.excluded` lists it). Re-add the
   line items; trust the arithmetic, not the label — otherwise you add HK twice (886 instead of 756).
+  **Fifth sibling (Kauf): `tags.hasBrokerageFee:false` is NOT proof of „provisionsfrei".** #833 had the tag
+  `false` while `sections.price.base.commissionFee` + `breakdown` carried a 3,57 % Käuferprovision (19.599 €).
+  Read `price.base.commissionFee`/the breakdown's `BROKERAGE_FEE` item; never cite the tag alone.
+  *Why:* #796 cited the tag as provisionsfrei evidence; on #833 it would have understated all-in cost by ~20 T.
 - ⚠⚠ **`rawData.propertyType:"APARTMENT"` does not mean it is a building — Immowelt lists
   HAUSBOOTE / Floating Homes as ordinary „Wohnung zur Miete" with nothing in the structured payload
   to tell you.** #725: `propertyType:"APARTMENT"`, `distributionType:"RENT"`, normal hardFacts,
