@@ -1318,3 +1318,12 @@ nach der ½-Anker-Faustregel aus `tauschwohnung.md`. NK dort nur **2,02 EUR/m²*
 144,92 m² inkl. Heizung) = deutlich **unter** dem Band 3,00–3,80 und damit das Gegenstück zum
 Fontane-Gärten-NK-Anker 4,79 — im selben Quartier existieren beide Extreme, also nie aus dem
 Quartier auf die NK schließen.
+
+**Zweites Neubauprojekt am Volkspark: „Am Park Potsdam" (Diamona & Harnisch), Georg-Hermann-Allee** —
+5 Häuser, 80 WE, Bj. **2023**, alle **EG-Wohnungen mit eigenem Garten**, OGs Balkon/Loggia; ETW-Projekt
+⇒ Mietanzeigen = Einzeleigentümer, vermittelt über **Passgenau Immobilien** (Referenznummer-Schema
+`VM_POTS_{Haus}.{Etage}.{WE}`, Grundriss-Datei `Grundriss_{Haus}.{Etage}{WE}`). Erkennung ohne Adresse:
+„Diamona & Harnisch" + „direkter Zugang zum Volkspark" im Text. Feld **ab 2021**, § 556f. #824 (Haus 2
+EG, 75,6 m², 20,49 EUR/m², **Staffelmiete + 2 J. Kündigungsausschluss**, NK 3,51 inkl. Fernwärme —
+im Band, anders als Fontane Gärten). *Why:* sonst ist der Ort nur „Bornstedter Feld" und Baujahr/
+§ 556f/ETW-Eigentümerstatus müssen jedes Mal neu recherchiert werden.

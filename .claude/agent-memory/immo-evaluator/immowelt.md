@@ -312,6 +312,10 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `hausboot|floating|liegeplatz|auf dem wasser|überführung|schwimmend` sweep to the standard
   keyword pass**, next to the `vergeben` EXPIRED sweep. *Why:* scoring it as a flat in Potsdam West
   gives it a preferred-area 4,5 and a clean Block E on a Keller that cannot exist.
+- ⚠ **`sections.energy.certificates[].scales[].efficiencyClass.index` is NOT the GEG class** — it indexes
+  Immowelt's own 9-segment kWh bar (`<50`, `50–99`, `100–149` …). #824: index 1 at 86 kWh = segment
+  „50–99", while the GEG class is **C** (75–<100). Derive the class from the kWh value, never the index.
+  Same block's `validity` can be nonsense (#824: „bis 08.08.2020" on a 2023 Bedarfsausweis) — flag, don't trust.
 - ⚠ **`möbliert` is a one-field hard-blocker test in the payload** — it renders as a
   `sections.features` chip `{icon:"furnished", value:"möbliert"}` (in `preview` *and* under
   `details.categories → Allgemeine Informationen`). Check it before any prose sweep; `möbliert`
