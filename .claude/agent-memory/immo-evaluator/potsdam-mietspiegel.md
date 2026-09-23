@@ -667,6 +667,10 @@ Preisniveau: Havelufer-Neubau mit TG/Aufzug/Fußbodenheizung liegt deutlich übe
 Angebotsanker 12,60–13,50; ~18 EUR/m² kalt ist dort plausibel, >22 EUR/m² kalt nicht.
 Genutzt auf #540. *Why:* ohne das kostet jede Speicherstadt-Wohnung zwei Websuchen und man tippt
 das Mietspiegelfeld blind.
+**Hausnummer → Bauabschnitt (belegt aus IS24-Energieausweis-Feldern):** `Am Speicher 1-5` = Bj **2014**
+(Südteil, EEK B 62,8 kWh, Fernwärme; #819, Vermietungsbüro Müller — erlaubt KEINE Innenfotos) →
+Spalte 2013–2020, § 556f hängt am Erstbezugsdatum (offen). `Am Speicher 12` / `Am Magazin 7` = Bj
+**2022** (Nordteil/Havel Quartier, allod; #168/#740) → § 556f sicher, Spalte ab 2021.
 
 ## Quartiers-Anker: **"Wohnen am Brauhausberg", Max-Planck-Str. 14–16 / 15A (14473, Südliche Innenstadt)**
 Neubauquartier mit **107 Mietwohnungen**, Baujahr **2026**, Erstbezug **ab 01.04.2027**, Fernwärme,
