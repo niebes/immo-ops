@@ -102,6 +102,7 @@ Block-A story and the only real negotiating lever.
 Speckgürtel values above are from the Kreis-PM and are the *official* ones.
 
 | **Klein Kreutz – Saaringen** (Ortsteil der **kreisfreien Stadt Brandenburg an der Havel**, 14776, ~5 km NO des Zentrums, gegliedert in Dorfkern / Kiekeberg / Alte Weinberge / Neue Weinberge) | amtlich **58** Wohn-/Mischbebauung, Spanne **45–100**, Stichtag 01.01.2026 (veröffentlicht 09.03.2026), **0,0 % y-o-y** (nach +5,5 % in 2025) · Landwirtschaft 1,00 · Forst 0,25 | `bodenrichtwerte-deutschland.de/.../brandenburg-an-der-havel/klein-kreutz---saaringen` (understating family → eher Untergrenze). **Eigener Gutachterausschuss**, weil kreisfrei: Klosterstr. 14, 14770 Brandenburg a. d. H., Tel. 03381 586203 / 586205 / 586237. Used on #764 (2.300 m² zu 76,09 EUR/m² = **1,31× des Gemeindemittels**, auf einer Fläche die gar kein Wohnbauland ist). |
+| **Halbe** (LDS, inkl. OT Oderin/Teurow, 15757) | Wohn-/Misch Ø **11**, Spanne **6–70**, Stichtag 01.01.2026, 0,0 % y-o-y · Gewerbe 50 · Landw. 0,67 · Forst 0,25 | `bodenrichtwerte-deutschland.de/bodenrichtwert/brandenburg/halbe` (flat Gemeinde slug; the `/{kreis}/{gemeinde}` path silently redirects to the state page). Understating family. Used on #836 (BVVG Bauland 505 m², nach Gebot). |
 
 ## Erholungs-/Wochenendgrundstück: „Bestandsschutz" im Exposé ist ein **Baurechts-Befund**, kein Extra
 Die Nutzungsart entscheidet hier mehr als jede Zahl, und sie steht selten als Feld im Exposé —
