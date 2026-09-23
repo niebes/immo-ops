@@ -4,6 +4,12 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
 
 ## Getting the data
 - **Detail pages (`/s-anzeige/...`) are plain-curl accessible** — a simple `curl -A "Mozilla/5.0 ... Firefox"` returns the full 200 HTML with every field (title `#viewad-title`, price `#viewad-price`, locality `#viewad-locality`, `#viewad-details` list incl. Standort street address, `#viewad-description-text`, seller block with "Aktiv seit", gallery elements). Only the SEARCH pages bot-block headless. *Why:* on 2026-07-13 the invisible-playwright driver was crashed session-wide; curl evaluated #324 with zero browser. Prefer curl for single-listing evals.
+- **⚠ ALWAYS verify the served ad is the requested one: compare `<link rel="canonical">` / the
+  "Anzeigen-ID" in `#viewad-contact` against the ad-ID in the URL.** On #821 a plain curl of the full
+  slug URL (`/s-anzeige/raus-aufs-land-…/3518690665-208-7962`) returned HTTP 200 with a COMPLETELY
+  DIFFERENT ad (3519436701, a Potsdam Tauschwohnung, canonical pointing there). Re-fetching the bare
+  form `https://www.kleinanzeigen.de/s-anzeige/{ad-id}` served the correct ad. *Why:* without the
+  check you would have scored a stranger's rental swap as the house under evaluation.
 - **⚠ SCOPE every keyword sweep and every photo count to THIS ad's own DOM — the page embeds ~10
   FOREIGN ads in full.** The sidebar ("Weitere Anzeigen") ships each recommended ad as complete
   JSON-LD: its whole `description` text **and** its `contentUrl` image. A page-wide grep therefore
@@ -110,6 +116,14 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     **separate `Heizkosten` field** next to `Nebenkosten`; Warmmiete = Kalt + NK + Heiz, so forgetting
     Heizkosten under-states warm by a whole line. *Why:* on #522 the €/m² swings 10,45 ↔ 14,48 and the
     Mietpreisbremse verdict flips with it — picking one silently would fabricate the answer.
+    - **Run Kaution ÷ 3 here too. It usually decides the reading, and a small leftover amount means
+      a Stellplatz is included in the rent.** #813: heading 1.594 == `Warmmiete`, NK 150, Heiz 150,
+      prose "Stellplatz … im Mietpreis eingeschlossen", Kaution 3.762 ÷ 3 = **1.254**, but
+      1.594 − 300 = 1.294. The 40 EUR gap is the Stellplatz. Kaution is levied on the
+      Wohnungs-NKM only, so compute EUR/m² from the Kaution quotient, not from warm − NK − Heiz.
+      Report the split as derived.
+      *Why:* without it the scoring defaults to reading (a), heading = Kaltmiete. That gives
+      19,93 EUR/m² and fails the cap, when the real figure is 15,68.
   - **Fourth price variant — heading == "Warmmiete" field, NK filled, NO Heizkosten field** (#540:
     heading 1.692 €, Warmmiete 1.692 €, Nebenkosten 305 €). Unlike #356 (NK empty) and #522 (extra
     Heizkosten field) the arithmetic closes cleanly in exactly one direction, so you can *rank* the

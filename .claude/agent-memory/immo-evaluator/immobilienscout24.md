@@ -3149,6 +3149,9 @@ counted in full). Screenshot captions are the private lister's upload name, not 
   ("no real photos → cap at 3.0") must not fire just because captions are numeric.
   **Why:** reading `"99999"` as a placeholder image (or counting the AD as a photo) shifts the photo
   count in both directions and can wrongly cap Block D on a listing that does have real photos.
+  **But on Vonovia exposés the trailing `"99999"` PICTUREs are usually marketing BANNERS** (Grünstrom
+  ad, "Mein Vonovia App" ad) — counted in `obj_picturecount`, not photos of the flat. #815 (170334634):
+  7 PICTUREs = 5 real + 2 banners. Look at a contact sheet (`montage`) before quoting a photo count.
 - `AGENTS_INFO`: company, name, rating {value, numberOfStars=#reviews}, verifiedBy (identity),
   Impressum inside `references[].url` (is24://imprint?text=...).
 - `OBJECT_INFO`: "Scout-ID … | Objekt-Nr. …".
