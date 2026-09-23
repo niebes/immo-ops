@@ -25,6 +25,12 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
     `Empfohlene Nutzung`, `PLZ`. Location lives here + the `Standort:` line.
   - **Seller note** ("Hinweise des Verkäufers", quoted text) carries the real prose description
     (size in m², Grundbuch, lake distance, etc.). Extract its text node directly.
+    `body.innerText` only shows it truncated ("… Mehr erfahren"); the full text sits in a hidden
+    **leaf** element. Working query: `[...document.querySelectorAll('span,div,p')].filter(e=>e.children.length===0
+    && /{phrase from the truncated note}/.test(e.textContent)).map(e=>e.textContent)` — take the longest.
+    *Why:* a `querySelectorAll('*')` filter without the leaf restriction matched `<html>`/`<body>` and
+    returned 1,2 MB, blowing the tool-output limit (2026-09-23). Often the note holds the condition/
+    Planungsrecht facts while the `#desc_ifr` description is only a short room list.
 - **Seller's full HTML description (cross-origin iframe `#desc_ifr`): unreadable IN-BROWSER, but
   plain `curl` of the iframe `src` WORKS** (2026-07, item 298497838874). Recipe: grab
   `document.querySelector('#desc_ifr').src` (an `itm.ebaydesc.com/itmdesc/{id}?...` URL with a
@@ -70,6 +76,7 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
 ## Triage
 - Search is Brandenburg-state-wide, so listings are routinely 100+ km from Golm. The Cottbus/Spremberg/
   Lausitz southeast corner is ~128 km from Golm — far outside the ~50 km radius → location hard blocker.
-  The **Oder corner (Frankfurt/Oder, Eisenhüttenstadt, Oder-Spree, PLZ 15xxx)** is the other recurring
-  offender: ~145 km / 1 h 50 min from Golm. Always check `Stadt / Kreis` + PLZ against the radius before
+  The **Oder corner (Frankfurt/Oder, Eisenhüttenstadt, Oder-Spree, Märkisch-Oderland/
+  Oderbruch, PLZ 15xxx)** is the other recurring offender: ~120–145 km / 1,5–2 h from Golm (Neutrebbin
+  15320 seen #834). Always check `Stadt / Kreis` + PLZ against the radius before
   scoring — PLZ 03xxx and 15xxx are both auto-fails.
