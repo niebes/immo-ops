@@ -14,7 +14,9 @@ state — BLB is simply not protected.)
 The URL you get handed is usually `/blb/de/unternehmen/presse/pressemitteilungen/pressemitteilung/~{date}-immobilie-{slug}`.
 The HTML page carries only a teaser: Adresse, Grundstücksgröße, Kaufpreisvorstellung, Gebotsfrist,
 contact. **Everything that decides the score is in the PDF**, linked as
-`href="/sixcms/media.php/9/{NAME}_Exposé.pdf"` (URL-encoded `Expos%C3%A9`).
+`href="/sixcms/media.php/9/{NAME}_Exposé.pdf"` or, by 09/2026, `/sixcms/media.php/9/Exposé.{id}.pdf`
+(URL-encoded `Expos%C3%A9`). The `pdf|expose` grep catches both forms. Ignore the
+`Internet-Organigramm_*.pdf` link that sits in the footer of every page.
 
 Get it in two commands:
 ```
@@ -35,6 +37,22 @@ be scoring blind.
 BLB states these as explicit **negative confirmations** ("Keine"), which is stronger evidence than a
 commercial exposé's silence — it justifies not applying the no-photo Block-D cap even when the only
 images are a Luftbild and Flurkarten.
+
+## Built objects (Haus) — the exposé layout differs, and the numbers are estimates
+House exposés (e.g. #835 Elstal) add **Liegenschaftsbeschreibung** (pp. 7–8), **Fotodokumentation**
+(pp. 9–10, real photos) and **Grundrisse** with per-room m² (pp. 11–12). Render the Grundriss pages and
+**add up the room areas yourself**. BLB often sells as **Fiskalerbe (§ 1936 BGB)**, so Baujahr and
+Wohnfläche come in as "geschätzt", and a room shown on the plan may only be usable "nach Ausbau".
+On #835 the claimed 85 m² was ~77 m² measured, and in practice there were 2,5 rooms. The
+Energieausweis usually reads only "liegt zur Besichtigung vor", with no class given.
+Also grep the description for **separate Flurstücke** (garden/garage on a different parcel, access
+"nicht grundbuchlich gesichert"). That hits Block E/G and is invisible on the press page.
+**Why:** scoring off BLB's estimated m² and the heading "Reihenmittelhaus" would overstate Block C.
+
+## BLB scans land in the plot group even when the object is a house
+The BLB search entry is scanned under the plot group, but its press releases include houses
+(Reihenmittelhaus, DHH). Score a house against the **house-purchase** search and note the group
+mismatch in the report.
 
 ## "Kaufpreisvorstellung" is neither a fixed price nor a Mindestgebot
 The sale is an **öffentliche, für das Land unverbindliche Aufforderung zur Abgabe von Angeboten**:
