@@ -3,6 +3,11 @@
 Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien pages.
 
 ## Getting the data
+- **⚠ Parallel runs SHARE the session scratchpad. Curl into a per-report subdir (`scratchpad/r{NNN}/`)
+  and give the file a unique name, never plain `ad.html`.** On #822 another evaluator overwrote
+  `scratchpad/ad.html` between two of my parses. The second parse then read a *different* swap ad
+  (Nuthepark, 60 m², "gegen Berlin 900 warm") and nearly supplied a fake Suche. Tell-tale: fields
+  that changed between two reads of "the same" file. Check `ls -la` mtimes and re-fetch.
 - **Detail pages (`/s-anzeige/...`) are plain-curl accessible** — a simple `curl -A "Mozilla/5.0 ... Firefox"` returns the full 200 HTML with every field (title `#viewad-title`, price `#viewad-price`, locality `#viewad-locality`, `#viewad-details` list incl. Standort street address, `#viewad-description-text`, seller block with "Aktiv seit", gallery elements). Only the SEARCH pages bot-block headless. *Why:* on 2026-07-13 the invisible-playwright driver was crashed session-wide; curl evaluated #324 with zero browser. Prefer curl for single-listing evals.
 - **⚠ ALWAYS verify the served ad is the requested one: compare `<link rel="canonical">` / the
   "Anzeigen-ID" in `#viewad-contact` against the ad-ID in the URL.** On #821 a plain curl of the full
@@ -18,6 +23,16 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   ⇒ re-fetch (optionally via the short form `/s-anzeige/{adid}`), never score it and never call it
   EXPIRED on that evidence. *Why:* unchecked, the wrong page would have produced a bogus "swap"
   verdict (Nur Tausch, 60 m², 495 kalt) on a plain 1.670-EUR Neubau rental.
+- **⚠ FIRST sanity check after every curl: `og:url` must carry the ad-ID you requested.** The CDN can
+  serve a **HYBRID page**: the ad block (`#viewad-title`, spec lists, description, seller) is correct,
+  but `<head>` `og:*`, the whole gallery (`data-imgsrc`, alt texts) and every pre-title JSON-LD
+  ImageObject belong to a DIFFERENT, freshly posted ad. #823 (swap 3519436701) came back with 40
+  locals-Immobilien Neubau renders from ad 3519115937 ("H3-01-05 …"). The fix is to re-fetch via
+  the short form `https://www.kleinanzeigen.de/s-anzeige/{adid}`. That returned the right page (7 own
+  phone photos). Check with `grep -o '<meta property="og:url"[^>]*'` and `"adid":"…"` in the targeting JSON.
+  *Why:* the foreign gallery would have looked like the Medium "photos from a different property"
+  scam signal, with fake Neubau condition, a walk-in shower refuting the Badewanne, and a 40-photo count,
+  all attached to an honest private Plattenbau ad.
 - **⚠ SCOPE every keyword sweep and every photo count to THIS ad's own DOM — the page embeds ~10
   FOREIGN ads in full.** The sidebar ("Weitere Anzeigen") ships each recommended ad as complete
   JSON-LD: its whole `description` text **and** its `contentUrl` image. A page-wide grep therefore
@@ -458,6 +473,13 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
       fixtures as current equipment (the tub drawn in the Bad is the 1919 Urzustand).
       *Why:* counting it as "1 photo" skips the D cap, and ignoring it throws away the only
       evidence on the ad for Baujahr, Balkon and Zuschnitt.
+    - **Third 1-image form: a HEIZLASTBERECHNUNG printout** (#822): room boxes read like
+      `EG-R1; Wohnraum 26,24 m²/… 20 °C 0 W`. The `EG-` prefix is a software default, so it does not
+      contradict a DG flat. Sum the rooms to check the m² claim (89,48 vs 90). The plan draws only
+      heated rooms, so it never shows a Balkon and its absence proves nothing. The poster's room
+      names (`Kind`) hint at household size for swap side 2, but only as an inference. A heat-load
+      plan hints weakly at a new build, DG conversion or new heating: treat it as a § 556f lead,
+      never as the Baujahr.
   - **Counting photos: DEDUPE the `data-imgsrc` URLs — the raw grep count is 2× the real photo count.**
     Each gallery photo is emitted twice, once as `…?rule=$_59.AUTO` (thumb strip) and once as
     `…?rule=$_57.AUTO` (main slide), same image UUID. So count *unique* UUIDs:
