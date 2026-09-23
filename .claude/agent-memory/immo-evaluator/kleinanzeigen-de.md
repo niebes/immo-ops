@@ -10,6 +10,14 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   DIFFERENT ad (3519436701, a Potsdam Tauschwohnung, canonical pointing there). Re-fetching the bare
   form `https://www.kleinanzeigen.de/s-anzeige/{ad-id}` served the correct ad. *Why:* without the
   check you would have scored a stranger's rental swap as the house under evaluation.
+- **⚠ FIRST check after every curl: the served page's `rel="canonical"` ad-ID == the requested ad-ID.**
+  Kleinanzeigen can answer a valid detail URL with HTTP 200 and a **completely different ad** (#812:
+  requested 3519115937 = locals Brauhausberg flat, got 3519436701 = a private Tauschwohnung 795 € in
+  the same PLZ/category; the requested ID occurred 0× in the HTML). A plain re-fetch seconds later
+  returned the correct ad. Test: `grep -o 'rel="canonical" href="[^"]*'` + `grep -c {adid}`; mismatch
+  ⇒ re-fetch (optionally via the short form `/s-anzeige/{adid}`), never score it and never call it
+  EXPIRED on that evidence. *Why:* unchecked, the wrong page would have produced a bogus "swap"
+  verdict (Nur Tausch, 60 m², 495 kalt) on a plain 1.670-EUR Neubau rental.
 - **⚠ SCOPE every keyword sweep and every photo count to THIS ad's own DOM — the page embeds ~10
   FOREIGN ads in full.** The sidebar ("Weitere Anzeigen") ships each recommended ad as complete
   JSON-LD: its whole `description` text **and** its `contentUrl` image. A page-wide grep therefore

@@ -3145,6 +3145,11 @@ plausible German listing, wrong property. If two reads of the same file disagree
 collision and re-curl to a unique name rather than trusting either read.
 **Why:** an undetected overwrite means scoring one listing's blocks against another listing's
 data, producing a confidently wrong report with no error anywhere.
+The harness's "session-specific" scratchpad (`/tmp/claude-1000/…/{session-uuid}/scratchpad`) is
+ALSO shared by parallel sibling evaluators. Recurred on #818 (2026-09-23): `e.json` for 171004581
+came back holding 171078524 (Am Speicher, Potsdam). The re-curl to `expose-171004581.json` with the
+same UA was correct. So when `header.id` is wrong under the documented UA, suspect a collision first,
+not the UA.
 **Second cause of the same symptom (2026-09-14, #772): a non-standard UA
 (`ImmoScout_27.3_26.0_._`, without the "24") returned HTTP 200 + a COMPLETE JSON for an unrelated
 listing (134897508, Leipziger Str. 64) for expose 170749994.** So "wrong listing" is not only a
