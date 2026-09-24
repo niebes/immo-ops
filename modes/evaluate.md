@@ -86,12 +86,16 @@ General policies for opening listing pages. Stable, applies to every evaluation.
 6. **Score all 8 blocks** (A–H) using rules from `_shared.md` and weight overrides from `_profile.md`
 7. **Calculate global score** (weighted average with hard blocker caps)
 8. **Generate report** in the format below
-9. **Register in tracker**: write TSV to `batch/tracker-additions/{NNN}-{location-slug}.tsv`
-10. **Merge the tracker row**: `node scripts/merge-tracker.mjs` — the TSV is only a staging
-    file; without the merge the listing never appears in `data/listings.md`. (In auto/batch
-    mode the orchestrator runs one merge after ALL evaluations; when evaluating a single
-    listing directly, run it yourself.) Scores in the TSV are dot-decimal (`4.4`, not `4,4`);
-    German comma stays in the report prose only.
+9. **Register in tracker**: write TSV to `batch/tracker-additions/{NNN}-{location-slug}.tsv`,
+   and stage the pipeline line as `batch/pipeline-updates/{NNN}.json`
+   (`{"url": …, "line": "- [x] #{NNN} | …"}`). Never edit `data/pipeline.md` or
+   `data/listings.md` directly. Evaluations may run in parallel, and one shared file
+   edited by several workers loses updates. Temp files go in `tmp/eval/{NNN}/` only.
+10. **Merge**: `node scripts/merge-tracker.mjs`. Both files above are only staging;
+    the merge adds the tracker row to `data/listings.md` AND applies the pipeline update.
+    (In auto/batch mode the orchestrator runs one merge after ALL evaluations; when
+    evaluating a single listing directly, run it yourself.) Scores in the TSV are dot-decimal
+    (`4.4`, not `4,4`); German comma stays in the report prose only.
 
 ## Report Format
 

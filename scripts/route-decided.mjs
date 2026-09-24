@@ -57,7 +57,9 @@ function appendAlias(listingsText, num, url) {
 async function main() {
   if (!existsSync(PIPE)) { console.log('No pipeline.md — nothing to route.'); return; }
 
-  await withLock('pipeline', { root: ROOT }, () => {
+  // 'data', not a private name: this rewrites pipeline.md AND listings.md, the
+  // same files process-scan/prune/merge-tracker hold 'data' for (see lib/lock.mjs).
+  await withLock('data', { root: ROOT }, () => {
     // The whole tracker, not just its decided rows — see loadTrackerListings.
     const tracker = loadTrackerListings(ROOT);
     if (tracker.length === 0) { console.log('No tracker entries — nothing to match against.'); return; }

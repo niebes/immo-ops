@@ -29,7 +29,11 @@ correspondence/
 !correspondence/README.md
 output/
 batch/tracker-additions/
+batch/pipeline-updates/
+batch/memory-inbox/
 batch/logs/
+# Stray agent scratch (evaluators must use tmp/eval/{NNN}/ instead)
+/scratchpad/
 
 # Temporary verification / working files
 tmp/

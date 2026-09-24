@@ -3,36 +3,15 @@
 Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien pages.
 
 ## Getting the data
-- **⚠ Parallel runs SHARE the session scratchpad. Curl into a per-report subdir (`scratchpad/r{NNN}/`)
-  and give the file a unique name, never plain `ad.html`.** On #822 another evaluator overwrote
-  `scratchpad/ad.html` between two of my parses. The second parse then read a *different* swap ad
-  (Nuthepark, 60 m², "gegen Berlin 900 warm") and nearly supplied a fake Suche. Tell-tale: fields
-  that changed between two reads of "the same" file. Check `ls -la` mtimes and re-fetch.
 - **Detail pages (`/s-anzeige/...`) are plain-curl accessible** — a simple `curl -A "Mozilla/5.0 ... Firefox"` returns the full 200 HTML with every field (title `#viewad-title`, price `#viewad-price`, locality `#viewad-locality`, `#viewad-details` list incl. Standort street address, `#viewad-description-text`, seller block with "Aktiv seit", gallery elements). Only the SEARCH pages bot-block headless. *Why:* on 2026-07-13 the invisible-playwright driver was crashed session-wide; curl evaluated #324 with zero browser. Prefer curl for single-listing evals.
-- **⚠ ALWAYS verify the served ad is the requested one: compare `<link rel="canonical">` / the
-  "Anzeigen-ID" in `#viewad-contact` against the ad-ID in the URL.** On #821 a plain curl of the full
-  slug URL (`/s-anzeige/raus-aufs-land-…/3518690665-208-7962`) returned HTTP 200 with a COMPLETELY
-  DIFFERENT ad (3519436701, a Potsdam Tauschwohnung, canonical pointing there). Re-fetching the bare
-  form `https://www.kleinanzeigen.de/s-anzeige/{ad-id}` served the correct ad. *Why:* without the
-  check you would have scored a stranger's rental swap as the house under evaluation.
-- **⚠ FIRST check after every curl: the served page's `rel="canonical"` ad-ID == the requested ad-ID.**
-  Kleinanzeigen can answer a valid detail URL with HTTP 200 and a **completely different ad** (#812:
-  requested 3519115937 = locals Brauhausberg flat, got 3519436701 = a private Tauschwohnung 795 € in
-  the same PLZ/category; the requested ID occurred 0× in the HTML). A plain re-fetch seconds later
-  returned the correct ad. Test: `grep -o 'rel="canonical" href="[^"]*'` + `grep -c {adid}`; mismatch
-  ⇒ re-fetch (optionally via the short form `/s-anzeige/{adid}`), never score it and never call it
-  EXPIRED on that evidence. *Why:* unchecked, the wrong page would have produced a bogus "swap"
-  verdict (Nur Tausch, 60 m², 495 kalt) on a plain 1.670-EUR Neubau rental.
-- **⚠ FIRST sanity check after every curl: `og:url` must carry the ad-ID you requested.** The CDN can
-  serve a **HYBRID page**: the ad block (`#viewad-title`, spec lists, description, seller) is correct,
-  but `<head>` `og:*`, the whole gallery (`data-imgsrc`, alt texts) and every pre-title JSON-LD
-  ImageObject belong to a DIFFERENT, freshly posted ad. #823 (swap 3519436701) came back with 40
-  locals-Immobilien Neubau renders from ad 3519115937 ("H3-01-05 …"). The fix is to re-fetch via
-  the short form `https://www.kleinanzeigen.de/s-anzeige/{adid}`. That returned the right page (7 own
-  phone photos). Check with `grep -o '<meta property="og:url"[^>]*'` and `"adid":"…"` in the targeting JSON.
-  *Why:* the foreign gallery would have looked like the Medium "photos from a different property"
-  scam signal, with fake Neubau condition, a walk-in shower refuting the Badewanne, and a 40-photo count,
-  all attached to an honest private Plattenbau ad.
+- **⚠ After every curl, check the served ad-ID (`<link rel="canonical">` / `og:url` / `"adid"`) == the
+  requested one; on mismatch re-fetch, never score it or call it EXPIRED.** The 2026-09-23 "Kleinanzeigen
+  served a different ad / a hybrid page" reports (#812, #821, #822, #823) were NOT portal behaviour: parallel
+  evaluators curled into the same shared scratchpad filename (`ad.html`) and overwrote or interleaved each
+  other's downloads (3519436701 was sibling #823's ad). Re-probe 2026-09-24: 9/9 full-slug fetches of those
+  three ads served the correct canonical. The real fix is isolation — every temp file under your own
+  `tmp/eval/{NNN}/` (agent definition, Isolation) — the ID check stays as a cheap safety net.
+  *Why:* a swapped/interleaved payload scores another flat, or borrows its gallery (fake scam signal), silently.
 - **⚠ SCOPE every keyword sweep and every photo count to THIS ad's own DOM — the page embeds ~10
   FOREIGN ads in full.** The sidebar ("Weitere Anzeigen") ships each recommended ad as complete
   JSON-LD: its whole `description` text **and** its `contentUrl` image. A page-wide grep therefore

@@ -15,7 +15,7 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   end-to-end, 616–685 KB of `innerHTML`, and **no truncation** — a single eval returns `title` +
   `innerText` (4–5 k chars) + the whole `innerHTML` together, so ONE call covers liveness AND the full
   extraction. ⇒ Treat it as reliable, not as a lucky path. The standard shape is exactly **two Bash
-  calls**: one fetch that writes `innerText`/`innerHTML` to the scratchpad, one offline `node -e` mine
+  calls**: one fetch that writes `innerText`/`innerHTML` to your `tmp/eval/{NNN}/`, one offline `node -e` mine
   that prints innerText + the indexOf-sliced JSON + photo count + a keyword sweep in one go. That shape
   has settled full evaluations, EXPIRED checks, and DUPE-vs-relisting calls alike.
   ⚠ **Mine the embedded JSON with `indexOf(key)` + a slice, NOT with a `"key":"value"` regex.** On
@@ -25,8 +25,8 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   and a `node -e` one-liner has to carry those backslashes through **two** quoting layers
   (zsh single-quotes + JS string) — every key came back `NOT FOUND` on a page that had them all,
   which reads exactly like "listing has no structured data". Rewriting the identical logic into a
-  scratchpad `.mjs` and running `node mine.mjs` printed every block first try. ⇒ Standard shape
-  stays two Bash calls, but call 2 must be `node {scratchpad}/mine.mjs`, not `node -e`.
+  `tmp/eval/{NNN}/mine.mjs` and running it printed every block first try. ⇒ Standard shape
+  stays two Bash calls, but call 2 must be `node tmp/eval/{NNN}/mine.mjs`, not `node -e`.
   regex (`/"address":\{…/`, `/"hardFacts":…/`, `/"titleAdditions":…/`, `/"floorplans":…/`) returned
   NULL and the listing read as having no structured data at all — while `h.indexOf('zipCode')` +
   `h.slice(i-60,i+260)` printed the whole `address`/`hardFacts`/`floorplans` block instantly. One
@@ -205,7 +205,7 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `classification`); **#784 made it 3-for-3** (H1-02-10 → Bild 59 of 60, `…_WE_10_…`) — **but #785 (H1-02-11, same batch,
   same day) put it back in `floorplans[0]`** (59 images + 4 floorplans, no unclassified image). So the
   placement is a per-ad coin-flip on this lister, NOT a pattern. *Why:* checking only the images-tail
-  selector would have reported "no unit plan" on #785. **#786 (H1-03-15) + #787 (H5-00-05) + #788 (H5-01-11) + #789 (H6-00-01) + #790 (H6-00-05) = `floorplans[0]` again → 3 images-tail / 6 floorplans.** **#791 (H6-01-06) = images-tail again (Bild 59/60) → 4 / 6.** **#792 (H6-01-11) + #793 (H6-02-12) + #826 (H4-01-03) + #827 (H4-02-09) + #828 (H4-02-14) + #829 (H1-03-17) = `floorplans[0]` → 4 / 12.** **#830 (H3-03-15) = images-tail (Bild 59/60, floorplans = 3× Musterwohnung) → 5 / 12.** **#831 (H2-00-04) + #832 (H2-03-15) = `floorplans[0]` → 5 / 14.** ⚠ #830's filename said `…_Haus_3_Haus_3_**Wohnung_15**_…`, NOT `WE_15`, so a `WE_`-only sweep misses it; the `FF\d+` token caught it — keep both alternatives in the regex. (#829's whole run reused `scratchpad/r828/{fetch,mine}.mjs` via sed on URL+dir; that's 3 Bash calls total incl. plan download.) Stacked units share one plan (H4-01-03 ≡ H4-02-09, only the WE number differs), and a same-floor MIRROR unit carries identical room m² with the balcony on the opposite side (H4-02-09 West ≡ H4-02-14 East, both 80,61 + 9,78). Dedup on the full Referenznummer, never on plan, price or m². The `Stichworte` balcony area is copy-pasted across Häuser (#828 said 9,90 = Haus-6 value, its plan says 9,78), so trust the plan.
+  selector would have reported "no unit plan" on #785. **#786 (H1-03-15) + #787 (H5-00-05) + #788 (H5-01-11) + #789 (H6-00-01) + #790 (H6-00-05) = `floorplans[0]` again → 3 images-tail / 6 floorplans.** **#791 (H6-01-06) = images-tail again (Bild 59/60) → 4 / 6.** **#792 (H6-01-11) + #793 (H6-02-12) + #826 (H4-01-03) + #827 (H4-02-09) + #828 (H4-02-14) + #829 (H1-03-17) = `floorplans[0]` → 4 / 12.** **#830 (H3-03-15) = images-tail (Bild 59/60, floorplans = 3× Musterwohnung) → 5 / 12.** **#831 (H2-00-04) + #832 (H2-03-15) = `floorplans[0]` → 5 / 14.** ⚠ #830's filename said `…_Haus_3_Haus_3_**Wohnung_15**_…`, NOT `WE_15`, so a `WE_`-only sweep misses it; the `FF\d+` token caught it — keep both alternatives in the regex. (Write the fetch/mine scripts fresh into your own `tmp/eval/{NNN}/` — about 3 Bash calls total incl. plan download; never copy them out of a sibling's work dir, it may be mid-write.) Stacked units share one plan (H4-01-03 ≡ H4-02-09, only the WE number differs), and a same-floor MIRROR unit carries identical room m² with the balcony on the opposite side (H4-02-09 West ≡ H4-02-14 East, both 80,61 + 9,78). Dedup on the full Referenznummer, never on plan, price or m². The `Stichworte` balcony area is copy-pasted across Häuser (#828 said 9,90 = Haus-6 value, its plan says 9,78), so trust the plan.
   ⚠ **From #826 (created 2026-09-21) this lister's `price.base` carries a Heizkosten row „in Warmmiete enthalten"** with Warm = KM+NK exactly; the older sibling ads (#732, same 1.890/285/2.175) had NO Heiz* row and the IS24 twins say „Heizkosten in NK: Nein". Report both scenarios, don't silently switch the batch's HK assumption. *Why:* reading only the new label would flip the whole batch's Warmmiete-vs-cap verdict. On this lister the headline's „Balkon mit {West|Ost}ausrichtung" matched the plan's north arrow 3/3 (#791 Ost, #792 West, #793 Ost), so it is a cheap first read. Still check the plan, because the WE number does NOT predict orientation across Häuser (WE 06 is West in Haus 5 but East in Haus 6). Also sum the plan on EVERY unit: #789's advertised m² was copied from a Haus-5 sister (plan ≠ ad), #790's matched exactly — correctness is per unit, not per house.
   Same batch also varies the **Merkmal chips per unit**: #786 had no `Keller` chip (`details:null` ⇒ list complete) while
   #732/#784/#785 carried it — never copy sibling must-haves, read each unit's chips. The selector that covers both: filter
@@ -749,8 +749,8 @@ TELEFONNUMMER ANGEBEN" — pure lead capture, score it in Block H, not as a scam
   another unit, so never use its header as the address. Fast cross-check: IS24 Ortsteil search via the
   driver, then `indexOf(title)` in the innerHTML for the expose id → mobile API for both ids.
   *Why:* the orchestrator's DUPE hypothesis would otherwise have folded a vacant house into a
-  vermietet one. Also: the scratchpad `imgs/` dir can hold **stale files from an earlier session** —
-  #796 showed 12 images for a 10-image gallery (2 foreign Tauschwohnung pics); use a fresh dir or
+  vermietet one. Also: a shared `imgs/` dir can hold **stale files from an earlier session** —
+  #796 showed 12 images for a 10-image gallery (2 foreign Tauschwohnung pics); keep images in your own `tmp/eval/{NNN}/imgs/` or
   compare `ls | wc -l` to `images.length`.
 - **Provision terms are spelled out in the Preisdetails block** — rate, when it becomes due, and
   crucially whether a **same-rate contract with the seller** exists (= § 656c BGB split confirmed).

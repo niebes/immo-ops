@@ -3,7 +3,7 @@
 // Data integrity checks for immo-ops.
 // Verifies listings.md, pipeline.md, scan-history.tsv, and cross-references.
 
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { join } from 'path';
 import { parseListingRow } from './lib/listings-md.mjs';
 
@@ -94,14 +94,36 @@ if (pipeline) {
 
   // Section purity: completed items sitting under '## Pending' hide the real
   // queue state (the audit found 680 of them). WARNING, not error: the normal
-  // workflow flips entries '- [ ]'→'- [x]' IN PLACE under Pending (evaluator,
-  // dedup --fix) and prune-pipeline.mjs sweeps them later in the same cycle —
+  // workflow flips entries '- [ ]'→'- [x]' IN PLACE under Pending (merge-tracker
+  // applying staged evaluator updates, dedup --fix) and prune-pipeline.mjs
+  // sweeps them later in the same cycle —
   // an error here would fail Step-5 verification on every productive cycle.
   const pendingSection = pipeline.split('## Pending')[1]?.split(/^## /m)[0] || '';
   const doneUnderPending = (pendingSection.match(/^- \[x\]/gm) || []).length;
   check(doneUnderPending === 0,
     `${doneUnderPending} completed '- [x]' item(s) under '## Pending' — run: node scripts/prune-pipeline.mjs`, 'warn');
 }
+
+// Staged worker output that was never merged. Evaluators (possibly running in
+// parallel) only write per-listing staging files; merge-tracker.mjs is the one
+// serial writer of listings.md/pipeline.md, and a memory-consolidation pass
+// folds batch/memory-inbox/ into the evaluator's memory. Leftovers mean a
+// merge/consolidation step was skipped or a staged file was rejected.
+console.log('\nStaging:');
+const staged = (dir, ext) => {
+  const full = join(ROOT, dir);
+  return existsSync(full) ? readdirSync(full).filter(f => f.endsWith(ext)) : [];
+};
+const leftTsv = staged('batch/tracker-additions', '.tsv');
+const leftUpdates = staged('batch/pipeline-updates', '.json');
+const leftNotes = staged('batch/memory-inbox', '.md');
+console.log(`  tracker-additions: ${leftTsv.length}, pipeline-updates: ${leftUpdates.length}, memory-inbox: ${leftNotes.length}`);
+check(leftTsv.length === 0,
+  `${leftTsv.length} unmerged tracker TSV(s) (${leftTsv.slice(0, 5).join(', ')}) — run: node scripts/merge-tracker.mjs`);
+check(leftUpdates.length === 0,
+  `${leftUpdates.length} unapplied pipeline update(s) (${leftUpdates.slice(0, 5).join(', ')}) — run: node scripts/merge-tracker.mjs, then fix any file it keeps`);
+check(leftNotes.length === 0,
+  `${leftNotes.length} unconsolidated evaluator memory note(s) in batch/memory-inbox/ — run the immo-evaluator MEMORY CONSOLIDATION pass`, 'warn');
 
 // Check scan-history.tsv
 console.log('\nScan History:');

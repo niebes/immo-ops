@@ -225,11 +225,15 @@ Agent(
   prompt="LISTING URL: {url}
 Portal: {portal}
 Next report number: {NNN}
+Work dir: tmp/eval/{NNN}/
+Parallel: {yes|no}
 Search-result metadata: {title, price, m², rooms from the pipeline entry}
 
-Evaluate per your standing instructions; write report #{NNN}, tracker TSV, and the pipeline update; return the one-line result."
+Evaluate per your standing instructions; write report #{NNN}, tracker TSV, and the staged pipeline update; return the one-line result."
 )
 ```
+
+Assign every report number before launching anything. Each worker then owns exactly `#{NNN}`, `tmp/eval/{NNN}/` and its `{NNN}`-named output files, so no two workers ever share a path.
 
 Pass the search-result metadata as an unverified **hint only** — it can be stale (listers edit titles). Do NOT assert a consequential label (e.g. "Untermiete", "möbliert", "Zwischenmiete", "sublet") in the prompt as fact; let the evaluator read the live page and decide. (A stale "Untermiete" title once produced a bogus sublet report — see `modes/evaluate.md` "Trust the LIVE listing".)
 
@@ -237,11 +241,13 @@ Do NOT restate the steps, file paths, scoring rules, number format, or portal qu
 
 **Concurrency — serialize only what actually needs a browser.** The constraint is the shared browser (CiC tabs and the single stealth-Firefox context can't be driven by two agents at once), NOT evaluation itself. Most evaluations no longer touch a browser: ImmoScout24 answers fully on `api.mobile.immobilienscout24.de/expose/{id}` and Kleinanzeigen detail pages render server-side, so both are plain `curl` (6 of 10 evaluations in the 2026-08-09 cycle needed no browser at all). So:
 
-- **Curl-only portals — ImmoScout24 (incl. ImmoScout24 Haus) and Kleinanzeigen: launch in parallel**, several agents in one message. Tell each one in its prompt that it is running alongside others and must not open a browser; if it finds it genuinely needs one, it should report back rather than grab the browser.
-- **Browser-bound portals — Immowelt, Vonovia, aggregators that redirect to a source page, anything unknown: strictly one at a time.** Wait for each to finish before launching the next, and do not overlap one with a parallel batch.
-- Tracker TSVs are written per-listing to `batch/tracker-additions/` and merged once at the end, so parallel agents don't collide there. `data/pipeline.md` is the one shared file they each edit — if two agents ever report a lost pipeline update, fall back to serial for that portal and note it here.
+- **Curl-only portals — ImmoScout24 (incl. ImmoScout24 Haus) and Kleinanzeigen: launch in parallel** with `Parallel: yes`, several agents in one message. `Parallel: yes` tells the worker it gets no browser and no direct memory edits. A worker that finds it genuinely needs a browser returns `NEEDS-BROWSER` without writing output; re-run that listing later with `Parallel: no` (same `{NNN}`).
+- **Browser-bound portals — Immowelt, Vonovia, aggregators that redirect to a source page, anything unknown: strictly one at a time**, with `Parallel: no`. Wait for each to finish before launching the next, and do not overlap one with a parallel batch.
+- **Workers share no writable file.** Each writes only its own report, `batch/tracker-additions/{NNN}-*.tsv`, `batch/pipeline-updates/{NNN}.json`, `tmp/eval/{NNN}/` and (in parallel mode) `batch/memory-inbox/{NNN}-*.md`. Nobody but the orchestrator's serial steps below writes `data/listings.md`, `data/pipeline.md` or the evaluator memory. Keep it that way: if you ever need a new shared output, stage it per-`{NNN}` and merge it serially. Don't let workers edit one file together.
 
-After all agents complete: `node scripts/merge-tracker.mjs`
+After all agents complete, run these serially:
+1. `node scripts/merge-tracker.mjs`: merges the tracker TSVs AND applies the staged pipeline updates. A file it keeps with a warning needs fixing.
+2. If `batch/memory-inbox/` holds notes: launch ONE `immo-evaluator` with the prompt `MEMORY CONSOLIDATION`, and wait for it. It's the only memory writer during that pass.
 
 **Step 5 — Verification (MUST pass before notify):**
 Before sending any notification, verify:

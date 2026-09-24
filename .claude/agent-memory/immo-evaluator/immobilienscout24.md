@@ -15,12 +15,12 @@ payload with the documented UA on the very next call.
 **Why:** an empty 200 looks exactly like a pulled exposé, so the evaluation would have been filed as
 EXPIRED (or escalated to a browser, which the parallel-run policy forbids) for a perfectly live listing.
 
-### Parallel runs SHARE the scratchpad — write the curl output to `scratchpad/e{NNN}/`, never `scratchpad/e.json`
-Parallel evaluators spawned by one orchestrator get the SAME session scratchpad dir. On #817 a generic
-`scratchpad/e.json` was overwritten between the curl and the parse by another agent's exposé (171078524,
-Am Speicher, 1.815 kalt / 114,87 m²). Nothing errored; it just parsed as a different flat. Always
-use a per-report subdir (`scratchpad/e817/e.json`), and check that `header.id` == the requested scoutId
-before scoring.
+### Temp files: only under your own `tmp/eval/{NNN}/` — then assert `header.id == scoutId`
+Parallel evaluators used to share the session scratchpad, and generic names (`e.json`, `expose.json`) were
+overwritten between curl and parse by a sibling's exposé (#365, #814, #817, #818, #820 — valid JSON, plausible
+listing, wrong property, no error). The isolation rule in the agent definition fixes the cause; the ID assert
+after every fetch stays as the safety net (it also catches the wrong-UA case below). If two reads of one file
+disagree, suspect a collision, never the portal.
 **Why:** a silent swap puts another listing's price, m² and amenities into this report.
 Also: this file is >500 KB and the Read tool refuses it whole. Grep for headings (`grep -n '^#'`) and
 read by offset.
@@ -29,19 +29,6 @@ read by offset.
 #817 (171052633): the single photo `IMG-20200510-WA0000.jpg` was the tenant's own balcony shot from
 **10.05.2020**. It is real (no cap) and it confirms the Balkon. The date also shows a ≥6-year Altvertrag,
 which makes the "Miete wird sich eventuell anpassen" re-let risk concrete (quantify it against the Ortsteil ask).
-
-### Parallel runs: never curl to a generic filename in the scratchpad — sibling evaluators share it
-Under parallel evaluation the scratchpad dir is shared, and `-o e.json` was overwritten mid-run by another
-evaluator's exposé (#814 read expose 171078524 / Am Speicher instead of 170198523). Write to a per-report
-subdir (`scratchpad/e{NNN}/`) and assert `header.id == scoutId` before parsing.
-**Why:** a silently swapped payload scores the wrong flat under the right URL.
-
-### Parallel runs SHARE the session scratchpad — save the API JSON as `expose-{scoutId}.json`, never `e.json`
-Evaluators fanned out in parallel get the same scratchpad dir. A fixed name like `e.json` gets overwritten
-by a sibling's curl between your fetch and your parse. Always check `header.id` / `OBJECT_INFO` Scout-ID
-== the ID you asked for before extracting anything. Seen 2026-09-23 on #820 (171005034): the second read
-returned 171052633 (Teltower Vorstadt, 88 m², 910 kalt, a sibling's Mieternetzwerk ad).
-**Why:** otherwise you score another agent's flat under your report number, with no error anywhere.
 
 ### Confirming/refuting a "same flat as #NNN" suspicion: rent+size is NOT a discriminator in a portfolio estate
 Bulk landlords price a whole estate off one m²-table, so several distinct units carry almost the same
@@ -1492,7 +1479,7 @@ catches it, and without it one listing gets scored with another's data.
    ~2.075–2.079 Mrd; **band refreshed 2026-09-12: same-day fresh exposés (170575726 / 170602850 /
    170628529 / 170710270 / 170714342) sit at 2.087–2.090 Mrd ⇒ ~0,65 M media-IDs/day** over the
    late-Aug→12-Sep interval (the older 0,49 figure now under-ages; recalibrate, it is cheap — the
-   other evaluators' scratchpad JSONs from the same batch are free calibration points).
+   mobile-API JSONs of already-FINISHED evaluations under `tmp/eval/*/` are free calibration points — never read a running sibling's dir).
    Cost-free trick: the suffix also appears on **attached PDFs** (`cloudfront.net/{uuid}-{id}.pdf`),
    so a photo-less exposé with a Selbstauskunft/Grundriss PDF can still be dated. A target sitting at 1.624 Mrd is then
    ~2,5 years back — an *independent* second age estimate to corroborate surrogate 5 or 6, and the only
@@ -3136,20 +3123,7 @@ Seen on #624 (expose 170152491, locals Real Estate, "Wohnen am Brauhausberg").
 boilerplate, a clean grep result reads as a confirmed absence and Block G gets a free 5,0. The
 filename-caption plan is skipped by every stem-match on `Grundriss|Musterwo`.
 
-### Always curl to an expose-ID-specific filename — the scratchpad is SHARED
-Write to `expose-{scoutId}.json`, never a generic `e.json`/`expose.json`. Parallel evaluator
-agents in the same batch share one scratchpad dir, and a sibling agent silently overwrote the
-file between two reads mid-evaluation (#365: the second read returned a completely different
-Babelsberg expose, 165446870, under the Marquardt filename). Symptom is subtle — valid JSON,
-plausible German listing, wrong property. If two reads of the same file disagree, assume
-collision and re-curl to a unique name rather than trusting either read.
-**Why:** an undetected overwrite means scoring one listing's blocks against another listing's
-data, producing a confidently wrong report with no error anywhere.
-The harness's "session-specific" scratchpad (`/tmp/claude-1000/…/{session-uuid}/scratchpad`) is
-ALSO shared by parallel sibling evaluators. Recurred on #818 (2026-09-23): `e.json` for 171004581
-came back holding 171078524 (Am Speicher, Potsdam). The re-curl to `expose-171004581.json` with the
-same UA was correct. So when `header.id` is wrong under the documented UA, suspect a collision first,
-not the UA.
+### Mobile API: a non-standard UA can return a COMPLETE JSON for an UNRELATED listing
 **Second cause of the same symptom (2026-09-14, #772): a non-standard UA
 (`ImmoScout_27.3_26.0_._`, without the "24") returned HTTP 200 + a COMPLETE JSON for an unrelated
 listing (134897508, Leipziger Str. 64) for expose 170749994.** So "wrong listing" is not only a
@@ -5367,7 +5341,7 @@ BUWOG Brunnenallee ad that reflex either flags the 13,73 outlier as suspicious/d
 ## Numeric MEDIA captions ("0","1","2"…) ≠ renders — download and look before capping Block D
 Memory elsewhere says numeric-ID captions on a Planung/Fertighaus listing mean catalog renders. On a
 normal Bestandswohnung, bare index captions `0..8` are just the upload order and say nothing. Resolve it
-cheaply: `fullImageUrl` is a plain unauthenticated CDN URL — `urllib` them into the scratchpad, convert
+cheaply: `fullImageUrl` is a plain unauthenticated CDN URL — `urllib` them into your `tmp/eval/{NNN}/`, convert
 webp→jpg with PIL, and Read the images. On #510 that showed 3 professional quarter shots + 6 phone
 photos of the empty flat (parquet, EBK, roof terrace with weeds) ⇒ real photos, no Block-D cap, and the
 weeds became a concrete viewing question.
