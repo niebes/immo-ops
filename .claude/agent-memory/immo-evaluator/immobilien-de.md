@@ -6,7 +6,28 @@ immobilien.de is permission-denied in this env (per portals.yml), but a plain
 HTML, no CAPTCHA/consent wall. Use curl + parse; don't burn a CiC tab.
 **Why:** without this you'd try CiC, hit the permission denial, and stall.
 
-## Where the data lives on the detail page
+## Post-relaunch detail page (`/expose/{id}`, Next.js, since ~2026-09) — use this first
+Plain `curl -sL -A <Firefox UA>` still works (HTTP 200, no wall). What changed vs. the old
+`/wohnen/{id}` layout below:
+- JSON-LD is ONE `@graph`: BreadcrumbList + ItemPage + `["RealEstateListing","Apartment"]`.
+  The listing node has `datePosted`, `yearBuilt`, `floorLevel`, `numberOfBedrooms`,
+  `amenityFeature` (Balkon/Keller/Außenstellplatz), and `additionalProperty` (EEK, Endenergiebedarf,
+  Heizungsart). `description` is TRUNCATED (~150 chars), so read the full prose from the stripped text.
+  `offers.priceSpecification.price` was the Kaltmiete on 10027851.
+- Table labels are now `Nettokaltmiete` / `Nebenkosten` / `Heizkosten` / `Kaution` /
+  `Außenstellplatz (Miete)` / `Verfügbar ab` (label line followed by value line). The old
+  `Kaltmiete (netto)` label is gone.
+- The `estate_attachments/...` image pattern is GONE. Images are now
+  `immobilien-api.fly.dev/api/images/openimmo/{uuid}/{sourceId}/{n}-{origFilename}.jpg`.
+  Count photos by distinct `{n}`. The original filenames are informative (e.g. `Grundriss Haus 6
+  Wohnung 4` gives the unit id for dedup against sibling units in the same project).
+- **OhneMakler-fed listings** ("Privat vom Eigentümer" + OhneMakler GmbH block): `{sourceId}` in
+  the image path is the OM id, so `https://www.ohne-makler.net/immobilie/{sourceId}/` is the
+  source exposé (see `ohne-makler-net.md`; it needs `--compressed`).
+  **Why:** the source was otherwise not linked anywhere on the page; it is how you verify identity
+  and read the fuller OM fields (Nebenkosten split, Stellplatz count, Lage-Check).
+
+## Where the data lives on the detail page (old `/wohnen/{id}` layout)
 - **JSON-LD** `<script type="application/ld+json">` block `@type: RealEstateListing`
   gives: `name` (title), `description` (full text), `address` (street/locality/PLZ),
   `geo` lat/lng, `floorSize.value` (m²), `numberOfRooms`, `offers.price`.
@@ -21,7 +42,7 @@ HTML, no CAPTCHA/consent wall. Use curl + parse; don't burn a CiC tab.
   `Kaltmiete (netto)` → `626,62 €`; `Nebenkosten` → `190 €`; `Heizkosten` → `175 €`;
   `Kaution` → value; `Baujahr` → year; `Verfügbar ab` → date;
   `Energieeffizienzklasse E · 142.00 kWh/(m²*a)` on one line.
-- **Seller/landlord** is not in a clean field — infer from the estate-image filename
+- **Seller/landlord** (old layout) is not in a clean field — infer from the estate-image filename
   `estate_attachments/{id}/0/{seller}_....jpg` (e.g. `gewobag_...` → Gewobag) and the
   provisionsfrei "im Auftrag der {X}" notice.
 - **Photo count**: count distinct indices in `estate_attachments/{id}/{n}/...jpg`.
