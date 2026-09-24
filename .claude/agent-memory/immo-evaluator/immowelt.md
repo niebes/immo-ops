@@ -43,8 +43,15 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   ```js
   const tail = raw.slice(raw.indexOf('__UFRN_LIFECYCLE_SERVERREQUEST__'));   // ⚠ anchor FIRST
   const m = tail.match(/JSON\.parse\("([\s\S]*?)"\)\s*;?\s*<\/script>/);      // lazy + OPTIONAL ; + </script>
-  const d = JSON.parse(JSON.parse('"' + m[1] + '"')).app_cldp.data.classified;
+  const o = JSON.parse(JSON.parse('"' + m[1] + '"'));
+  const d = (o.app_cldp || o.app_demand_referral_cldp || o[Object.keys(o)[0]]).data.classified;
   ```
+  ⚠ **The top-level app key is NOT always `app_cldp`.** #846 (2026-09-24, DIBOLIVING ad) had
+  `app_demand_referral_cldp` as its ONLY key, with the identical `data.classified` shape below it. A hard
+  `.app_cldp` throws "Cannot read properties of undefined (reading 'data')". That is the same message as the
+  #673 wrong-script failure, but here the anchor was correct. Check `Object.keys(o)` first. If it is a single
+  `app_*cldp` key, it is the right payload. *Why:* without this, a correctly anchored parse gets diagnosed as a
+  wrong-script match, and you fall back to scraping innerText.
   ⚠ **The `;?` is mandatory — Immowelt emits BOTH `JSON.parse("…")</script>` and
   `JSON.parse("…");</script>`, and the older semicolon-less regex silently returns `null` on the
   latter.** #683 (`9369daa7-…`): the anchor found the script at index 988.888 of 1,02 MB, the payload
@@ -60,8 +67,8 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   `obj.app_cldp` was absent. The greedy variant in the old note (`[\s\S]*` with no anchor) has the
   mirror failure — it runs past the payload into a *later* script. So: `indexOf` the
   `__UFRN_LIFECYCLE_SERVERREQUEST__` id to slice the tail, then match **lazily** and terminate on
-  `"\)\s*</script>`. Sanity-check `Object.keys(obj)` — the correct payload's ONLY top-level key is
-  `app_cldp`. *Why:* the symptom ("Cannot read 'data' of undefined") reads like "this listing has no
+  `"\)\s*</script>`. Sanity-check `Object.keys(obj)`. The correct payload has ONE top-level key,
+  `app_cldp` or (since #846) `app_demand_referral_cldp`. *Why:* the symptom ("Cannot read 'data' of undefined") reads like "this listing has no
   structured payload" and pushes you back to innerText scraping on a page that has the full record.
   `classified` then gives, fully typed and unescaped: `metadata.{legacyId,creationDate,updateDate}` ·
   `tags.{has3DVisit,hasBrokerageFee,isNew}` · `domains.medias.{images,floorplans,videos,virtualTours}`
