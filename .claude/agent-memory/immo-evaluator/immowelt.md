@@ -47,7 +47,8 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
   const d = (o.app_cldp || o.app_demand_referral_cldp || o[Object.keys(o)[0]]).data.classified;
   ```
   ⚠ **The top-level app key is NOT always `app_cldp`.** #846 (2026-09-24, DIBOLIVING ad) had
-  `app_demand_referral_cldp` as its ONLY key, with the identical `data.classified` shape below it. A hard
+  `app_demand_referral_cldp` as its ONLY key, with the identical `data.classified` shape below it (and #847,
+  a Tauschwohnung-GmbH swap, the next day, so it is portal-wide and not lister-specific). A hard
   `.app_cldp` throws "Cannot read properties of undefined (reading 'data')". That is the same message as the
   #673 wrong-script failure, but here the anchor was correct. Check `Object.keys(o)` first. If it is a single
   `app_*cldp` key, it is the right payload. *Why:* without this, a correctly anchored parse gets diagnosed as a
