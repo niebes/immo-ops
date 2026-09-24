@@ -2125,6 +2125,12 @@ the Wald-dilution question. None of it appears in any structured field.
 Also: the last 1–2 „Fotos" are often an **Umgebungs-Collage** (signposts, Radweg, bus stop) — subtract
 them from the real-photo tally, but do read them; they are free Block-B evidence (#645's showed an
 Amt-Brück bus shelter on a paved village street ⇒ Ortsbus exists).
+**Floor plans: never use a fixed-box size.** `imageUrlForWeb`'s `legacy_thumbnail/800x600` **crops** a
+portrait Grundriss (#838 showed only Flur/Bad/half of Wohnen; rooms, Balkon, orientation and the address
+footer "Falkenhorst 7, 2.OG rechts" were cut off). Use `fullImageUrl`, or a fit-inside size:
+`…/ORIG/resize/1200x1600%3E/format/jpg/quality/80` (`%3E` = ">" = fit, no crop; returned 632x1241, whole
+plan). **Why:** a cropped plan reads like a partial plan, not a crop, and hides room count, Balkon and the
+exact unit/floor — the footer line is often the cheapest unit-identity proof.
 
 ### Private exposés: when `TEXT_AREA "Sonstiges"` names the seller's OWN domain, fetch it — it carries what the exposé omits
 #633's Sonstiges ended with "…stehen unter: www.havelgrundstueck.de zur Verfügung". That one-object site
@@ -3458,9 +3464,24 @@ captioned `Beispielfoto 1…4`, `Hauseingang Beispiel`, `Weg Beispiel`, plus gen
 (`Spielplatz`). The description reads like a normal flat write-up, so a keyword scan of
 Objektbeschreibung/Ausstattung/Sonstiges for `Visualisierung|Musterwohnung|Symbolbild|…` finds
 **nothing** and you'd credit the photos as real.
-- **Always keyword-scan the MEDIA captions too**, not just the TEXT_AREAs: `Beispiel|Muster|
-  Referenz|Symbol|Visualisierung|ähnlich`. A caption of `Beispielfoto` = declared non-real →
-  existing flat ⇒ **cap Block D at 3,0** and put "no photos of the actual unit" in the ✗ cons.
+- **ONE example-photo regex, run over the concatenation of every `TEXT_AREA.text` AND every MEDIA
+  caption** (this is the single rule; the Vonovia "Musterbilder" section below uses it too):
+  `Muster|Beispiel|z\.\s?B\.|Referenz|Symbol|Visualisierung|ähnlich|tapezierfertig|unrenoviert`.
+  Bare `Muster` (not `Musterbild`) on purpose: Vonovia also writes *"…wurde hier nur Musterfotos
+  hochgeladen"* / *"…sind hier nur Musterfotos eingestellt worden"* (no "ACHTUNG", #837 expose
+  171154597 Humboldtring 21, #566 same building) with captions like `2 Beispiel Zimmer`,
+  `3 Beispiel Küche`. `z\.\s?B\.` catches a single-room label like `z.B. Badezimmer` (#842, 171124804,
+  Bärlin Housing, Dennis-Gabor-Str. 6).
+- **Grade by share, not by hit:**
+  - Disclaimer sentence in the text, OR the gallery is wholly/mostly example shots (`Beispielfoto`,
+    `Beispiel Zimmer`, …) → existing flat ⇒ **cap Block D at 3,0** and put "no photos of the actual
+    unit" in the ✗ cons (#564, #837).
+  - ONE labelled example room (`z.B. Badezimmer`, a lone `Beispiel …`) among ≥ ~5 real unit photos
+    → **no D-cap**; note "{Raum} condition only partly verified" and ask on contact whether the photo
+    shows this unit (#842: 8 of 9 real).
+  **Why:** the old `Musterbild`-only pattern missed "Musterfotos" (5 sample photos counted as real,
+  D-cap skipped) and the old caption regex missed `z.B.`; conversely a naive "any declared example ⇒
+  cap" would cost a well-photographed flat a full point of D.
 - Still **exculpatory** for scam scoring (openly labelled), same as the Musterwohnung case.
 - A gallery of ONLY exterior/common-area shots (Hauseingang, Weg, Spielplatz) is the same finding
   even without the word "Beispiel": zero interior evidence of *this* unit.
@@ -5630,8 +5651,10 @@ Fließtext versteckten Formel *"lediglich tapezierfertig gespachtelt … wird un
 entscheidet dieser Absatz zwei Dinge: **Block D wird auf 3,0 gedeckelt** (Bestandsobjekt ohne echte
 Fotos) und es entsteht ein **einmaliger Eigenaufwand ~4.000–7.000 EUR** (Tapezieren/Streichen + EBK,
 `obj_hasKitchen: n`), der in der Kaltmiete unsichtbar ist. Immer den ganzen `TEXT_AREA
-"Objektbeschreibung"` bis zum Schluss lesen bzw. auf `Musterbild|Symbolbild|tapezierfertig|unrenoviert`
-grepen. Wiederholt gesehen bei #566, #576, #586, #678, #679 (alle Potsdam, Vonovia).
+"Objektbeschreibung"` bis zum Schluss lesen bzw. mit der **einen Beispielfoto-Regex** aus
+"Silent variant of the same D-cap" (Text + Captions, inkl. `Muster` für die Variante *"…nur
+Musterfotos hochgeladen"* ohne "ACHTUNG") grepen. Wiederholt gesehen bei #566, #576, #586, #678,
+#679, #837 (alle Potsdam, Vonovia).
 **Why:** nach den Captions allein zählt man 7 "echte" Fotos, vergibt D ≈ 4,3 für ein "renoviertes"
 Bad und verschweigt die Renovierungskosten — der Zustand ist in Wahrheit vor der Besichtigung
 komplett unbelegt.

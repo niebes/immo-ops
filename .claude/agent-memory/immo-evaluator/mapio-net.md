@@ -1,9 +1,19 @@
 # mapio.net — Aggregator-CACHE, kein eigener Portal-Kanal (Rettungsanker für gelöschte Exposés)
 
 Gilt für: **mapio.net** (Aggregator). Steht in `portals.yml` nicht — man landet dort nicht über einen
-Scan, sondern über eine WebSearch nach der Adresse eines bereits **gelöschten** Inserats.
+Scan, sondern über eine WebSearch nach der Adresse eines bereits **gelöschten** Inserats — oder
+eines **Mieter-Nachmieter-Inserats**, das nur eine Standort-Adresse nennt (s. zweiter Zweck unten).
 
-## Wozu — der einzige Grund, es zu öffnen
+## Zweiter Zweck: Vermieter + Baualtersklasse zu einer nackten Adresse (Nachmieter-Inserate)
+Kleinanzeigen-Nachmieter-Anzeigen nennen oft weder Baujahr, EEK noch Vermieter. `WebSearch
+"{Straße} {Nr}" Potsdam` (Adresse in Anführungszeichen) findet häufig alte **Konzern-Inserate
+desselben Hauses** auf mapio (TAG / Vonovia / ProPotsdam). Das liefert den Block-H-Vermieter, die
+Baualtersklasse fürs Mietspiegel-Feld und den **Vermieter-Kanal-Zwilling**, nach dem man suchen
+kann (Nachmieter-Ablöse vermeiden). Seen on #843 (Hubertusdamm 43 → TAG, `mapio.net/expose/3036523`).
+*Why:* auf #843 war das der einzige Weg zu Vermieter und Baujahr — und damit zur
+Unplausibilität der angegebenen Kaltmiete.
+
+## Wozu — Rettungsanker für gelöschte Exposés
 Wenn ein Exposé an der Quelle weg ist (IS24-Mobile-API 404 `ERROR_RESOURCE_NOT_FOUND`, Immowelt
 „Anzeige gelöscht"), liefert mapio.net oft noch die **vollständige Objektbeschreibung + Ausstattung
 + Lage + Sonstiges + Anbieter** des verschwundenen Inserats. Das verwandelt einen leeren

@@ -227,6 +227,13 @@ Bekannte Neubau-Adressen (Bj. 2021), fortschreiben wenn neue auftauchen:
   geplant: 6-Geschosser mit bis zu 109 WE → mehrjährige Baustelle als Lage-Con nennen. (#561)
 - **Schwarzschildstr. 28** — Bj. 2021, Max Müller Immobilien GbR. (#523)
 
+Bekannte **Plattenbau**-Adressen (Feld 1971–1990), Gegenstück zur Neubau-Liste:
+- **Lilienthalstr. 12** — TAG Wohnen Stern-Wohnanlage, Bj. 1975. (#525)
+- **Hubertusdamm 43** (vermutlich die ganze Hubertusdamm-Zeile) — dieselbe TAG-Stern-Wohnanlage,
+  5-geschossige Plattenblöcke mit Loggien; belegt über den Mapio-Cache `mapio.net/expose/3036523`
+  (TAG-Inserat 2017: Balkon, Wanne, Keller). (#843 — Kleinanzeigen-Nachmieter ohne Baujahr/EEK/
+  Vermieter; erst die Zuordnung entlarvte 17,00 EUR/m² kalt als unplausibel gegen den Korridor.)
+
 **Eigener Angebots-Korridor für 14480 Am Stern (aus 8 bewerteten Objekten) — als Plausibilitäts-
 schranke benutzen, bevor eine Zahl geglaubt wird:** sanierter Plattenbaubestand **7,66–11,18 EUR/m²
 kalt** (#146 7,66 · #149 9,46 · #279 10,07 · #192 10,13 · #239 10,63 · #231 11,18), Ortsteil-**Spitze**

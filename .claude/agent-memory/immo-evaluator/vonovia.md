@@ -169,7 +169,9 @@ line of the Objektbeschreibung says *"ACHTUNG: Bei den Fotos handelt es sich led
 - No Grundriss ships with these ads either → request real photos + Grundriss in the first contact.
 Seen on #679 (IS24 expose 170256330, Maxie-Wander-Str. 8, Kirchsteigfeld, DG 73,49 m²) and again on
 #690 (170281438, Karoline-Schulze-Str. 1, 1. OG 74,51 m²) — it is the standard wording of the whole
-2026 Kirchsteigfeld re-letting wave, expect it on every flat of that batch.
+2026 Kirchsteigfeld re-letting wave, expect it on every flat of that batch. A second wording exists
+without "ACHTUNG": *"…wurde hier nur **Musterfotos** hochgeladen"* (#837, #566 Humboldtring 21) —
+grep with the unified example-photo regex in immobilienscout24.md ("Silent variant of the same D-cap").
 **Why:** the photos look like a normal, verified interior, so without reading the last description
 line Block D gets a 4,0+ "modernisiert" on evidence that does not exist.
 
@@ -180,12 +182,29 @@ On #690 the Kosten block read Kaltmiete 911,26 + Nebenkosten 198 + Heizkosten 16
 numbers are stored in different fields of the Vonovia feed, so neither is automatically the right
 one. **Recurring, not a one-off: #702 has the same signature with a 10,00 EUR gap** (859,03 + 191 +
 179 = 1.229,03 vs `obj_totalRent`/„Gesamtmiete" 1.219,03) ⇒ **auf jedem Vonovia-Exposé nachrechnen**.
+**The gap runs in BOTH directions:** #838 (170400614, Falkenhorst 7, Schlaatz) had `obj_totalRent`
+**965,89**, i.e. 5,00 EUR *above* the components 622,89 + 200 + 138 = 960,89 — so never "add the gap"
+on the assumption the portal understates; just take whichever figure is higher.
 Report the portal figure AND the recomputed one, plan with the higher, and make "Gesamtmiete
 schriftlich bestätigen" a Next step. It is a data defect, **not** a scam signal (mass exposé, all
 other integrity checks clean). Same reflex as the "Heizkosten in Nebenkosten enthalten: Nein" row —
 read it before adding anything up.
 **Why:** taking `obj_totalRent` at face value silently understates the warm rent by up to ~2 %, and
-it also corrupts the Nebenkosten-per-m² benchmark that drives the Block-A deduction.
+it also corrupts the Nebenkosten-per-m² benchmark that drives the Block-A deduction; a one-directional
+rule would add the gap on top of a total that is already the higher one.
+
+## Schlaatz estate Falkenhorst 7–17 (Bj. 1982, mod. 2002–04, EEK B): one floor-plan type, several units — check identity per unit
+Vonovia re-lets the same **84,82-m²** floor-plan type in several houses of Falkenhorst 7–17; rent and m²
+barely tell the units apart (#451 = Falkenhorst 15, 3. OG, "4,5 Zi", 8,03 EUR/m², `82-1446330008`;
+#841 = Falkenhorst 13, 4. OG rechts, 4 Zi, 8,49 EUR/m², `82-1446320010`). Settle identity cheaply by
+(a) the building block of the Objekt-Nr. (`144633` vs `144632`), or (b) on IS24 cross-posts the
+address line printed **inside the Grundriss image** ("14478 Potsdam, Falkenhorst 13, 4.OG rechts" —
+fetch it uncropped, see immobilienscout24.md "Cheapest photo evidence path").
+**Mietpreisbremse here:** field **1971–1990 · A,B · Spalte D = 5,87 (5,42–6,41)** ⇒ zulässig 6,46
+EUR/m²; the 2026 asks of 8,0–8,5 are +25–45 % over the Mittelwert ⇒ § 556g Abs. 3 Vormiete-Auskunft.
+#451's report verdict "eingehalten, weit unter jedem Cap" was **wrong** — don't inherit it.
+**Why:** #841 was routed as a possible DUPE of #451 on identical m² alone; without the Objekt-Nr./
+Grundriss check a different unit would have been dropped along with the wrong Bremse verdict.
 
 ## Landlord / character
 Anbieter = "Vonovia Kundenservice GmbH", direct landlord, **no Provision** (Bestellerprinzip
