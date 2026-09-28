@@ -18,6 +18,16 @@ address-precise band — do not quote it and do not let it drive the "20 % below
 scam signal. *Why:* scoring #550 off the fields would have invented a 100-m²-Haus at 1.500 €
 kalt that does not exist, and inverted the two-sided match (their Suche read as their offer).
 
+**Sibling failure: a 10×-typo in the size field (Immowelt swap feed).** #868 (Anbieter-ID 316074,
+3-Zi-DG Großbeerenstr.) shipped `livingSpace: "900 m²"`; Immowelt's `priceComparison.pricePerSqm`
+(„0,78 €/m²") is auto-computed from it (its own legalText says so). ⇒ Treat size as UNKNOWN (state the
+likely value only as an inference), bracket the Mietspiegel check across a 60–90-m² band, and never let
+the derived €/m² fire the "20 % below Mietspiegel" scam signal. *Why:* taken at face value it reads as
+a 96 %-below-Mietspiegel lure on an ordinary Altvertrag.
+**No-Suche ads: the photos can still reveal the household.** A children's room with Hochbett + second bed
+(#868) ⇒ family, i.e. the upsizer class our offer can't serve — put it in the labelled economic
+inference, never as a stated Suche.
+
 ## Side-2 base rate: our 2-Zi/54-m² Golm offer only serves DOWNSIZERS
 #492, #505, #533, #541, #550, #578 (später auch #667, #683, #719, #720, #722, #724, **#778** — „gegen mindestens 5 Zimmer … alternativ zwei 3-Raum-Wohnungen im gleichen Haus", i.e. axes 3+4 in one sentence) all failed side 2 on the same axis — the partner wants to
 *enlarge* (≥3–5 Zi, 70–100 m², family households), and the Golm flat is the small end of the
