@@ -24,6 +24,11 @@ kalt that does not exist, and inverted the two-sided match (their Suche read as 
 likely value only as an inference), bracket the Mietspiegel check across a 60–90-m² band, and never let
 the derived €/m² fire the "20 % below Mietspiegel" scam signal. *Why:* taken at face value it reads as
 a 96 %-below-Mietspiegel lure on an ordinary Altvertrag.
+**Floor-plan-only swap galleries (brochure scans) often leak the street.** #869 (ID 323234): the 2 images
+were a Grundriss + a "Lage der Wohnung im Haus" page whose cropped header read "…-Mendelsohn-Allee, 14469"
+→ Erich-Mendelsohn-Allee, while the ad said only "Bornstedt". Always Read both images: the address fixes
+Block B and the likely Baujahr (Mietspiegel row / § 556f). Developer room labels ("Kind 01/02") are
+generic, not the poster's household.
 **No-Suche ads: the photos can still reveal the household.** A children's room with Hochbett + second bed
 (#868) ⇒ family, i.e. the upsizer class our offer can't serve — put it in the labelled economic
 inference, never as a stated Suche.
