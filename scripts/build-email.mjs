@@ -89,6 +89,17 @@ function readReport(path) {
   return existsSync(full) ? readFileSync(full, 'utf8') : '';
 }
 
+// Group per URL from processed `- [x] #NNN | url | portal | group | …` lines.
+const groupNames = new Set(groups.map(g => g.name));
+const groupByUrl = new Map();
+for (const l of readFileSync(join(ROOT, 'data/pipeline.md'), 'utf8').split('\n')) {
+  if (!/^- \[x\] #\d+/.test(l)) continue;
+  const parts = l.split('|').map(x => x.trim());
+  const g = parts.slice(3).find(x => groupNames.has(x));
+  const u = (l.match(/https?:\/\/\S+/) || [])[0];
+  if (g && u) groupByUrl.set(canonicalizeUrl(u), g);
+}
+
 const itemsByGroup = new Map(groups.map(g => [g.name, []]));
 const excluded = [];   // scored < 3.0 (not discarded)
 const discarded = [];  // Discarded / Expired in range
@@ -102,7 +113,11 @@ for (const row of rows) {
     excluded.push(row);
     continue;
   }
-  const groupName = inferGroup(row, activeGroups, md) || activeGroups[0]?.name;
+  // Prefer the group merge-tracker recorded in the processed pipeline line; infer only as fallback.
+  const url0 = canonicalizeUrl(reportHeader(md, 'URL').split(/\s/)[0] || '');
+  const recorded = groupByUrl.get(url0);
+  const groupName = (recorded && activeGroups.some(g => g.name === recorded) ? recorded : null)
+    || inferGroup(row, activeGroups, md) || activeGroups[0]?.name;
   const group = groups.find(g => g.name === groupName);
   const summary = extractSummary(md);
   const swap = /swap/i.test(row.status);

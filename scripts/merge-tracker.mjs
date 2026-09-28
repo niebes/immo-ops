@@ -149,6 +149,19 @@ function mergeTracker() {
   console.log(`Merged ${added} new listing(s) from ${tsvFiles.length} file(s).`);
 }
 
+// Keep the search group. A pending line reads `- [ ] url | portal | GROUP | title …`;
+// the evaluator's staged line is `- [x] #NNN | url | portal | desc | score` and
+// drops it, so the email builder had to guess the section (it put two houses
+// under "plot purchase", 2026-09-28). Insert the group after the portal field.
+function withGroup(stagedLine, pendingLine) {
+  const group = (pendingLine.split('|')[2] || '').trim();
+  if (!group || !/^- \[x\] #\d+/.test(stagedLine)) return stagedLine;
+  const parts = stagedLine.split(' | ');
+  if (parts.length < 3 || parts.slice(3).some(p => p.trim() === group)) return stagedLine;
+  parts.splice(3, 0, group);
+  return parts.join(' | ');
+}
+
 function urlsIn(line) {
   return (line.match(/https?:\/\/[^\s|]+/g) || []).map(canonicalizeUrl);
 }
@@ -181,7 +194,7 @@ function applyPipelineUpdates() {
     }
     const idx = lines.findIndex(l => l.startsWith('- [ ]') && urlsIn(l).includes(url));
     if (idx !== -1) {
-      lines[idx] = update.line.replace(/\s*\n.*/s, '');
+      lines[idx] = withGroup(update.line.replace(/\s*\n.*/s, ''), lines[idx]);
       applied++;
       consumed.push(full);
     } else if (lines.some(l => urlsIn(l).includes(url))) {

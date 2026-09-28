@@ -140,7 +140,7 @@ General policies for opening listing pages. Stable, applies to every evaluation.
 10. **Merge**: `node scripts/merge-tracker.mjs`. Both files above are only staging;
     the merge adds the tracker row to `data/listings.md` AND applies the pipeline update.
     (In auto/batch mode the orchestrator runs one merge after ALL evaluations; when
-    evaluating a single listing directly, run it yourself.) Scores in the TSV are dot-decimal
+    evaluating a single listing directly, run it yourself.) The TSV Price cell is the **Kaltmiete** for rentals (derived → prefix `~`, note it; never the Warmmiete). Scores in the TSV are dot-decimal
     (`4.4`, not `4,4`); German comma stays in the report prose only.
 
 ## Report Format

@@ -113,3 +113,15 @@ test('applies tracker_notes to other rows; status only to Expired', async () => 
   await run(s.root);
   assert.equal(s.read('data/listings.md').split('[superseded by #900]').length, 2);
 });
+
+test('keeps the search group from the pending line in the processed line', async () => {
+  const s = sandbox();
+  writeFileSync(join(s.root, 'data/pipeline.md'), [
+    '# Pipeline', '', '## Pending',
+    '- [ ] https://a.example/x/1 | P | Potsdam flat rental | Nice flat | 1200 EUR | 80 m² | 3 Zi | Eiche',
+    '', '## Processed', '',
+  ].join('\n'));
+  s.stage('900', { url: 'https://a.example/x/1', line: '- [x] #900 | https://a.example/x/1 | P | 3-Zi Eiche | 4.0/5' });
+  await run(s.root);
+  assert.match(s.read('data/pipeline.md'), /^- \[x\] #900 \| https:\/\/a\.example\/x\/1 \| P \| Potsdam flat rental \| 3-Zi Eiche \| 4\.0\/5$/m);
+});

@@ -35,7 +35,7 @@ Sibling evaluators share the repo, the session scratchpad and the browser, and t
 5. Run scam detection + Mietpreisbremse vs the local Mietspiegel.
 6. Score blocks A–H (numeric + one-line justification each), compute the weighted average per `_shared.md` (+ `_profile.md` overrides), apply hard blockers (cap ≤2.0) where they fire.
 7. Write `reports/{NNN}-{location-slug}-{rooms}r-{date}.md` in the `evaluate.md` format, **all numbers in German format** (1.443,87 EUR, 80,5 m², 3,5 Zimmer). Include `**URL:**`, Kaltmiete AND Warmmiete, Mietpreisbremse check, scam result, blocks A–H, summary, next steps.
-8. Write `batch/tracker-additions/{NNN}-{slug}.tsv` — use the canonical column format from `templates/tracker-addition.example.tsv` (header + one row; columns per `modes/evaluate.md`).
+8. Write `batch/tracker-additions/{NNN}-{slug}.tsv` — use the canonical column format from `templates/tracker-addition.example.tsv` (header + one row; columns per `modes/evaluate.md`). **Price = Kaltmiete for rentals, always** (Kaufpreis for purchases). If the listing only states a Warmmiete, write your derived Kaltmiete prefixed `~` (e.g. `~690`) and say "KM derived from WM {x}" in Notes — never put the Warmmiete in the Price cell (#850 stored 930 warm and the email showed "930 KM"). Score dot-decimal.
 9. Stage the pipeline update. **Do not edit `data/pipeline.md`.** Write `batch/pipeline-updates/{NNN}.json` as `{"url": "{the listing URL exactly as it appears in its pending pipeline line}", "line": "- [x] #{NNN} | {url} | {portal} | {short desc} | {score}/5"}`. The final segment is `EXPIRED`, `DISCARDED — {reason}` or `SWAP-CANDIDATE {score}/5` when those apply. `merge-tracker.mjs` swaps it into the pending line. **Found something about ANOTHER tracker row** (it is the same flat as #N, now cheaper; #N's exposé is 404)? Don't edit `data/listings.md` — add `"tracker_notes": [{"num": "N", "append": "[{date}: …]"}]` to the same JSON (optionally `"status": "Expired"` for a verified-dead exposé; no other status). The merge applies it.
 10. Close the page/tab you opened (invisible-playwright `close_page`, or your CiC tab if you used the fallback). Leave `tmp/eval/{NNN}/` in place; it's gitignored scratch.
 
@@ -53,4 +53,11 @@ If the prompt says `MEMORY CONSOLIDATION` instead of giving a listing, don't eva
 You are the only writer during this pass. Report which files changed, plus any quirk that's stable enough to promote to `evaluate.md`.
 
 ## Return
-Report back exactly one line: `{URL} | {score}/5 | {one-line summary}` (or `EXPIRED` / `DISCARDED` with reason, `SWAP-CANDIDATE | {their-flat score}/5 | {swap match verdict}`, or `NEEDS-BROWSER | {url} | {why}`). Mention any new quirk you recorded or staged.
+Your reply goes into the orchestrator's context, which runs 20+ evaluations per cycle — everything else is already in your report file. Return **at most 4 lines, nothing else**: no headings, no tables, no file list, no block scores, no restated pros/cons.
+
+```
+{URL} | {score}/5 | {one-line summary, ≤ 200 chars}
+! {orchestrator action needed — only if any, ≤ 3 lines: e.g. "#757 is the same flat, staged tracker_notes", "Kalt/Warm ambiguous — ask first", "wrong DUPE mark in pipeline line X"}
+```
+
+Status variants for line 1: `EXPIRED | {reason}` · `DISCARDED | {reason}` · `SWAP-CANDIDATE | {their-flat score}/5 | {verdict}` · `NEEDS-BROWSER | {url} | {why}`. A staged or recorded memory quirk is NOT an action line — the consolidation pass finds it in `batch/memory-inbox/`. (Before 2026-09-28 evaluators returned multi-paragraph reports despite "one line"; the cap is deliberate.)
