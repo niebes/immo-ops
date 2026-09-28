@@ -365,6 +365,11 @@ Matches: immowelt.de `/expose/{id}` detail pages (AVIV Germany GmbH).
 - ✅ **Media `description` suffix „ - (KI generiert)" marks virtual-staging images** (#781: 4 of 54, each
   paired with the real empty-room shot of the same caption). These are honest labels on an existing flat:
   subtract them from the real-photo count; they do NOT trigger the D-cap or a scam signal.
+- ⚠ **On the swap feed the „Kaltmiete“ price field (hardFacts + `sections.price`, and the €/m² derived from it) is
+  just the lister's rent figure. It can be the WARMmiete.** On #865 the page said „1.112 € Kaltmiete · 9,59 €/m²“,
+  but the prose said „Miete: 1.112,45 € warm“. Always grep the prose for `warm|kalt` before you fill Kalt/Warm.
+  *Why:* taking the label at face value overstates Kalt by ~350 EUR. That flips the Mietspiegel comparison (from
+  30 % below to above the mean) and misreads the partner's rent axis in the swap match.
 - ⚠ **On the swap feed `classified.title` can hold the whole DESCRIPTION** (#779: the full boilerplate
   with `<br>`s), while the real headline is `mainDescription.headline`. Never read `title` as the ad title.
   Same ad, again a lone „Bild 1" = the developer Grundriss („Wohnung 13, ca. 81,75 m²"), i.e. the #724 case.
