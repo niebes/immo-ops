@@ -42,6 +42,10 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
 - Photo count comes from the gallery buttons "Bild N von M".
 - Listing type: most plots are an **"Inserat"** (classified, fixed price, "kein Gebot") — contact-seller,
   no portal payment. Private sellers show "Angemeldet als privater Verkäufer" + member-since + feedback %.
+  **But some are regular `Sofort-Kaufen` / "oder Preisvorschlag" items** ("Barzahlung bei Abholung",
+  "Kostenlose Abholung N km von {PLZ}" — that PLZ is the seller's, not the plot's). Clicking Sofort-Kaufen
+  or an accepted Preisvorschlag is a binding purchase; on a Kleingarten that binds before the Verein
+  approves the Pächterwechsel → always say "contact via Nachricht only" in Next Steps (seen #870).
 
 ## Price history / repost check (feeds the "reposted with different prices" scam signal)
 - **`https://www.ebay.de/rvh/{itemId}`** = "Übersicht der Änderungen": a dated list of what the
@@ -55,14 +59,16 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
   reduction — and tells you exactly how soft the asking price is.
 
 ## Field traps in Artikelmerkmale
-- **`Kauf/Pacht: Kauf` is NOT trustworthy on its own.** Sellers of Datschen/Bungalows on leased
+- **`Kauf/Pacht: Kauf` is NOT trustworthy on its own — and the Pacht fields may be EMPTY too.** On #870
+  the table had no `Pachtdauer`/`Pacht/Erbbauzins` at all; only the description ("Kleingartenanlage",
+  "Jahrespacht ca. 103 €") revealed Pachtland. Always grep the description, never trust the table alone. Sellers of Datschen/Bungalows on leased
   land tick "Kauf" (they *are* selling something) while the same table also carries
   `Pachtdauer (Jahre)` and `Pacht/Erbbauzins p.a.` — those two fields, plus the description, are
   authoritative. If either is populated, what is sold is only the **Baulichkeit**, the land stays
   Pachtland → no Grundbuch, no Eigentum, and a short Pachtdauer means removal risk.
   *Why:* scoring such a listing as a land purchase inflates Block A and misses the real risk (G).
   - **Kleingarten sub-case (the most common one in this search):** title says *"Suche Nachpächter"* /
-    description names a **KGV … e.V.** → Nachpacht under BKleingG, and the "Kaufpreis" is an **Ablöse**
+    description names a **KGV … e.V.** / "Kleingartenanlage" / "Jahrespacht" → Nachpacht under BKleingG, and the "Kaufpreis" is an **Ablöse**
     for Laube + Anpflanzungen only. Even `Pachtdauer: unbegrenzt` is not security (§ 9 BKleingG
     Kündigung stays). Score G low and check in the report: Vorstandszustimmung zum Pächterwechsel,
     Wertermittlungsprotokoll des Vereins backing the Ablöse, Laube ≤ 24 m² incl. überdachtem Freisitz,
