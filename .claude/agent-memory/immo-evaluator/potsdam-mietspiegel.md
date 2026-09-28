@@ -1,68 +1,19 @@
 # Potsdam Mietspiegel — the real ortsübliche Vergleichsmiete (NOT the portal "Mietspiegel" pages)
-Applies to: every Miete evaluation in Potsdam (all portals). Not a portal quirk — a data source.
-(Umland/Havelland: see the Falkensee section at the bottom.)
+Applies to: every Miete evaluation in Potsdam and the Brandenburg Umland (all portals). A data source, not a portal quirk.
+Consolidated 2026-09-28 from a 120 KB append log. First half: source, table, how to apply it, general rules, Umland/Brandenburg. Second half ("Ortsteil- und Quartiers-Anker"): 14480 Am Stern/Drewitz/Kirchsteigfeld · 14478 Waldstadt/Brunnen Viertel · 14482 Babelsberg · 14471 Potsdam West · 14473 Speicherstadt/Brauhausberg/Lotte/Jutekiez · 14469 Jägervorstadt/Bornstedter Feld/Eiche · 14476 Golm/Feldmark/Fahrland. Berlin: [[berlin-mietspiegel]].
 
-> **PROMOTED 2026-08-02 → `modes/_shared.md`**, section "Mietspiegel & Mietpreisbremse — regional
-> reference data (SSOT)". That section is now authoritative for the Grundmietentabelle, the
-> Brandenburg-2026 regulated-Gemeinde list, and the priceBar caveat on the scam signal.
-> **Read `_shared.md` for the numbers; this file keeps only the working notes** (fetch trick,
-> per-listing anchors seen). If the two ever disagree, `_shared.md` wins — fix this file.
+> **PROMOTED 2026-08-02 → `modes/_shared.md`**, "Mietspiegel & Mietpreisbremse — regional reference data (SSOT)". That section is authoritative for the Grundmietentabelle, the Brandenburg-2026 list and the priceBar caveat on the scam signal. If this file and `_shared.md` ever disagree, `_shared.md` wins; fix this file.
 
-**The trap:** searching "Mietspiegel Potsdam" returns IS24/immoportal/miet-check/E&V pages quoting
-**12,6–13,5 EUR/m²**. That is the *Angebotsmiete* (what landlords currently ask), not the
-*ortsübliche Vergleichsmiete*. Using it makes almost every Potsdam listing look "at market" and
-silently kills the Mietpreisbremse check. The qualified Mietspiegel (§ 558d BGB) values are roughly
-**half** of it for Plattenbau stock.
+**The trap:** "Mietspiegel Potsdam" searches return IS24/immoportal/miet-check pages quoting 12,6–13,5 EUR/m². That is the *Angebotsmiete*, not the ortsübliche Vergleichsmiete (§ 558d BGB), which is roughly **half** of it for Plattenbau stock. Using it makes almost every listing look "at market" and kills the Mietpreisbremse check.
 
 ## Source
-Official PDF: `https://www.potsdam.de/system/files/document/Mietspiegel_2026_A5_webdatei_neu.pdf`
-(Mietspiegel **2026**, in Kraft seit 25.06.2026, ersetzt Mietspiegel 2024; index page
-`potsdam.de/de/mietspiegel-0`).
-**Cheapest fetch is `curl` + `pdftotext`, not WebFetch** (verified 2026-08-15, #589):
-`curl -sL -o ms2026.pdf "…/Mietspiegel_2026_A5_webdatei_neu.pdf" && pdftotext -f 1 -l 6 ms2026.pdf -`
-gives the whole Vorspann (Geltungsbereich, Ausnahmen, Rechtsgrundlagen) as greppable text in one
-Bash call — `pdftotext` is installed at `/usr/bin/pdftotext`. **WebFetch cannot parse it**
-("corrupted/binary PDF") — it *saves* the bytes to `~/.claude/projects/…/tool-results/webfetch-*.pdf`
-and prints the path, which you can then read with the **Read tool + `pages:`** (table = PDF page 6;
-Spanneneinordnung/Orientierungshilfe = pages 8–9; Begriffserläuterungen = 10–11). Use the Read+pages
-route only for the *table* layout; for any prose question use pdftotext.
-**Why:** the WebFetch+Read dance costs two round trips and can't be grepped; the scope/exception
-rules below were only findable by grepping the text.
-
-## **Der Mietspiegel gilt für Ein-/Zweifamilien- und REIHEN-/DOPPELHÄUSER nur eingeschränkt — das Feld ist dort eine UNTERgrenze, keine Obergrenze**
-Wörtlich im Vorspann (S. 2–3): *"Er gilt für Ein- und Zweifamilienhäuser sowie Reihenhäuser nur
-eingeschränkt, da insoweit **keine Datenerhebung** stattfand. Gemäß **BGH VIII ZR 58/08 vom
-17.09.2008** können Mieten, die im Geschosswohnungsbau üblich sind, im Ein- und Zweifamilienhaus
-**„erst recht"** verlangt werden"* (Begründung: erhöhter Wohnwert; formell reicht die Berufung auf
-den Mietspiegel auch fürs Reihenendhaus, BGH VIII ZR 54/15 v. 26.04.2016).
-→ Bei einer **Haus-Miete in Potsdam** (DHH/RH/EFH) das Feld trotzdem ziehen und nennen, aber als
-**Untergrenze** formulieren. Die Mietpreisbremse gilt weiter (§ 556d BGB erfasst Wohnraum, nicht nur
-Wohnungen), nur ist die ortsübliche Vergleichsmiete für dieses Segment über **Vergleichsobjekte**
-zu belegen → Report-Formulierung: **§ 556g Abs. 3 BGB Auskunftshebel** (Vormiete + Baujahr +
-Modernisierungen), nie "Mietspiegel nicht anwendbar → kein Check".
-Der unbezifferte "erst recht"-Zuschlag rechtfertigt aber keine beliebige Überschreitung: auf #589
-(DHH Neu Fahrland, Bj. 2002, EEK C, 94,94 m², 19,49 EUR/m²) waren es **+96,7 % über dem Mittelwert
-9,91** und **+53,5 % über dem Oberwert 12,70** — das bleibt ein echter Verhandlungshebel.
-*Why:* ohne diesen Absatz landet jede Potsdamer Haus-Miete entweder bei einem falschen
-"Mietpreisbremse nicht anwendbar" oder bei einem überzogenen Wucher-Vorwurf.
-
-**Weitere ausdrückliche Ausnahmen** (gleiche Textstelle): öffentlich geförderte Wohnungen,
-Studenten-/Jugendwohnheime, Wohnungen in Heimen mit Betreuungsleistungen; **Zuschläge für
-(teil-)möblierte Wohnungen und Untermietverhältnisse sind NICHT erfasst** (→ ein Möbel-Aufschlag
-lässt sich gegen den Mietspiegel gar nicht prüfen, vgl. #255/#311). Der Mietspiegel gilt
-ausdrücklich **auch für alle Ortsteile**: u.a. Fahrland, **Neu Fahrland**, Golm, Groß Glienicke,
-Marquardt, Satzkorn, Uetz-Paaren — dort also kein Abschlag "ist ja Dorf".
-
-## Angebotsmarkt-Anker Potsdam 2026 (zum Gegenzitieren, NICHT ortsüblich)
-**Häuser ~17,61 EUR/m² · Wohnungen ~15,51 EUR/m²** (Stand 08/2026). Beste Lagen ~17,24, günstige
-Lagen ~10,63; die Portalseiten nennen daneben 12,80–15,14 als Stadtmittel.
-→ Bei einer **Haus**-Miete immer den **Haus**-Anker nehmen, nicht den Wohnungs-Anker: #589 lag mit
-19,49 EUR/m² nur ~+11 % über 17,61, aber ~+26 % über 15,51 — die Aussage "am oberen Marktrand" vs.
-"deutlich über Markt" kippt allein an dieser Wahl.
+- Official PDF: `https://www.potsdam.de/system/files/document/Mietspiegel_2026_A5_webdatei_neu.pdf` (Mietspiegel **2026**, in force since 25.06.2026, replaces 2024; index `potsdam.de/de/mietspiegel-0`). The next edition is expected in 2028.
+- **Fetch with `curl -sL -o ms2026.pdf … && pdftotext -f 1 -l 6 ms2026.pdf -`.** That gives the whole Vorspann as greppable text in one call.
+  - WebFetch cannot parse the PDF; it only saves the bytes, which you then Read with `pages:` (table = page 6, Spanneneinordnung = 8–9, Begriffe = 10–11).
+  - Use Read + pages only for the table layout.
 
 ## Grundmietentabelle 2026 — Nettokaltmiete EUR/m², Mittelwert (Spanne)
-Columns by Wohnfläche: A ≤45 · B >45–60 · C >60–75 · D >75–90 · E >90
-(Baualter ≤1948 uses A ≤45; the 1949–1970 row group shifts: A ≤40, B >40–60.)
+Columns by Wohnfläche: A ≤45 · B >45–60 · C >60–75 · D >75–90 · E >90 (bis 1948 uses A ≤45; the 1949–1970 group shifts to A ≤40, B >40–60).
 
 | Baualter / EEK | A | B | C | D | E |
 |---|---|---|---|---|---|
@@ -81,1266 +32,296 @@ Columns by Wohnfläche: A ≤45 · B >45–60 · C >60–75 · D >75–90 · E >
 | 2013–2020 · alle | 11,96 (11,69–12,15) | 11,66 (11,23–11,92) | 12,06 (11,23–12,74) | 12,34 (10,90–14,23) | 12,39 (10,31–14,00) |
 | ab 2021 · alle | 15,28 (10,57–16,74) | 16,58 (14,70–19,50) | 15,72 (10,52–19,00) | 16,73 (14,88–19,64) | 15,14 (10,90–17,86) |
 
-Wendebauten = Plattenbau Drewitz, begonnen vor 03.10.1990, fertig bis 1991.
-Baualter bleibt nach Modernisierung maßgeblich (nur Sanierung auf Neubaustandard rückt die Klasse).
-
-## How to use it
-1. Field = Baualtersklasse × EEK-Zeile × m²-Spalte. Start beim **Mittelwert**.
-2. Spanneneinordnung (PDF S. 8–9): wohnwerterhöhende minus -mindernde Punkte = %-Satz, damit
-   anteilig vom Mittelwert Richtung Ober-/Unterwert gehen. Ober-/Unterwert sind harte Grenzen.
-3. Mietpreisbremse-Check: zulässig = ortsübliche Vergleichsmiete **+10 %**. Ausnahmen § 556e
-   (höhere Vormiete darf fortgeschrieben werden — der Regelfall bei Nachmietergesuchen) und
-   § 556f (umfassende Modernisierung / Neubau ab 01.10.2014). Deshalb: eine Überschreitung ist
-   ein **Verhandlungs-/Rügehebel (§ 556g Abs. 3 Auskunft)**, kein Ausschlussgrund — so im Report formulieren.
-4. Immer BEIDE Zahlen nennen (ortsüblich *und* Angebotsmarkt), sonst liest sich ein völlig
-   marktüblicher Preis wie Wucher.
-
-Seen/first used on #504 (Caputher Heuweg 61, Waldstadt II: 11,59 EUR/m² vs. 5,69–6,06 Mittelwert).
-
-**Der Anker dreht die Aussage oft um 180° — Drewitz/Plattenbau ist der Standardfall.** #513
-(Erich-Pommer-Str., Bj. 1987, EEK C, 68 m², 9,06 EUR/m²) kam als *"price well below the area
-Mietspiegel → keep-and-flag, WBS prüfen"* in die Evaluation. Gegen den Angebotsmarkt (12,60–13,50)
-stimmt das (−30 %); gegen die ortsübliche Vergleichsmiete des Feldes 1971–1990 × C,D × Spalte C
-= **5,82 (5,23–6,25)** liegt es **+56 % über dem Mittel / +45 % über dem Oberwert**, zulässig wären
-6,25 × 1,1 ≈ **6,88 EUR/m²**. Also: Mietpreisbremse *überschritten*, Scam-Signal *feuert nicht*.
-→ Bei jedem "verdächtig billig"-Flag aus einer Potsdamer **Großsiedlung (Drewitz, Am Stern,
-Waldstadt, Schlaatz, Zentrum Ost)** zuerst das Plattenbau-Feld ziehen: 5,5–6,9 EUR/m² ist dort das
-*normale* Niveau, "billig gegen 13 EUR" ist bloß der Gebäudetyp und **kein WBS-Indiz**. WBS separat
-per `Wohnberechtigung`-Keyword prüfen, nicht aus dem Preis erschließen. *Why:* ohne diese Umkehrung
-liest man −30 % als Scam-/WBS-Verdacht und übersieht, dass tatsächlich der Mieter den
-§ 556g Abs. 3 BGB-Auskunftshebel in der Hand hat.
-
-**Die Regel hängt am BAUALTER, nicht an der Großsiedlung — sie gilt genauso im ländlichen Ortsteil.**
-#627 (expose 170096870, Ulrich-Steinhauer-Str. 1d, **Groß Glienicke**, Bj. 1985, EEK C, 60,1 m²,
-**397 EUR = 6,61 EUR/m²**) kam mit dem Auftrag "397 EUR für 60 m² ist weit unter Mietspiegel — prüfe
-hart auf Genossenschaft/Sozialwohnung/WBS/Extraktionsfehler/Scam" herein. Keiner dieser Verdachte traf
-zu: gegen den Angebotsanker (15,51) sind es −57 %, gegen das Feld 1971–1990 × C,D × Spalte C
-= **5,82 (5,23–6,25)** aber **+13,6 % über dem Mittelwert / +5,8 % über dem Oberwert**, zulässig
-6,40 → Bremse um **+3,2 % (12,24 EUR/Mon.)** überschritten. Ein 1985er Geschosswohnungsbau kostet in
-**jedem** Potsdamer Randortsteil (Groß Glienicke, Fahrland, Satzkorn, Marquardt …) 5,5–7 EUR/m² — die
-Ortsteilliste oben ist nur die häufigste Fundstelle, nicht die Bedingung. Erste Frage ist immer
-`obj_yearConstructed`, nicht der Ortsteil.
-*Why:* mit der engen Lesart hätte die Ortsteil-Prüfung "keine Großsiedlung" ergeben und der
-−57-%-Befund wäre erneut als Scam-/WBS-Verdacht durchgegangen.
-
-**Spaltengrenzen-Sensitivität: bei m² dicht an einer Spaltenkante beide Felder rechnen.** Die
-Wohnflächenspalten sind eng geschnitten (B >45–60, C >60–75), und benachbarte Felder unterscheiden
-sich um ~8 %. #627 lag mit **60,1 m² genau 0,1 m² in Spalte C** (5,82 → zulässig 6,40 →
-**überschritten**); in Spalte B wäre es 6,30 (5,76–6,87) → zulässig 6,93 → **konform** gewesen. Bei
-≤1 m² Abstand zur Kante also beide Werte nennen und die Überschreitung entsprechend relativieren
-(dazu kommen ohnehin § 556e/§ 556f).
-*Why:* eine Mietpreisbremsen-"Verletzung", die an 100 cm² Wohnfläche hängt, darf nicht als harter
-Befund in den Report — die Wohnfläche selbst ist ja nur "ca." angegeben.
-
-## „Verdächtig billig" entscheiden: **echte Untermiete vs. Köderpreis — der Unterwert ist die Trennlinie**
-Die Abschnitte oben lösen den häufigsten Fall auf („billig gegen 13 EUR" = bloß der Gebäudetyp).
-Sie erklären aber *nicht* den seltenen zweiten Fall, den Betrugsköder — und beide kommen als
-derselbe Auftrag herein („X EUR für Y m² ist weit unter Markt, prüfe auf Genossenschaft /
-Extraktionsfehler / Scam"). Die drei Tests, in dieser Reihenfolge, trennen sie zuverlässig:
-
-**1. Liegt der Preis INNERHALB oder UNTERHALB der amtlichen Spanne?** Das ist die eigentliche
-Trennlinie, nicht der Abstand zum Angebotsmarkt (der ist bei *beiden* Fällen −50 %).
-- #684 (350 EUR / 60 m² = 5,83): in 2 von 3 Kandidatenfeldern **innerhalb** der Spanne → echt.
-- #627 (397 EUR / 60,1 m² = 6,61): sogar **+5,8 % über** dem Oberwert → echt.
-- #558 (7,59): unter dem Mittelwert, über dem Unterwert → echt.
-- #686 (900 EUR / 117 m² = 7,69, Bj. 2011 → Feld 2009–2012 × Spalte E = 12,01 (10,30–13,84)):
-  **−25,3 % unter dem UNTERWERT**, also außerhalb der Spanne → Köder.
-⇒ Ein Preis *innerhalb* der Spanne ist per Definition ortsüblich und braucht keine
-Betrugserklärung. Erst **unterhalb des Unterwerts** ist der Preis selbst erklärungsbedürftig.
-
-**2. Gibt es einen benannten Mechanismus für die Untermiete?** Echte Billigfälle nennen ihn immer,
-weil er den Preis rechtfertigt: Genossenschaft/Nutzungsentgelt (#684, Satz steht in der Prosa),
-alter Bestand + sitzender Mieter, Baualtersklasse 1971–1990. **Ein „Privater Anbieter", der
-NEU vermietet, hat gar kein Vehikel für eine Bestandsmiete** — Sweep auf
-`Genossenschaft|Genossen|Sozial|Wohnberechtigung|WBS(case-sensitiv)|Nachmieter|Tausch`; 0 Treffer
-bei einem Privatanbieter heißt: für den Preis existiert keine Erklärung. (#686: 0/0/0/0/0/0/0.)
-
-**3. Kapitalwertprobe — der billigste unabhängige Test, kostet eine WebSearch.**
-Objektwert = Kaufpreis-EUR/m² der Straße × Wohnfläche, dann Bruttomietrendite = Kaltmiete×12 ÷ Wert.
-Realistisch sind in Potsdam 3–5 %; **unter ~2 % ist die Vermietung wirtschaftlich unmöglich** und
-der Preis damit unabhängig vom Mietspiegel widerlegt. #686: Mertz-von-Quirnheim-Str. 7/7a
-(„Waterfront Residence", Havelufer) ≈ 5.796 EUR/m² × 117 m² ≈ 678.000 EUR → 10.800/678.000 =
-**1,59 %**, inklusive gratis Garagenstellplatz. Die Suchanfrage `"{Straße} {PLZ} Wohnung"` liefert
-den Straßen-EUR/m² zuverlässig über die IS24-Atlas-/Immobilienpreis-Seiten.
-
-**Zusatztest, der beide Richtungen absichert: NEBENKOSTEN je m² gegenrechnen.** Plausibel sind
-2,50–3,50 EUR/m². #686 nannte 120 EUR auf 117 m² = **1,03 EUR/m²** bei Zentralheizung +
-Fußbodenheizung + Aufzug + Garage → auch die Warmmiete ist erfunden, nicht nur die Kaltmiete.
-Gleiche Signatur wie #320 (Warmmiete = Kaltmiete = 700 EUR). Echte Billigfälle haben entweder
-plausible NK oder gar keine Angabe (#684) — sie erfinden keine unmöglich niedrigen.
-
-**Und: die eigenen Reports sind eine adressgenaue Vergleichsobjekt-Quelle.** Vor dem Scam-Urteil
-`grep -rn "{Straßenname}" reports/ data/listings.md data/scan-history.tsv*`. Auf #686 lieferte das
-**dieselbe Straße, Hausnummer 8**: 3 Zi/100 m² zu 1.690 EUR = 16,90 EUR/m² (Report #187) und ein
-zweites Inserat zu 1.890 EUR = 18,90 EUR/m² → das inkriminierte Angebot liegt −54,5 % darunter.
-Damit ist die `_shared.md`-Auflage für das High-Signal erfüllt („Angebotsanker allein reicht nicht"),
-denn Vergleichsobjekte derselben Straße *sind* adressgenau — man braucht dafür keine IS24-`priceBar`.
-*Why:* dieser Grep kostet einen Bash-Call und ist das stärkste Einzelbeweisstück im ganzen Report;
-ohne ihn hängt das High-Signal allein am Mietspiegel-Unterwert und wirkt anfechtbar.
-
-### Gegenprobe zur Großsiedlungs-Regel: **das Baualter aus den FOTOS verifizieren, bevor man das Plattenbau-Feld nimmt**
-Der Ortsteil-Reflex ("Waldstadt/Drewitz/Schlaatz → 1971–1990") ist eine *Vermutung*, und weil
-zwischen den Baualtersklassen bis zu **Faktor 1,4** liegt, dreht eine falsche Klasse das
-Mietpreisbremsen-Ergebnis komplett um. Wenn das Exposé kein Baujahr nennt (Mieterinserate nie),
-**erst das Bildmaterial ansehen** — ein einziges Innenfoto genügt oft:
-- **Kassettentüren, profilierte Türbekleidungen, Deckenhohlkehle, hohe Decken, tiefe Laibungen**
-  → Vorkriegs-/Zwischenkriegsbestand, Feld **bis 1948**, *nicht* Plattenbau.
-- **Glatte Türblätter, keine Profile, niedrige Decke, Betonfertigteilfugen** → Plattenbau bestätigt.
-Seen on #558 (expose 169875863, Sonnentaustr. 15, `geo_ot: waldstadt_ii`, 83 m², 7,59 EUR/m²): der
-Ortsteil-Reflex hätte Feld 1971–1990 × C,D × Spalte D = **5,63 (5,13–6,10)** gezogen → zulässig
-6,19–6,71 → **"Mietpreisbremse überschritten"**. Das einzige Foto (Flur) zeigte Kassettentüren +
-Hohlkehle → richtiges Feld **bis 1948 · kein EA · Spalte D = 7,83 (6,51–9,24)** → 7,59 liegt
-**unter dem Mittelwert**, **Mietpreisbremse eingehalten**. Also: Ortsteil-Anker liefert die
-Hypothese, das Foto entscheidet. Beide Felder trotzdem im Report nennen und das Baujahr als
-Kontaktfrage setzen.
-*Why:* ohne die Gegenprobe wird einem markt- und mietspiegelkonformen Angebot ein
-Mietpreisbremsen-Verstoß angedichtet — und der Report empfiehlt einen § 556g-Rügehebel, den es
-gar nicht gibt.
-
-### Baujahr HARD bekommen, wenn das Exposé keins nennt: **Wikipedia „Liste der Baudenkmale in Potsdam/{Anfangsbuchstabe}"**
-Ein Foto liefert nur eine Baualtersklasse; die Denkmalliste liefert **Baujahr + Architekt + Denkmal-ID
-hausnummerngenau** und ist in einem WebFetch da (Seiten sind nach Straßen-Anfangsbuchstabe geteilt,
-z. B. `/wiki/Liste_der_Baudenkmale_in_Potsdam/S`). Trifft nur bei denkmalgeschützten Häusern — aber
-genau dort fehlt das Baujahr im Exposé am häufigsten, weil der Vermieter stattdessen
-**„Ein Energieausweis ist für diesen Gebäudetyp nicht notwendig"** anklickt (§ 79 Abs. 4 GEG,
-Baudenkmal-Ausnahme). **Diese Formulierung ist also selbst der Hinweis: Denkmal → Baualtersklasse
-`bis 1948` → EEK-Zeile `kein EA`.**
-Seen on #596 (Stiftstraße 8a, Brandenburger Vorstadt, 117 m², 11,97 EUR/m²): Exposé nennt weder
-Baujahr noch EEK; Liste ergab **Stiftstraße 8, 8a — Mietwohnhaus, 1896, Otto Kerwien, ID 09156593**
-→ Feld **bis 1948 · kein EA · Spalte E (>90 m²) = 8,17 (5,90–9,40)** → zulässig 8,99 EUR/m²
-(1.051 EUR), Oberwert-Decke 10,34 EUR/m² (1.210 EUR) → Ist 1.400 EUR = **+33 % über der Mittelwert-,
-+16 % über der Oberwert-Grenze**, Mietpreisbremse klar überschritten, § 556f Neubau scheidet
-wegen Bj. 1896 aus. Gegenrichtung nicht vergessen: gegen den Angebotsmarkt (12,60–13,50) ist
-derselbe Preis **günstig** — beide Zahlen nennen.
-*Why:* ohne das echte Baujahr hätte man raten müssen, und zwischen `bis 1948 · kein EA` (8,17) und
-`ab 2021` (15,14 in Spalte E) liegt Faktor 1,85 — die Mietpreisbremsen-Aussage kippt komplett.
-
-## Ortsteil-Anker: **Am Stern (14480)** — Großsiedlung MIT eingestreuten Neubauten, Baujahr immer prüfen
-Am Stern ist überwiegend Plattenbau 1971–1990 (Feld 60–75 m² = 5,82 · 6,06 EUR/m²), aber **nicht
-durchgängig** — es gibt Neubauriegel von ~2021, die im selben PLZ-Band stehen und ins Feld
-**ab 2021** (60–75 m² = 15,72, 75–90 m² = 16,73) gehören. Das ist ein Faktor ~2,7 auf das Ergebnis
-und dreht regelmäßig sowohl den Mietpreisbremse-Befund als auch das Vorzeichen des Vergleichs.
-Bekannte Neubau-Adressen (Bj. 2021), fortschreiben wenn neue auftauchen:
-- **Ziolkowskistr. 2** — MFH, 77 WE + 24 TG-Plätze, Energie**bedarfs**ausweis **B / 56 kWh/(m²·a)**,
-  KWK fossil, Fußbodenheizung, Balkone/Terrassen, Ausweis vom 22.04.2021. Neuvertragsniveau im Haus
-  ~14,0 EUR/m² kalt (2-Zi 62,54 m² zu 876 EUR). Gegenüber (Parkplatz Newton-/Ziolkowskistraße)
-  geplant: 6-Geschosser mit bis zu 109 WE → mehrjährige Baustelle als Lage-Con nennen. (#561)
-- **Schwarzschildstr. 28** — Bj. 2021, Max Müller Immobilien GbR. (#523)
-
-Bekannte **Plattenbau**-Adressen (Feld 1971–1990), Gegenstück zur Neubau-Liste:
-- **Lilienthalstr. 12** — TAG Wohnen Stern-Wohnanlage, Bj. 1975. (#525)
-- **Hubertusdamm 43** (vermutlich die ganze Hubertusdamm-Zeile) — dieselbe TAG-Stern-Wohnanlage,
-  5-geschossige Plattenblöcke mit Loggien; belegt über den Mapio-Cache `mapio.net/expose/3036523`
-  (TAG-Inserat 2017: Balkon, Wanne, Keller). (#843, Kleinanzeigen-Nachmieter ohne Baujahr/EEK.)
-- **Hubertusdamm 33** — Bj. **1971** (laut Energieausweis), Verbrauchsausweis **EEK A / 42,6 kWh**
-  Fernwärme, 4 Geschosse, kein Aufzug → Feld 1971–1990 × A,B. (#856, IS24 171281021, Bärlin Housing GmbH)
-
-**Eigener Angebots-Korridor für 14480 Am Stern (aus 8 bewerteten Objekten) — als Plausibilitäts-
-schranke benutzen, bevor eine Zahl geglaubt wird:** sanierter Plattenbaubestand **7,66–11,18 EUR/m²
-kalt** (#146 7,66 · #149 9,46 · #279 10,07 · #192 10,13 · #239 10,63 · #231 11,18), Ortsteil-**Spitze**
-sind die Neubauten 2019/2021 mit **16,02–16,50** (#217 · #105). **Ausnahme Hubertusdamm-Zeile:** dort ist
-~17 EUR/m² kalt das reale aktuelle Wiedervermietungsniveau für kosmetisch aufgefrischte Platte (#856
-Bärlin Housing 16,99 verifiziert; damit war auch #843s „1.139 lt. Vermieter", 17,00, echt und kein Tippfehler)
-→ dort ein Mietpreisbremsen-Fall (§ 556f braucht umfassende Modernisierung, Farbe + Vinyl reichen nicht),
-kein Datenintegritäts-Fall. *Why:* #843 verbrauchte Block A auf „wohl Tippfehler". ⇒ **Sonst gilt: jeder
-Aufruf über ~17 EUR/m² in 14480 ist erklärungsbedürftig und sollte zuerst den Datenintegritäts-Check auslösen** (Tippfehler,
-Stellplatz/Möblierung/Strom im Betrag enthalten, Quartals- statt Monatszahl), nicht sofort eine
-Mietpreisbremsen-Rechnung. Seen on **#742** (Mieternetzwerk, 68 m², `obj_totalRent` 1.880 EUR warm =
-27,65 EUR/m² warm → rekonstruiert 23,15–24,65 EUR/m² kalt) — das ist **+40–50 % über dem teuersten je
-in Am Stern bewerteten Objekt** und +130 bis +273 % über der zulässigen Miete in jeder plausiblen
-Baualtersklasse. *Why:* der Ortsteil-Korridor ist die einzige schnelle Gegenprobe auf einer
-Mieternetzwerk-Anzeige, wo die Kaltmiete ohnehin nur aus der Warmmiete zurückgerechnet ist — ohne ihn
-schreibt man eine +273-%-Mietspiegelverletzung auf, die in Wahrheit vermutlich eine Falscheingabe ist.
-
-**Die Ziolkowskistraße selbst ist gemischt — eine Anzeige nur mit STRASSE (ohne Hausnummer) ist
-deshalb nicht auflösbar.** Nr. 2 = Neubau 2021 (77 WE), Nr. 8 = Altbestand 1920–1949 (IS24-Atlas),
-Straßenkern = Plattenbau, gegenüber geplanter Sechsgeschosser (bis 109 WE). Bei straßengenauen
-Mieterinseraten also **klammern statt raten**: Feld 1971–1990 vs. 1991–2008 vs. ab 2021 nebeneinander
-rechnen und den Mietpreisbremsen-Befund ausdrücklich als "nicht abschließend bestimmbar" + § 556g
-Abs. 3 ausweisen (#739: 11,08–12,58 EUR/m² = +79…+103 % über Platte, +12…+27 % über 1991–2008,
-−25…−34 % unter ab-2021). Die `priceBar` hilft dabei nur begrenzt: sie zeigte 5,70–9,50 EUR/m²
-(Angebotsband der Umgebung) und stellt das Angebot ins 83. Perzentil — das belegt "teuer für die
-Umgebung", aber nicht die Baualtersklasse.
-
-**Straßennamen-Heuristik für 14480: Astronomen = Platte, Komponisten = MUSIKERVIERTEL ≠ Platte.**
-Die Am-Stern-Großsiedlung trägt Astronomen-/Physikernamen (Newton-, Galilei-, Kepler-, Ziolkowski-,
-Schwarzschildstr.); die **Komponistenstraßen südlich der Großbeerenstraße (Schubert-, Flotow- u. a.,
-„Musikerviertel")** sind kleinteiliger Siedlungs-/Einfamilienhausbau neben 1980er-Geschossbau
-(bestätigt über #525 Lilienthalstr. 12 und #736 Schubertstr.). Dort ist der Plattenbau-Reflex
-**keine Default-Hypothese** — ohne Baujahr das Mietspiegelfeld klammern (bis 1948 · kein EA /
-1949–1970 / 1971–1990) statt eine Klasse zu setzen. Lage-Scoring in diesem Teilquartier: **Block B
-4,0** (peripher, ÖPNV busbasiert, Tram erst am Stern-Center) gegenüber **4,5** an der Steinstraße
-(#677/#617/#337). *Why:* der Ortsteilname „Am Stern" zieht automatisch das 1971–1990-Feld (5,63 in
-Spalte D) und produziert damit im Musikerviertel einen um bis zu +100 % falschen
-Mietpreisbremsen-Befund.
-
-**14480 ist außerdem nicht nur Am Stern/Drewitz — es umfasst KIRCHSTEIGFELD (Bj. 1993–1998).** Damit
-hat die PLZ *drei* Baualtersklassen (1971–1990 Platte · **1991–2008** Kirchsteigfeld/90er-Ergänzungs-
-bauten · ab 2021 Neubauriegel) und der Plattenbau-Reflex ist dort nur eine von drei Hypothesen.
-Erkennungsmerkmale einer 90er-Anlage in 14480, wenn keine Adresse dransteht (#593): Bj. im Fließtext
-genannt, "parkähnlich angelegte" Anlage aus **zwei Wohnhäusern** in ruhiger Seitenstraße, Fernwärme-
-Zentralheizung, Terrassen-/Wintergartenwohnungen, Sterncenter fußläufig, A 115 in 5 Min. Feld
-**1991–2008 · D,E,F,G · Spalte E (>90 m²) = 10,28 (7,91–13,71)** — Spalte E ist auffällig weit, ein
-Aufruf von 13,02 EUR/m² liegt +27 % über dem Mittel und trotzdem **unter** dem Oberwert, also über die
-Spanneneinordnung deckbar. Und: Bj. vor dem 01.10.2014 ⇒ **§ 556f greift nicht, Mietpreisbremse gilt**
-(anders als bei den 2021er Riegeln nebenan).
-*Why:* für 14480 hätte der Ortsteil-Reflex Feld 1971–1990 × Spalte E = 6,26 gezogen → "+108 %,
-massiver Mietpreisbremsen-Verstoß" statt "innerhalb der Spanne".
-Neubau ab 2021 heißt außerdem **§ 556f BGB: Mietpreisbremse dauerhaft nicht anwendbar** (auch bei
-Wiedervermietung) — eine angekündigte „Mietanpassung" hat dort *keine* gesetzliche Obergrenze; das
-gehört als Risiko in Block A/G, nicht als „compliant" abgehakt.
-*Why:* das Standard-Playbook für Potsdamer Großsiedlungen („zuerst das Plattenbau-Feld ziehen") ist
-für Am Stern nur die halbe Wahrheit und liefert bei diesen Adressen einen um +100 % falschen Befund.
-
-### Kirchsteigfeld-Detailanker: **Vonovia-Bestand Bj. 1995 — die Wohnflächen-SPALTE entscheidet den Mietpreisbremsen-Befund, nicht der Preis**
-Der Vonovia-Bestand im Kirchsteigfeld (Maxie-Wander-Str., Anni-von-Gottberg-Str., Maimi-von-Mirbach-Str.,
-Ricarda-Huch-Str., Am Hirtengraben) ist durchgängig **Bj. 1995, Fernwärme-Zentralheizung, EEK C–E,
-kein Aufzug, Mieterkeller + Balkon/Loggia/Wintergarten, keine EBK (nur Spüle + E-Herd), Kaution
-exakt 3,0 NKM**, Anbieter „Vonovia Kundenservice GmbH (Frau Schultze.)", Objekt-Nr. `82-13…`.
-Preisniveau 2026: **10,7–12,1 EUR/m² kalt** — und trotzdem fällt das Mietpreisbremsen-Urteil im selben
-Quartier gegensätzlich aus, weil die m²-Spalte springt:
-- **60–75 m² (Spalte C)** → 9,28 (A+–C) bzw. **9,45 (D,E,F,G)** → zulässig ~10,2–10,4 EUR/m²
-  ⇒ die üblichen 12,10 EUR/m² sind **überschritten** (#678: +137 EUR/Mon.; #679 grenzwertig).
-- **75–90 m² (Spalte D)** → 9,10 (A+–C) bzw. **9,01 (D,E,F,G)** — das ist der **niedrigste Wert der
-  ganzen 1991–2008-Zeile**, zulässig nur **9,91 EUR/m²**. „Größer ⇒ mehr Luft" gilt hier also NICHT:
-  Spalte D ist der **schärfste** Fall, nicht der mildeste (#702, 76,02 m², 11,30 EUR/m²:
-  **+105,60 EUR/Mon.** über der Mittelwert-Grenze, +48,73 selbst am Oberwert).
-- **>90 m² (Spalte E)** → **10,28 (7,91–13,71)**, zulässig **11,31 EUR/m²** ⇒ derselbe Vermieter,
-  dasselbe Baujahr, dieselbe Ausstattung ist **konform** (#689, 93,51 m², 10,66 EUR/m², 60,78 EUR/Mon.
-  *unter* der Grenze). Spalte E ist im 1991–2008-Feld auffällig weit — das ist der ganze Grund.
-  ⚠ **…aber die 10,28 gelten nur für die Zeile `D,E,F,G`. Der Bestand hat EEK C *und* D, und in
-  Spalte E kostet der bessere Ausweis den Mieter 0,37 EUR/m².** Bei **EEK C** greift die Zeile
-  `A+,A,B,C` = **9,91 (8,71–12,70)** → zulässig nur **10,90 EUR/m²**. #728 (Anni-von-Gottberg-Str.
-  8 a, **4 Zi / 95,6 m² / 11,42 EUR/m²**, EEK C 79 kWh): +15,2 % über dem Mittelwert und
-  **+49,49 EUR/Mon. (+4,7 %) über zulässig** — während dieselbe Zahl in der D,E,F,G-Zeile konform
-  gewesen wäre. Also: in Spalte E **zuerst die EEK-Klasse lesen, dann die Zeile ziehen**; der
-  bessere Energieausweis macht die Rüge stärker, nicht schwächer (gleiches Muster wie #678 in
-  Spalte C). Gegenprobe nach oben nicht vergessen: 11,42 liegt **unter** dem Oberwert 12,70, für
-  Konformität reichen 10,38 EUR/m² = nur 17 % der Strecke Mittel→Oberwert, und die Merkmalsliste
-  (renoviertes Bad, Gäste-WC, Loggia, Mieterkeller, Isolierverglasung, Vollwärmedämmung,
-  Fernwärme) trägt das ⇒ Befund „grenzwertig, über Spanneneinordnung deckbar", nicht „Verstoß".
-  ⇒ Die vollständige Nicht-Monotonie der zulässigen Miete im Quartier lautet damit:
-  **C 10,21–10,40 · D 9,91–10,01 (Minimum) · E 10,90 (EEK C) bzw. 11,31 (EEK D–G)**.
-  Merkmal des Bestands, das die Einordnung stützt: 4-Zimmer-Wohnungen haben hier **separates
-  Gäste-WC, separate ~13-m²-Küche und Abstellraum**, aber **keine EBK und (in Nr. 8 a) keinen
-  Aufzug** — die beiden Mindermerkmale gegen die vielen Mehrmerkmale rechnen, statt pauschal den
-  Mittelwert zu nehmen.
-⇒ Die m²-Reihenfolge der zulässigen Miete ist **nicht monoton**: C 10,40 → **D 9,91 (Minimum)** →
-E 11,31. Deshalb immer die Spalte ziehen, nie „je größer desto konformer" schließen.
-**Spaltenkante 75 m² ist im Quartier der Normalfall** (die 3-Zi-Wohnungen liegen bei 73–78 m²), also
-Pflicht-Gegenprobe: bei #702 (76,02 m², nur 1,02 m² drüber, Fläche im Exposé „ca.") wäre in Spalte C
-der **Oberwert** 11,51 × 1,1 = **12,66 EUR/m²** — der Aufruf von 11,30 wäre bei maximaler
-Spanneneinordnung **gedeckt**. Der Befund „überschritten" ist dort also spaltenkanten-abhängig ⇒ als
-Next step „Wohnfläche im Mietvertrag prüfen" setzen, statt die Rüge hart zu behaupten.
-Zweiter stabiler Befund: die **warme Seite ist im Quartier durchgehend über Benchmark**, 4,9–5,3 EUR/m²
-(NK 2,3–2,9 + Heizkosten 2,4–2,6) gegen Potsdamer 3,0–3,8 — immer als Con nennen und die
-Betriebskostenabrechnung als Kontaktfrage setzen, egal wie günstig die Kaltmiete wirkt.
-*Why:* ohne die Spaltenprobe schreibt man den Kirchsteigfeld-Reflex „Vonovia 1995 ⇒ Mietpreisbremse
-überschritten, § 556g-Rüge" auch auf die großen Wohnungen, bei denen der Preis tatsächlich *unter*
-der zulässigen Miete liegt — und verschenkt das stärkste Pro-Argument der Wohnung.
-
-## Ortsteil-Anker: **Drewitz (14480)** — und die Falle „1971–1990 hat KEINE `kein EA`-Zeile"
-Zwei Befunde aus #670 (Tauschanzeige, 3 Zi / **62 m²** / **324 EUR = 5,23 EUR/m²**, DG 4. OG):
-
-**1. Die 1971–1990-Gruppe hat — anders als `bis 1948` und `1949–1970` — KEINE eigene
-„kein Energieausweis"-Zeile.** Sie hat nur `A,B` · `C,D` · `E,F`. Bei einer Platte ohne EA (der
-Normalfall: `energy.hasScales:false`) gibt es also **kein einzelnes Feld**, das man ziehen darf.
-⇒ **Das ganze EEK-Band der Baualtersklasse zitieren**, nicht eine Zeile raten. Für Spalte C
-(>60–75 m²): Mittelwerte **5,69 (E,F) · 5,82 (C,D) · 6,06 (A,B)**, Gesamtspanne **5,19–6,88**.
-*Why:* die Standardanweisung „no EA ⇒ nimm die kein-EA-Zeile" läuft hier ins Leere, und wer
-stattdessen reflexhaft `E,F` (schlechteste Klasse) nimmt, senkt den Vergleichswert um bis zu 6 %
-und erzeugt einen falschen „über Mietspiegel"-Befund.
-
-**2. Gegen-Anker zum „verdächtig billig"-Auftrag: 5,23 EUR/m² ist der UNTERWERT, nicht darunter.**
-Der Orchestrator kam mit „5,23 EUR/m² liegt unter der Untergrenze *jeder* Potsdamer Spanne — also
-WBS/sozialer Wohnungsbau (Hard Blocker)". Falsch: **5,23 ist exakt der Unterwert der Zeile
-`1971–1990 · C,D · Spalte C` (5,82 [5,23–6,25])** und liegt über dem der `E,F`-Zeile (5,19). Die
-Miete liegt damit **innerhalb** der ortsüblichen Spanne, nur −8,1 bis −13,7 % vom Mittel ⇒
-**Scam-Schwelle (>20 % unter Mietspiegel) NICHT erreicht** und **Mietpreisbremse eingehalten**
-(zulässig 6,26–6,67 EUR/m² = 388–413 EUR gegen verlangte 324). Merksatz für Drewitz-Zahlen:
-**alles ab ~5,20 EUR/m² aufwärts ist bei 60–75 m² normal**, erst darunter lohnt die WBS-Frage.
-Zusatzbeleg für „Altvertrag statt Förderung": 5,23 = **genau ein Drittel** des Angebotsankers
-(15,51) — nach der Faustregel aus `tauschwohnung.md` (½ Anker oder darunter ⇒ Altvertrag).
-Der WBS-Sweep lief case-sensitiv über 16 Begriffe (`WBS`, `Wohnberechtigung(sschein)`,
-`Sozialwohnung`, `sozialer Wohnungsbau`, `Genossenschaft`, `gefördert(er)`, `Belegungsbindung`,
-`Belegungsrecht`, `Fehlbelegung`, `Mietobergrenze`, `einkommensorientiert`, `ProPotsdam`, `GEWOBA`)
-und ergab **16× 0**. *Why:* ohne diesen Gegen-Anker hätte ein Hard Blocker auf reiner
-Preis-Intuition gefeuert und die Wohnung auf ≤2,0 gedeckelt.
-
-**Ortsteil-Fakten (für Block B):** GDR-Großsiedlung WBS-70/P2, **1986–1989**, plus Wendebauten bis
-1991; seit 2010 Stadtumbau „**Gartenstadt Drewitz**" (Konrad-Wolf-Allee zurückgebaut, energetische
-Sanierung **einzelner** Blöcke ⇒ Sanierungsstand pro Haus prüfen, nie unterstellen). Tram **96/99**
-→ Potsdam Hbf ~15–18 Min., **Stern-Center** fußläufig/eine Tramstation, A 115 (AS Potsdam-Süd)
-~5 Min., Naherholung **Parforceheide** + Nuthewiesen. Ortsteil-Geometrie (Immowelt-MultiPolygon,
-88 Stützpunkte): BBOX **13,1143–13,1496 O / 52,3500–52,3779 N** — die Südausdehnung bis 52,350 ist
-Waldanteil, kein Wohngebiet; taugt als Gegenprobe gegen ein falsches `district`.
-⚠ „**Dachgeschoss**" in Drewitz ist atypisch (Platte = Flachdach): entweder eine
-Gartenstadt-Aufstockung/Staffelgeschoss oder — wahrscheinlicher — das oberste Vollgeschoss eines
-5-geschossigen P2-Riegels, vom Inserenten so genannt. Aufzug dort praktisch nie.
-
-**Korrektur/Ergänzung (#767): 14480 „Drewitz" hat einen ZWEITEN, völlig anderen Teil — den
-historischen Ortskern „Alt Drewitz".** Dort ist ein Dachgeschoss der Normalfall, nicht die Anomalie:
-gewachsenes Dorf mit Satteldächern, Ziegel-Hofspeichern/Vierseithof-Resten und der **Alt Drewitzer
-Dorfkirche** (auf Anzeigenfotos gut erkennbar — Fernblick über rote Ziegeldächer, gelber Kirchsaal
-mit schwarzem Turmaufsatz). Baualtersklasse dort **bis 1948**, nicht 1971–1990 — der
-Großsiedlungs-Reflex zieht sonst 5,63–6,06 statt 7,83–9,15 EUR/m² (Spalte D) und erzeugt eine
-doppelt so große scheinbare Mietpreisbremsen-Überschreitung. Erkennungsmerkmale in der Anzeige:
-„Ortskern"/„historisches Flair", **sehr kleine Hausgemeinschaft („nur 3 Parteien")**, Innenhof statt
-Balkon, Velux-Dachfenster + alter, weiß gestrichener Dachstuhl auf den Fotos, kein Aufzug.
-Wohnlage/Block B deutlich besser als die Siedlung (ruhig, grün, Dorfkirchenblick), Anbindung
-identisch gut (Bus/Tram 96/99, Stern-Center, RB ab Rehbrücke ~18 Min. Berlin-Charlottenburg).
-Preisniveau dort 2026: **12,78 EUR/m² kalt** für ein saniertes 90-m²-DG (Angebotsanker-Niveau).
-*Why:* ohne diese Zweiteilung wird jede 14480-Anzeige reflexhaft als Platte gescort — Lage zu
-schlecht, Mietspiegelfeld zu billig, beides falsch.
-
-## Ortsteil-Anker: **Waldstadt II (14478) — `Zum Jagenstein` / `Saarmunder Str.` ist NICHT Plattenbau**
-Waldstadt II löst reflexhaft die Großsiedlungs-Regel oben aus (Feld 1971–1990). Für **eine** Adresse
-ist das falsch: das Quartier **Zum Jagenstein / Saarmunder Straße** ist ein **Neubauquartier der
-Wohnungsgenossenschaft „Karl Marx" Potsdam eG**, Fertigstellung **~2018/2019** — **113 WE in 5 Häusern
-(zwei viergeschossige + drei sechsgeschossige), barrierefrei, Laubengangerschließung, 113 TG-Plätze,
-Fußbodenheizung + Holzböden**, 45 × 3-Raum / 38 × 2-Raum. Der Genossenschaftssitz (Saarmunder Str. 2)
-liegt im selben Quartier, „Zum Jagenstein 3" vermietet sie als Gewerbe.
-→ Richtiges Feld ist **2013–2020**, nicht 1971–1990. Bei 79 m² (Spalte D) sind das **12,34
-(10,90–14,23)** statt 5,63 (5,13–6,10) — **Faktor 2,2**. Und: Erstbezug nach dem 01.10.2014 ⇒
-**§ 556f BGB, Mietpreisbremse nicht anwendbar**.
-Erkennungsmerkmale im Exposé, wenn „Neubau" nicht dransteht: `Etage: N von 4` bzw. `von 6` +
-**Fußbodenheizung** + Personenaufzug + Gäste-WC + „Qualität der Ausstattung: Gehoben".
-Preisniveau 2026: **13,48 EUR/m² kalt** für 79 m² (#585) — Genossenschaftsniveau, unter privatem
-Neubau, aber ~+9 % über dem ortsüblichen Mittelwert und innerhalb der Spanne.
-**Der Anker trägt auch OHNE Adresse** (#606, Kleinanzeigen-Tauschanzeige: nur „14478 Brandenburg -
-Potsdam", kein Ortsteil, kein Baujahr, kein Energieausweis). Sechs Merkmale zusammen identifizieren
-das Quartier: PLZ 14478 · **Etage 4** (die zwei viergeschossigen Häuser) · Fußbodenheizung ·
-Personenaufzug **+ „stufenloser Zugang"** (barrierefrei/Laubengang) · **Tiefgaragen-Stellplatz** ·
-3-Raum/75 m² (45 der 113 WE sind 3-Raum) — plus als siebte Probe das Preisniveau: 13,33 EUR/m² kalt
-gegen die 13,48 aus #585. Gegenprobe über die Fotos (Pflicht, s. o.): weiße glatte Türen, groß-
-formatige graue Badfliesen, wandhängendes WC mit UP-Spülkasten, Wanne **und** separate Glasdusche,
-Fertigparkett, feuerverzinktes Stahl-Balkongeländer, Blick von oben ins Baumkronendach (Waldlage
-Ravensberge) ⇒ Feld **2013–2020**, Plattenbau ausgeschlossen. Bei 75 m² ist das Spalte **C**
-(„>60–75"), nicht D: **12,06 (11,23–12,74)** → zulässig 13,27 EUR/m², d. h. der Quartierspreis liegt
-punktgenau auf der 10-%-Grenze — und § 556f (Erstbezug nach 01.10.2014) hebt sie ohnehin auf.
-Zusatz für Block G/H: Vermieter ist eine **Genossenschaft** → Mitgliedschaft + Genossenschaftsanteile
-statt/neben Kaution, zweites Zustimmungsgremium, Eigenbedarfsrisiko praktisch null.
-*Why:* ohne diesen adressfreien Erkennungssatz ist eine 14478-Anzeige ohne Baujahr unbewertbar — der
-Ortsteil-Reflex hätte 5,82 EUR/m² gezogen und „+129 %, Mietpreisbremse massiv überschritten" in den
-Report geschrieben, statt „marktkonform".
-*Why:* der Ortsteil-Reflex hätte „+139 % über Mietspiegel, Mietpreisbremse massiv überschritten,
-§ 556g-Rüge" in den Report geschrieben — tatsächlich ist der Preis mietspiegelkonform und die
-Mietpreisbremse gilt dort gar nicht. Siehe [[wgkarlmarx-de]] für die Vermieterseite.
-
-## Ortsteil-Anker: **Waldstadt I (14478) — `Tiroler Damm 16 A–E` ist ProPotsdam-Neubau 2019, kein Plattenbau**
-Gleiche Falle wie Waldstadt II, andere Adresse. Waldstadt I ist überwiegend Großsiedlung 1960er/70er
-(Feld 1971–1990), aber **Tiroler Damm 16 A–E** ist ein Neubauquartier der **ProPotsdam**:
-5 fünfgeschossige Häuser auf ~11.000 m², **95 WE, Fertigstellung 2. Quartal 2019**, GALANDI SCHIRMER
-Architekten, 16 Mio. EUR (8,5 Mio. Landesdarlehen + 2 Mio. Zuschuss), **komplett barrierefrei, Aufzug
-in allen fünf Häusern, alle Wohnungen mit Balkon**, Fahrradabstellräume (Keller **nirgends dokumentiert**
-— immer nachfragen), Wohnungen ~50–95 m², überwiegend 2–3 Zi.
-→ Richtiges Feld ist **2013–2020 · alle**, nicht 1971–1990: bei 75,12 m² (Spalte D) **12,34
-(10,90–14,23)** statt 5,63 (5,13–6,10) — **Faktor 2,2**. Erstbezug 2019 ⇒ **§ 556f BGB,
-Mietpreisbremse dauerhaft nicht anwendbar** (auch bei Wiedervermietung; also auch **keine gesetzliche
-Deckelung künftiger Mietanpassungen** — als Risiko in Block A/G nennen, nicht als „compliant" abhaken).
-**Belegungsstruktur (entscheidet über den Preis-Plausibilitätscheck): 75 % miet- und belegungsgebunden**
-(Bindungsmieten **5,50 EUR/m² mit WBS**, **7,00 EUR/m² WBS+40**), nur **25 % freifinanziert** zu ~12–13
-EUR/m² kalt. Deshalb: eine Tiroler-Damm-Anzeige mit „keine WBS Wohnung" ist plausibel, aber der
-WBS-/Bindungsstatus ist die **einzige** wirklich entscheidende Kontaktfrage; und Preise ≫ 13 EUR/m²
-kalt sind dort unplausibel → sie zeigen an, dass die genannte Zahl die **Warmmiete** ist (#607).
-*Why:* der Waldstadt-Reflex hätte 5,63 gezogen → „+125 % über Mietspiegel, § 556g-Rüge" auf einem
-markt- und mietspiegelkonformen Preis, und hätte zusätzlich die kalt/warm-Frage falsch entschieden.
-Siehe [[kleinanzeigen-de]] für die Adress-/WebSearch-Route, die das Baujahr auf einer 0-Foto-Anzeige liefert.
-**Gegenrichtung: NUR 16 A–E ist Neubau — `Tiroler Damm 1` ist 1960er Waldstadt-Blockbau** (4 Geschosse,
-WDVS-gedämmt, Treppenhaus-Risalit, Trockenboden, Kellergang mit offenen Rohren; #795). Eine WebSearch
-auf „Tiroler Damm" liefert *nur* das ProPotsdam-Projekt → nie die Straße pauschal als Neubau werten,
-Hausnummer + Fassadenfoto entscheiden. Dort stand „Baujahr: unbekannt" + **„Baujahr laut Energieausweis
-2014"** — das ist das Modernisierungs-/Ausweisjahr, nicht Erstbezug (IS24-Tooltip sagt das selbst);
-wer es als Baujahr nimmt, zieht Feld 2013–2020 (11,66) statt 1949–1970 (6,48) und schaltet per § 556f
-fälschlich die Mietpreisbremse ab. *Why:* bei 18,33 EUR/m² kalt kippt daran „konform/ausgenommen" vs.
-„+183 % über Mittelwert".
-
-## Quartiers-Anker: **Brunnen Viertel, `Brunnenallee` (14478, Waldstadt I / Teltower Vorstadt)**
-Dritte Waldstadt-Falle, gleiche Bauart wie die zwei oben: PLZ 14478 löst den Plattenbau-Reflex aus,
-die Brunnenallee ist aber ein **Neubauquartier der KW-Development** auf dem ehemaligen
-**Plattenwerksareal** südlich der Waldstadt I (Architekt Gregor Fuchshuber, 11 Stadthäuser,
-49.700 m² Gesamtfläche, Häuser mit Nummern nach dem Schema `Haus {röm. Ziffer} – WE {n}`).
-Fixwerte, die man nicht neu recherchieren muss:
-- **Wohnteil Brunnenallee 9–13 fertiggestellt 2016–2018, seit Frühjahr 2019 vollständig bezogen**
-  ⇒ Mietspiegelfeld **2013–2020 · alle EEK**; bei 60–75 m² (Spalte C) **12,06 (11,23–12,74)**,
-  bei 75–90 m² (Spalte D) **12,34 (10,90–14,23)**.
-- **Erstbezug nach dem 01.10.2014 ⇒ § 556f BGB, Mietpreisbremse dauerhaft nicht anwendbar**, auch bei
-  jeder Wiedervermietung. Also **kein § 556g-Abs.-3-Hebel**, so formulieren. Gegenrichtung als
-  Stabilitätsplus nennen: weil die Miete ~38 % *über* der ortsüblichen Vergleichsmiete liegt, ist der
-  § 558-Erhöhungsspielraum im laufenden Vertrag faktisch null — sofern keine Indexmiete vereinbart ist.
-- **Preisniveau des Quartiers: 15,16–16,70 EUR/m² kalt**, fünf unabhängige Belege — #510
-  (Brunnenallee 3A, Bj. 2018, 76,84 m², 16,68), #642 (Haus I/WE 8, 74,84 m², 16,70), **#692
-  (Brunnenallee 5, Bj. 2018, 75,04 m², 16,50, BUWOG)**, **#691 (Brunnenallee 5A, Bj. 2018, 72,74 m²,
-  **15,30**, BUWOG)** und **#693 (Brunnenallee 3, 75,00 m², 15,16, BUWOG)**. Das ist ~+26–38 % über
-  ortsüblich und **−2 bis +8 %** um den stadtweiten Angebotsanker 15,51 ⇒ quartiersüblich.
-  **Die Spanne korreliert mit der Fläche, nicht mit dem Haus:** die ~75-m²-Wohnungen liegen bei
-  15,2–16,7, die kleinere 72,74-m²-Einheit bei 15,30 — der Aufruf ist also **kein** verlässlicher
-  Qualitätsindikator, sondern Preisliste. Konsequenz für Block A: **4,3 ist der Quartiers-Normalfall**
-  (Basis 5,0 − 0,5 Mietspiegel-Aufschlag), aber ein Aufruf **am unteren Rand (≤ 15,5)** verdient nur die
-  reduzierte Korrektur −0,4 ⇒ **A ≈ 4,6** (so gescort auf #691). Ein Aufruf ≫ 18 EUR/m² wäre dort neu.
-  ⚠ **Das Band 15,16–16,70 ist ein ANGEBOTS-Band. Ein Altvertrag liegt darunter und ist kein
-  Ausreißer.** #723 (Tauschwohnung-Inserat des *sitzenden Mieters* von **Haus I / WE 8**, also
-  derselben Einheit wie #642): **1.100 EUR kalt = 14,29 EUR/m²** auf die inserierten 77 m² bzw.
-  **14,70** auf die Grundrissfläche 74,84 m² — ~4–14 % unter dem Angebotsband, und derselbe
-  Eigentümer rief für dieselbe Wohnung am 21.08.2026 **1.250 EUR (16,70)** auf. ⇒ Bei einem
-  Mieter-Inserat (Tausch/Nachmieter) ist der aufgerufene Betrag die **Bestandsmiete**, nicht unser
-  Preis; für Block A den Eigentümer-Aufruf gegenrechnen. Das Band selbst bleibt bei 15,16–16,70.
-  Nebenbei dreifach bestätigt: **Haus I / WE 8 = 74,84 m²** (Grundriss in #642 *und* #723), und die
-  Anzeige nannte 77 m² — die Inseratsfläche ist im Quartier bis ~3 % zu hoch, immer den Grundriss
-  nehmen.
-  Achtung Spaltenkante: 74,84 / 75,04 / 76,84 m² fallen auf beide Seiten der 75-m²-Grenze — bei
-  Werten im Bereich 74–76 m² immer **Spalte C *und* D** rechnen und beide nennen; ≤ 74 m² ist
-  eindeutig Spalte C (12,06).
-- **Energieausweis-Anker: Bedarfsausweis B / 52 kWh(m²·a), Fernwärme** — jetzt **dreifach belegt**
-  (#510 Brunnenallee 3A, #692 Brunnenallee 5, #691 Brunnenallee 5A, alle Bj. 2018), identische Werte.
-  Für weitere Häuser des Quartiers damit gut plausibel, aber weiterhin **nur aus dem eigenen Exposé
-  gutschreiben**. Nutzbare Gegenprobe zur Heizkostenvorauszahlung: 52 kWh/m²·a × Fläche × ~0,13 EUR/kWh
-  ÷ 12 ≈ **0,56 EUR/m²/Monat** (72,74 m² → ~41 EUR); die BUWOG-Exposés setzen ~0,99 EUR/m² an, sind also
-  **konservativ kalkuliert** ⇒ Nachzahlungsrisiko gering, das im Report als Plus nennen.
-- **Betriebskosten-Anker des Quartiers: 3,47 EUR/m²/Monat warm-Aufschlag** (= NK 188 + Heiz 75 auf
-  75,77 m², #758 Brunnenallee 1; Heizkosten sind dort **nicht** in den NK enthalten). Damit lässt
-  sich eine Anzeige, die **nur eine Warmmiete** nennt, in Kaltmiete zerlegen: kalt ≈ warm −
-  3,47 × m². Erstmals gebraucht auf **#803** (Brunnenallee 1-7, 78 m², nur „Warmmiete 1.450 €",
-  keine Kaution ⇒ die Route Kaution ÷ 3 war nicht verfügbar): 1.450 − 271 = **1.179 = 15,12 EUR/m²**.
-  Immer als *abgeleitet* kennzeichnen und die Bandbreite mitliefern (NK 3,00–4,00 EUR/m² ⇒
-  14,59–15,59 EUR/m²) — die Mietspiegel-Einordnung ist über das ganze Band stabil, die Aussage
-  hängt also nicht am Punktwert. *Why:* ohne den Anker ist eine Warmmiete-only-Anzeige im Quartier
-  gar nicht bewertbar, und die naheliegende Abkürzung (Warmmiete gegen das Kaltmieten-Band
-  15,16–16,70 halten) macht aus einem markt­konformen Aufruf einen scheinbaren Schnäppchen- bzw.
-  Scam-Fall.
-- **Brunnenallee 1-7 ist die Hausnummern-Spanne EINES Blocks — gleiche Nummer + gleiche Etage heißt
-  dort nicht gleiche Wohnung.** #803 (2. Etage, 78 m², bewohnt bis 30.11.2026) und #758
-  (Brunnenallee 1, 2. Etage, 75,77 m², **leer ab 13.09.2026**) sind verschiedene Einheiten — eine
-  Wohnung kann nicht gleichzeitig leer und bewohnt sein. Das Vakanzdatum ist bei diesem Quartier
-  das schärfste Dedup-Kriterium, schärfer als Adresse/Etage/m².
-- **Bestätigt (#692): die Häuser Nr. 3/3a/5/7a sind tatsächlich der institutionelle BUWOG-Mietbestand.**
-  Die in #642 formulierte Zwei-Schichten-Regel hat sich damit an einem Fall verifiziert — eine laufende
-  Brunnenallee-Anzeige der BUWOG Immobilien Treuhand GmbH ist eine der 240 Mietwohnungen, **nicht** der
-  Vermieterkanal zu einem privaten ETW-Nachmietergesuch. Sauber unterscheiden lässt sich das an der
-  **Objekt-Nr. `90-…` im `OBJECT_INFO`** (BUWOG hat eine, ein privater Eigentümer/eine Mieteranzeige nie).
-- **Block B = 4,5.** Bhf **Potsdam-Rehbrücke ~350 m** (RE 7 / RB 33 nach Berlin) + **Tram 91**
-  Rehbrücke – Heinrich-Mann-Allee – **Hbf ~11 Min.** – Neues Palais – Eiche – **Wissenschaftspark Golm**
-  (= direkte Tram zur jetzigen Wohnung des Profils). Kita (2020) und Gymnasium (2025) im Quartier,
-  Spielplätze, Templiner See, begrünter parkähnlicher Innenhof. Minus: ehem. Industrieareal, direkte
-  Nähe zur **Wetzlarer Bahn**, Zufahrt über die stark befahrene **Heinrich-Mann-Allee**, und der
-  **Gewerbe-Bauabschnitt (8 Bürohäuser, Bauzeit 2019–2025/26, 4 davon + Kita fertig)** läuft noch.
-
-**Die operativ wichtigste Eigenschaft des Quartiers: es hat ZWEI Eigentümerschichten, und die
-deduplizieren nie gegeneinander** — **240 Mietwohnungen im institutionellen Bestand
-(BUWOG / Vonovia-Gruppe)** *und* **129 Eigentumswohnungen einzelner Privateigentümer**. Folge für die
-Vermieterkanal-Suche bei einem Nachmietergesuch: eine gleichzeitig auf Immowelt/IS24 laufende
-Brunnenallee-Anzeige (gesehen: Nr. 3, 3a, 5, 7a) ist **fast immer eine der 240 BUWOG-Mietwohnungen und
-damit eine ANDERE Wohnung** — kein Landlord-Channel-Twin, auch wenn Straße, m² und Zimmerzahl passen.
-Ein privater ETW-Eigentümer inseriert typischerweise gar nicht selbst. Der einzige belastbare Hebel ist
-dann die **Objektidentität aus dem Grundriss** (`Haus {N} – WE {n}` + Etage + exakte m²), mit der man
-beim Erstkontakt gezielt nach dem Eigentümer fragt. Konsequenz auch für Block H: institutionell
-(#510, Eigenbedarfsrisiko niedrig) vs. privater Einzeleigentümer (#642, **Medium**) — im selben
-Quartier, bei identischem Preis.
-*Why:* der Waldstadt-Reflex hätte Feld 1971–1990 × Spalte C = 5,82 gezogen → „+187 %, Mietpreisbremse
-massiv überschritten, § 556g-Rüge" auf einem markt- und mietspiegelkonform bepreisten Neubau, bei dem
-die Bremse gar nicht gilt; und die Zwei-Schichten-Regel ist das, was eine ergebnislose
-Landlord-Channel-Suche von einem übersehenen Twin unterscheidet.
-
-## Ortsteil-Anker: **Babelsberg Nord (14482)** — größtes systematisches Delta Angebot ↔ Mietspiegel
-Babelsberg Nord ist Gründerzeit-Weberviertel (Nowawes) **mit eingestreuten Nachwende-Neubauten** —
-Baujahr also immer aus dem Exposé nehmen, nie aus dem Ortsteil. Der Ortsteil ist gefragt (beste
-Berlin-Anbindung Potsdams), und die Angebotsmieten liegen dort **15–18 EUR/m² kalt**, während das
-Mietspiegelfeld **1991–2008 · Spalte D (>75–90 m²) = 9,10 (8,43–10,18) bzw. 9,01 (8,27–9,69)** beträgt.
-Das ist ~+95 % auf den Mittelwert und damit das größte Delta aller bisher bewerteten Potsdamer
-Ortsteile. Konsequenz: **hier ist der § 556g-Abs.-3-Hebel der Normalfall, nicht die Ausnahme** — aber
-nur, wenn das Baujahr die Ausnahmen ausschließt. Prüfreihenfolge: Baujahr < 01.10.2014 ⇒ § 556f raus;
-„umfassende Modernisierung" nur akzeptieren, wenn Jahr UND Kosten genannt sind (ein sichtbar neues Bad
-auf Fotos reicht nicht, und § 556f deckt ohnehin nur die *erste* Vermietung danach) ⇒ dann bleibt
-§ 556e (Vormiete) als einzige Rechtfertigung. Genutzt auf #588 (expose 170031691, Bj. 2001, 89 m²,
-17,75 EUR/m² = **90. Perzentil** der `priceBar`, zulässig 10,01–11,20 EUR/m² → 583–689 EUR/Monat Delta).
-
-**Die richtige Zeile ist im Weberviertel meist NICHT 1991–2008, sondern `bis 1948`.** Der Ortsteil ist
-Gründerzeit — Baujahre um 1900–1912 sind der Normalfall, die Nachwende-Neubauten die Ausnahme. Und
-weil diese Altbau-Inserate typischerweise **gar keinen Energieausweis** angeben, greift die Zeile
-**„bis 1948 · kein EA"**: Spalte D (>75–90 m²) = **7,83 (6,51–9,24)**, also zulässig **8,61 €/m²**
-(Mittelwert +10 %) bzw. max. **10,16 €/m²** am Oberwert. Das ist noch einmal ~14 % unter dem
-1991–2008-Feld und macht das Delta zum 15–18-€/m²-Angebotsniveau **noch größer**, nicht kleiner.
-Also: erst Baujahr **und** EA-Angabe aus dem Exposé ziehen, dann die Zeile wählen — der Ortsteilanker
-oben nennt bewusst nur das Neubaufeld. Gesehen auf **#631** (expose 170070873, Karl-Marx-Str.,
-Bj. 1912, kein EA, 85 m², **22,35 €/m² = ~2,9× ortsüblich**, Delta ~1.036–1.168 €/Monat) — dort
-zusätzlich ein **Souterrain**, das in der Spanneneinordnung wohnwert*mindernd* wirkt, den Vergleich
-also Richtung **Unterwert** (6,51) statt Mittelwert schiebt.
-*Why:* mit dem 1991–2008-Feld (9,10) wirkt derselbe Altbau-Preis „nur" 2,5× statt 2,9× ortsüblich,
-und die Verhandlungs-/§-556g-Rechnung im Report ist um mehrere hundert Euro zu niedrig.
-
-**Die dritte Zeile im Ortsteil: `ab 2021` — und dort kippt das ganze Delta ins Gegenteil.** Neben
-Gründerzeit (`bis 1948`) und Nachwende (`1991–2008`) gibt es in Babelsberg Nord junge Neubauquartiere,
-z. B. das **„Wohnprojekt Altes Filmstudio Babelsberg"** (Erstbezug 11/2021, direkt am Park Babelsberg).
-Feld `ab 2021` · Spalte D (>75–90 m²) = **16,73 (14,88–19,64)** — also *über* dem Angebotsanker von
-15–18 EUR/m². Auf #724 (76 m², 1.200 kalt = **15,79 EUR/m²**) heißt das: **5,6 % UNTER ortsüblich**,
-und wegen § 556f (Erstvermietung nach 01.10.2014) ist die **Mietpreisbremse gar nicht anwendbar**.
-⇒ Vor dem § 556g-Reflex immer erst das Baujahr prüfen: im Ortsteil ist der Hebel bei Altbau/Nachwende
-der Normalfall, beim Post-2021-Bestand **existiert er nicht** und der Preis ist sogar günstig.
-*Why:* mit dem Ortsteilanker („Babelsberg Nord ⇒ +95 % über Mietspiegel, § 556g-Hebel") wäre auf einer
-mietspiegelkonformen Neubauwohnung eine Rüge konstruiert und Block A grundlos abgewertet worden.
-
-**Mikrolage: `Alt Nowawes` ist die Hauptdurchgangsstraße mit Gleisen in der Fahrbahn** (Tram 94/99,
-Bus 694, Nachtbus N14; Haltestelle „Alt Nowawes" zwischen Rathaus Babelsberg und
-**Humboldtring/Nuthestraße** — die mehrspurige Ausfallstraße liegt am westlichen Ende, ca. lng 13,089).
-S-Bahnhof Potsdam-Babelsberg (S7) ~450 m → Potsdam Hbf ~4 Min., Berlin-Wannsee ~7 Min. Also: Block B
-in Babelsberg Nord **4,0 an Alt Nowawes/Durchgangsstraßen, 4,5 in den Seitenstraßen** — Lärm (Tram bis
-in die Nacht) als Besichtigungspunkt setzen, nicht als Abwertung ohne Beleg.
-*Why:* ohne den Anker kostet jede Babelsberg-Wohnung eine ÖPNV-Recherche, und die 15–18 EUR/m² lesen
-sich gegen den stadtweiten Angebotsanker 12,60–13,50 nur „etwas teuer" statt nach dem tatsächlichen
-Faktor 2 gegenüber der ortsüblichen Vergleichsmiete.
-
-**Die `priceBar` ist adressscharf, NICHT ortsteilscharf — sie schwankt innerhalb EINER Straße um
-~40 %.** Alt Nowawes ist der Beleg: **Nr. 55b (#588): ähnliche Angebote 9,20–14,90 EUR/m²**
-(Gesamtband 7,30–18,90) — **Nr. 106A (#681): ähnliche Angebote 7,10–10,70 EUR/m²** (Gesamtband
-5,80–13,00), rund 50 Hausnummern und ~500 m auseinander. Der westliche Abschnitt (Richtung
-Humboldtring/Nuthestraße, Nachwende-Neubau) trägt das 15–18-EUR/m²-Niveau des Ortsteilankers, der
-östliche (Richtung Rathaus/Karl-Liebknecht-Str., Gründerzeit-/Denkmalbestand) liegt praktisch auf
-Mietspiegelniveau. Konsequenz: **den Ortsteilanker oben nie als Vergleichsmaßstab in Block A
-einsetzen, immer die `priceBar` des konkreten Exposés ziehen** — sonst wirkt ein 10,50-EUR/m²-Angebot
-an Nr. 106A wie „35 % unter Markt" (im Extremfall bis zum High-Scam-Signal „>20 % unter
-Mietspiegel"), während es real im **65. Perzentil** seines Adressbandes und **über** der zulässigen
-Miete liegt. Der Ortsteilanker taugt nur noch als Plausibilitätsrahmen, nicht als Zahl.
-*Why:* dieselbe Falle wie bei Babelsberg Süd unten, aber innerhalb *eines* Ortsteils und *einer*
-Straße — die Nord/Süd-Trennung allein reicht als Schutz nicht aus.
-
-### **Babelsberg SÜD (ebenfalls 14482) ist NICHT Babelsberg Nord — Anker getrennt halten**
-Gleiche PLZ, völlig anderes Preisbild: die adressgenaue IS24-`priceBar` in Babelsberg Süd liegt bei
-**6,10–9,60 EUR/m² „ähnliche Angebote"** (Gesamtspanne 4,90–12), also praktisch **auf
-Mietspiegel-Niveau** statt auf dem 15–18-EUR/m²-Angebotsniveau von Babelsberg Nord. Das Umfeld ist
-älterer, günstiger Bestand. Praktische Folge: hier kippt der Vergleich in die *andere* Richtung — ein
-Angebot mit 11,08 EUR/m² landet im **87. Perzentil** und ist gegenüber dem stadtweiten Angebotsanker
-(12,60–13,50) trotzdem „billig". Immer die `priceBar` ziehen und nicht den Babelsberg-Nord-Anker
-übertragen. Gesehen auf #615 (expose 169985362, 60 m², 3 Zi., Nachvermietung).
-*Why:* mit dem Nord-Anker sieht dieselbe Wohnung nach ~30 % unter Markt aus (Kaufsignal, im Extremfall
-sogar das „>20 % unter Mietspiegel"-Scam-Signal); mit dem echten Süd-Band ist sie 15 % über dem
-oberen Rand der Vergleichsangebote und die Mietpreisbremse wird zum realen Thema.
-Für die Bewertung im Süden zusätzlich: ÖPNV-Anbindung ist gleich gut (S7 Babelsberg/Griebnitzsee,
-Tram 94/99), plus Lindenpark und Filmpark fußläufig → Block B 4,5, ohne Adresse keine 5,0.
-
-## Ortsteil-Anker: **Potsdam West / Westliche Vorstadt (14471)** — Altbau-Ruf, aber der Bestand ist gemischt
-Das Image (Park Sanssouci/Charlottenhof, Gründerzeit an Zeppelin-/Geschwister-Scholl-Straße) verleitet
-dazu, jede 14471er Wohnung in die Zeile **bis 1948** zu setzen. Zwischen den Altbauachsen stehen aber
-ganz gewöhnliche **Mehrfamilienhäuser der 1970er** (z. B. Stormstr. 16/20/21, 5 Geschosse, ~15 WE) —
-und zwischen den beiden Zeilen liegt in Spalte C (>60–75 m²) der Faktor ~1,5 (bis 1948 · kein EA 7,49
-bzw. C–E 8,82 gegen 1971–1990 · C,D **5,82**). Also **immer erst das Gebäude datieren**, nie den
-Ortsteil. Anker, gemessen an Stormstr. 16 (#737): adressgenaue IS24-`priceBar` „ähnliche Angebote"
-**6,10–8,60 EUR/m²** (Gesamtspanne 5,10–10,10), IS24-Atlas-Schätzmiete für die Adresse **~11 EUR/m²**,
-stadtweiter Angebotsanker 12,60–13,50 → das lokale Band liegt **deutlich unter** dem Stadtmittel, weil
-die Altverträge im 1970er-Bestand es nach unten ziehen. Ein Nachmieter-Altvertrag bei 6,5–8 EUR/m² ist
-hier der Normalfall und **kein** Scam-Signal. Lage/Block B: Tram 91/94 an der Kastanienallee/
-Zeppelinstr., Bhf Charlottenhof + Bhf Park Sanssouci (RB21/RB22) fußläufig, Innenstadt/Luisenplatz
-5–10 Min. → **4,5**; Abzug nur bei direkter Lage an der Zeppelinstraße (laute Hauptverkehrsachse,
-Hausseite erfragen).
-*Why:* mit der Altbauzeile gescort wirkt eine 7,7-EUR/m²-Wohnung „unter Mietspiegel/verdächtig
-billig", mit der richtigen 1970er-Zeile liegt dieselbe Miete **über** ortsüblich und die
-Mietpreisbremse wird zur echten Frage.
-
-## Ortsteil-Anker: **Babelsberg Süd (14482)** — Villen-/EFH-Rand, nicht Nowawes
-Südlich der Bahn Richtung Park Babelsberg/Griebnitzsee: durchgrünte, ruhige Bebauung (Kiefern/Eichen,
-niedrige Sattel-/Ziegeldächer) mit **Nachwende-Neubauten der 1990er/2000er**, oft DG-Maisonetten mit
-Wendeltreppe + Galerie. Angebotsniveau wie Babelsberg Nord (15–18 EUR/m²), ÖPNV S7 Babelsberg/
-Griebnitzsee (Hbf 4–6 Min., Wannsee ~7 Min.) + Tram 94/99 nur auf der Nordseite. **Block B 4,5**
-(ruhige Lage, ohne Adresse nicht feiner auflösbar; 4,0 bei Nuthestraßen-/Bahnnähe).
-Mietspiegel-Feld für die typischen 90-m²-DG-Maisonetten: **1991–2008 · Spalte E (>90 m²) = 9,91
-(8,71–12,70) bei EEK A+–C bzw. 10,28 (7,91–13,71) bei D–G** → zulässig 10,90–11,31 EUR/m².
-**Nachmieter-Altverträge liegen hier regelmäßig 5–10 % UNTER dem ortsüblichen Mittelwert** und damit
-~40 % unter dem Angebotsmarkt (#609: 860 EUR / 92 m² = 9,35 EUR/m²). Das ist der Altvertragseffekt —
-das High-Signal „>20 % unter Mietspiegel" darf daran nicht gefeuert werden. Umgekehrt gilt: der neue
-Vertrag darf auf ortsüblich +10 % (~1.000–1.040 EUR bei 92 m²) angehoben werden, und § 556e hilft dem
-Vermieter nicht, wenn die Vormiete niedriger war → gehört als Deckelrechnung in Block A, nicht als
-Preisrisiko „unbegrenzt". *Why:* ohne den Anker wird eine Babelsberg-Nachmieteranzeige entweder als
-Scam-Schnäppchen oder als „Miete kann beliebig steigen" fehlgelesen.
-
-### Dritte Teillage in 14482: **Medienstadt Babelsberg (Marlene-Dietrich-Allee & Umfeld)** — Neubau-Korridor, nicht Altbestand
-Babelsberg Süd zerfällt preislich in **zwei** Teillagen, nicht eine: (a) der ältere, günstige Bestand
-mit der adressgenauen priceBar 6,10–9,60 EUR/m² (s. o.) und (b) die **Medienstadt** um die
-Marlene-Dietrich-Allee — Filmpark/Studio Babelsberg/rbb, überwiegend Nachwende- bis Neubau
-(Projekte **„LOLA"** und **„Marlene 21"**, KW Development). Dort gilt das Angebotsniveau des neueren
-Bestands (15–18 EUR/m² und darüber), und die Mietspiegelzeile ist **nicht** die Plattenbau-/Altbau-
-Zeile. Praktische Folge: Baujahr auf dieser Straße zwischen **1991–2008 (9,10 in Spalte D)** und
-**ab 2021 (16,73)** bracketen — Faktor 1,8, d. h. es entscheidet allein die Baualtersklasse, ob eine
-Miete „+130 %" oder „+25 %" über zulässig liegt, und ob § 556f (Erstbezug nach 01.10.2014) die
-Mietpreisbremse ganz aussetzt. ÖPNV: S7 **Medienstadt Babelsberg** *und* Babelsberg, Tram 94/99,
-Hbf 4–6 Min., Wannsee ~7 Min. → **Block B 4,5** (ohne Hausnummer keine 5,0; 4,0 bei Nuthestraßen-
-(B2-) oder Bahnnähe am Nordrand). Gesehen auf #676 (expose 170161206).
-- **Stahnsdorfer Str. 93, „Villen am Filmpark"** (WEG, Gewobag als WEG-Verwalter, Bj. 2016, EEK B 71,7,
-  Fernwärme, TG): adressgenaue priceBar **similar 10,00–17,00, overall 7,70–22,20 EUR/m²**, also weder das
-  Altbestandsband (6,10–9,60) noch das Marlene-Dietrich-Allee-Neubauniveau. Mietspiegel 2013–2020 Spalte D
-  12,34 (10,90–14,23), § 556f befreit (Erstbezug nach 01.10.2014). #858 (expose 142070967) lag bei 20,99 =
-  P92. Entlang der Stahnsdorfer Str. entscheidet die Gebäudeklasse das Band, und ein priceBar-Abruf klärt es.
-*Why:* mit dem „Babelsberg Süd = älterer, günstiger Bestand"-Anker liest sich eine 23-EUR/m²-Miete
-in der Marlene-Dietrich-Allee als absurder Ausreißer statt als Neubau-Toplage — und der falsche
-Mietspiegel-Zeile kostet die Mietpreisbremsen-Aussage.
-
-## Ortsteil-Anker: **Speicherstadt (14473, Teltower Vorstadt, Havelufer)**
-Groth-Gruppe-Quartier zwischen Brauhausberg und Havel, gegenüber Stadtschloss, 5–10 Gehmin. zum Hbf.
-**Zwei Bauabschnitte — und der Schnitt liegt genau auf der § 556f-Grenze:** Südteil Ende **2014**
-fertig (155 Miet- + 98 Eigentumswohnungen), Nordteil bis **2022** (~270 WE). Erstbezug **nach dem
-01.10.2014 → Mietpreisbremse nicht anwendbar**; Südteil-Erstbezug davor → sie gilt. Baujahr steht auf
-Anzeigen praktisch nie drin → immer als offene Frage in die Next Steps, nie „not applicable" behaupten.
-Mietspiegelfeld je nach Abschnitt **2013–2020** oder **ab 2021** — das sind bei 60–75 m² 12,06 vs.
-15,72 EUR/m², also ein Faktor 1,3 auf das Ergebnis. Beide rechnen und beide nennen.
-Preisniveau: Havelufer-Neubau mit TG/Aufzug/Fußbodenheizung liegt deutlich über dem stadtweiten
-Angebotsanker 12,60–13,50; ~18 EUR/m² kalt ist dort plausibel, >22 EUR/m² kalt nicht.
-Genutzt auf #540. *Why:* ohne das kostet jede Speicherstadt-Wohnung zwei Websuchen und man tippt
-das Mietspiegelfeld blind.
-**Hausnummer → Bauabschnitt (belegt aus IS24-Energieausweis-Feldern):** `Am Speicher 1-5` = Bj **2014**
-(Südteil, EEK B 62,8 kWh, Fernwärme; #819, Vermietungsbüro Müller — erlaubt KEINE Innenfotos) →
-Spalte 2013–2020, § 556f hängt am Erstbezugsdatum (offen). `Am Speicher 12` / `Am Magazin 7` = Bj
-**2022** (Nordteil/Havel Quartier, allod; #168/#740) → § 556f sicher, Spalte ab 2021.
-
-## Quartiers-Anker: **"Wohnen am Brauhausberg", Max-Planck-Str. 14–16 / 15A (14473, Südliche Innenstadt)**
-Neubauquartier mit **107 Mietwohnungen**, Baujahr **2026**, Erstbezug **ab 01.04.2027**, Fernwärme,
-Ausstattung "gehoben", **EBK inklusive**, Aufzug, Keller; vermarktet von **locals Real Estate GmbH**
-(Potsdam, IS24 4,5★/26, verifiziert) — der **Bauträger/Vermieter wird nirgends genannt**.
-Landingpage `wohnen-am-brauhausberg.com`, Objekt-Nr.-Schema **`H{Haus}-{Etage}-{WE}`** (H1-00-02,
-H2-02-09, H3-02-09, H5-01-06) → **es kommen laufend weitere Einheiten in den Scan**, und jede ist auch
-auf **Immowelt** doppelt gelistet (dort ohne Objekt-Nr. → über Kaltmiete+m²+Etage zuordnen).
-Fixwerte, die man nicht neu recherchieren muss: **§ 556f BGB — Mietpreisbremse nicht anwendbar**
-(Erstbezug 2026); Mietspiegelfeld **ab 2021**, bei 75–90 m² = **16,73 (14,88–19,64)**;
-IS24-`priceBar` adressgenau **11,20–18,50 EUR/m²** (Gesamtband 8,70–23,90).
-Preisniveau des Quartiers **21,0–22,5 EUR/m² kalt** (1.550/71,17 · 1.650/78,52 · 1.670/78,48 ·
-1.800/85,5 · 1.880/84,59 · **2.030/90,2 = 22,50, die Spitze**) — also durchweg **~25–49 % über der
-ortsüblichen Vergleichsmiete** und über dem lokalen Angebotsband; Block A landet dort realistisch bei
-**4,0**, nicht 4,5+ — und bei den 2.030-EUR-Einheiten bei **2,8**, weil dort die **ausgewiesene
-Warmmiete (2.330) den Profil-Cap 2.200 schon ohne Heizkosten reißt** (mit Heizkosten ~2.410–2.460).
-Faustregel für die Charge: NK = **3,33 EUR/m²**, Heizkosten fehlen immer und sind mit
-~1,00–1,40 EUR/m²/Monat draufzurechnen.
-**Zwei wiederkehrende Fallen:** (1) **"Heizkosten in Nebenkosten enthalten: Nein"** — die ausgewiesene
-Warmmiete ist unvollständig, real +60–90 EUR/Monat; (2) **keine Fotos/Grundrisse der konkreten Einheit**,
-nur Musterwohnung + Außen-Visualisierungen (Neubau-Ausnahme greift, Block D also nicht deckeln).
-Lage: Potsdam Hbf **~400–500 m / 5–7 Gehmin.** (RE1 Berlin ~25 Min., S7 Wannsee ~10 Min.) → Block B 4,8.
-**Vertrags- und Ausstattungs-Fixwerte (Stand #729, gelten für die ganze Charge — nicht neu prüfen):**
-**Mindestmietdauer 24 Monate** (auf Immowelt sowohl im `Stichworte`-Text als auch als strukturiertes
-Merkmal `features.details → Allgemeine Informationen → „24 Monate"`, Icon `rental-time`) ⇒
-**projektweiter Kündigungsausschluss**, Block G ≈ 3,8 statt 4,5+; auf IS24 fehlt das Feld ganz.
-Kaution stets als **„drei Monatsmieten"** formuliert (unpräzise: auf Warmmiete gerechnet wäre sie
-rechtswidrig — immer als Klärungspunkt notieren). **Keine Provision** (`hasBrokerageFee:false`),
-kein WBS, unbefristet, **keine Staffel-/Indexmiete**, **Energieausweis fehlt komplett**
-(`energy.hasScales:false`, nur „wird bei Besichtigung vorgelegt") ⇒ Block D max. 4,7.
-Ausstattung überall: **EBK inklusive, Personenaufzug, Keller, Bad mit bodengleicher Dusche —
-KEINE Badewanne, KEIN Garten, KEIN Gäste-WC**. Anbieter-Telefon **0331 58 18 60**.
-Ein **„Terrasse"-Chip ist eine Immowelt-KI-Anreicherung** (`enrichment:"ai"`), keine Vermieterangabe.
-⚠ **…aber das ist per Anzeige zu prüfen, und in der Charge kommt auch die Umkehrung vor.** #730
-(EG) hat **keine `aiEnrichments`**, führt aber **beide** Chips (Balkon *und* Terrasse) — und der
-einheitsgenaue Grundriss zeigt nur **eine** Außenfläche. Auflösung ohne Bildersichtung: die
-`Stichworte`-Zeile nennt „Anzahl Balkone: 1, Anzahl Terrassen: 1, **Balkon-Terrassen-Fläche:
-21,06 m²**" — die **Summenfläche entspricht exakt der Terrasse allein**, also gibt es keinen
-Balkon (die gestrichelte Linie im EG-Plan ist die Überdeckung durch den Balkon des 1. OG).
-⇒ Regel: `Balkon-Terrassen-Fläche` gegen den Grundriss legen, bevor man einen zweiten Außenraum
-als vorhanden wertet.
-**Jede Einheit hat einen einheitsgenauen Grundriss** mit der Beschriftung
-`FF26888_…_Haus_{N}_Haus_{N}_WE_{n}_…` (= die Referenznummer `H{N}-{Etage}-{WE}`) — den immer ziehen,
-er beantwortet Zimmerflächen und die Flächenfrage.
-⚠ **Er liegt NICHT zuverlässig in `medias.floorplans[]` — bei #731 steckte er als vorletztes Bild
-in `medias.images[]` (Bild 59 von 60, ohne `classification`), während `floorplans` nur drei
-Musterwohnungspläne enthielt** (#729 hatte ihn umgekehrt in `floorplans`). ⇒ Immer **beide** Arrays
-nach dem `FF26888_…_WE_{n}`-Muster durchsuchen, sonst gilt die Einheit fälschlich als „nur
-Musterwohnung, kein einheitsgenauer Plan" und die Flächen-Gegenrechnung entfällt.
-⚠ **Die `Balkon-Terrassen-Fläche` aus `Stichworte` kann einen ZAHLENDREHER enthalten — die
-Flächen-Gegenrechnung entscheidet, nicht das Feld.** #731: Stichworte „10,52 m²", Grundriss
-„10,25 m²"; nur 10,25 reproduziert die beworbene Fläche (73,35 + 10,25 × 0,50 = 78,48 exakt),
-10,52 ergäbe 78,61. ⇒ Das Feld bleibt der Tie-Breaker gegen widersprüchliche Chips (#730), ist aber
-gegenüber dem Grundriss nachrangig, sobald die Summe nicht aufgeht.
-✅ **…aber der Dreher ist per ANZEIGE, nicht systematisch.** #732: Stichworte „9,78 m²" = Grundriss
-„9,78 m²", Gegenrechnung exakt (80,56 + 4,89 = 85,45). ⇒ Immer rechnen, aber nicht vorab annehmen,
-das Feld sei falsch.
-**Dritter Flächentyp der Charge, jetzt hart belegt — der 78,48-m²-Typ (H2-01-05 = #731; gilt
-geometriegleich für #624 H3-02-09 / 78,52 und #629 H2-02-09 / 78,48):** Wohnen 33,93 · Schlafen
-14,58 · Kind 10,66 · Flur 6,71 · Bad 5,80 · Abstell 1,67 = **73,35 m² beheizte Innenfläche**,
-+ Balkon 10,25 × 0,50 = 78,48. ⇒ echte Innen-Kaltmiete **22,77 EUR/m²** statt 21,28, und die
-Innenfläche kippt über die 75-m²-Kante in **Spalte C = 15,72 (10,52–19,00)**, also beide Spalten
-nennen. Bemerkenswert: dieser Typ hat mit **9,1 % Flur** den effizientesten Schnitt der Charge und
-einen **größeren Wohnbereich (33,93) als der 85,45-m²-Typ (32,74)** — der Flächenaufpreis der
-großen Einheiten kauft Schlafzimmer- und Flurfläche, nicht Wohnfläche.
-⚠ **Flächenfalle der Charge: der Balkon ist mit dem WoFlV-HÖCHSTFAKTOR 50 % in die „Wohnfläche"
-gerechnet.** Beim 85,45-m²-Typ (H1-01-04 = #632, H1-01-05 = #729, **bestätigt auch H1-03-16 = #732**):
-Zimmer summieren sich auf **80,56 m² beheizte Innenfläche** (Wohnen 32,74 · Schlafen 16,67 ·
-Kind 12,43 · Flur 11,20 · Bad 5,80 · Abstell 1,72), 85,45 − 80,56 = **4,89 = 9,78 m² Balkon × 0,50**.
-⇒ echte Innen-Kaltmiete **22,34 EUR/m²** statt 21,06 (bei #732s 1.890 EUR: **23,46** statt 22,12).
-Bei jeder weiteren Einheit dieselbe Gegenrechnung machen (Regelfall wären 25 % Anrechnung).
-Der Typ hat mit **11,20 m² Flur = 13,9 %** den ineffizientesten Schnitt der Charge und einen
-**kleineren Wohnbereich (32,74) als der 78,48-m²-Typ (33,93)** — der Flächenaufpreis kauft
-Schlafzimmer (12,43 + 16,67) und Flur, nicht Wohnfläche. Beide Flächen liegen in Mietspiegel-
-**Spalte D**, hier gibt es also keine Spaltenkante (anders als beim 78,48-Typ).
-⚠ **Der Grundriss-Typ kommt auf mehreren Etagen zu VERSCHIEDENEN Preisen vor — es gibt eine
-Etagen-Preisleiter.** #632/#729 (1. OG) 1.800 EUR vs. #732 (3. OG) **1.890 EUR** bei identischem
-Plan, identischer Fläche und identischen 285 EUR NK ⇒ **+90 EUR/Monat pro zwei Geschosse**
-(+1.080/Jahr, +2.160 über die 24-Monats-Mindestmietdauer). ⇒ Bei zwei Einheiten desselben Typs
-immer den Etagenaufpreis explizit ausrechnen und gegen die Himmelsrichtung stellen — #732 zahlt
-mehr **und** bekommt die Straßenseite statt der Hofseite von #729.
-✅ **„Dachgeschoss" ist in diesem Quartier KEINE Dachschräge.** #732 führt den Chip
-„Dachgeschoss, 3. Geschoss", die Häuser haben aber **Flachdächer mit Gründach + PV** (Luftbild
-„Hausaufteilung") und der einheitsgenaue Plan zeigt **keine 1-m-/2-m-Linie** ⇒ volle Raumhöhe auf
-der ganzen Fläche, keine WoFlV-Minderung. *Why:* sonst deckelt man Block C/A auf Verdacht.
-Nebenbefund: Bild „Hausaufteilung - **Visualisierung**" ist faktisch ein **Drohnen-Luftbild des
-äußerlich fertigen Quartiers** (Gründächer, PV, angelegte Höfe, parkende Autos) — gutes Indiz für
-den Baufortschritt (Block F), wegen der Beschriftung aber nur mit Vorbehalt zitieren.
-⚠ **Die 50-%-Anrechnung gilt auch für TERRASSEN der EG-Wohnungen — dort mit viel größerem Hebel.**
-#730 (H5-00-01, EG, 90,2 m² für 2.030 EUR): Zimmer summieren sich auf **79,71 m²** (Wohnen 32,37 ·
-Schlafen 16,40 · Kind 12,23 · Flur 11,13 · Bad 5,80 · Abstell 1,78); 79,71 + 21,06 Terrasse × 0,50
-= 90,24 ≈ 90,2 ⇒ **10,49 m² = 11,6 % der beworbenen Fläche sind Außenfläche** (Balkontypen: 5,7 %),
-echte Innen-Kaltmiete **25,47 statt 22,50 EUR/m²**. Daraus die stärkste Aussage des Reports:
-**#730 hat für +230 EUR/Monat 0,85 m² WENIGER beheizte Fläche als #729** — der Aufpreis kauft
-ausschließlich die +11,28 m² Außenfläche. Bei jeder EG-Einheit zuerst diese Gegenrechnung.
-⚠ **Spaltenkante: die großen Einheiten der Charge liegen bei ~90 m², also auf der Grenze D/E.**
-#730 mit 90,2 m² fällt formal in **Spalte E = 15,14 (10,90–17,86)**, auf Innenfläche gerechnet aber
-in **Spalte D = 16,73 (14,88–19,64)** — beide nennen (Faktor ~1,1 auf den Befund).
-**Quartiersgeometrie (Hausaufteilungsbild):** 2×3-Raster. **Westreihe** Haus 1 = Max-Planck-Str.
-**16** · Haus 2 = **15** · Haus 3 = **14**; **Ostreihe** Haus 4 = **16A** · Haus 5 = **15A** ·
-Haus 6 = **14A**. Haus 1 ist das Nordwest-Eckhaus. Max-Planck-Straße + blu-Parkplatz liegen
-**westlich der Westreihe**, der bewaldete Brauhausberg **östlich der Ostreihe**; dazwischen ein
-begrünter Innenbereich mit Fußwegen und einigen oberirdischen Stellplätzen.
-⇒ **Die Faustregel „Ost = Hof, West = Straße" gilt NUR für die Westhäuser 1–3.** Bei den
-**Osthäusern 4–6 zeigt West auf den Innenhof** (ruhig + Abendsonne = beste Kombination), Ost auf den
-Wald. Also immer erst über die Referenznummer `H{N}` die Reihe bestimmen, dann die Ausrichtung
-bewerten (#632 H1 West = Straße, #730 H5 West = Innenhof — gleiche Himmelsrichtung, gegenteilige
-Bewertung).
-⚠ **Das strukturierte `sections.location.address.street` nennt die generische Projektadresse
-(„Max-Planck-Straße 15"), nicht die Hausnummer der Einheit** — bei #730 (Haus 5 = 15A) stand die
-korrekte Nummer nur im SEO-`document.title`. Maßgeblich ist `H{N}` + der Hausaufteilungsplan.
-Fotolage: ~30 **echte** Fotos der fertigen **Musterwohnung** (Parkett, EBK, Bad) + ~10 Außen-
-Visualisierungen + ~9 Umgebungsfotos + ~9 Marketing-/Textkacheln; `classification` ist hier grob
-falsch, `medias.images[].description` dagegen korrekt beschriftet.
-Nicht mit **#430 (Havel Quartier / MIRU, Bj. 2022, allod)** verwechseln — gleicher Ortsteil, anderes
-Quartier, andere Vertragsfakten (dort Indexmiete + 12 Mon. Mindestlaufzeit).
-**Chargen-Ökonomie (Stand #732, Charge vollständig — Befund bestätigt):** nur die 78,5-m²-Einheiten
-(1.650–1.670) halten die reale Warmmiete (Kalt + NK + ~1,00–1,40 EUR/m² Heizkosten) mit
-**160–190 EUR Abstand unter dem 2.200-EUR-Cap**; die 85-m²-Einheiten zu 1.800 (#632/#729) landen
-**am** Cap; **#732 (1.890) und #730 (2.030) liegen darüber**. ⇒ Der Cap ist in dieser Charge der
-eigentliche Diskriminator, nicht der EUR/m² (der über alle Einheiten in engen 21,0–22,5 liegt).
-⚠ **#732 ist der Grenzfall, der die Regel schärft:** die **ausgewiesene** Warmmiete 2.175 liegt
-25 EUR UNTER dem Cap und sieht damit unauffällig aus — erst die fehlenden Heizkosten (+85–120 auf
-85,45 m²) kippen sie auf 2.260–2.295. ⇒ Bei dieser Charge **nie** die ausgewiesene Warmmiete gegen
-den Cap prüfen, immer erst die Heizkosten aufschlagen.
-**Block-A-Kalibrierung der Charge:** #731 3,9 (Warm klar unter Cap) · #729 3,5 (am Cap) ·
-#732 3,1 (60–95 über Cap) · #730 2,8 (210–260 über Cap).
-Gesamt-Scores: **#731 4,3 · #729 4,2 · #730 4,1 · #732 4,1**; übrige Blöcke sind über die ganze
-Charge praktisch konstant (B 4,6–4,7 · D 4,7 · F 4,4 · G 3,8 · H 4,2), d. h. **die Rangfolge
-entsteht fast ausschließlich in Block A**.
-Genutzt auf #624, #729, #730, #731, #732.
-*Why:* fünf Geschwistereinheiten (#624/#628/#629/#630/#632) laufen als Einzel-Evaluationen; ohne den
-Anker recherchiert jede Mietspiegelfeld, § 556f, Anbieter und Lage neu — und übernimmt womöglich #430s
-Indexmiete-Fakten, die für dieses Quartier unbelegt sind.
-
-## Ortsteil-Anker: **Jägervorstadt (14469) — Quartier Pappelallee/Voltaireweg, Wohnbau GmbH, Bj. 2013**
-Neubauquartier im „Villenkolonie"-Duktus zwischen Voltaireweg und Pappelallee (begrünter Innenhof mit
-altem Bergahorn, Tiefgarage unter den Häusern, Aufzug bis in die TG, Fernwärme + Fußbodenheizung,
-Eichenparkett, EBK, bodengleiche Duschen, Videogegensprechanlage). Vermieter **Wohnbau GmbH**
-(Bonn/München, IS24 3,9★ / 1.297 Bewertungen, verifiziert), Objektreferenzen im Schema `1.1503.4.NN`
-→ **Portfolio-Quartier, es kommen weitere Einheiten in den Scan**; Bewerbung läuft immer über
-**immomio** (`tenant.immomio.com/apply/…`), nie über ein Kontaktformular.
-Fixe Werte, die man nicht neu recherchieren muss: **Baujahr 2013**, Objektzustand *vollständig
-renoviert*, **Verbrauchsausweis Klasse B / 65 kWh(m²·a)** (PDF liegt am Exposé), Kaution exakt
-3 NKM, keine Provision, **TG-Stellplatz optional 80,00 EUR/mtl.** (nicht Pflicht — nicht in die
-Warmmiete rechnen, aber als Variante nennen). Preisniveau 2026: **~15,4 EUR/m² kalt**,
-NK 1,76 + Heizkosten 2,09 = 3,85 EUR/m² warm-Aufschlag.
-**Die eigentliche Falle ist das Baujahr 2013 an der § 556f-Grenze:** erstmals bezugsfertig **vor dem
-01.10.2014** ⇒ die Neubauausnahme greift **nicht**, die **Mietpreisbremse ist anwendbar** — obwohl
-sich das Quartier wie ein Neubau liest. Mietspiegelfeld **2013–2020 · alle EEK**; bei >90 m² Spalte E
-= 12,39 (10,31–14,00) ⇒ 15,4 liegt +24 % über dem Mittel und +10 % über dem Oberwert; zulässig am
-Mittelwert 13,63, am Oberwert 15,40 — d. h. **nur bei maximaler Spanneneinordnung gerade zulässig**.
-Die wohnwerterhöhenden Merkmale (FBH, Parkett, Aufzug, EBK, oft **zwei** Balkone, G-WC, Wanne +
-bodengleiche Dusche, EEK B, Fernwärme) sind genau die Begründung dafür → im Report als
-**§ 556g Abs. 3 Auskunft (Vormiete + Spanneneinordnung)** formulieren, nicht als Verstoß und nicht
-als „compliant". Angebotsseitig ist es unauffällig: IS24-`priceBar` adressgenau 10,50–15,70,
-64. Perzentil. Genutzt auf #584 (expose 169976631, Pappelallee 49, 90,93 m², 4,75/5).
-*Why:* „Neubauquartier ⇒ § 556f, Mietpreisbremse egal" ist hier falsch (ein Jahr zu früh), und ohne
-den Anker kostet jede weitere Einheit dieses Quartiers erneut Baujahr-, EEK- und Vermieterrecherche.
-
-## Ortsteil-Anker: **Fahrland (14476, Nördliche Ortsteile) — Ketziner Str. = Bauträger Holger Behnke**
-Dorf-Ortsteil ~11 km nördlich der Innenstadt an der B2 Richtung Ketzin/Nauen. **Kein Bahn-/Tram-,
-nur Busanschluss** (609/638, ~25–35 min zum Hbf) → autoabhängig; Block B landet für „Potsdam als
-preferred area" realistisch bei **3,5**, nicht bei 4,5. Nach Golm ~10–15 min mit dem Auto.
-**Ketziner Str. 100–108 = Neubauquartier Holger Behnke**, 3 Mehrfamilienhäuser à 3 Geschosse,
-**42 WE / 3.300 m², Fertigstellung Sommer 2025 geplant**, 2- bis 4-Zimmer; **alle EG-Wohnungen mit
-Terrasse, alle OG-Wohnungen mit Balkon, EG barrierefrei** — daneben zwei ältere Behnke-Blöcke.
-Nutzen: (a) das ist die einzige belastbare Balkon/Terrasse-Aussage, wenn die IS24-Ausstattungsmaske
-leer ist; (b) es klärt die § 556f-Frage — Erstbezug 2025 ⇒ Mietpreisbremse nicht anwendbar, ein
-Altblock ⇒ Feld 1991–2008 (Spalte C 9,28–9,45, zulässig ~10,4). Beide Lesarten nennen, Baujahr steht
-auf keiner Anzeige. Preisniveau: ~11–12 EUR/m² kalt kam dort 2026 vor (unter dem Angebotsanker).
-Genutzt auf #563. *Why:* ohne den Anker kostet jede Fahrland-Wohnung zwei Websuchen, und die
-unausgefüllte `obj_balcony: n`-Maske einer Mieternetzwerk-Anzeige bleibt unentscheidbar.
-**Nachtrag #594: es gibt in Fahrland eine dritte, mittlere Baualtersklasse — Feld 2013–2020.** Die
-bisherigen zwei Lesarten (Behnke-Erstbezug 2025 ⇒ „ab 2021" + § 556f · Altblock ⇒ 1991–2008) decken
-den Bestand nicht ab: #594 zeigte per Foto ein modernes 3-geschossiges MFH mit Satteldach, Klinker-
-sockel, Lochblech-Balkonbrüstungen, bodengleicher Dusche, Wand-WC mit Vorwandspülkasten, Vinyl-
-Dielen und integrierten Rollladenkästen, in einem jungen Quartier mit Reihenhäusern und frisch
-gepflanzten Bäumen — also **ca. 2015–2020**, nicht 1991–2008 und nicht 2025. Richtiges Feld bei
-71 m² (Spalte C) = **12,06 (11,23–12,74)**, zulässig 13,27; die Anzeige lag mit 12,32 EUR/m² kalt
-**+2 % über dem Mittelwert und innerhalb der Spanne**. Die 1991–2008-Lesart (9,28, zulässig 10,21)
-hätte daraus fälschlich „+33 %, § 556g-Rüge" gemacht. Und: Erstbezug nach dem 01.10.2014 ⇒ § 556f,
-Mietpreisbremse ohnehin nicht anwendbar. Preisniveau Fahrland 2026 damit **11–12,3 EUR/m² kalt** im
-Bestand, ~16,9 EUR/m² bei Neubau-Angeboten (Vergleich: Seeburger Chaussee 2, 75 m², 3 Zi, 1.265 EUR).
-*Why:* der Ortsteil-Anker bot nur die beiden Extremklassen an — bei einer Anzeige ganz ohne Baujahr
-und Energieausweis entscheidet allein das Bildmaterial, welches der drei Felder gilt (vgl. die
-Gegenprobe-Regel oben), und zwischen 9,28 und 15,72 liegt Faktor 1,7.
-**Nachtrag #626/#495: vierter Fixpunkt = `Gartenstraße 17` (MFH im Fahrlander Ortskern, Bj. 1996,
-Verbrauchsausweis C / 83 kWh, Fernwärme, 4 Etagen mit Personenaufzug, Tiefgarage, 94-m²-DG-Wohnungen
-mit Balkon + Keller + Gäste-WC).** Feld **1991–2008 · A+/A/B/C · Spalte E (>90 m²) = 9,91
-(8,71–12,70), zulässig 10,90**; IS24-`priceBar` adressgenau **8,60–12,50 EUR/m²** (Gesamtband
-7,10–15,20). Baujahr steht hier ausnahmsweise im Exposé — nicht raten. **Block B für diese Adresse:
-3,8, nicht die 3,5 des Ketziner-Str.-Ankers** — Gartenstraße liegt im gewachsenen Ortskern mit
-Nahversorgung/Kita/Schule fußläufig, während Ketziner Str. am Ortsrand hängt; #495 und #626 (dieselbe
-Wohnung) sind beide mit 3,8 gescort, das ist der Referenzwert für den Ortskern.
-*Why:* der Fahrland-Anker bot bisher nur Ortsrand-Neubau und „Bestand ohne Baujahr" an — dieses Haus
-ist der einzige belegte 1990er-Fixpunkt, und ohne die B-Differenzierung schwankt derselbe Ortsteil
-zwischen 3,5 und 3,8 je nachdem, welcher Anker zuerst gelesen wird.
-**Nachtrag #698: fünfter und bestbelegter Fixpunkt = `Pastor-Moritz-Str. 5/7` — Semmelhaack-Quartier,
-Bj. 2016.** Das ist die Adresse hinter der 2013–2020-Vermutung von #594 (dieselbe Wohnung, Whg. 1.07):
-3-geschossiges MFH mit Satteldach, geklinkertem Sockelgeschoss (= Keller mit Fenstern),
-Glas-Balkonbrüstungen, **Personenaufzug −1…3**, Fernwärme, **Verbrauchsausweis B / 60 kWh/(m²·a)**,
-Vinyl in Holzoptik, Duschbad. Baujahr steht dort ausnahmsweise im Exposé — nicht mehr aus Fotos raten.
-Feld **2013–2020 · Spalte C (>60–75 m²) = 12,06 (11,23–12,74)**, zulässig 13,27; Aufruf 08/2026
-**12,59 EUR/m² kalt (900,00 auf 71,50 m²)** = +4,4 % über Mittel, innerhalb der Spanne. **§ 556f greift
-(Erstbezug 2016) ⇒ Mietpreisbremse dauerhaft nicht anwendbar**, also auch keine Deckelung der
-Wiedervermietungsmiete — hier direkt belegt: Vormiete 875,00 → neu 900,00 (+2,9 %).
-Adressgenaue IS24-`priceBar`: **8,90–13,00 EUR/m² (ähnliche Angebote), Gesamtband 7,40–15,70**.
-**Block B = 3,8** (Ortskern-Referenz, ~250–300 m nördlich des Dorfkerns, fußläufig Einkaufsmarkt/
-Grundschule/Kita), nicht die 3,5 des Ketziner-Str.-Ortsrandankers und nicht die 3,5, die #594 mangels
-Adresse vergeben musste. **Warme Seite dort auffällig: NK 1,68 + Heizkosten 2,52 = 4,20 EUR/m²** —
-die Heizkostenvorauszahlung ist bei 60 kWh/(m²·a) Fernwärme ~2× des erwarteten Verbrauchs (≈47–57
-EUR/Mon.), die NK dagegen unter dem 2,50–3,50-Benchmark ⇒ beide Abrechnungen als Kontaktfrage setzen.
-*Why:* Fahrland-Anzeigen kamen bisher ohne Baujahr herein und mussten übers Bildmaterial in eine von
-vier Klassen geraten werden; diese Adresse ist jetzt hart belegt (Baujahr, EEK, Aufzug, Keller,
-Preisniveau, Block-B-Wert) und deckt das ganze Semmelhaack-Quartier ab.
-
-## Ortsteil-Anker: **Golm (14476)** — drei Baualtersklassen, kein Ortsteil-Reflex möglich
-Golm ist der **Top-Präferenz-Ortsteil des Profils und der Standort unseres Tauschangebots**
-(In der Feldmark 29, Bj. 2024) — es kommen laufend Golm-Anzeigen in den Scan, meist ohne Baujahr.
-Es gibt dort **keinen dominanten Gebäudetyp**: Dorfkern-/Vorkriegsbestand, 1990er-/2000er-Ergänzungs-
-bauten rund um Uni-Campus und Bahnhof, und die Neubauquartiere der 2020er (Feldmark u. a.). Der
-Mietspiegel-Befund kippt entsprechend komplett — bei 75–90 m² (Spalte D): **1991–2008 = 9,01
-(8,27–9,69)** · **2013–2020 = 12,34 (10,90–14,23)** · **ab 2021 = 16,73 (14,88–19,64)**, also Faktor
-1,9. ⇒ Immer **alle plausiblen Felder rechnen und nennen**, Baujahr als Kontaktfrage setzen, und die
-Klasse per Bildmaterial eingrenzen (vgl. die Foto-Gegenprobe oben; Wand-WC mit Vorwandinstallation +
-großformatige Fliesen + Kunststofffenster mit integrierter Jalousie ⇒ frühestens 2010er).
-Infrastruktur für Block B: Bahnhof Potsdam-Golm (RB21/RB22) ~10 Min. zum Hbf, Uni-Campus/Max-Planck
-fußläufig, Nahversorgung vorhanden aber dünn ⇒ realistisch **4,5–4,8**, nicht 5,0, solange keine
-genaue Adresse dransteht. Preisniveau 2026: 14,71 EUR/m² kalt für 85 m² kam vor (#597) — das liegt
-~5 % **unter** dem stadtweiten Angebotsanker 15,51 und ist für Golm unauffällig.
-*Why:* ohne den Anker wird für jede Golm-Wohnung neu recherchiert, und der naheliegende Reflex
-„Golm = Uni-Neubau ⇒ ab 2021 ⇒ § 556f, Bremse egal" ist bei zwei von drei Feldern schlicht falsch.
-
-### Unterher: Quartier **„In der Feldmark"** (Golm, 14476) — eigener Sub-Anker
-Das ist **unsere eigene Straße** (`swap_offer` In der Feldmark 29, Bj. **2024**, DIBAG Hausverwaltung
-für **Bayerische Städte- und Wohnungsbau GmbH & Co. KG**). Anzeigen von dort tauchen wiederholt auf
-(#660 als Wohnungsswap-Tauschanzeige, Headline `Wohnungsswap - In der Feldmark`) und nennen **nie**
-ein Baujahr oder einen Energieausweis. Was man deshalb nicht neu recherchieren muss:
-- **Baualtersklasse = ab 2021** ⇒ Mietspiegelfeld je m²-Spalte, und **§ 556f BGB ⇒ Mietpreisbremse
-  nicht anwendbar** (trotzdem beide Begründungen in den Report schreiben). Der Unterschied ist groß:
-  *ab 2021 · Spalte C* = **15,72 (10,52–19,00)** vs. *2013–2020 · C* = 12,06 (11,23–12,74).
-- **Preisregime (EUR/m² kalt):** eigene Wohnung 1.025,25 ÷ 54,19 = **18,92** · #660 1.280 ÷ 70,53 =
-  **18,15**. ⇒ ~18–19 EUR/m² ist dort normal und **kein Scam-Signal**, liegt aber über dem
-  Profil-Cap `max_price_per_m2: 18` und ~15 % über dem Mietspiegel-Mittelwert.
-- **Nebenkosten ≈ 3,50–3,55 EUR/m²** (eigene 189,68 ÷ 54,19 = 3,50; #660 250 ÷ 70,53 = 3,54).
-  Deckungsgleiche NK sind zugleich der beste Beleg, dass eine Anzeige wirklich aus diesem Quartier
-  stammt.
-- **⚠ KORRIGIERT 2026-08-23 (#661): Das Quartier HAT Keller.** Die frühere Regel „kein
-  Kellergeschoss im Quartier, Block E systematisch 2,0" ist **falsch** und darf nicht mehr
-  angewandt werden. Beleg: dieselbe Wohnung wie #660, auf Immowelt ein zweites Mal über
-  **Tauschwohnung.com** inseriert (`expose/3a7cb8ce-…`), führt im **vollständigen** Merkmale-Block
-  (kein „Alle N Merkmale anzeigen" ⇒ nicht abgeschnitten) ausdrücklich den Chip **`Keller`** —
-  neben `Barrierefrei`, `Einbauküche`, `Bad mit Dusche`, `Garten`, `Erdgeschoss`,
-  `Bodenbelag: Fliesen, Parkett`. Die Wohnungsswap-Variante desselben Objekts zeigte nur **einen**
-  Chip („Erdgeschoss") und 0 HTML-Treffer für `Keller` — die Merkmale waren dort schlicht nicht
-  gepflegt, nicht abwesend.
-  ⇒ **Für Feldmark-Anzeigen den Keller als vorhanden/offen behandeln, nicht als bestätigt fehlend.**
-  Unsere eigene Wohnung (Nr. 29) hat laut `swap_offer.lacks` keinen — das ist eine Eigenschaft
-  *dieser Einheit*, nicht des Quartiers; Kellerabteile sind offenbar nicht jeder Wohnung zugeordnet.
-  Kontaktfrage bleibt: lässt sich für Nr. 29 ein Abstellraum nachmieten?
-  *Why:* die alte Regel hätte jede künftige Feldmark-Anzeige um einen ganzen Block-E-Punkt zu
-  niedrig gescort — und zwar mit dem Etikett „vierfach bestätigt".
-- **Vertragsform:** unser Vertrag ist **Indexmiete (§ 557b BGB)**; bei Nachbarwohnungen dasselbe
-  annehmen und erfragen. Zusammen mit § 556f heißt das: bei Mieterwechsel ist die Miete **frei neu
-  setzbar** — eine niedrige Bestandsmiete in einer Tauschanzeige ist keine Preiszusage.
-- **Block B:** REWE und Bahnhof Potsdam-Golm fußläufig, Bushaltestelle direkt — das ist die *gute*
-  Ecke Golms, also **4,8** statt der generischen 4,5.
-- **Sonderweg statt Tausch:** wird dort eine Wohnung frei, sind wir Bestandsmieter **desselben**
-  Vermieters ⇒ interner Wohnungswechsel über DIBAG (Carola Dembicki / Melanie Heinke) ist der
-  bessere Pfad als ein Tausch — er braucht keine Tauschpartner-Zustimmung. Immer in „Next Steps".
-*Why:* #660 wäre sonst als reiner Tausch-Discard abgelegt worden, obwohl die eigentliche Chance ein
-Nicht-Tausch-Pfad im eigenen Haus ist — und Baujahr/Keller/Indexmiete werden dort sonst jedes Mal
-als „unbekannt" gescort, obwohl sie firsthand feststehen.
-
-## Ortsteil-Anker: **Eiche (14469, Potsdam Nord)** — Nachbar-Ortsteil von Golm, Einfamilienhaus-Prägung
-Kommt laufend in den Scan (#100, #118, #137, #145, #169, #170, #249, #298/#299/#331, #802) und grenzt
-direkt an **Golm**, den Top-Präferenz-Ortsteil — Block B daher regelmäßig **4,5** (preferred, aber
-ÖPNV nur per **Bus 609/638**, ~8 Min. zum Bahnhof Golm/Sanssouci, ~20 Min. zum Hbf).
-⚠ **Exposé-Lagetexte behaupten dort gern eine „S-Bahn-Linie S7" — Eiche hat KEINEN S-Bahn-Anschluss**
-(die S7 endet in Potsdam Hbf). Das ist generierter Boilerplate, nie als Standortvorteil werten.
-Bebauung: Misch aus Ein-/Zweifamilien- und kleinen Mehrfamilienhäusern, dazu Neubau-Inseln an der
-Kaiser-Friedrich-Straße (#161/#182: Bj. 2024, 18,04 EUR/m²) — **kein Ortsteil-Reflex möglich, Baujahr
-immer erfragen**. Die Spannweite der beobachteten Kaltmieten ist entsprechend extrem:
-**~10,0 EUR/m² (Bestand, #137/#145/#249)** bis **18,04 EUR/m² (Neubau 2024)**.
-Adressgenaue `priceBar` Kaiser-Friedrich-Str. 8 (09/2026): ähnlich **8,50–12,60**, gesamt 7,00–15,30 —
-also rund **19 % unter** dem stadtweiten Angebotsanker 15,51, d. h. Eiche ist im Bestand die *günstige*
-Ecke Potsdams und ein Angebot am oberen Bandrand ist dort trotzdem kein Köderpreis.
-*Why:* ohne den Anker wird für jede Eiche-Anzeige neu recherchiert, und der „S7"-Satz im Exposé hat
-Block B schon einmal fälschlich nach oben gezogen.
-
-## Umland: **Beelitz-Heilstätten** — eigener Mietanker + die 20-Minuten-Lüge der Exposés
-Der Scan liefert laufend Neubau-**Reihenhäuser zur Miete** aus dem QUARTIER BEELITZ-HEILSTÄTTEN
-(#207, #326, #336, #486, #611). Zwei Dinge, die sonst jedes Mal neu recherchiert werden:
-- **Kein qualifizierter Mietspiegel** (Stadt Beelitz, Potsdam-Mittelmark); Beelitz steht **nicht** auf
-  der Liste der 36 seit 01.01.2026 regulierten Brandenburger Gemeinden. Und die Häuser dort sind
-  durchweg Bj. 2022/2023 ⇒ **§ 556f BGB, Mietpreisbremse ohnehin nicht anwendbar**. Trotzdem beide
-  Begründungen in den Report schreiben (siehe Havelland-Abschnitt: nie bloß „not applicable").
-- **Unser eigener Angebotsanker Neubau-Reihenhaus/DHH (Kaltmiete EUR/m²):** #336 12,49 (127,29 m²) ·
-  #326 12,88 (144,76) · #486 13,00 (144,76) · #207 14,95 (106,97) · **#611 17,02 (105,16)**. Klarer
-  Größeneffekt — die ~105-m²-Häuser liegen 15–30 % über den ~145-m²-Häusern. Adressgenaue Gegenprobe
-  bleibt die IS24-`priceBar`: #611 lag mit 1.790 € im **58. Perzentil** des Bandes 990–1.870 €, also
-  marktkonform trotz des hohen EUR/m².
-- **Pendelzeit: die Exposés behaupten regelmäßig „Potsdam 20 min mit dem ÖPNV" — das ist falsch.**
-  Der RE7 hält am Bahnhof Beelitz-Heilstätten (im Quartier) und fährt Richtung **Wannsee/Berlin**,
-  nicht über Potsdam Hbf; realistisch **~34 min bis Potsdam Hbf mit Umstieg Wannsee** (so bereits auf
-  #336/#486 recherchiert), Auto ~25 min / 24 km. Berlin Hbf ~38 min direkt stimmt dagegen.
-  Block B deshalb nie auf die Exposé-Angabe stützen.
-- **Anker für WOHNUNGEN in Beelitz (nicht Häuser), 2026:** Angebotsmarkt-Gemeindeschnitt
-  **13,37–13,48 EUR/m²** (günstige Lagen ~12,27, gefragte ~14,96) — nur Angebotsmieten. Als
-  ortsüblicher Proxy mangels Mietspiegel das gleichaltrige **Potsdamer** Feld ziehen und als
-  solchen kennzeichnen (#605: Bj. 1999, EEK D, 65 m² ⇒ 1991–2008 · D–G · Spalte C = 9,45
-  (8,20–11,51) ⇒ 12,25 EUR/m² lagen +30 % über dem Mittel und über dem Oberwert, während sie
-  gegen den Beelitzer Angebotsanker *unter* Markt liegen). Beide Zahlen nennen — sonst liest sich
-  derselbe Preis entweder als Schnäppchen oder als Wucher.
-- **Ortsteil `Fichtenwalde` (14547) ist NICHT Beelitz-Heilstätten:** ~20–22 km SW von Potsdam,
-  ~25 km von Golm, **kein Bahnhof im Ortsteil** (RE7 erst in Beelitz-Heilstätten, ~5 km, und
-  Richtung Wannsee), Bus nur **Stundentakt** nach Potsdam, A9-AS Beelitz-Heilstätten vor der Tür
-  ⇒ autoabhängig, Stellplatz faktisch Pflicht. Nahversorgung/Kita/Grund- und Oberschule im Ort,
-  Naturpark Nuthe-Nieplitz. **Wohnungs-Block B = 2,0** (#605).
-- **Block-B-Kalibrierung:** vor der Profiländerung vom 2026-08-11 bekam Beelitz 2,0–2,5 (#336, #486).
-  Seitdem ist Beelitz Teil des vom Nutzer akzeptierten **RE7-Korridors** (bislang nur in der
-  *Hauskauf*-Suche, sinngemäß aber auf Haus-**Mieten** übertragbar) mit der Vorgabe „unter
-  Werder/Teltow, aber nicht mehr außerhalb des Suchgebiets" ⇒ **3,0** ist der aktuelle Wert (#611).
-  Bei Wohnungen (nicht Häusern) bleibt es beim alten, niedrigeren Ansatz.
-*Why:* fünf Beelitz-Bewertungen haben denselben Mietspiegel-, Pendel- und Block-B-Streit je einzeln
-neu ausgefochten, und die 20-Minuten-Angabe aus dem Exposé hätte Block B um ~1 Punkt zu hoch gesetzt.
-
-## Umland: **Falkensee/Schönwalde-Glien/Brieselang (Berliner Speckgürtel) unterliegen seit 01.01.2026 der Mietpreisbremse**
-Die neue Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung (Kabinett 25.11.2025) gilt ab
-**01.01.2026 für 36 statt bisher 19 Gemeinden** — neu dabei u. a. **Falkensee**, Blankenfelde-Mahlow,
-Eichwalde, Glienicke/Nordbahn. **Im Havelland sind es genau drei: Falkensee, Schönwalde-Glien (neu),
-Brieselang (neu)** — also praktisch jede Miete, die aus dem Havelland in den Scan läuft. Erfasst sind nur Gebäude mit **Baufertigstellung vor 2014** (Neubau
-ausgenommen); zulässig = ortsübliche Vergleichsmiete **+10 %**, Kappungsgrenze 15 % in 3 Jahren.
-→ Bei jeder Miete im Havelland/Speckgürtel: **nicht mehr „Mietpreisbremse: not applicable"** schreiben
-(so noch in Report #246 vom 02.07.2026 — das war bereits falsch). Falkensee hat **keinen qualifizierten
-kommunalen Mietspiegel**, die ortsübliche Vergleichsmiete ist also nur über Vergleichsobjekte belegbar
-→ im Report als **§ 556g Abs. 3 BGB Auskunftshebel (Vormiete + Baujahr erfragen)** formulieren, nicht als
-Ausschlussgrund. Marktanker Falkensee 2026 (nur *Angebots*mieten!): Häuser ~**16,03 EUR/m²**, Wohnungen
-~13,50–15,70 EUR/m². Beste adressgenaue Quelle bleibt das IS24-`PRICE_INFO.priceBar`
-(`minSimilarPrice`–`maxSimilarPrice` + Perzentil) direkt aus der Mobile-API. Genutzt auf #506
-(Rotkehlchenstr., 14,29 EUR/m², 57. Perzentil).
-Marktanker **Schönwalde-Glien** 2026 (ebenfalls nur *Angebots*mieten, kein qualifizierter Mietspiegel):
-Gemeindeschnitt ~**14,02 EUR/m²** (Spanne 12,69–15,48), Häuser ~**13,19 EUR/m² (150 m²) bis 14,55 EUR/m²
-(100 m²)**.
-**Und: den Angebots-Anker nie allein den Scam-Check „>20 % unter Mietspiegel" auslösen lassen.** Auf #507
-(Burgunderweg 5, 10,43 EUR/m²) lagen −25 % ggü. diesem Anker vor, aber die `priceBar` stellte das Angebot
-ins **23. Perzentil INNERHALB** des adressgenauen Bandes 1.100–1.820 EUR — erklärt durch Bj. 1998,
-Energieklasse E, 1 Vollbad. Angebotsmieten sind nach oben verzerrt; ein High-Signal darf nur feuern, wenn
-AUCH die `priceBar` das Angebot unter `minSimilarPrice` drückt.
-**Why:** ohne diese Notiz wird für jede Falkensee-Miete erneut recherchiert — und die naheliegende
-Annahme „Brandenburger Kleinstadt → keine Mietpreisbremse" ist seit 2026 schlicht falsch.
-
-### Die **vollständige** 36-Gemeinden-Liste (ab 01.01.2026), damit sie nicht jedes Mal neu gesucht wird
-`_shared.md` nennt bisher nur „u. a. Falkensee, Blankenfelde-Mahlow, Eichwalde, Glienicke/Nordbahn"
-plus die drei Havelländer. Hier die ganze Liste (Quelle: MIL Brandenburg / Kabinettbeschluss
-25.11.2025; „(neu)" = ab 2026 erstmals erfasst):
-- **Dahme-Spreewald:** Bestensee (neu), Eichwalde, Königs Wusterhausen (neu), Schönefeld (neu),
-  Schulzendorf, Wildau (neu), Zeuthen (neu)
-- **Havelland:** Brieselang (neu), Falkensee, Schönwalde-Glien (neu)
-- **Märkisch-Oderland:** Altlandsberg (neu), Fredersdorf-Vogelsdorf (neu), Rehfelde (neu),
-  Strausberg (neu)
-- **Oberhavel:** Birkenwerder, Glienicke/Nordbahn, Leegebruch (neu), Mühlenbecker Land,
-  Oranienburg (neu)
-- **Oder-Spree:** Erkner (neu), **Grünheide (Mark) (neu)**, Woltersdorf
-- **Potsdam-Mittelmark:** Kleinmachnow, Nuthetal (neu), Stahnsdorf, Teltow, Werder (Havel) (neu)
-- **Teltow-Fläming:** Blankenfelde-Mahlow, Großbeeren, Ludwigsfelde (neu), Zossen (neu)
-- (+ Potsdam selbst und die übrigen Altfälle der 19er-Liste)
-
-**Nicht auf der Liste** und daher regelmäßig als Gegenprobe gebraucht: **Beelitz**, Michendorf,
-Borkheide, Brück, Nauen, Ketzin, Brandenburg an der Havel, **Schwielowsee** (Caputh/Ferch/Geltow).
-
-### Gemeinde **Schwielowsee** (Caputh / Ferch / Geltow, 14548, Potsdam-Mittelmark) — Komplettsatz
-Läuft regelmäßig in die Potsdam-Wohnungssuche ein, weil Caputh nur ~8 km von Golm liegt.
-- **Mietpreisbremse: NICHT anwendbar, und zwar aus zwei unabhängigen Gründen** — (1) Schwielowsee
-  steht **nicht** auf der 36-Gemeinden-Liste ab 01.01.2026 (aus PM nur Kleinmachnow, Nuthetal,
-  Stahnsdorf, Teltow, Werder (Havel)); (2) bei Baujahr ab 2014 greift zusätzlich **§ 556f BGB**.
-  Beide nennen, sonst liest es sich, als gäbe es noch einen Hebel.
-- **Kein qualifizierter Mietspiegel.** Ortsüblicher Proxy = gleichaltriges **Potsdamer** Feld,
-  ausdrücklich als Proxy kennzeichnen (für Bj. 2013–2020, >90 m²: 12,39 (10,31–14,00)).
-- **Angebotsanker 2026:** Gemeindeschnitt Wohnungen **≈ 12,42 EUR/m²** (Q1/2026, +3,3 % ggü. 2025);
-  **gefragte Wohnlagen ≈ 17,56 EUR/m²**, günstigere Lagen ≈ 14,40. Die Spreizung ist groß — ein
-  Preis nahe 12 ist in Caputher Premiumlage **günstig**, nicht verdächtig.
-- **Verkehr:** Bahnhof **Caputh-Schwielowsee**, **RB23 ca. 13 Min. nach Potsdam Hbf, aber nur
-  Stundentakt**; Bus 607/613. Nach **Golm** immer mit Umstieg in Potsdam Hbf ⇒ ~30–40 Min.
-  ⇒ faktisch autoaffin, deshalb **immer nach Stellplatz fragen** (in Exposés hier oft gar nicht
-  erwähnt). Zweiter Bahnhof Caputh-Geltow liegt auf derselben Linie.
-- **Block B = 3,0** für Wohnungen: außerhalb des Suchgebiets (Nachbargemeinde, `acceptable_areas`
-  leer ⇒ *kein* Hard Blocker), aber die Lagequalität (Schwielowsee-Ufer, Caputher Gmünd mit Fähre,
-  volle Nahversorgung im Ort) trägt gegen die Gebietsabweichung an. Kalibriert auf #714.
-*Why:* ohne diesen Block wird für jede Caputh-Wohnung Regulierungsstatus, Proxy-Feld und
-RB23-Taktung neu recherchiert — und die Reflexannahme „Brandenburger Nachbargemeinde → reguliert
-wie Werder" ist hier falsch.
-
-### Gemeinde **Stahnsdorf** (14532, Potsdam-Mittelmark) — Komplettsatz (#799, 2026-09-15)
-Läuft in die Potsdam-Wohnungssuche ein (Immowelt-Radius), liegt aber auf der **Berliner** Seite von Potsdam.
-- **Mietpreisbremse: Gemeinde REGULIERT** (36er-Liste ab 01.01.2026) — Gegenteil von Schwielowsee.
-  Bei Neubau (Bj. ab 2014) trotzdem kein Hebel wegen **§ 556f BGB**; beides nennen.
-- **Kein qualifizierter Mietspiegel.** Proxy = gleichaltriges Potsdamer Feld, als Proxy kennzeichnen
-  (ab 2021, >90 m²: 15,14 (10,90–17,86)).
-- **Angebotsanker 2026:** Ø ~16,5 EUR/m² (Spanne ~12,7–21,1; miet-check 16,54). immoportal „Neubau ab
-  2021 26,04" ist unplausibel hoch — nicht als Anker verwenden.
-- **Verkehr:** keine Bahn im Ort; **Bus 601 direkt Potsdam Hbf ~32 Min, 20-Min-Takt** (regiobus PM);
-  Richtung Berlin per Bus zum Bhf Teltow (S25/S26, RE3). **Golm ≈ 50–55 Min** mit Umstieg Hbf; Auto ~30 Min.
-- **Block B = 2,5** für Wohnungen: außerhalb Suchgebiet (kein Hard Blocker, `acceptable_areas` leer),
-  unter Schwielowsee (3,0) kalibriert — weiter von Golm, keine Bahn, Orientierung Richtung Berlin.
-*Why:* Stahnsdorf steht in der Kauf-Suche als acceptable_area, NICHT in der Miet-Suche — ohne diesen
-Block wird der Status verwechselt und Regulierung/601-Takt neu recherchiert.
-**Merke außerdem:** § 549 Abs. 2 Nr. 1 BGB nimmt **Wohnraum zum vorübergehenden Gebrauch**
-(möbliert/auf Zeit/Monteur) ohnehin aus den §§ 556d ff. heraus — bei solchen Anzeigen also
-beide Begründungen nennen (Gemeinde reguliert ja/nein **und** § 549), nie nur eine.
-⚠ **Und es können DREI Gründe gleichzeitig greifen — dann alle drei nennen, sonst liest sich der
-Report so, als gäbe es noch einen Hebel.** #725 (Potsdam West, möbliertes **Hausboot**, Bj. 2022,
-20,00 EUR/m²): (1) Potsdam ist reguliert, aber **§ 556f BGB** (Erstbezug nach 01.10.2014) setzt die
-Bremse aus; (2) **§ 549 Abs. 2 Nr. 1** wegen möbliert (hier abgeschwächt durch 12 Monate
-Mindestmietdauer); (3) der Mietspiegel erfasst **(teil-)möblierte** Wohnungen ausdrücklich nicht und
-kennt **für ein Hausboot/Floating Home gar keine Kategorie** (kein Baualter-/Flächenfeld passt).
-⇒ Ergebnis sauber formulieren als „**kein Preishebel vorhanden — die Miete ist teuer, aber
-rechtlich unangreifbar**", und die Mietspiegel-/Angebotsanker nur noch als *indikativen*
-Marktvergleich zitieren (#725: +32 % über Mittelwert ab-2021 Spalte E 15,14, +29 % über dem
-Angebotsanker 15,51). *Why:* mit nur einem genannten Grund schreibt man „§ 556g Abs. 3
-Auskunftshebel" in die Next Steps und schickt den Nutzer auf eine Verhandlung, die es nicht gibt.
-*Why:* #640 (Grünheide) kostete eine WebSearch nur, um festzustellen, dass die Gemeinde seit 2026
-reguliert ist; die Verordnung wird jährlich neu erlassen → **jeden Januar gegenprüfen**.
-→ **Promotion-Vorschlag:** diese Liste gehört in `modes/_shared.md`, Abschnitt „Brandenburg
-Umland — regulated since 01.01.2026", der bisher nur „u. a." schreibt.
-Stabile Jahresdaten → **Kandidat zur Promotion nach `modes/_shared.md`** (Mietpreisbremse-Abschnitt),
-wenn der Mietspiegel 2026 sich bewährt; Neuauflage voraussichtlich 2028.
-
-## Berlin: **Berliner Mietspiegel 2026** — in 30 s per curl + pdftotext, keine WebFetch-Krücke
-Gebraucht wird das regelmäßig, weil die Vonovia-„Potsdam"-Suche (perimeter 30 km) laufend
-**Berliner** Wohnungen liefert (Kladow/Spandau, Zehlendorf, Staaken) — und Berlin ist per
-Mietenbegrenzungsverordnung **flächendeckend reguliert** (keine Ausnahme für Randlagen).
-
-    curl -sA "Mozilla/5.0" -o t.pdf https://mietspiegel.berlin.de/wp-content/uploads/2026/05/mietspiegeltabelle2026.pdf
-    pdftotext -layout t.pdf - | less     # nur ~88 Zeilen, gesamte Tabelle
-
-Die **Tabellen-PDF** (`mietspiegeltabelle2026.pdf`, ~140 KB) ist die richtige Datei — nicht
-`mietspiegel2026.pdf` (1,6 MB Fließtext). `pdftotext -layout` liefert sie sauber; **kein**
-Read-mit-`pages`-Umweg nötig (anders als beim Potsdamer PDF).
-**Layout-Falle:** die drei Wohnlagen stehen **nebeneinander in einer Zeile** — Spaltenblock 1
-(Zeilen-Nr. 1–67) = *einfache*, 2 (68–129) = *mittlere*, 3 (130–192) = *gute* Wohnlage. Wer nur
-grept, erwischt die falsche Lage. Der Baualters-Header steht nur in der ersten Zeile der Gruppe,
-die Größenbänder darunter erben ihn.
-Werte gelten Stichtag 01.09.2025, Nettokalt, vollausgestattet; zulässig = Mittelwert **+10 %**
-(Baujahr ≤ 31.12.2024, sonst § 556f).
-
-Anker (Bj. **1973–1985 West**, **ab 85 m²**), genutzt auf #515 Lanzendorfer Weg 27, Kladow:
-| Wohnlage | untere | Mittelwert | obere |
-|---|---|---|---|
-| mittel (Zeile 95) | 6,79 | **8,35** | 10,70 |
-| gut (Zeile 157) | 7,98 | **10,39** | 13,80 |
-
-→ Vonovia rief dort **16,13 EUR/m²** auf = ~55 % über dem Mittelwert der guten Lage und über
-deren oberem Spannenwert. **Berliner Bestandsbauten der 70er sind bei Vonovia routinemäßig weit
-über der Mietpreisbremse bepreist** — immer § 556g Abs. 3 BGB (Vormiete + Modernisierungskosten)
-als Next Step in den Report schreiben, nie „compliant" ohne Rechnung.
-**Why:** ohne diese Notiz kostet jede Berliner Wohnung aus dem Potsdam-Bucket eine neue
-PDF-Suche — und die nebeneinanderliegenden Wohnlagen-Blöcke führen zuverlässig zum falschen Wert.
-
-### Wohnlage **hausnummerngenau** in EINEM curl — GDI-Berlin WFS (kein PDF, kein Schätzen)
-Erledigt das bisherige „solange ungeprüft beide Werte nennen"-Provisorium. Es gibt **kein**
-Straßenverzeichnis-PDF mehr (`strassenverzeichnis2026.pdf` u. ä. → 404); die Wohnlagen 2026 liegen
-als WFS-Layer vor. Einstieg steht auf
-`mietspiegel.berlin.de/berliner-mietspiegel/erlaeuterungen-zum-mietspiegel/wohnlagen/`
-(einziger Link dort: `gdi.berlin.de/view/wohnlagenadr2026`).
-
-    curl -sG "https://gdi.berlin.de/services/wfs/wohnlagenadr2026" \
-      --data-urlencode "service=WFS" --data-urlencode "version=2.0.0" \
-      --data-urlencode "request=GetFeature" \
-      --data-urlencode "typeNames=wohnlagenadr2026:wohnlagenadr2026" \
-      --data-urlencode "outputFormat=application/json" --data-urlencode "count=30" \
-      --data-urlencode "CQL_FILTER=strasse LIKE 'Machnower%' AND plz='14165'"
-
-Felder: `strasse` · `hnr` (**dreistellig nullgepolstert + Buchstabe**: `011`, `002A`) · **`wol`**
-(`einfach|mittel|gut`) · `plz` · `stadtteil` · `bezname` · `plr_name`. Property-Namen erraten geht
-schief (`strname` → `Illegal property name`) — im Zweifel `request=DescribeFeatureType`.
-Praxistipp: nicht auf die exakte Hausnummer filtern, sondern `strasse LIKE '…%'` + PLZ ziehen und
-die Liste lesen — man sieht dann sofort, wie fein es wechselt.
-
-**Die Einstufung springt von Haus zu Haus, nicht straßenweise.** Machnower Straße 14165: Nr. 11 =
-**gut**, die direkten Nachbarn 10 und 12 = **mittel** (durchgehend alternierend ungerade=gut /
-gerade=mittel). Der Unterschied ist bei „bis 1918 / 90–110 m²" 7,65 vs. 8,45 EUR/m² Mittelwert,
-also ~10 % auf die zulässige Miete — „Zehlendorf ist doch gute Lage" als Annahme ist ein Münzwurf.
-**Why:** #570 Machnower Str. 11 — ohne den WFS hätte der Report zwei Werte hedgen müssen; mit ihm
-steht adressgenau `gut`/Zeile 138 (6,60 · **8,45** · 12,99) und die Mietpreisbremse-Rechnung ist
-belastbar statt „konservativ geschätzt". Layer-Name enthält das Jahr → im Januar auf
-`wohnlagenadr20NN` hochzählen.
-
-## Quartiers-Anker: **„Lotte", Edisonallee 14 + 16 (14473, Südliche Innenstadt / Zentrum Ost–Nuthepark)**
-Covivio-Neubau, **Baujahr 2021**, **50 WE à 52–110 m² (2–3 Zi)**, Projektseite `lotte.immo`; als
-„**Lotte + Kleist Quartier**" von Deutsche Wohnen entwickelt (Richtfest 11/2021, begrünte Dächer) und
-heute von der **Covivio Immobilien GmbH** vermietet. Objekt-Nr.-Schema **`C392.017294-0NN`** (NN =
-Mieteinheit) ⇒ **Geschwistereinheiten kommen laufend in den Scan**, und der beigefügte **Grundriss
-beschriftet die Einheit hausnummerngenau** („Mieteinheit 014 – 75,67 m² – 1. OG – 2. Einheit von
-links – Edisonallee 16") — damit ist die Dublettenfrage ohne Zusatzabfrage entschieden.
-Fixwerte, die man nicht neu recherchieren muss:
-- **Mietspiegelfeld `ab 2021 · alle EEK`.** Bei 75,67 m² = Spalte **D (>75–90)** = **16,73
-  (14,88–19,64)** → zulässig 18,40; Spaltenkante beachten (die 3-Zi-Einheiten liegen bei ~75 m²):
-  Spalte **C (>60–75)** = **15,72 (10,52–19,00)** → zulässig 17,29.
-- **§ 556f BGB: Erstbezug nach dem 01.10.2014 ⇒ Mietpreisbremse dauerhaft nicht anwendbar**, auch bei
-  Wiedervermietung. Kein § 556g-Hebel — dafür **keine gesetzliche Deckelung**, und Covivio schließt
-  standardmäßig eine **Indexmietenvereinbarung über 10 Jahre + 12 Monate Mindestmietdauer** (steht im
-  `Ausstattung`-Block, nicht in `Sonstiges`). Das ist das Block-A/G-Risiko dieses Quartiers.
-- **Preisniveau 2026: 16,87 EUR/m² kalt** (#752, 75,67 m², 1.276,50 EUR) = **+0,8 % auf den
-  ortsüblichen Mittelwert**, +8,8 % auf den Angebotsanker 15,51, **56. Perzentil** des adressgenauen
-  `priceBar` (ähnliche Angebote 10,70–18,20) ⇒ quartiersüblich, kein Preisbefund in beide Richtungen.
-- **Gebäudestandard (gilt für alle 50 WE): Fernwärme + Fußbodenheizung, Bedarfsausweis Klasse B,
-  Endenergie 66,4 / Primärenergie 13 kWh(m²·a)** (Ausweis vom 25.02.2021), Personenaufzug, bodentiefe
-  Fenster, Dachbegrünung, Fahrradräume innen/außen, Stellplätze separat anmietbar, **Balkon + Keller
-  laut Vermietertext bei jeder Wohnung** (die IS24-Ausstattungsmaske meldet trotzdem `obj_cellar: n`).
-  ⚠ Der Ausstattungstext behauptet an einer Stelle „Gaszentralheizung" — Textbaustein, Energieausweis
-  und `obj_heatingType: district_heating` sagen Fernwärme.
-- **Nebenkosten-Anker: 4,15 EUR/m² inkl. Heizung** (314 EUR auf 75,67 m², davon 197 Heizkosten) —
-  über dem Potsdamer Richtwert 3,00–3,80, aber bei 66,4 kWh ≈ 3,6× des rechnerischen Bedarfs ⇒
-  **bewusst konservativ kalkuliert, eher Guthaben als Nachzahlung**; als Con nennen, nicht als Risiko.
-- **Block B ≈ 4,3.** ~1,0 km östlich Potsdam Hbf (7 Min. ÖPNV / 5 Min. Rad / 15 Min. zu Fuß; ab Hbf
-  RE1 Berlin ~25 Min., S7 Wannsee ~10 Min.), **Bus 694 + N14 vor der Haustür**, Nuthepark direkt,
-  Supermärkte 5 Gehminuten, A115 ~10 Min. Abzüge: **Nuthestraße (B2) als „Direktanbindung"** = Lärm,
-  Wohnungsseite nie im Exposé, und **`obj_telekomInternetAvailable: false`** an der Adresse.
-**Why:** ohne den Anker kostet jede der 50 Einheiten dieselbe Runde (Baujahr, Ortsteil, § 556f,
-Mietspiegelfeld, Energiewerte) — und die Spaltenkante bei ~75 m² plus die Indexklausel im
-*Ausstattungs*block sind genau die zwei Stellen, an denen man sich sonst vertut.
-
-## Quartiers-Anker: **Jutekiez / alte Jutespinnerei (14473, Lotte-Pulewka-Str. / Wiesenstr.)**
-Ehemalige **Jutespinnerei, Baujahr 1863** (älteste erhaltene auf dem europäischen Festland), ab 2014 aus
-der Ruine denkmalgerecht zu Lofts umgebaut, fertig **2017/2019** (Quellen nennen beide Jahre — offene
-Frage) → **29 Eigentumswohnungen 67–125 m²** in der Fabrikhalle plus **414 Mietwohnungen in sieben
-Neubaukomplexen** ringsum. ⇒ **Es kommen laufend Geschwistereinheiten in den Scan** (Miet- *und*
-Loft-Bestand), Ortsteil im Scan hoch halten.
-**Die Ortsteil-Zuordnung ist strittig und kostet sonst jedes Mal zwei Suchen:** Immowelt taggt
-„**Teltower Vorstadt**", das Straßenverzeichnis sagt „**Südliche Innenstadt**", der Stadtplan
-„**Zentrum Ost und Nuthepark**" — **PLZ 14473 ist bei allen dreien identisch und damit gesichert**.
-Ohne Scoring-Folge: alle Kandidaten liegen in Potsdam (= preferred), und das Mietspiegelfeld hängt an
-Baualter × EEK × m², nicht am Ortsteil. Prosa-Landmarke, die das Quartier eindeutig identifiziert:
-„restaurierte Jute-Fabrik" / „Jute-Kiez".
-**Mietspiegelfeld — die eigentliche Falle ist das nie genannte Baujahr, beide Zeilen rechnen:**
-Hypothese A (Baualter folgt dem Loft-Umbau = Sanierung auf Neubaustandard; die Wohnungen existierten
-vorher **nicht**, Lehrbuchfall) → **2013–2020 · alle EEK**, bei >90 m² Spalte E = **12,39 (10,31–14,00)**
-⇒ zulässig 13,63. Hypothese B (Hülle von 1863, kein EA) → **bis 1948 · kein EA · Spalte E = 8,17
-(5,90–9,40)** ⇒ zulässig 8,99, Oberwert-Decke 10,34. **Faktor ~1,5 zwischen beiden — A ist tragend.**
-**§ 556f: Erstnutzung als Wohnraum nach dem 01.10.2014 ⇒ Mietpreisbremse sehr wahrscheinlich gar nicht
-anwendbar** (Fabrikhalle → Wohnungen). Praktische Folge für Tausch-/Nachmieterfälle: beim Neuvertrag
-gibt es dann **keine gesetzliche Decke**; realistisches Neuvertragsniveau für ein konvertiertes
-Denkmal-Loft mit Stellplatz **15–17 EUR/m² kalt**.
-Lage: ca. **1,5 km östlich Potsdam Hbf** (RE1 Berlin ~25 Min., S7 Wannsee ~10 Min.), Nuthepark direkt,
-Babelsberg jenseits der Nuthe → **Block B 4,5**. **Caveat: Nuthestraße (B2) + Bahnkorridor** — die
-Lärmseite der konkreten Wohnung ist auf Exposés nie angegeben, gehört in die Kontaktfragen.
-**Spalte D (>75–90 m²), damit man sie nicht nachschlagen muss:** Hyp. A `2013–2020` = **12,34
-(10,90–14,23)** ⇒ zulässig 13,57 · Hyp. B `bis 1948 · kein EA` = **7,83 (6,51–9,24)** ⇒ zulässig 8,61.
-**Die 15–17-EUR/m²-Neuvertragsprognose ist inzwischen BESTÄTIGT — zwei Einheiten derselben Fabrikhalle
-im Vergleich:** #666 (4 Zi, 98 m², **13,27** kalt) ist ein *Bestands*vertrag, #694 (3 Zi, 86 m²,
-**16,57** kalt, frisch inseriertes Nachmietergesuch) ein *Neu*vertrag — **+24,9 %**, exakt das für
-#666 vorhergesagte Reset-Band. Also: bei Jutekiez-Inseraten erst fragen, ob der Preis ein Altvertrag
-(Tausch/Nachmieter mit Vertragsübernahme) oder ein Neuvertrag ist; **13 EUR/m² = Bestand, ~16–17 =
-Neuvertrag, beides quartiersüblich**. Nutze die jeweils andere Zahl als adressgenaues
-Vergleichsobjekt — das ist der stärkste Beleg im ganzen Block A und kostet einen Grep.
-**Lärm-Caveat ist jetzt fotografisch belegt, nicht mehr Vermutung:** #694 Foto 8 zeigt von der Terrasse
-aus direkt gegenüber den **Bahnkorridor mit abgestellten Regionalzügen**. Die Fotos der Loft-Einheiten
-stammen fast alle aus der Zeit direkt nach dem Umbau (~2017/2019, Baustelle im Bild) — die Freiflächen
-davor sind inzwischen mit den sieben Neubaukomplexen bebaut, Blick *und* Schallweg haben sich also
-geändert. Foto-Alter deshalb immer mitlesen: es belegt das Objekt, nicht den heutigen Zustand.
-**Feste Zahlen für die Einheit Lotte-Pulewka-Str. 41 (86 m², 3 Zi, Maisonette) — jetzt AUSGEWIESEN,
-nicht mehr abgeleitet (#761, IS24-Zwilling von #694):** **1.425 kalt + 400 NK inkl. Heizung =
-1.825 warm**, **16,57 EUR/m²**, Kaution **4.276 = 3,00 NKM exakt**, Stellplatz +50, Geschirrspüler-
-Ablöse 100. ⇒ Zwei Korrekturen am Anker: (1) der **NK-Satz der Fabrikhalle ist 4,65 EUR/m²**, nicht
-die aus #694 abgeleiteten 5,35 — wer 5,35 weiterreicht (wie #738), rechnet 60 EUR/Monat zu viel;
-(2) die Kleinanzeigen-Anzeige derselben Wohnung nennt **1.885 warm**, also 60 EUR mehr als der
-strukturierte IS24-Split — bei Jutekiez-Nachmietergesuchen auf Kleinanzeigen ist die Warmmiete eine
-Schätzung, die IS24-Zahl die konsistente (Kaution÷3 trifft die Kaltmiete auf 0,07 %).
-Genutzt auf #666, #694, #738, #761. *Why:* ohne den Anker recherchiert jede Jutekiez-Wohnung Baujahr, Ortsteil, § 556f
-und Mietspiegelfeld neu — und tippt bei „restaurierte Fabrik" leicht auf die Altbauzeile, was die
-Mietpreisbremse-Bewertung um 62 % verzerrt.
-
-## Baualter 1991–2008: die EEK-Zeile entscheidet über die **Spannenbreite**, nicht über den Mittelwert — ein *besserer* Energieausweis macht die Mietpreisbremsen-Rüge STÄRKER
-In der Klasse **1991–2008** liegen die beiden EEK-Zeilen im Mittelwert praktisch gleichauf
-(Spalte C: `A+,A,B,C` = **9,28**, `D,E,F,G` = **9,45**), aber die **Spannen** unterscheiden sich
-drastisch: **8,88–10,29** vs. **8,20–11,51**. Weil „zulässig" = *Spanneneinordnung* + 10 % ist,
-kippt derselbe Quadratmeterpreis je nach Energieausweis in ein anderes Ergebnis:
-- EEK **C** → Oberwert 10,29 → maximal deckbar **11,32 EUR/m²**
-- EEK **D** → Oberwert 11,51 → maximal deckbar **12,66 EUR/m²**
-
-Direkter Beleg, zwei Nachbarhäuser im selben Quartier mit **exakt demselben Preis von 12,10 EUR/m²**:
-**#679** (Maxie-Wander-Str. 8, EEK **D**) = „grenzwertig, am Oberwert gerade noch deckbar";
-**#678** (Maxie-Wander-Str. 6, EEK **C**) = **in jeder Lesart überschritten** (+30,4 % über
-Mittelwert, +17,6 % über Oberwert, 57–137 EUR/Monat Hebel). Praxis: bei Baujahr 1991–2008 immer
-zuerst `obj_energyEfficiencyClass` lesen und den **Oberwert** der passenden Zeile ×1,1 rechnen —
-nicht nur den Mittelwert ×1,1.
-**Why:** ohne diese Unterscheidung wird derselbe Preis in zwei benachbarten Bewertungen einmal als
-compliant und einmal als Verstoß gemeldet, oder — schlimmer — der stärkste Verhandlungshebel eines
-gut gedämmten Baus geht verloren, weil man intuitiv annimmt, ein besserer Energieausweis
-rechtfertige eine höhere Miete.
-
-## Quartiers-Anker: **„Fontane Gärten", Bornstedter Feld (14469)** — Bj. 2022/23, § 556f, Ask 21–22 EUR/m²
-Die **Bonner Straße** taucht in keinem Ortsteil-Reflex auf und ist ohne diesen Anker nicht einzuordnen
-(IS24s eigener Preisinsights-Geocode schickt sie sogar nach `potsdam-nord/**nedlitz**`, während
-`geo_ot`/`obj_regio4` `bornstedt` sagen — beides Potsdam Nord, für Block A folgenlos).
-Fixwerte, die man nicht neu recherchieren muss:
-- **„Fontane Gärten" = Instone Real Estate, 108 Eigentumswohnungen in ACHT Stadtvillen A–H** auf
-  ~10.000 m² am Volkspark, erschlossen über **Georg-Hermann-Allee, Peter-Huchel-Str.,
-  Erich-Arendt-Str. und Bonner Str.**; erste 54 WE Ende 2022 bezugsfertig, Fertigstellung
-  2022/23 (Exposé-Baujahr **2023**). Erkennungszeichen im Grundriss-Bild: Kopfzeile
-  „**Villa {A–H}, {n}. Obergeschoss, Wohnung {Buchstabe}.{Etage}.{lfd. Nr.}**" plus ein
-  Lageplan mit acht Baukörpern A–H.
-- Mietspiegelfeld **ab 2021 · alle**; bei 60–75 m² (Spalte C) **15,72 (10,52–19,00)**, bei
-  75–90 m² (Spalte D) **16,73 (14,88–19,64)**.
-- **Erstbezug 2022/23 ⇒ § 556f BGB, Mietpreisbremse dauerhaft nicht anwendbar** (auch bei
-  Wiedervermietung). Kein § 556g-Abs.-3-Hebel — stattdessen als Risiko nennen, dass künftige
-  Mieterhöhungen keine gesetzliche Deckelung haben (Vertragstyp Index/Staffel erfragen).
-- **Preisniveau des Neubaugürtels Bornstedter Feld 2026: 19,7–22,4 EUR/m² kalt** — #639
-  (Bj. 2022, 88,9 m², 19,69), **#760 (Bonner Str. 6, Villa C, 73,1 m², 21,20)**, #756
-  (Georg-Hermann-Allee 127, Bj. 2023, 69 m², 22,39). Das ist +26…+42 % über ortsüblich und
-  +27…+44 % über dem stadtweiten Angebotsanker 15,51 ⇒ **quartiersüblich, aber der teuerste
-  Potsdamer Korridor**. Block A liegt hier typisch bei **3,5–4,0**, nicht bei 4,5 (Basis 5,0 aus
-  „Kaltmiete unter Budget" minus Mietspiegel-/m²-Cap-Abzug); erst ≥23 EUR/m² wäre neu.
-- **Eigentumsprojekt ⇒ jede Mietanzeige ist eine private ETW-Vermietung eines Einzeleigentümers**,
-  nicht institutioneller Mietbestand (Gegenstück zur BUWOG-Brunnenallee-Regel). Konsequenz für
-  Block H: Eigenbedarfs-/Verkaufsrisiko **Mittel–erhöht**, meist `verifiedBy: []`, keine Telefonnummer.
-- NK-Anker: 350 EUR auf 73,1 m² = **4,79 EUR/m² inkl. Fernwärme** (#760) gegen das Potsdamer Band
-  3,00–3,80 ⇒ die warme Seite ist im Quartier über Benchmark, immer als ✗ Con + Kontaktfrage setzen.
-  Zweiter Datenpunkt #781 (**Georg-Hermann-Allee 126 = Villa E**, Penthouse E.3.16, 107,3 m², Bj. 2022,
-  Gas + FBH, locals Real Estate): NK+HK pauschal **625 EUR = 5,82 EUR/m²**, Kalt 19,31 (nach Senkung von
-  20,32) ⇒ Spalte E (>90 m²) = 15,14 (10,90–17,86): +8 % über dem Oberwert, knapp UNTER dem Quartierskorridor.
-  Große Einheiten hier reißen den Warm-Cap über die NK, nicht über die Kaltmiete — Warm immer zuerst prüfen.
-*Why:* ohne den Anker ist eine Bonner-/Peter-Huchel-/Erich-Arendt-Adresse weder einer
-Baualtersklasse noch einem § 556f-Status zuzuordnen, und ein 21-EUR/m²-Aufruf liest sich entweder
-als Mietpreisbremsen-Verstoß (den es rechtlich nicht gibt) oder als „marktkonform" (was ihn gegen
-die ortsübliche Vergleichsmiete um ein Drittel zu günstig darstellt).
-
-⚠ **Das Bornstedter Feld ist NICHT durchgehend § 556f — der westliche Altbestand am Volkspark ist
-älter als der Fontane-Gärten-Gürtel. Baujahr pro Straße prüfen, nicht pro Quartier.**
-**Horst-Bienek-Straße (14469, Sackgasse an der Volkspark-Kante)**, #726: IS24-Atlas nennt für
-Nr. 9 **Baujahr 2010**, für Nr. 4 sogar 1920–1949; das Inserat selbst nannte kein Baujahr, aber
-Küchen-Selbsteinbau 2016 + Tiefgarage + Loggia + komplette Barrierefreiheit ⇒ Baualtersklasse
-**2009–2012 oder 2013–2020**, also Spalte E (>90 m²) = **12,01 (10,30–13,84)** bzw.
-**12,39 (10,31–14,00)**. Das ist die Stelle, an der der 01.10.2014-Stichtag kippt:
-- Bezugsfertig **vor** 01.10.2014 ⇒ Bremse **greift**, Deckel ortsüblich +10 % ≈ 13,21–13,63 EUR/m².
-- Erstbezug **ab** 01.10.2014 ⇒ **§ 556f**, kein Deckel, quartiersüblich bis 19,7–22,4 EUR/m².
-Auf 144,92 m² sind das **1.914–1.975 EUR** gegen **2.855–3.246 EUR** Kaltmiete — ein Faktor 1,6.
-⇒ Bei jeder Volkspark-Kanten-Adresse ohne Baujahresangabe ist „Baujahr/Erstbezug?" die **erste**
-Kontaktfrage, und beide Szenarien gehören in Block A nebeneinander.
-Datenpunkt Bestandsmiete: #726 zahlt dort seit ~2016 **11,25 EUR/m² kalt** (144,92 m², 1.630 EUR),
-d. h. **6–9 % unter ortsüblich** und **rund die Hälfte** des Quartiers-Angebotsniveaus — Altvertrag
-nach der ½-Anker-Faustregel aus `tauschwohnung.md`. NK dort nur **2,02 EUR/m²** (292,45 auf
-144,92 m² inkl. Heizung) = deutlich **unter** dem Band 3,00–3,80 und damit das Gegenstück zum
-Fontane-Gärten-NK-Anker 4,79 — im selben Quartier existieren beide Extreme, also nie aus dem
-Quartier auf die NK schließen.
-
-**Zweites Neubauprojekt am Volkspark: „Am Park Potsdam" (Diamona & Harnisch), Georg-Hermann-Allee** —
-5 Häuser, 80 WE, Bj. **2023**, alle **EG-Wohnungen mit eigenem Garten**, OGs Balkon/Loggia; ETW-Projekt
-⇒ Mietanzeigen = Einzeleigentümer, vermittelt über **Passgenau Immobilien** (Referenznummer-Schema
-`VM_POTS_{Haus}.{Etage}.{WE}`, Grundriss-Datei `Grundriss_{Haus}.{Etage}{WE}`). Erkennung ohne Adresse:
-„Diamona & Harnisch" + „direkter Zugang zum Volkspark" im Text. Feld **ab 2021**, § 556f. #824 (Haus 2
-EG, 75,6 m², 20,49 EUR/m², **Staffelmiete + 2 J. Kündigungsausschluss**, NK 3,51 inkl. Fernwärme —
-im Band, anders als Fontane Gärten). *Why:* sonst ist der Ort nur „Bornstedter Feld" und Baujahr/
-§ 556f/ETW-Eigentümerstatus müssen jedes Mal neu recherchiert werden.
+- Wendebauten = Plattenbau Drewitz, begun before 03.10.1990 and finished by 1991.
+- The Baualter stays after modernisation; only a Sanierung to Neubau standard moves the class.
+- **1971–1990 has NO "kein EA" row** (only A,B · C,D · E,F); only bis 1948 and 1949–1970 have one. For a Platte without an EA, cite the whole band, e.g. Spalte C 5,69 / 5,82 / 6,06, overall 5,19–6,88 (#670). Guessing E,F lowers the benchmark by up to 6 % and fakes an "over Mietspiegel" finding.
+
+## How to apply it
+1. Field = Baualtersklasse × EEK row × m² column. Start at the **Mittelwert**.
+2. Spanneneinordnung (PDF p. 8–9): wohnwerterhöhende minus -mindernde points = a %-share of the way from the Mittelwert toward the Ober-/Unterwert. Ober- and Unterwert are hard bounds.
+3. **Mietpreisbremse: zulässig = ortsüblich +10 %.**
+   - Exceptions: § 556e (a higher Vormiete may be carried forward, the norm for Nachmietergesuche) and § 556f (umfassende Modernisierung, or Erstbezug after 01.10.2014; § 556f covers only the FIRST letting after a modernisation).
+   - So an overshoot is a **§ 556g Abs. 3 Auskunft / negotiation lever**, never an exclusion.
+4. **Always give BOTH numbers:** ortsüblich AND the Angebotsanker (below). Otherwise a market-normal price reads as Wucher, or the reverse.
+5. **When the Baujahr is unknown, compute every plausible field side by side**, say which one flips the verdict, and make the Baujahr a contact question.
+6. **Column-edge sensitivity:** within ~1 m² of a column edge (45/60/75/90), compute both columns. Neighbouring fields differ by ~8 %, and the area is only "ca." (#627: 60,1 m² → C = exceeded; B would be compliant). Same at 75 m² (#702) and 90 m² (#730).
+7. **In 1991–2008 the EEK row changes the SPAN, not the Mittelwert.** Spalte C: A+–C 9,28 (8,88–10,29) vs D–G 9,45 (8,20–11,51). The maximum defensible rent is Oberwert × 1,1 = 11,32 for EEK C vs 12,66 for EEK D.
+   - Neighbouring houses at the same 12,10 EUR/m²: #679 (EEK D) is borderline, #678 (EEK C) exceeds the limit in every reading.
+   - So a BETTER Energieausweis makes the Rüge STRONGER. Always read the EEK first and compute Oberwert × 1,1, not only Mittelwert × 1,1.
+8. **Several legal grounds can apply at once, and then name all of them** (#725 houseboat: § 556f + § 549 Abs. 2 Nr. 1 möbliert + the Mietspiegel covering neither furnished space nor floating homes). Phrase it as "no price lever: expensive, but legally unassailable". With only one ground named, the report sends the user into a negotiation that doesn't exist.
+
+## Scope — houses, exceptions
+- **EFH/ZFH/Reihen-/Doppelhäuser: the field is a LOWER bound, not an upper one.** Vorspann p. 2–3: "nur eingeschränkt, da keine Datenerhebung"; BGH VIII ZR 58/08 ("erst recht" in a house), BGH VIII ZR 54/15 (a formal reference to the Mietspiegel suffices for a Reihenendhaus).
+  - The Mietpreisbremse still applies (§ 556d covers Wohnraum), but ortsüblich must be shown via Vergleichsobjekte. Report it as a § 556g Abs. 3 lever, never "not applicable".
+  - The unnumbered "erst recht" surcharge doesn't cover everything: #589 (DHH Neu Fahrland, Bj 2002, EEK C, 94,94 m², 19,49) was +96,7 % over the Mittelwert 9,91 and +53,5 % over the Oberwert 12,70.
+- **Also excluded:** öffentlich geförderte Wohnungen, Wohnheime, betreute Heime. **Surcharges for (teil-)möblierte flats and Untermiete are not covered** (a furniture surcharge can't be tested against the Mietspiegel, #255/#311).
+- **The Mietspiegel explicitly covers all Ortsteile** (Fahrland, Neu Fahrland, Golm, Groß Glienicke, Marquardt, Satzkorn, Uetz-Paaren): no "it's a village" discount.
+
+## Angebotsmarkt anchors Potsdam 2026 (quote these alongside ortsüblich, never as a substitute for it)
+- **Häuser ~17,61 EUR/m² · Wohnungen ~15,51 EUR/m²** (08/2026). Best areas ~17,24, cheap areas ~10,63; portals also print 12,80–15,14 as the city average.
+- For a HOUSE rent use the house anchor (#589: +11 % vs 17,61 but +26 % vs 15,51, which flips "upper market edge" vs "clearly above market").
+- **The address-precise IS24 `priceBar` beats every Ortsteil anchor.** It swings ~40 % within one street (Alt Nowawes #588 vs #681, see the 14482 anchor below). An Ortsteil anchor is only a plausibility frame.
+
+## General rules — deciding "verdächtig billig" and the Baualter
+- **"Cheap vs 13 EUR" is usually just the building type (Plattenbau inversion).** Against the Angebotsmarkt, 1971–1990 stock at 7–9 EUR/m² looks −30 %, but against its own field (5,5–6,9) it is often ABOVE ortsüblich and exceeds the Mietpreisbremse (#513: Erich-Pommer-Str., Bj 1987, EEK C, 68 m², 9,06 = +56 % over the Mittelwert 5,82; zulässig 6,88).
+  - First datapoint: #504 Caputher Heuweg 61, Waldstadt II, 11,59 EUR/m² vs a 1971–1990 Mittelwert of 5,69–6,06.
+  - So pull the Plattenbau field first on any "suspiciously cheap" flag from Drewitz, Am Stern, Waldstadt, Schlaatz or Zentrum Ost. It is not a WBS indicator: check WBS separately via the `Wohnberechtigung` keyword.
+  - The rule depends on the BAUALTER, not on the Großsiedlung: it holds in rural Ortsteile too (#627 Groß Glienicke, Bj 1985, 6,61 = +13,6 % over the Mittelwert, Bremse +3,2 %). The first question is always the Baujahr, not the Ortsteil.
+- **Genuinely cheap vs a bait price — the Unterwert is the dividing line.** Three tests, in order:
+  1. **Inside or below the official span?** Inside = ortsüblich by definition (#684 5,83; #627 6,61, even +5,8 % over the Oberwert; #558 7,59; #670 5,23 = exactly the Unterwert of 1971–1990 C,D Spalte C). Only BELOW the Unterwert does the price itself need explaining (#686: 7,69 on Bj 2011 → field 12,01 (10,30–13,84) = −25,3 % under the Unterwert ⇒ bait).
+  2. **A named mechanism?** Genossenschaft/Nutzungsentgelt, old stock + sitting tenant, 1971–1990. A private landlord re-letting has no vehicle for a Bestandsmiete. Sweep `Genossenschaft|Genossen|Sozial|Wohnberechtigung|WBS (case-sensitive)|Nachmieter|Tausch`; 0 hits on a private landlord = no explanation.
+     - The WBS/Förderung sweep list used on #670: `WBS, Wohnberechtigung(sschein), Sozialwohnung, sozialer Wohnungsbau, Genossenschaft, gefördert, Belegungsbindung, Belegungsrecht, Fehlbelegung, Mietobergrenze, einkommensorientiert, ProPotsdam, GEWOBA`.
+     - Rule of thumb for Drewitz: from ~5,20 EUR/m² upward is normal at 60–75 m²; only below that is the WBS question worth asking.
+  3. **Kapitalwertprobe:** street purchase EUR/m² × m² = value, and gross yield = Kalt × 12 ÷ value. 3–5 % is realistic in Potsdam; **below ~2 % the letting is economically impossible** (#686: 5.796 EUR/m² × 117 m² ≈ 678 k ⇒ 1,59 %). The query `"{Straße} {PLZ} Wohnung"` returns the street EUR/m² via the IS24 atlas pages.
+  - **Extra check: NK per m².** 2,50–3,50 is plausible. #686 claimed 1,03 with Fußbodenheizung + Aufzug + Garage, so the Warmmiete was invented too (same signature as #320: warm = kalt = 700). Genuinely cheap ads have plausible NK or none at all.
+  - **Our own reports are an address-precise comparable source.** `grep -rn "{Straße}" reports/ data/listings.md data/scan-history.tsv*` found the same street, No. 8, at 16,90 and 18,90 EUR/m² for #686 (−54,5 %). That satisfies the `_shared.md` requirement for the High signal without a priceBar.
+- **Verify the Baualter from the PHOTOS before taking the Ortsteil's default class** (classes differ by up to 1,4×–2,7×):
+  - Kassettentüren, profiled Türbekleidungen, a Deckenhohlkehle, high ceilings, deep reveals → pre-war, **bis 1948**.
+  - Smooth doors, a low ceiling, precast joints → Plattenbau.
+  - Wand-WC with Vorwandinstallation + large-format tiles + plastic windows with integrated blinds → 2010s at the earliest.
+  - #558 (Sonnentaustr. 15, `geo_ot: waldstadt_ii`, 83 m², 7,59): the Ortsteil default gave 1971–1990 D = 5,63 → "exceeded", while the one hallway photo showed Kassettentüren + Hohlkehle → bis 1948 kein EA D = 7,83 → **compliant**. The Ortsteil gives the hypothesis; the photo decides. Name both fields anyway.
+- **Get the Baujahr HARD for listed buildings: Wikipedia "Liste der Baudenkmale in Potsdam/{Anfangsbuchstabe}"** (pages split by street initial, e.g. `/wiki/Liste_der_Baudenkmale_in_Potsdam/S`) gives Baujahr + architect + Denkmal-ID per house number in one WebFetch.
+  - The exposé wording "Ein Energieausweis ist für diesen Gebäudetyp nicht notwendig" (§ 79 Abs. 4 GEG) is itself the hint: Denkmal → bis 1948 → kein-EA row. It is falsifiable against a Baujahr (see [[immowelt]] §Energy).
+  - #596 Stiftstr. 8a → 1896, Otto Kerwien, ID 09156593 → bis 1948 kein EA E = 8,17 (5,90–9,40), zulässig 8,99 (1.051 EUR) vs the asked 1.400 = +33 %. § 556f is excluded by Bj 1896. Against the Angebotsmarkt, the same price is cheap.
+- **Bestandsmiete in a swap or Nachmieter ad:** ~½ the Angebotsanker = an Altvertrag, which never fires the ">20 % below" signal. See [[tauschwohnung]] §Economics.
+
+## Umland — Brandenburg regulation 2026, Havelland, Potsdam-Mittelmark
+- **The Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung** (Kabinett 25.11.2025) covers **36 Gemeinden from 01.01.2026** (previously 19). It only covers buildings completed before 2014 (Neubau exempt); zulässig = ortsüblich +10 %, Kappungsgrenze 15 % in 3 years. It is re-issued yearly: **re-check every January.**
+- **Never write "Mietpreisbremse: not applicable" for a Speckgürtel rental** (report #246 of 02.07.2026 was already wrong). These Gemeinden have no qualified Mietspiegel, so phrase it as the § 556g Abs. 3 lever (ask for Vormiete + Baujahr). As the ortsübliche proxy, take the same-age **Potsdam** field and label it as a proxy.
+- **The full list** (MIL Brandenburg; "(neu)" = first covered in 2026). `_shared.md` only says "u. a."; promotion candidate:
+  - Dahme-Spreewald: Bestensee (neu), Eichwalde, Königs Wusterhausen (neu), Schönefeld (neu), Schulzendorf, Wildau (neu), Zeuthen (neu)
+  - Havelland: Brieselang (neu), Falkensee, Schönwalde-Glien (neu)
+  - Märkisch-Oderland: Altlandsberg (neu), Fredersdorf-Vogelsdorf (neu), Rehfelde (neu), Strausberg (neu)
+  - Oberhavel: Birkenwerder, Glienicke/Nordbahn, Leegebruch (neu), Mühlenbecker Land, Oranienburg (neu)
+  - Oder-Spree: Erkner (neu), Grünheide (Mark) (neu), Woltersdorf
+  - Potsdam-Mittelmark: Kleinmachnow, Nuthetal (neu), Stahnsdorf, Teltow, Werder (Havel) (neu)
+  - Teltow-Fläming: Blankenfelde-Mahlow, Großbeeren, Ludwigsfelde (neu), Zossen (neu)
+  - (+ Potsdam and the remaining cases from the old list of 19)
+  - **NOT on the list** (a frequent cross-check): Beelitz, Michendorf, Borkheide, Brück, Nauen, Ketzin, Brandenburg an der Havel, Schwielowsee (Caputh/Ferch/Geltow).
+- **§ 549 Abs. 2 Nr. 1 BGB** exempts Wohnraum zum vorübergehenden Gebrauch (möbliert/auf Zeit/Monteur) anyway. Name both grounds (Gemeinde regulated y/n AND § 549).
+- **Angebot anchors never fire the ">20 % below" signal alone.** The priceBar must also put the offer below `minSimilarPrice` (#507 Burgunderweg 5, Falkensee: −25 % vs the anchor, but P23 inside the address band 1.100–1.820, explained by Bj 1998 / EEK E).
+- **Falkensee:** Angebot Häuser ~16,03, Wohnungen ~13,50–15,70 EUR/m². The priceBar is the best address source (#506 Rotkehlchenstr. 14,29 = P57).
+- **Schönwalde-Glien:** Angebot Gemeindeschnitt ~14,02 (12,69–15,48); Häuser 13,19 (150 m²) – 14,55 (100 m²).
+- **Beelitz / Beelitz-Heilstätten** (not regulated, no Mietspiegel; the Quartier houses are Bj 2022/23, so § 556f anyway. Name both grounds.)
+  - Own Neubau Reihenhaus/DHH anchor (Kalt EUR/m²): #336 12,49 (127,29 m²) · #326 12,88 (144,76) · #486 13,00 (144,76) · #207 14,95 (106,97) · #611 17,02 (105,16). There is a size effect: ~105-m² houses sit 15–30 % above ~145-m² houses. #611 was P58 of the priceBar 990–1.870 EUR.
+  - Beelitz WOHNUNGEN: Angebot 13,37–13,48 (cheap ~12,27, sought-after ~14,96). Proxy = the Potsdam field (#605: Bj 1999, EEK D, 65 m² → 1991–2008 D–G C = 9,45 (8,20–11,51), 12,25 = +30 %).
+  - **Commute: exposés claim "Potsdam 20 min ÖPNV", which is false.** The RE7 runs Beelitz-Heilstätten → Wannsee/Berlin, not via Potsdam Hbf: ~34 min to Potsdam Hbf with a change at Wannsee; car ~25 min / 24 km. Berlin Hbf ~38 min direct is true.
+  - **Fichtenwalde (14547) is not Beelitz-Heilstätten:** ~25 km from Golm, no station (RE7 ~5 km away), hourly bus, A9 junction ⇒ car-dependent. Wohnung Block B = 2,0 (#605).
+  - Block B calibration: Beelitz houses (RE7 corridor, accepted by the user in the Hauskauf search since 2026-08-11 and applied to house rentals) = **3,0** (#611); flats stay lower (2,0–2,5).
+- **Schwielowsee (Caputh / Ferch / Geltow, 14548)** — not regulated (+ § 556f if Bj ≥ 2014); name both grounds.
+  - Proxy: the Potsdam field (2013–2020 E = 12,39 (10,31–14,00)).
+  - Angebot ≈ 12,42 (Q1/2026), sought-after areas ≈ 17,56, cheaper ≈ 14,40. Near 12 is CHEAP in a Caputh premium location, not suspicious.
+  - Bahnhof Caputh-Schwielowsee: RB23 ~13 min to the Hbf but only hourly; Bus 607/613; to Golm ~30–40 min with a change ⇒ car-leaning, always ask about a Stellplatz.
+  - Wohnung Block B = **3,0** (outside the search area, no hard blocker since `acceptable_areas` is empty; #714).
+- **Stahnsdorf (14532)** — REGULATED (on the list), but § 556f for Bj ≥ 2014; name both.
+  - Proxy: ab 2021 E 15,14 (10,90–17,86).
+  - Angebot Ø ~16,5 (12,7–21,1). immoportal's "Neubau ab 2021 26,04" is implausible; don't use it.
+  - No rail: Bus 601 to Potsdam Hbf ~32 min every 20 min; Golm ≈ 50–55 min; car ~30 min.
+  - Wohnung Block B = **2,5** (#799). It is an acceptable_area in the KAUF search only, not the Miet search.
+
+## Ortsteil- und Quartiers-Anker
+The numbers are data. Keep them, and append new datapoints to the matching Quartier instead of adding a new section. Master rule: **the Ortsteil name never fixes the Baualtersklasse.** Almost every Ortsteil below mixes 2–3 classes; the house number, the Baujahr or a photo decides.
+
+### 14480 — Am Stern · Drewitz · Kirchsteigfeld (three Baualtersklassen in one PLZ)
+- **Am Stern:**
+  - Mostly Platte 1971–1990 (Spalte C 5,82 / 6,06), with interspersed Neubau riegels ab 2021 (C 15,72, D 16,73). That is a factor of ~2,7.
+  - **Street-name heuristic:** astronomer/physicist streets (Newton, Galilei, Kepler, Ziolkowski, Schwarzschild) = Platte. The composer streets south of the Großbeerenstraße ("Musikerviertel": Schubert, Flotow …) are small-scale Siedlungs/EFH + 1980s Geschossbau, so bracket bis 1948 / 1949–1970 / 1971–1990 there (#525, #736).
+  - Block B: Musikerviertel 4,0 (peripheral, bus-based) vs 4,5 at the Steinstraße (#677/#617/#337).
+  - Neubau (Bj 2021):
+    - **Ziolkowskistr. 2** (77 WE + 24 TG, Bedarfsausweis B / 56 kWh, KWK fossil, Fußbodenheizung, new-contract ~14,0 EUR/m², 2-Zi 62,54 m² = 876 EUR; a 6-storey build of up to 109 WE planned opposite = a multi-year construction-site con, #561)
+    - **Schwarzschildstr. 28** (Max Müller Immobilien GbR, #523)
+  - Platte:
+    - **Lilienthalstr. 12** (TAG Stern-Wohnanlage, Bj 1975, #525)
+    - **Hubertusdamm 43** (same TAG estate, 5-storey blocks with loggias, via Mapio `mapio.net/expose/3036523`, #843)
+    - **Hubertusdamm 33** (Bj 1971, Verbrauchsausweis A / 42,6 kWh, Fernwärme, 4 storeys, no lift → 1971–1990 A,B; #856 Bärlin Housing)
+  - **Ziolkowskistraße is mixed:** No. 2 = 2021, No. 8 = 1920–1949 (IS24 atlas), the core = Platte. A street-only ad can't be resolved, so bracket 1971–1990 / 1991–2008 / ab 2021 and call the Bremse "nicht abschließend bestimmbar" + § 556g Abs. 3 (#739: 11,08–12,58 = +79…103 % over Platte, +12…27 % over 1991–2008, −25…34 % under ab 2021). The priceBar (5,70–9,50, P83) proves "expensive for the area", not the Baualter.
+  - **Am Stern asking corridor** (8 evaluated objects, a plausibility bound):
+    - renovated Platte **7,66–11,18 EUR/m² kalt** (#146 7,66 · #149 9,46 · #279 10,07 · #192 10,13 · #239 10,63 · #231 11,18)
+    - Neubau 2019/2021 **16,02–16,50** (#217, #105)
+    - **Exception, Hubertusdamm row:** ~17 EUR/m² is real re-letting level for cosmetically refreshed Platte (#856 Bärlin Housing 16,99; so #843's "1.139 lt. Vermieter" at 17,00 was real, not a typo). That is a Mietpreisbremse case: § 556f needs an umfassende Modernisierung, and paint + vinyl isn't one.
+    - Otherwise anything above ~17 in 14480 triggers the data-integrity check first: typo, Stellplatz/Möbel/Strom included, quarterly figure (#742: 27,65 warm → 23–25 kalt was +40–50 % over the most expensive Am-Stern object ever seen).
+- **Drewitz:**
+  - GDR Großsiedlung WBS-70/P2 **1986–1989** + Wendebauten to 1991. Since 2010 Stadtumbau "Gartenstadt Drewitz" (the Konrad-Wolf-Allee was narrowed; only SOME blocks were energetically renovated, so check per house).
+  - Tram 96/99 → Hbf ~15–18 min, Stern-Center one stop, A115 AS Potsdam-Süd ~5 min, Parforceheide + Nuthewiesen.
+  - Immowelt polygon bbox 13,1143–13,1496 O / 52,3500–52,3779 N (the south part is forest).
+  - A "Dachgeschoss" in the Siedlung is atypical (flat roofs) = usually the top full storey of a 5-storey P2 block; almost never a lift.
+  - #670: 62 m², 324 EUR = 5,23 = exactly the Unterwert of 1971–1990 C,D C. That is inside the span (−8…−14 % from the Mittelwert), so no scam signal and the Bremse is kept (zulässig 6,26–6,67).
+  - **Alt Drewitz** (the historic village core, also 14480): a DG is normal there (Satteldächer, Vierseithof remnants, the Alt Drewitzer Dorfkirche visible on photos) → field **bis 1948** (D 7,83–9,15), not Platte.
+    - Tells: "Ortskern", "historisches Flair", "nur 3 Parteien", an inner courtyard instead of a Balkon, Velux + an old whitewashed roof truss.
+    - Block B clearly better than the Siedlung, with the same transit + RB from Rehbrücke ~18 min to Charlottenburg. 2026: 12,78 kalt for a renovated 90-m² DG (#767).
+- **Kirchsteigfeld** (Bj 1993–1998 → field 1991–2008). Recognisable without an address (#593): a Bj in the text, a park-like estate of two houses on a quiet side street, Fernwärme, terrace/Wintergarten flats, Sterncenter walkable, A115 5 min. Bj before 01.10.2014 ⇒ **the Bremse applies**, unlike the 2021 riegels next door.
+  - **Vonovia stock** (Maxie-Wander-, Anni-von-Gottberg-, Maimi-von-Mirbach-, Ricarda-Huch-Str., Am Hirtengraben):
+    - Consistently **Bj 1995**, Fernwärme, EEK C–E, no Aufzug, Mieterkeller + Balkon/Loggia/Wintergarten, **no EBK** (only a sink + E-Herd), Kaution exactly 3,0 NKM, "Vonovia Kundenservice GmbH (Frau Schultze.)", Objekt-Nr. `82-13…`.
+    - 4-Zi units: separate Gäste-WC, a ~13-m² kitchen, an Abstellraum (8 a has no lift).
+    - Asking **10,7–12,1 EUR/m² kalt**.
+    - **The m² COLUMN decides the verdict, and it is not monotonic:**
+      - C (60–75) 9,28 / 9,45 → zulässig ~10,21–10,40 ⇒ the usual 12,10 **exceeds** it (#678 +137 EUR/month; #679 borderline)
+      - D (75–90) 9,10 / 9,01 → zulässig **9,91–10,01, the minimum of the whole row** (#702, 76,02 m², 11,30: +105,60 EUR/month; but only 1,02 m² over the 75 edge, and at the C Oberwert 11,51 × 1,1 = 12,66 it would be covered ⇒ Next Step "check the Wohnfläche in the contract")
+      - E (>90): EEK D–G 10,28 (7,91–13,71) → zulässig 11,31, **compliant** (#689, 93,51 m², 10,66); EEK C (A+–C row) 9,91 (8,71–12,70) → zulässig 10,90, so #728 (Anni-von-Gottberg-Str. 8 a, 95,6 m², 11,42, EEK C 79 kWh) is +4,7 % over the limit, but under the Oberwert and coverable by Spanneneinordnung ("borderline"). Read the EEK before choosing the row.
+      - In short: C 10,21–10,40 · D 9,91–10,01 (min) · E 10,90 (EEK C) / 11,31 (EEK D–G). Never conclude "bigger ⇒ more headroom".
+    - **The warm side is above benchmark throughout:** 4,9–5,3 EUR/m² (NK 2,3–2,9 + HK 2,4–2,6) vs Potsdam 3,0–3,8. Always a con + ask for the Betriebskostenabrechnung.
+  - **Maxie-Wander-Str. 6 = Vonovia Bj 1995, no Aufzug, 12,10.** A private ad claiming Aufzug at 16,67 there was a fake (#775, see [[kleinanzeigen-de]] §Poster).
+  - Kirchsteigfeld all-in warm surcharge ~4,7–4,9 EUR/m², used to decide a Teilwarm heading (#853).
+  - #806: 702 EUR on 89,5 m² read as Kalt = 7,84 (a 90s Altvertrag).
+
+### 14478 — Waldstadt I / II, Brunnen Viertel (three Neubau traps in a Plattenbau PLZ)
+- **Waldstadt II, Zum Jagenstein / Saarmunder Straße = Wohnungsgenossenschaft "Karl Marx" Neubau ~2018/2019** (113 WE in 5 houses: two 4-storey + three 6-storey; barrierefrei, Laubengang, 113 TG, Fußbodenheizung, wood floors; 45 × 3-Raum / 38 × 2-Raum; the coop's HQ is Saarmunder Str. 2) → field **2013–2020**, § 556f (Erstbezug after 01.10.2014).
+  - Spalte D 12,34 (10,90–14,23) instead of 5,63 (factor 2,2); Spalte C 12,06 (11,23–12,74) → zulässig 13,27.
+  - Asking **13,48 kalt at 79 m²** (#585); 13,33 at 75 m² (#606).
+  - **Identifiable without an address** (#606): PLZ 14478 · `Etage N von 4|6` · Fußbodenheizung · Personenaufzug + "stufenloser Zugang" · TG-Stellplatz · 3-Raum/75 m² · price level. Photos: white smooth doors, large grey tiles, Wand-WC, Wanne + glass shower, Fertigparkett, galvanised steel railings, a tree-canopy view (Ravensberge).
+  - Genossenschaft ⇒ membership + shares, a second approval body, Eigenbedarf ~0. See [[wgkarlmarx-de]].
+- **Waldstadt I, Tiroler Damm 16 A–E = ProPotsdam Neubau, completed Q2/2019** (5 five-storey houses, 95 WE, GALANDI SCHIRMER, barrierefrei, lifts in all houses, all flats with Balkon, bike rooms; **Keller undocumented**, always ask; ~50–95 m², mostly 2–3 Zi) → **2013–2020**, D 12,34 (10,90–14,23). § 556f ⇒ no Bremse and no legal cap on future increases (a risk in Block A/G).
+  - **75 % belegungsgebunden** (5,50 EUR/m² with WBS, 7,00 WBS+40), only 25 % freifinanziert at ~12–13 kalt. So the WBS/Bindung status is THE contact question, and asks ≫ 13 kalt there are implausible, which means the figure is Warm (#607).
+  - **Only 16 A–E is Neubau.** `Tiroler Damm 1` is 1960s Waldstadt block stock (4 storeys, WDVS, a stair-tower risalit, Trockenboden, a cellar corridor with exposed pipes, #795). There "Baujahr laut Energieausweis 2014" is the modernisation/certificate year, not Erstbezug (IS24's tooltip says so). Taking it moves the field from 1949–1970 (6,48) to 2013–2020 (11,66) and switches the Bremse off wrongly (18,33 EUR/m²: +183 %).
+- **Brunnen Viertel, Brunnenallee** (Waldstadt I / Teltower Vorstadt; KW-Development on the former Plattenwerk site, architect Gregor Fuchshuber, 11 Stadthäuser, 49.700 m²; units named `Haus {röm.} – WE {n}`):
+  - Residential part Brunnenallee 9–13 finished 2016–2018, fully occupied since spring 2019 → **2013–2020**: C 12,06 (11,23–12,74), D 12,34 (10,90–14,23). § 556f ⇒ no Bremse and no § 556g lever. Plus for stability: at ~38 % over ortsüblich, the § 558 headroom is ~0 (unless there is an Indexmiete).
+  - **Asking band 15,16–16,70 EUR/m² kalt:** #510 (3A, Bj 2018, 76,84 m², 16,68) · #642 (Haus I/WE 8, 74,84 m², 16,70) · #692 (5, 75,04 m², 16,50, BUWOG) · #691 (5A, 72,74 m², 15,30, BUWOG) · #693 (3, 75,00 m², 15,16, BUWOG).
+    - It correlates with area, not house: a price list, not a quality signal.
+    - Block A: 4,3 is the norm; ≤ 15,5 earns A ≈ 4,6 (#691).
+    - ≫ 18 would be new.
+    - A tenant's ad shows the Altvertrag below the band (#723: the same unit as #642 at 1.100 = 14,70 on the plan area, while the owner asked 1.250); for Block A take the owner's ask.
+  - **Haus I / WE 8 = 74,84 m²** (plans in #642 and #723; ads said 75 and 77). Areas in the quarter are up to ~3 % high, so take the Grundriss. At 74–76 m², compute Spalte C AND D.
+  - **Energieausweis:** Bedarfsausweis B / 52 kWh, Fernwärme (#510, #692, #691, all Bj 2018). Credit it only from the unit's own exposé. Heating cross-check: 52 × m² × 0,13 ÷ 12 ≈ 0,56 EUR/m²/month; BUWOG charges ~0,99, i.e. conservatively ⇒ low Nachzahlung risk (a plus).
+  - **Betriebskosten anchor: 3,47 EUR/m² warm surcharge** (NK 188 + HK 75 on 75,77 m², #758 Brunnenallee 1; HK not inside NK). Use it to split a Warm-only ad: kalt ≈ warm − 3,47 × m² (#803: 1.450 − 271 = 1.179 = 15,12; band with NK 3,00–4,00 = 14,59–15,59, verdict stable).
+  - **Two owner layers that never dedup against each other:** 240 institutional rental flats (BUWOG/Vonovia group: No. 3/3a/5/7a, Objekt-Nr. `90-…` in OBJECT_INFO) and 129 ETWs of private owners (who rarely list themselves). A simultaneous BUWOG listing is almost always a DIFFERENT flat, not the landlord twin of a private Nachmietergesuch. The only real lever is unit identity from the Grundriss (`Haus N – WE n` + floor + m²). Block H: institutional (#510, low Eigenbedarf) vs private owner (#642, Medium) at the same price.
+  - "Brunnenallee 1-7" is ONE block's number range: the same number + floor ≠ the same flat (#803 occupied until 30.11. vs #758 empty from 13.09.). The vacancy date is the sharpest dedup key here.
+  - **Block B = 4,5:** Bhf Rehbrücke ~350 m (RE7/RB33), Tram 91 → Hbf ~11 min → Wissenschaftspark Golm (direct), Kita + Gymnasium in the quarter, Templiner See. Minus: ex-industrial land, the Wetzlarer Bahn, the busy Heinrich-Mann-Allee, and the commercial construction phase (8 office buildings, 2019–2025/26).
+
+### 14482 — Babelsberg Nord / Süd / Medienstadt
+- **Babelsberg Nord** = Gründerzeit Weberviertel (Nowawes) with interspersed Nachwende builds and young Neubau projects. Three possible rows:
+  - **bis 1948 (the norm; Altbau ads usually have no EA → kein-EA row):** D 7,83 (6,51–9,24) → zulässig 8,61, Oberwert cap 10,16. #631 (Karl-Marx-Str., Bj 1912, kein EA, 85 m², 22,35 = ~2,9× ortsüblich; a Souterrain is wohnwertmindernd → toward the Unterwert).
+  - **1991–2008:** D 9,10 (8,43–10,18) / 9,01 (8,27–9,69). #588 (Alt Nowawes 55b, Bj 2001, 89 m², 17,75 = P90, zulässig 10,01–11,20 → 583–689 EUR/month).
+  - **ab 2021:** D 16,73 (14,88–19,64), e.g. "Wohnprojekt Altes Filmstudio Babelsberg" (Erstbezug 11/2021, by the Park). #724 76 m², 15,79 = −5,6 % under ortsüblich + § 556f ⇒ no lever at all.
+  - Asking level 15–18 EUR/m² kalt ⇒ the § 556g lever is the norm for Altbau/Nachwende. Order: Baujahr < 01.10.2014 excludes § 556f; accept an "umfassende Modernisierung" only if both year AND cost are stated (a new bathroom on photos isn't one); then only § 556e remains.
+  - **The priceBar varies ~40 % within one street:** Alt Nowawes 55b (#588) similar 9,20–14,90 (overall 7,30–18,90) vs 106A (#681) similar 7,10–10,70 (overall 5,80–13,00), ~500 m apart. The western end (Humboldtring/Nuthestraße, Nachwende) carries 15–18; the eastern end (Rathaus, Gründerzeit/Denkmal) sits near the Mietspiegel. Always pull the exposé's own priceBar; the Ortsteil anchor is only a frame (10,50 at 106A was P65 and over zulässig, not "35 % under market").
+  - **Block B:** Alt Nowawes is the through-road with tram tracks in the carriageway (Tram 94/99, Bus 694, N14; the Humboldtring/Nuthestraße junction at the western end, lng ~13,089) = **4,0**; side streets **4,5**. S Babelsberg (S7) ~450 m → Hbf ~4 min, Wannsee ~7 min. Noise is a viewing point, not a deduction without evidence.
+- **Babelsberg Süd** (same PLZ, different price picture). Keep the anchors separate.
+  - **Older, cheaper stock:** priceBar similar 6,10–9,60 (overall 4,90–12) ≈ Mietspiegel level. #615 (60 m², 3 Zi, 11,08 = P87, cheap vs the city anchor but above the local band).
+  - **Villa/EFH edge toward Park Babelsberg/Griebnitzsee:** 1990s/2000s Nachwende builds, often DG maisonettes with a Wendeltreppe + Galerie; asking like Nord (15–18). Typical 90-m² DG: 1991–2008 E = 9,91 (8,71–12,70) for EEK A+–C / 10,28 (7,91–13,71) for D–G → zulässig 10,90–11,31.
+    - **Nachmieter-Altverträge sit 5–10 % UNDER ortsüblich** (#609: 860 / 92 m² = 9,35) = the Altvertrag effect, so no ">20 % below" signal. The new contract may go to ortsüblich +10 % (~1.000–1.040 at 92 m²), and § 556e doesn't help the landlord when the Vormiete was lower: a cap calculation, not an "unlimited" risk.
+  - **Medienstadt** (Marlene-Dietrich-Allee, Filmpark/Studio/rbb; projects "LOLA", "Marlene 21" by KW Development): Nachwende to Neubau, 15–18+ EUR/m². Bracket 1991–2008 (D 9,10) vs ab 2021 (16,73), a factor of 1,8 (#676).
+  - **Stahnsdorfer Str. 93, "Villen am Filmpark"** (WEG, Gewobag as WEG-Verwalter, Bj 2016, EEK B 71,7, Fernwärme, TG): priceBar similar 10,00–17,00, overall 7,70–22,20; field 2013–2020 D 12,34 (10,90–14,23), § 556f. #858 at 20,99 = P92. Along the Stahnsdorfer Str. the building class sets the band.
+  - **Block B Süd/Medienstadt 4,5** (S7 Babelsberg/Griebnitzsee/Medienstadt, Tram 94/99 north side, Lindenpark/Filmpark walkable; no 5,0 without an address; 4,0 near the Nuthestraße (B2) or the railway).
+
+### 14471 — Potsdam West / Westliche Vorstadt
+- The Altbau reputation misleads: ordinary 1970s MFH sit between the Gründerzeit axes (e.g. Stormstr. 16/20/21, 5 storeys, ~15 WE). Spalte C: bis 1948 kein EA 7,49 / C–E 8,82 vs 1971–1990 C,D **5,82**, a factor of ~1,5. Date the building first.
+- Stormstr. 16 (#737): priceBar similar **6,10–8,60** (overall 5,10–10,10), IS24 atlas ~11. A Nachmieter Altvertrag at 6,5–8 is normal here, not a scam signal.
+- **Block B 4,5** (Tram 91/94 Kastanienallee/Zeppelinstr., Bhf Charlottenhof + Park Sanssouci RB21/22, Innenstadt 5–10 min). Deduct only for flats directly on the Zeppelinstraße (a loud main road; ask which side the flat faces).
+
+### 14473 — Speicherstadt · Brauhausberg · Lotte · Jutekiez
+- **Speicherstadt** (Groth Gruppe, between the Brauhausberg and the Havel, opposite the Stadtschloss, Hbf 5–10 min on foot): two phases split right on the § 556f date.
+  - South part finished end of **2014** (155 rental + 98 ETW): Erstbezug before 01.10.2014 ⇒ the Bremse applies.
+  - North part up to **2022** (~270 WE): § 556f.
+  - Fields: 2013–2020 vs ab 2021 (C 12,06 vs 15,72). Compute both; the Baujahr is practically never on the ad, so leave it an open question.
+  - ~18 kalt is plausible, > 22 is not (#540).
+  - House numbers → phase:
+    - `Am Speicher 1-5` = Bj 2014 (south, EEK B 62,8, Fernwärme; #819, Vermietungsbüro Müller, allows NO interior photos) → 2013–2020, § 556f hinges on the Erstbezug date
+    - `Am Speicher 12` / `Am Magazin 7` = Bj 2022 (north / Havel Quartier, allod; #168, #740) → § 556f certain, ab 2021
+  - Don't confuse with **#430 Havel Quartier / MIRU** (Bj 2022, allod: Indexmiete + 12 months minimum term).
+- **"Wohnen am Brauhausberg", Max-Planck-Str. 14–16 / 14A–16A (Südliche Innenstadt):**
+  - **Facts:**
+    - 107 rental flats, **Bj 2026, Erstbezug from 01.04.2027**, Fernwärme, EBK included, Aufzug, Keller; marketed by **locals Real Estate GmbH** (IS24 4,5★/26, verified, phone 0331 58 18 60). The Bauträger/owner is never named. Landing page `wohnen-am-brauhausberg.com`.
+    - Refs **`H{Haus}-{Etage}-{WE}`**; every unit is also on Immowelt.
+    - § 556f (no Bremse); field **ab 2021**: C 15,72 (10,52–19,00), D 16,73 (14,88–19,64), E 15,14 (10,90–17,86); priceBar 11,20–18,50 (overall 8,70–23,90).
+    - **Asking 21,0–22,5 EUR/m² kalt** (1.550/71,17 · 1.650/78,52 · 1.670/78,48 · 1.800/85,5 · 1.880/84,59 · 1.890/85,45 · 2.030/90,2 = 22,50 top) = ~25–49 % over ortsüblich.
+  - **Contract facts for the whole batch:**
+    - **Mindestmietdauer 24 Monate** (Immowelt Stichworte + the structured `rental-time` feature; absent on IS24) ⇒ G ≈ 3,8
+    - Kaution "drei Monatsmieten" (vague: on the Warmmiete it would be illegal, so always ask)
+    - no Provision, no WBS, unbefristet, no Staffel/Index
+    - **Energieausweis missing** (`hasScales:false`, "wird bei Besichtigung vorgelegt") ⇒ D max 4,7
+    - Equipment: EBK, Aufzug, Keller, a bodengleiche Dusche; **no Badewanne, no Garten, no Gäste-WC**
+    - Chips vary per unit (#786 had no Keller chip; don't copy siblings)
+  - **Warm trap:**
+    - NK = **3,33 EUR/m²**, and "Heizkosten in NK: Nein" on IS24 ⇒ add ~1,00–1,40 EUR/m² HK before checking the 2.200 cap. #732's displayed 2.175 becomes 2.260–2.295.
+    - From #826 on, the Immowelt ads carry an HK row "in Warmmiete enthalten" (Warm = KM + NK) while the older ads and the IS24 twins say HK not included. Report both scenarios.
+    - Economics: only the 78,5-m² units (1.650–1.670) stay 160–190 under the cap; the 85-m² units at 1.800 sit AT the cap; 1.890 and 2.030 are over it. The cap is the discriminator; €/m² is flat.
+    - Block A calibration: #731 3,9 · #729 3,5 · #732 3,1 · #730 2,8. Totals: #731 4,3 · #729 4,2 · #730/#732 4,1. The other blocks are constant (B 4,6–4,7 · D 4,7 · F 4,4 · G 3,8 · H 4,2), so the ranking comes from Block A alone.
+  - **Unit plans** (filename `FF26888_…_Haus_{N}_…_WE_{n}` or `…_Wohnung_{n}`; in `floorplans` OR in `images`, see [[immowelt]] §Photos). The balcony/terrace is counted at the **WoFlV maximum of 50 %**, so compute the heated interior on every unit:
+    - **85,45-m² type** (H1-01-04 #632, H1-01-05 #729, H1-03-16 #732): Wohnen 32,74 · Schlafen 16,67 · Kind 12,43 · Flur 11,20 (13,9 %) · Bad 5,80 · Abstell 1,72 = **80,56** + 9,78 × 0,5 → interior kalt 22,34 (23,46 at 1.890). Spalte D.
+    - **78,48-m² type** (H2-01-05 #731; the same geometry as #624 H3-02-09 78,52 and #629 H2-02-09): Wohnen 33,93 · Schlafen 14,58 · Kind 10,66 · Flur 6,71 (9,1 %) · Bad 5,80 · Abstell 1,67 = **73,35** + 10,25 × 0,5 → interior 22,77. The interior crosses 75 m², so compute C AND D. This type has a larger living room than the 85-m² type; the extra area buys bedrooms and hallway.
+    - **EG terrace type** (H5-00-01 #730, 90,2 m², 2.030): Wohnen 32,37 · Schlafen 16,40 · Kind 12,23 · Flur 11,13 · Bad 5,80 · Abstell 1,78 = **79,71** + 21,06 × 0,5 = 90,24 → 11,6 % of the area is outdoor space, interior 25,47. It has 0,85 m² LESS heated area than #729 for +230 EUR. Formally Spalte E (15,14), Spalte D on the interior (16,73): name both.
+    - **H6-00-01 (#789):** the ad copied the Haus-5 figure 90,23; the plan shows 79,60 + a **28,62** terrace (× 0,5 = 93,91). The Stichwort 28,62 was the only text hint.
+    - Typos and copies: #731 Stichworte 10,52 vs plan 10,25 (only 10,25 reproduces 78,48); #732 9,78 = 9,78 exact; #828 said 9,90 (the Haus-6 value) vs plan 9,78. Stacked units share a plan (H4-01-03 ≡ H4-02-09); mirror units have the same m² with the balcony on the opposite side (H4-02-09 West ≡ H4-02-14 East, 80,61 + 9,78). Dedup on the full ref.
+    - A "Dachgeschoss" chip (#732, 3. OG) is NOT a sloped roof: flat green roofs + PV, no 1-m/2-m lines ⇒ full height, no WoFlV reduction.
+  - **Floor price ladder:** the same plan costs 1.800 in the 1. OG (#632/#729) vs 1.890 in the 3. OG (#732) = +90 EUR/month per two storeys (+2.160 over the 24-month minimum). Weigh it against orientation (#732 also got the street side).
+  - **Site geometry** (2×3 grid):
+    - West row: Haus 1 = Max-Planck-Str. **16**, Haus 2 = **15**, Haus 3 = **14** (Haus 1 = the NW corner)
+    - East row: Haus 4 = **16A**, Haus 5 = **15A**, Haus 6 = **14A**
+    - The street + blu car park lie west of the west row; the wooded Brauhausberg lies east of the east row; a green courtyard sits between them.
+    - ⇒ "East = courtyard, West = street" holds ONLY for Houses 1–3. For Houses 4–6, West faces the courtyard (quiet + evening sun, the best combination) and East faces the forest. Determine the row from `H{N}` first.
+    - The headline "Balkon mit {West|Ost}ausrichtung" matched the plan's north arrow 3/3 (#791 Ost, #792 West, #793 Ost), so it is a cheap first read. But the WE number does not predict orientation across houses (WE 06 is West in Haus 5, East in Haus 6): check the plan.
+    - Immowelt's `address.street` gives the generic "Max-Planck-Straße 15"; the real house number is in the SEO `document.title` or follows from `H{N}` (#730 Haus 5 = 15A).
+  - **Photos:** ~30 real photos of the finished MUSTERWOHNUNG + ~10 exterior renders + ~9 surroundings + ~9 marketing tiles. `classification` is badly wrong; `description` is correct. No unit photos ⇒ the Neubau exception, no D cap. "Hausaufteilung - Visualisierung" is actually a drone photo of the externally finished quarter (a Block-F hint, cite with reservation).
+  - **Outdoor chips:** a "Terrasse" chip can be an AI enrichment (#729). The reverse also occurs: #730 had both Balkon and Terrasse chips with no AI flag, but the Stichworte sum 21,06 = the terrace alone ⇒ no balcony (the dashed line on the EG plan is the 1. OG balcony above).
+  - **Block B 4,8** (Hbf ~400–500 m / 5–7 min on foot; RE1 Berlin ~25, S7 Wannsee ~10). Used on #624, #628–#632, #729–#732, #784–#793, #826–#832.
+- **"Lotte", Edisonallee 14 + 16** (Südliche Innenstadt / Zentrum Ost–Nuthepark; Covivio Neubau **Bj 2021**, 50 WE of 52–110 m², `lotte.immo`, developed as the "Lotte + Kleist Quartier" by Deutsche Wohnen, let by **Covivio Immobilien GmbH**):
+  - Objekt-Nr. `C392.017294-0NN`; the Grundriss labels the unit ("Mieteinheit 014 – 75,67 m² – 1. OG – 2. Einheit von links – Edisonallee 16") = dedup settled.
+  - Field **ab 2021:** D 16,73 (14,88–19,64) → zulässig 18,40; C 15,72 (10,52–19,00) → 17,29 (the 3-Zi units sit at the ~75 edge).
+  - § 556f: no lever, and Covivio standardly adds an **Indexmiete for 10 years + 12 months minimum term** (in the "Ausstattung" block, not Sonstiges): the Block A/G risk.
+  - **16,87 kalt** (#752, 75,67 m², 1.276,50) = +0,8 % over ortsüblich, +8,8 % over 15,51, P56 of the priceBar (similar 10,70–18,20).
+  - Standard for all units: Fernwärme + Fußbodenheizung, Bedarfsausweis B, Endenergie 66,4 / Primär 13 kWh (25.02.2021), Aufzug, green roofs, bike rooms, separate Stellplätze. The landlord text says Balkon + Keller for every flat, although IS24 shows `obj_cellar: n`. A "Gaszentralheizung" mention is a copy-paste block (EA + `district_heating` say Fernwärme).
+  - NK **4,15 EUR/m² incl. heating** (314, of which 197 HK) = above 3,00–3,80 but ~3,6× the calculated need ⇒ conservative, more likely a credit (a con, not a risk).
+  - **Block B ≈ 4,3** (~1 km east of the Hbf: 7 min ÖPNV / 5 bike / 15 on foot; Bus 694 + N14 at the door, Nuthepark, shops 5 min, A115 ~10 min). Minus: Nuthestraße (B2) noise, and `obj_telekomInternetAvailable: false`.
+- **Jutekiez / alte Jutespinnerei** (Lotte-Pulewka-Str. / Wiesenstr.): a **Jutespinnerei from 1863** converted to lofts from 2014, finished **2017/2019** (sources differ) → 29 ETW of 67–125 m² in the hall + 414 rental flats in seven new blocks around it.
+  - The Ortsteil is disputed (Immowelt: Teltower Vorstadt; street register: Südliche Innenstadt; city map: Zentrum Ost und Nuthepark); **PLZ 14473 is certain**. No scoring impact. Prose landmark: "restaurierte Jute-Fabrik" / "Jute-Kiez".
+  - **Field, both hypotheses:**
+    - A: the conversion counts as Neubau standard (the flats didn't exist before; the textbook case) → **2013–2020**: E 12,39 (10,31–14,00) → zulässig 13,63; D 12,34 (10,90–14,23) → 13,57. This one carries the weight.
+    - B: shell from 1863, no EA → **bis 1948 kein EA**: E 8,17 (5,90–9,40) → 8,99 (Oberwert cap 10,34); D 7,83 (6,51–9,24) → 8,61.
+    - Factor ~1,5 between them.
+  - First residential use after 01.10.2014 ⇒ § 556f very likely ⇒ no cap on a new contract.
+  - **Price levels: 13 EUR/m² = Bestand, ~16–17 = new contract** (#666: 4 Zi / 98 m², 13,27 Bestand vs #694: 3 Zi / 86 m², 16,57 new = +24,9 %, exactly the predicted reset band). Ask Altvertrag vs Neuvertrag first; use the other number as the address-precise comparable.
+  - **Lotte-Pulewka-Str. 41** (86 m², 3 Zi, Maisonette, #761 = the IS24 twin of #694): **1.425 kalt + 400 NK incl. heating = 1.825 warm**, 16,57, Kaution 4.276 = 3,00 NKM, Stellplatz +50, Geschirrspüler-Ablöse 100. ⇒ The hall's NK rate is **4,65 EUR/m²** (not the derived 5,35 used on #738). The Kleinanzeigen twin said 1.885 warm (an estimate); the IS24 split is the consistent one.
+  - **Block B 4,5** (~1,5 km east of the Hbf, Nuthepark, Babelsberg across the Nuthe). Noise caveat, now proven by photo: from the terrace, the rail corridor with parked regional trains (#694). Loft photos date from ~2017/2019 (construction site in view); the seven new blocks have since changed the view and the sound path. Read the photo age.
+
+### 14469 — Jägervorstadt · Bornstedter Feld · Eiche
+- **Jägervorstadt, Quartier Pappelallee/Voltaireweg, Wohnbau GmbH, Bj 2013:**
+  - "Villenkolonie"-style Neubau: a green courtyard with an old sycamore, TG with lift access, Fernwärme + Fußbodenheizung, oak parquet, EBK, bodengleiche showers, video intercom.
+  - Landlord **Wohnbau GmbH** (Bonn/München, IS24 3,9★ / 1.297, verified); refs `1.1503.4.NN` = a portfolio, so more units will come; applications only via **immomio** (`tenant.immomio.com/apply/…`).
+  - Fixed: vollständig renoviert, **Verbrauchsausweis B / 65 kWh** (PDF at the exposé), Kaution 3 NKM, no Provision, TG optional 80,00/month (not in Warm; name it as a variant). **~15,4 kalt**; NK 1,76 + HK 2,09 = 3,85 warm surcharge.
+  - **Trap: Bj 2013 = before 01.10.2014 ⇒ § 556f does NOT apply, the Bremse DOES.** Field 2013–2020 E = 12,39 (10,31–14,00) → zulässig 13,63 at the Mittelwert, **15,40 at the Oberwert**, i.e. only just permissible at maximum Spanneneinordnung. The Mehrmerkmale (FBH, parquet, Aufzug, EBK, often two balconies, G-WC, Wanne + Dusche, EEK B, Fernwärme) justify it ⇒ report § 556g Abs. 3 (Vormiete + Spanneneinordnung), neither "violation" nor "compliant". The priceBar 10,50–15,70 puts it at P64 (#584 Pappelallee 49, 90,93 m², 4,75/5).
+  - Immowelt mis-tags this quarter as "Bornstedt"; IS24 says `jägervorstadt` (#584, #700).
+- **Bornstedter Feld — "Fontane Gärten"** (Instone Real Estate: **108 ETW in eight Stadtvillen A–H** on ~10.000 m² by the Volkspark; streets Georg-Hermann-Allee, Peter-Huchel-Str., Erich-Arendt-Str., Bonner Str.; the first 54 WE were ready end of 2022, Bj **2022/23**):
+  - Grundriss header: "Villa {A–H}, {n}. Obergeschoss, Wohnung {X}.{Etage}.{Nr}" + a site plan of A–H.
+  - IS24's Preisinsights geocode sends the Bonner Str. to `nedlitz`, while `geo_ot` says `bornstedt`: both are Potsdam Nord, no Block-A effect.
+  - Field **ab 2021:** C 15,72 (10,52–19,00), D 16,73 (14,88–19,64), E 15,14 (10,90–17,86). § 556f: no lever; name the risk that future increases are uncapped (ask Index/Staffel).
+  - **Asking band of the Neubau belt 19,7–22,4 EUR/m² kalt:** #639 (Bj 2022, 88,9 m², 19,69) · #760 (Bonner Str. 6, Villa C, 73,1 m², 21,20) · #756 (Georg-Hermann-Allee 127, Bj 2023, 69 m², 22,39) · #781 (Georg-Hermann-Allee 126 = Villa E, penthouse E.3.16, 107,3 m², Bj 2022, gas + FBH, locals Real Estate, 19,31 after a cut from 20,32; Spalte E +8 % over the Oberwert).
+    - That is +26…42 % over ortsüblich and +27…44 % over 15,51: the most expensive Potsdam corridor. Block A 3,5–4,0; ≥ 23 would be new.
+  - **ETW project ⇒ every rental ad is a private single owner:** Eigenbedarf/sale risk medium–elevated, usually `verifiedBy: []`, no phone.
+  - **NK: 4,79 incl. Fernwärme** (#760: 350 / 73,1) and **5,82 NK+HK flat rate** (#781: 625 / 107,3), above the 3,00–3,80 band. Large units break the WARM cap via the NK: check Warm first.
+- **Bornstedter Feld — "Am Park Potsdam"** (Diamona & Harnisch, Georg-Hermann-Allee; 5 houses, 80 WE, Bj **2023**, every EG flat with its own garden, OGs Balkon/Loggia; ETW ⇒ single owners via **Passgenau Immobilien**, refs `VM_POTS_{Haus}.{Etage}.{WE}`, plan files `Grundriss_{Haus}.{Etage}{WE}`):
+  - Tell without an address: "Diamona & Harnisch" + "direkter Zugang zum Volkspark".
+  - Field ab 2021, § 556f. #824 (Haus 2 EG, 75,6 m², 20,49, **Staffelmiete + 2 years Kündigungsausschluss**, NK 3,51 incl. Fernwärme, inside the band).
+- **The Volkspark west edge is older: check the Baujahr per street, not per quarter.**
+  - **Horst-Bienek-Straße** (a cul-de-sac): IS24 atlas No. 9 = Bj 2010, No. 4 = 1920–1949.
+  - #726 (no Bj; kitchen self-installed 2016, TG, Loggia, fully barrier-free) → 2009–2012 or 2013–2020, E 12,01 (10,30–13,84) / 12,39 (10,31–14,00). The 01.10.2014 date decides: before ⇒ Bremse (cap ≈ 13,21–13,63 = 1.914–1.975 on 144,92 m²); from ⇒ § 556f (up to 19,7–22,4 = 2.855–3.246), a factor of 1,6. So "Baujahr/Erstbezug?" is the first contact question.
+  - Bestandsmiete there since ~2016: **11,25 kalt** (144,92 m², 1.630) = 6–9 % under ortsüblich, ~half the quarter's asking level. NK only **2,02** (292,45 incl. heating). The opposite extreme to Fontane Gärten in the same quarter: never infer NK from the quarter.
+- **Eiche (14469, Potsdam Nord):** borders Golm (top preference) ⇒ Block B regularly **4,5**; ÖPNV only Bus 609/638 (~8 min to Bhf Golm/Sanssouci, ~20 to the Hbf).
+  - ⚠ Exposé location texts claim an "S-Bahn S7" in Eiche. **There is none** (the S7 ends at Potsdam Hbf); it is boilerplate.
+  - Mixed EFH/ZFH/small MFH + Neubau islands on the Kaiser-Friedrich-Straße (#161/#182: Bj 2024, 18,04). No Ortsteil default; always ask the Baujahr. Observed ~10,0 (Bestand, #137/#145/#249) to 18,04.
+  - priceBar Kaiser-Friedrich-Str. 8 (09/2026): similar 8,50–12,60, overall 7,00–15,30 (~19 % under 15,51) = the cheap corner in Bestand; an upper-band ask is no bait.
+  - Seen on #100, #118, #137, #145, #169, #170, #249, #298/#299/#331, #802.
+
+### 14476 — Golm (+ "In der Feldmark") · Fahrland
+- **Golm** = the profile's top Ortsteil and the site of our swap offer; there is no dominant building type (village core / pre-war, 1990s–2000s around the campus and station, 2020s Neubau).
+  - Spalte D: 1991–2008 9,01 (8,27–9,69) · 2013–2020 12,34 (10,90–14,23) · ab 2021 16,73 (14,88–19,64), a factor of 1,9. Compute all plausible fields, ask the Baujahr, narrow it by photo.
+  - Block B 4,5–4,8 without an exact address (Bhf Golm RB21/22 ~10 min to the Hbf, Uni/Max-Planck walkable, thin shops).
+  - 14,71 kalt for 85 m² (#597) is unremarkable for Golm.
+- **"In der Feldmark" (our own street; `swap_offer` No. 29, Bj 2024, DIBAG Hausverwaltung for Bayerische Städte- und Wohnungsbau GmbH & Co. KG):**
+  - Field **ab 2021** (C 15,72 (10,52–19,00) vs 2013–2020 C 12,06) + § 556f: no Bremse (name both grounds).
+  - Price regime **~18–19 EUR/m² kalt** (ours 1.025,25 / 54,19 = 18,92; #660 1.280 / 70,53 = 18,15): normal and no scam signal, but over the profile cap of 18 and ~15 % over the Mittelwert.
+  - **NK ≈ 3,50–3,55** (ours 189,68 / 54,19; #660 250 / 70,53); matching NK is the best evidence that an ad is from this quarter.
+  - **⚠ CORRECTED 2026-08-23 (#661): the quarter HAS Keller.** The old rule "no cellar storey, Block E systematically 2,0" was wrong. The Tauschwohnung twin of #660 lists `Keller` in a complete chip list; the Wohnungsswap post had 1 chip. Treat Keller as present/open for Feldmark ads. Our No. 29 lacks one as a property of the unit; ask whether an Abstellraum can be rented.
+  - **Indexmiete (§ 557b)** on our contract; assume the same for neighbours and ask. With § 556f the rent is freely resettable on a tenant change, so a low Bestandsmiete in a swap ad is no price promise.
+  - **Block B 4,8** (REWE, Bhf Golm and a bus stop walkable: the good corner of Golm).
+  - **A vacancy there is best pursued as an internal move via DIBAG** (Carola Dembicki / Melanie Heinke): we are tenants of the same landlord, so no swap partner consent is needed. Always put it in Next Steps.
+- **Fahrland (Nördliche Ortsteile):** a village ~11 km north on the B2 to Ketzin/Nauen; **no rail/tram, bus only** (609/638, ~25–35 min to the Hbf) ⇒ car-dependent; to Golm 10–15 min by car.
+  - **Ketziner Str. 100–108 = Holger Behnke Neubau:** 3 MFH × 3 storeys, 42 WE / 3.300 m², completion planned summer 2025, 2–4 Zi, **all EG flats with a Terrasse, all OG flats with a Balkon, EG barrier-free**, plus two older Behnke blocks. It settles Balkon/Terrasse when the IS24 mask is empty (`obj_balcony: n`). Erstbezug 2025 ⇒ § 556f; the old block ⇒ 1991–2008 (C 9,28–9,45, zulässig ~10,4). Name both. ~11–12 kalt occurred (#563). **Block B 3,5** (village edge).
+  - **Pastor-Moritz-Str. 5/7 = Semmelhaack quarter, Bj 2016** (the address behind #594/#698, Whg. 1.07): 3-storey MFH with a Satteldach, a clinker base (= a Keller with windows), glass balcony railings, **Aufzug −1…3**, Fernwärme, **Verbrauchsausweis B / 60 kWh**, vinyl in wood look, a shower bath.
+    - Field 2013–2020 C 12,06 (11,23–12,74) → zulässig 13,27. The ask 08/2026 was **12,59 (900,00 / 71,50 m²)**; the Vormiete 875,00 → +2,9 %.
+    - § 556f ⇒ no Bremse, no cap on re-letting.
+    - priceBar similar 8,90–13,00, overall 7,40–15,70.
+    - **Block B 3,8** (village-core reference, ~250–300 m north of the core, shop/primary school/Kita walkable).
+    - Warm side: NK 1,68 + HK 2,52 = 4,20. The HK is ~2× the expected use at 60 kWh, the NK under the benchmark: ask about both.
+  - **Gartenstraße 17** (MFH in the village core, **Bj 1996**, Verbrauchsausweis C / 83 kWh, Fernwärme, 4 storeys with a lift, TG, 94-m² DG flats with Balkon + Keller + G-WC): 1991–2008 A+–C E = 9,91 (8,71–12,70) → zulässig 10,90; priceBar 8,60–12,50 (overall 7,10–15,20). **Block B 3,8** (#495 = #626, the same flat).
+  - Photo-dated **2013–2020** stock also exists (#594 before the address was known: a Satteldach MFH, clinker base, perforated-metal balcony railings, level shower, Vorwand-WC, vinyl, integrated roller shutters, young trees). The 1991–2008 reading (9,28) would have faked "+33 %, § 556g".
+  - **Price level 2026:** Bestand 11–12,6 kalt; Neubau offers ~16,9 (Seeburger Chaussee 2, 75 m², 3 Zi, 1.265).

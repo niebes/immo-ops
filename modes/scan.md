@@ -132,6 +132,7 @@ Because no script covers these portals, they are the easiest to silently skip �
    - Size: REJECT if m² < `min_m2`. Non-negotiable.
    - Price: REJECT if price > `max_kaltmiete` **× 1.1** (the scripts' grace band for fees/format noise — the SINGLE over-budget threshold; AI triage uses the same ×1.1, `filterCriteria` in scan.mjs/process-scan.mjs implements it).
    - Area: REJECT if location matches an excluded area.
+   - Region (opt-in, nationwide feeds only): a portal with `plz_prefixes:` in portals.yml REJECTs a listing whose printed 5-digit PLZ matches none of the prefixes (`lib/plz-gate.mjs`). No PLZ printed → kept. Never a location-keyword match; use it only for feeds that cannot be scoped at the search URL (Semmelhaack, DGA, bbox spill-over).
    - If a field could not be extracted from the search result snippet, log a warning but still add to pipeline (better to over-include than silently drop).
    - Price sanity check: if price is >30% below typical area Mietspiegel, flag as suspicious — likely a coop rent, extraction error, or scam. Still add to pipeline but prepend "⚠ LOW PRICE" to the title. Low price is a KEEP-and-flag signal, never an auto-discard.
    - NOTE: the scripts (`scan.mjs`, `process-scan.mjs`) apply ONLY these numeric gates + dedup — never a title keyword filter. Title relevance is the AI triage step above.

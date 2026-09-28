@@ -1,1089 +1,160 @@
-# Tauschwohnung.com — page quirks
-Portal match: tauschwohnung.com (source behind "Tauschwohnung GmbH" swaps on IS24/Immowelt/Kleinanzeigen)
+# Tauschwohnung — swap listings: sources, the partner's Suche, the two-sided match
+Portal match: tauschwohnung.com and its syndication ("Tauschwohnung GmbH" on IS24 / Immowelt / Kleinanzeigen), Wohnungsswap.de syndication, and private DIY swaps. Portal field quirks: [[immowelt]] §SwapFeed, [[kleinanzeigen-de]] §Swaps, [[immobilienscout24]].
 
-## ⚠️ The portal's STRUCTURED fields can hold the poster's SUCHE, not the offered flat
-On IS24 swap exposés some posters type their **search criteria** into the object fields. #550
-(expose 169908178) shipped `realEstateType: houserent`, TOP_ATTRIBUTES "5 Zimmer / 100 m²
-Wohnfläche / 100 m² Grundstück / Kaltmiete 1.500 €" — while the Objektbeschreibung offered a
-**4-Zi / 84 m² / 1.300 € warm Wohnung** and *sought* "Haus oder Wohnung … mindestens 5 Zimmern
-und einer Fläche von 100 m² für maximal 1.700 € warm". The address (Gorgasring 10, 13599) was
-still the poster's own flat, so nothing looked broken.
-⇒ **Rule: on every swap, cross-check TOP_ATTRIBUTES/ATTRIBUTE_LIST against the description
-before scoring.** Tells that the fields are the Suche: a `Grundstück` figure identical to the
-Wohnfläche, `realEstateType: houserent` on something the title calls a "Whg", a room/m² count
-that equals the number in the title's "suche …" half, or a round 100/1.500.
-⇒ Two knock-on effects: (a) score blocks A–H off the **description** numbers; (b) the
-`PRICE_INFO.priceBar` is computed for the *phantom* object and is **unusable** as an
-address-precise band — do not quote it and do not let it drive the "20 % below Mietspiegel"
-scam signal. *Why:* scoring #550 off the fields would have invented a 100-m²-Haus at 1.500 €
-kalt that does not exist, and inverted the two-sided match (their Suche read as their offer).
+Consolidated 2026-09-28 from a 98 KB append log plus the Suche notes that were scattered over immowelt.md and kleinanzeigen-de.md. Doctrine is in `modes/evaluate.md` step 4: side 2 is lenient, and only a Suche that explicitly excludes our offer fails. Sections: §Sources · §WhereTheSucheIs · §Side2 · §Economics · §Dedup.
 
-**Sibling failure: a 10×-typo in the size field (Immowelt swap feed).** #868 (Anbieter-ID 316074,
-3-Zi-DG Großbeerenstr.) shipped `livingSpace: "900 m²"`; Immowelt's `priceComparison.pricePerSqm`
-(„0,78 €/m²") is auto-computed from it (its own legalText says so). ⇒ Treat size as UNKNOWN (state the
-likely value only as an inference), bracket the Mietspiegel check across a 60–90-m² band, and never let
-the derived €/m² fire the "20 % below Mietspiegel" scam signal. *Why:* taken at face value it reads as
-a 96 %-below-Mietspiegel lure on an ordinary Altvertrag.
-**Floor-plan-only swap galleries (brochure scans) often leak the street.** #869 (ID 323234): the 2 images
-were a Grundriss + a "Lage der Wohnung im Haus" page whose cropped header read "…-Mendelsohn-Allee, 14469"
-→ Erich-Mendelsohn-Allee, while the ad said only "Bornstedt". Always Read both images: the address fixes
-Block B and the likely Baujahr (Mietspiegel row / § 556f). Developer room labels ("Kind 01/02") are
-generic, not the poster's household.
-**No-Suche ads: the photos can still reveal the household.** A children's room with Hochbett + second bed
-(#868) ⇒ family, i.e. the upsizer class our offer can't serve — put it in the labelled economic
-inference, never as a stated Suche.
+**Our offer.** Numbers used below come from `swap_offer` golm-feldmark in `config/profile.yml` and must be re-read there: Golm, 2 Zi / 54,19 m², EG + Personenaufzug, ~29 m² Privatgarten, 1.025,25 kalt / 1.214,93 warm, Indexmiete, Bj 2024. It lacks Balkon, Keller and Stellplatz.
 
-## Side-2 base rate: our 2-Zi/54-m² Golm offer only serves DOWNSIZERS
-#492, #505, #533, #541, #550, #578 (später auch #667, #683, #719, #720, #722, #724, **#778** — „gegen mindestens 5 Zimmer … alternativ zwei 3-Raum-Wohnungen im gleichen Haus", i.e. axes 3+4 in one sentence) all failed side 2 on the same axis — the partner wants to
-*enlarge* (≥3–5 Zi, 70–100 m², family households), and the Golm flat is the small end of the
-market. Side 1 kept passing (3,5–4,3/5), so the cost was a full evaluation each time.
-**Object-type variant — the Suche names a HAUS.** #779 (Immowelt, ID 117524, Fahrland 3 Zi/81 m²):
-„Wir sind auf der Suche nach einem **kleinen Häuschen mit Garten**, für unsere Familie." Grep
-`Haus|Häuschen|Einfamilienhaus|Reihenhaus|DHH` in the Suche: our only offer is a flat, so this is a
-categorical fail even though „mit Garten" superficially matches our ~29 m² EG garden. Don't let the garden
-hit read as a near-miss.
-**Dedup trap, seen twice (#696, #779):** the orchestrator's numeric re-list matcher flags swap ads as
-„DUPE of #484" on ~950/80/3 alone. Dedup Tauschwohnung ads on **Anbieter-ID** (#484 = 139363), never on
-price/m²; one grep of the ID settles it.
-⇒ Read the Suche's **direction** (vergrößern vs. verkleinern / "weniger Miete") FIRST; if they
-name ≥4 Zimmer or a 3+-person household, side 2 is a deterministic fail and the rest of the
-evaluation is only worth doing for the record. Worth proposing a triage prefilter
-("suche … ≥4 Zi / ≥70 m²" → discard before evaluation).
+## §Sources — where their data and Suche come from
+- **Only IS24 can route to the tauschwohnung.com source.** Look in the expose's "Weitere Links" (`REFERENCE_LIST`):
+  - An object link `twg.click/is24-{objektNr}-NN` (the tail can be 3 digits, `-899`, #610) 302s to the detail page. Plain `curl -sL` with a Firefox UA returns full SSR HTML (no consent wall, no bot block).
+  - Often there is only the generic `twg.click/is24-homepage` (#526, #549): roughly a coin flip. Grep the list once; never construct the link from the IS24 Objekt-Nr. (#526: all 404).
+- **Reading the source page:** the rendered `<h2>{Name} sucht</h2>` block, or better `__NUXT_DATA__`, a devalue flat array where dict values are indices. Resolve with `data[idx]`, but do not recursively follow ints (ids and booleans collide with indices).
+  - The dict with `{sourceUserId, targetUserId, housing, user, search, match}` (≈ idx 42) holds:
+    - `search` = `{cityNames, radius (km), rentMax, roomsMin, sizeMin, storeyMin/Max, residentCountAdults/Children, housingPropertyIds}`.
+    - `housing` = their flat: `isActive, deposit, moveInDate, constructionYear, energyEfficiency, propertySize, market` (`"free"` = no WBS), `housingPropertyIds`. Explicit nulls prove "unstated".
+  - Property-id map: `1=balconyOrTerrace, 2=fittedKitchen, 4=garage, 6=garden, 8=guestToilet, 9=cellar, 12=petsAllowed, 14=floorHeating, 36=terracedHouse, 64=centralHeating, 66=bathtub, 71=levelShower`. Absence of 9 = no Keller, the only reliable Keller negative (IS24's CHECK list omits negatives).
+  - `moveInDate` can be stale (2024 on a live 2026 ad): read it as "nach Vereinbarung".
+  - Worth the one curl when the link exists: on #335 the NUXT `radius` (10 km) decided side 2.
+  - The NUXT `search` dict can contradict the owner's free text (#454: text "2–3 Zi, Kreuzberg" vs dict `roomsMin 4, sizeMin 110`). The free text is the authoritative intent; the dict only corroborates.
+- **Immowelt and Kleinanzeigen have no route.** Their `Referenznummer` / "Anbieter-(Objekt-)ID" is the poster's id, not a housing id.
+  - `tauschwohnung.com/wohnung/{id}` returned HTTP 200 with a soft-404 body ("Seite nicht vorhanden") for months, and a hard 404 since 2026-08-22 (#641, #711). `twg.click/ka-{id}-01` is a hard 404.
+  - The outcome is known in advance: at most one curl, and grep the body, not just the status.
+  - The free text (title + description) is the whole side-2 input. Keller/Baujahr/EA/Kaution stay whatever the portal shows.
+- **IS24 swap-specific traps:**
+  - The structured fields can hold the poster's SUCHE instead of their flat (#550: TOP_ATTRIBUTES "5 Zi / 100 m² / Grundstück 100 m² / 1.500 kalt" while the text offered 4 Zi / 84 m²). Tells: Grundstück = Wohnfläche, `houserent` on a "Whg", counts equal to the title's "suche …" half, round 100/1.500.
+    - Score from the description.
+    - `PRICE_INFO.priceBar` was then computed for a phantom object: unusable, and it must not drive the >20 %-below scam signal.
+  - `realEstateType: houserent` swaps are the sparsest shape (#549): no Ausstattung block, NK/Warm absent ("zzgl. Heiz- und Nebenkosten"). Score must-haves as unconfirmed (E ~2,5).
+    - The Berliner Mietspiegel excludes Ein-/Zweifamilien- und Reihenhäuser, so use the priceBar + a § 556g Abs. 3 note.
+  - The description can end in a literal "…" that is the poster's own (#526: 231 chars, complete). Check the raw `text` length before hunting for more.
+- **A 10×-typo in the size field** (Immowelt #868 "900 m²") auto-computes an absurd €/m² ("0,78"). Treat the size as UNKNOWN, bracket the Mietspiegel across 60–90 m², and never let it fire the scam signal.
+- **Photos:**
+  - The caption `www.tauschwohnung.com` is a watermark attribution, not a logo tile (#548: 14 genuine photos). Fetch one `fullImageUrl`: a real photo is ~40–60 KB at 1333×1000 with a translucent wordmark.
+  - The `Gesponsert` tile has an empty URL; never count it. Only then decide the D cap.
+  - Brochure-scan galleries leak the street (#869: a "Lage der Wohnung im Haus" page read "…-Mendelsohn-Allee, 14469"). That fixes Block B and the likely Baujahr.
+  - Photos can reveal the household (#868: Hochbett + second bed = a family). Report it only as a labelled inference, never as a stated Suche. Developer room labels ("Kind 01") are generic.
 
-**The size of the downsize is IRRELEVANT — only the stated FLOOR decides.** #667 is the extreme
-datapoint: a 4 Zi / **160 m²** poster seeking `mind. 3 Zimmer / mind. 80 qm`, i.e. willing to *halve*
-their flat. On the delta axis that is by far the best a-priori swap candidate ever seen; on the floor
-axis it fails by −1 Zimmer and −32,3 % Fläche, exactly like every 95-m² poster. ⇒ Do not let a huge
-offered m² raise your prior — compare our 2 Zi / 54,19 m² against the *number they wrote down*, and
-say so explicitly in the report so the next reader does not re-litigate it. (Same lesson as #658, now
-at the top of the size range.) Corollary worth surfacing to the user: when Ort and Miete both pass and
-only size fails — repeatedly — the binding constraint is the `swap_offer` inventory, not the search.
-**Cleanest instance of that corollary so far: #683** (Immowelt, Charlottenburg 10585, Anbieter-ID
-477956). *Four* axes passed simultaneously — Ort ✓ (their „Rand-Berlin oder im **nahen Umland**"
-covers Potsdam-Golm literally, no commuter-belt leniency needed), Ausstattung ✓ (their „Garten
-**oder** Gartenzugang" is a clean #664-style disjunction our ~29 m² garden satisfies, and a garden is
-their stated main motive), Miete ✓ (their 1.029 kalt vs our 1.025,25 — four euros apart, and their
-Suche names **no** ceiling at all), Richtung der Miete ✓ — and it still died on „**mind. 3-4
-Zimmern**" + „mit wachsender Familie … mehr Platz". ⇒ When you see Ort/Garten/Miete all green, do NOT
-let the momentum carry you into a Swap-candidate: re-read the room/area floor, it is the only axis
-that has ever decided these. And say so explicitly in the report, because a reader who sees three ✓
-will otherwise re-litigate the discard.
+## §WhereTheSucheIs — read EVERYTHING, then collect every clause
+- **Positions seen:**
+  - title: `gegen …`, "Suche Y / Biete X", "Tausch in eine höhere Etage"
+  - first sentence
+  - mid-paragraph
+  - paragraph 2 right after the "(Anbieter-ID: N)" line
+  - the second-to-last paragraph before the boilerplate (the modal slot)
+  - the very last line AFTER the boilerplate (#606's household clause)
+  - labelled blocks
+- **Never slot-hunt.** The numeric criteria and the direction clause routinely sit in different paragraphs, and each can decide side 2 on its own (#683: the floor in paragraph 2, the direction second-to-last). Position rules have been wrong in both directions (#656, #657, #658).
+- **Title and body both count, in both directions:**
+  - The title alone can carry the whole Suche: #656, #710 "gegen mind. 4 Zi."; #663 "gegen 4+ Zimmer in Berlin" over a pure self-description body; #685, headline only.
+  - A silent title is not a silent Suche (#664).
+  - The title can carry a structural motive while the body carries the numbers (#351/#360: "höhere Etage").
+  - The WHERE can be in sentence 1 and the DIRECTION in the second-to-last paragraph (#668).
+  - The Suche is "unknown" only when the title AND every paragraph, incl. the motive sentence, are silent. Confirm by length: a description under ~500 chars that is all boilerplate = genuinely absent (#721, #524, #641).
+- **Title parsing:** the first number = OFFERED, the number after `gegen | gg. | → | Suche` = SOUGHT ("Tauschen 3 Raum gg 4 Raum" #541, "Biete 4 – Suche 3 Zimmer mit Altbau-Deckenhöhe" #579). The clause after the room number is a real criterion. Search-result hints can copy the SOUGHT room count, so take the offered flat's rooms from the page (#317, #579).
+- **Trigger set** (grep the whole description; each group was once the only hit):
+  - labels: `Suchprofil (Das suche ich)` / `Das biete ich` (Wohnungsswap bullet list, #660) · `SUCHE:` (#712) · line-start `Suche:` / `Biete:` (#805) · `Gesucht:` after a `-----` divider (#804) · `Unsere Wunschwohnung:` / `Unsere Wohnung:` (#717)
+  - verbs: `Ich suche|Wir suchen|Nun suche ich|daher suchen|suchen (wir )?eine|auf der Suche nach|Da wir .{0,60}(sind wir|suchen)` (#719, #720) and the bare stem `such` anywhere. It also catches the inverted `gegen X suchen wir` (#670) and the coordinated `… mit 3 Zimmer … und suchen mind. 4 Zimmer` (#669), where the Suche hangs off the self-description by a bare `und`.
+  - `gegen` object: `Tausche … gegen|tausche gegen|gegen eine … Wohnung|gg\.?` ("Tausche" does not contain "suche", #684)
+  - second person: `Du suchst|bietest (du)?|deine … Wohnung` (#666: "Du suchst … und bietest gerne deine 4-Zimmer-Wohnung in Babelsberg?" = their Suche). The mirror trap: the rhetorical opener "Bist du auf der Suche nach einer geräumigen Wohnung in Potsdam?" + "Wir bieten …" is a pitch for THEIR flat (#672). Test which flat the criteria describe. "Perfekt für Familien" in a headline describes the offer, not the household.
+  - motive/direction: `vergrößer|vergroesser|größer|verkleiner|mehr Platz|mehr Raum|wächst|zu klein|Zuwachs|Nachwuchs|Familie|weniger Miete`. It is typo-tolerant: #578 "Wie wollen uns vergrößern".
+  - numeric: `mindestens|mind\.|min\.|ab \d+ ?(m²|Zimmer)|\d\+ ?Zimmer|\d Zimmerwohnung|maximal|max\.|bis (zu )?\d{3,4} ?(€|Euro)|höchstens|nicht mehr als`
+  - household: `wir sind \d|\d ?(Kind|Kinder)|Personen|zu (zweit|dritt|viert)|\d-köpfig|(drei|vier|fünf|sechs)köpfig` (#670, #777)
+  - constellation: `zwei Wohnungen|2 Wohnungen|Gemeinschaft|WG|Mehrgeneration|zwei Einheiten` (#606, #778)
+  - deal-breaker wording: `ein Muss|zwingend|unbedingt|Bedingung|muss (vorhanden|dabei) sein|Must-haves:`
+  - object/Bausubstanz: `Haus|Häuschen|Einfamilienhaus|Reihenhaus|DHH` (#779) · `Altbau|Deckenhöhe|Stuck|Dielen|hohe Decken|Loft` (#579) · `höhere Etage`
+  - `im Gegenzug` LAST, and verify the hit: it is boilerplate in the Wohnungsswap "Wichtig" paragraph (#660).
+- **Also read to the last line:** a closing "Hard Facts: Größe, Zimmer, Warmmiete, Keller ja/nein, Stellplatz ja/nein" checklist is a second statement of which criteria are hard (#805).
+- **Two posts of the same flat** (Wohnungsswap + Tauschwohnung) can state different floors (#660 55 m² vs #661 50 m²). Score against the more permissive one; constraints identical in both posts are the load-bearing ones.
 
-**Highest side-1 score so far still died on the room floor — and the Suche was mid-prose, not
-labelled.** #719 (Immowelt `aae3a265-…`, Anbieter-ID 388078, Babelsberg): their flat scored **4,2/5**,
-the best Tauschwohnung yet (540 EUR kalt / 8,18 EUR/m², Mietpreisbremse eingehalten, **all** must-haves
-AND both nice-to-haves — Balkon *und* Terrasse, Keller, Garten, Badewanne). Side 2 still failed
-deterministically: „Leider ist es uns **zu viert** zu eng …, daher **suchen eine 4-Zimmerwohnung** in
-Babelsberg, Zentrum Ost, Potsdam West oder der Berliner Vorstadt." Two things to keep:
-  - **Trigger:** the Suche can sit in the *middle* of a narrative paragraph, introduced by
-    `daher suchen …` — no `Ich suche`, no `SUCHE:` label, no `mindestens`. Add `daher suchen|wir
-    suchen|suchen (wir )?eine` to the grep set; the reason clause („zu viert zu eng") is what marks
-    it, not a keyword.
-  - **A high side-1 score must not soften side 2.** A 4-person household upsizing out of 66 m² can
-    never take our 54,19 m²; the flat being excellent for *us* is irrelevant. Same "don't let
-    momentum carry you" failure mode as #683, one step earlier in the process.
-  - Secondary axis worth naming in the report: an explicitly **„Wichtig: Unterstellmöglichkeit für
-    die Fahrräder"** maps straight onto `swap_offer.lacks` (kein Keller, kein Stellplatz) — cite it
-    as a real con, not a soft one, when the partner marks it as important.
+## §Side2 — score the Suche as a checklist; fail only on WRITTEN words
+Checklist rows: direction · rooms · m² · area · rent · must-haves · object type/Bausubstanz · household/constellation · floor. Each kill axis needs text the partner wrote.
+1. **A stated room or area FLOOR above our offer.** Forms seen: `mind. 3`, `3+ Zimmern` (with no trigger word, #722), `4 Zimmerwohnung` as a noun (#665), `gegen 4-5 Zimmer` (#661), `gegen {N}+ Z` (#663), `Wir benötigen eine Dreizimmerwohnung` (#776).
+   - "Im Idealfall N, kann mich aber auch auf M einlassen" sets the floor at M (#723: M = 2 passed). Grep `kann mich auch|notfalls|zur Not|im Idealfall|auch eine \d`.
+   - A range `1-2 Z` or `1,5–2` is satisfied at its top by our 2 Zi (#662, #684).
+   - Compare the floor with OUR offer, never with their flat. The size of their downsize is irrelevant (#667: 160 m² → "mind. 3 Zi / 80 m²" fails; #658 140 m² → "mind. 3 Zi / 70 m²" fails).
+   - "keine Durchgangszimmer" on a 3-room floor is a layout demand a 2-room flat can't meet (#722).
+   - An m² CEILING ("bis ca. 45 m²", #804) is a cost cap and confirms a rent fail.
+2. **A written rent ceiling P.** Test it against both our kalt and warm; if P is unlabelled, report both overshoots (#808).
+   - P below their own current rent means they are downsizing for price, which is structurally unreachable with our Indexmiete Neubau (#598 1.150→700, #727 1.200→600, #804 845 warm→500 warm, #825 1.450→700).
+   - When P is warm, compare warm-to-warm, then show that even our kalt overshoots it.
+   - Frequency: P < ~1.000 is the commonest single kill (#597, #598, #727, #808, #825).
+3. **Area — explicit exclusion only.**
+   - FAIL:
+     - a bare Ortsteil with no softener (#668 "Wir suchen eine Tauschwohnung in Potsdam West")
+     - a closed enumeration with no openness clause (#710 Grunewald/Schmargendorf/Dahlem/Zehlendorf; #660 five inner-city Ortsteile)
+     - NUXT `radius: 0` + named `selectedGeos` (#610, the machine-readable version)
+     - a named Kiez/Platz ("unbedingt in der Nähe des Karl-August-Platz", #658)
+     - a **Punktadresse**: a street/corner + "so nah wie möglich" + a reason (#723). It fails even inside our city; asymmetric flexibility (rooms conceded, location not) marks location as the hard axis.
+     - **Ort-Richtungsumkehr**: they live in our city and target ANOTHER city (#684 Potsdam West → Berlin, #704 Bornstedter Feld → Zehlendorf). This is readable from the title "{Potsdam} gegen {Berlin}". It is silent when their target is inside our own city (#685); there, leniency applies at Ortsteil level.
+   - PASS:
+     - a softener leading OR trailing the clause: `gerne|gern auch|am besten|am liebsten|bevorzugt|vorzugsweise|idealerweise|vor allem|ggf|eventuell|evtl|oder Umgebung|auch in|oder im nahen Umland` (#669 "Am besten auch in Babelsberg oder zentraler Lage in Potsdam", #671 "Gerne … Potsdam West" vs #668's bare "in Potsdam West" = the same Ortsteil with the opposite verdict, #667 "…, ggf. auch Potsdam", #683 "Rand-Berlin oder im nahen Umland")
+     - "alle Bereiche in X außer A, B, C" unless ours is listed (#578). The excluded ones are usually their own neighbourhood.
+     - "bevorzugt A, B … aber biete gern alles an" (#606)
+     - topological formulas like "VOR der Langen Brücke / nicht unterhalb der Havel" (#805): Golm, Marquardt and Neu Fahrland sit on the wanted side.
+     - a bare "in Potsdam" (#662, #672, #727) or "Potsdam Nord", which is literally satisfied: Sozialraum II = Bornim, Bornstedt, Eiche, Golm, Grube, Nedlitz (#776).
+   - A bare Ortsteil inside a five-word title fragment ("gegen 1-2 Z. Babelsberg", #685) is weaker than a written sentence: KEEP, and flag the Ort as the open axis in the first sentence of the contact message.
+   - A named Wunsch-Ortsteil riding on a hard "in Potsdam" ("am liebsten in Drewitz", #661) is a preference, not an exclusion.
+4. **An Ausstattungs-Muss we lack** (Balkon/Keller/Stellplatz) fails ONLY with deal-breaker wording: #805 "Keller ist ein Muss", #660 "Must-haves: EBK und Balkon", #671 "Unbedingt mit Balkon oder Terrasse und Gartenmitbenutzung".
+   - A plain enumeration ("mit Balkon und Keller", #726) is a con, not a kill.
+   - Parse the scope of `oder`: `A oder B oder Garten` ✓ (our garden satisfies it, #664) · `A oder B und Garten` ✗ (the garden is extra) · a bare `Balkon` ✗ in the checklist (unmet, a con unless marked hard, #667).
+   - `am liebsten mit …` softens whatever follows it (#665).
+   - Score amenities as a DELTA between the two flats, not as our abstract lacks: #696's partner had no Keller either.
+   - Side-1 mirror of the same case: "Keller not stated" on a Berlin pre-1990 Bestandsbau is weak evidence of absence, because Kellerabteile are near-universal there. Score E 2,5 rather than 2,0, and make the Keller question the first contact item (#696).
+5. **Physical impossibles:** Bausubstanz demands (Altbau-Deckenhöhe for a Hochbett, Stuck, Dielen, Loft, #579), object type Haus/Häuschen (#779; "mit Garten" there is not a near-miss), a higher floor vs our EG (#351, #360).
+6. **Constellation / household:**
+   - "ZWEI Wohnungen mit 2 Zimmern" is a trap for the room matcher: the quantifier means two units (#606, #778 "alternativ zwei 3-Raum-Wohnungen").
+   - A stated household of ≥3–4 people is a structural floor even without a room number (#670 "2 Erwachsene 2 Kind", #777 "5-köpfige Familie", #606 "für vier Personen zu klein").
+- **Not a kill axis: a rent delta with no written ceiling, however large.** PASS + a labelled inference (#662 +86 % kalt, #670 +216 % kalt, #608).
+  - ⚠ Refuted and removed: "implicit ceiling = their own Kaltmiete; below ~60 % of ours = hard fail" (#684). It contradicts evaluate.md leniency and #662/#670, and #684 was decided by the Ort-Richtungsumkehr anyway.
+  - Also refuted (old kleinanzeigen note): "a partner under ~800 kalt fails on affordability alone" (#608 and #662 passed).
+- **Direction** (enlarge vs downsize) is the cheap first read, not the verdict. A downsizer can still state a floor above us (#658). A 5-Zi household with NO Suche still goes to Swap-candidate "Suche unknown" (#721); a base rate never substitutes for a written floor.
+- **Suche genuinely absent:**
+  - The outcome is `Swap-candidate`, "Suche unknown — verify on contact". Write side 2 as "unanswered, not passed".
+  - Pre-commit the rule in Next Steps: one message asking only for the Suche, and a reply naming ≥3 Zi or ≥60 m² → Discarded.
+  - A bare comparative ("mit einer ähnlichen Wohnung", #359) makes their own flat the yardstick.
+- **Honest economics on silent/lenient passes:** compute both kalt and warm deltas and label the result as an inference.
+  - Bigger AND cheaper than ours means a likely decline (#641).
+  - Bigger but with a HIGHER warm rent than ours is the money lever (#672).
+  - Say whether the pass is a match against stated criteria (#608, #662, #685, #696, #726: real odds) or a pass by silence (#641, #672, #721: long odds).
+- **A high side-1 score must not soften side 2** (#719, #720, #723, #683, #805 all scored 4,2–4,3 and died). When most axes are green, re-read the room/area floor. Always write which single axis decided, or the next reader re-litigates it.
+- **Both sides can fail:** check the side-1 number before writing "grab it if it reappears as a normal rental" (#610: side 1 was 3,3).
+- **Who our offer genuinely serves:**
+  - downsizers to 1–2 Zi who name Potsdam (#608, #662, #685, #712)
+  - people leaving an upper floor without a lift / wanting barrierearm (#655 "weniger Treppen", #670, #776 pensioners)
+  - partners whose rent is near ours
+  - Large downsizers with a rent advantage for them (#726: −604,75 kalt/month for the partner) are the structurally best shape. Lead the first message with that rent advantage, and state the missing amenities openly.
+- **Triage prefilter candidates** (not built): title `gegen \d+\+? ?Z` · body `such\w* (eine?|nach) .{0,20}\b(\d)[ -]?Zimmer` · rent `max(imal)|bis (zu)? \d{3} ?(€|Euro)` below ~1.000 · title "{our city} gegen {other city}". Positive signal: "Suchen M, bieten N" with M < N.
 
-**New trigger shape: the Suche as a CAUSAL life-event clause — `Da wir …, sind wir auf der Suche
-nach …`.** #720 (Immowelt `c300f737-…`, Anbieter-ID 402432, Potsdam West): „**Da wir seit März
-Nachwuchs haben, sind wir auf der Suche nach** einer größeren Wohnung in Potsdam (Bornstedt,
-Potsdam-West) **mit mindestens 4 Zimmern**." No `Ich suche`, no `SUCHE:`, no `daher suchen`, no
-`im Gegenzug` — the documented triggers all miss it; what marks it is the **`auf der Suche nach`**
-noun phrase plus a leading causal clause. ⇒ Add `auf der Suche nach|Da wir .{0,60}(sind wir|suchen)`
-to the grep set. The kill axis itself is the already-documented one (Nachwuchs/upsize + a numbered
-`mindestens 4 Zimmer` floor), and #720 is its cleanest instance yet: side 1 scored **4,2/5** — tied
-with #719 for the best Tauschwohnung ever — on a flat that is +1 Zimmer, +19,81 m² **and** ~275 EUR
-cheaper warm than our own Golm flat, and side 2 still failed on four axes at once. *Why:* two
-consecutive record side-1 scores have now died on the room floor; the pull to "surface it anyway" is
-strongest exactly here, and the trigger that finds the Suche is the only thing standing in the way.
+## §Economics — Block A/G/H specifics for swaps
+- **The advertised rent is usually the partner's ALTVERTRAG.** Consent can come as a new contract at market rent, so ask first: "Wird der bestehende Vertrag übernommen oder neu abgeschlossen?"
+  - €/m² ≈ ½ the Angebotsanker (~15,51) ⇒ Altvertrag. The question can move A by ~1,5 (#608: 11,01 vs ~15,51).
+  - €/m² near the anchor ⇒ a young contract. The Block-A story becomes a Mietpreisbremse check (#669: 14,67 vs zulässig 8,24).
+  - A Neubau contract below ortsüblich (#724: ab-2021 field, § 556f) ⇒ a small lever only.
+  - Large downsizers carry the biggest repricing risk (#726: 11,25 vs quarter 19,7–22,4 EUR/m²). First question: Baujahr/Erstbezug + Übernahme zu unveränderten Konditionen?
+- **A cheap swap rent never fires the ">20 % below Mietspiegel" signal** without an address-precise band; against ortsüblich these rents usually sit above the Mittelwert.
+- **The counterparty can be the EIGENTÜMER** (#722, "Ich bin der Eigentümer, also ist die Kaltmiete verhandelbar"):
+  - no consent gate on their side
+  - the rent is his real (negotiable) ask, not an Altvertrag
+  - Block H Eigenbedarf risk is HIGHER
+- **A swap ad and a Nachmietergesuch can be two exit channels of ONE flat** (#723 = #642, matched by the Grundriss "Haus I – WE 8"):
+  - score Block A with the owner's ask (1.250 vs swap 1.100)
+  - the non-swap channel is strictly better: no `landlord_consent` gate, and we keep Golm.
+- **Feldmark vacancies:** a flat in our own street goes via an internal move with DIBAG, not a swap. See [[potsdam-mietspiegel]] (Quartiers-Anker, In der Feldmark).
+- **A `Möbliert/Teilmöbliert` flag on a swap is NOT the furnished/auf-Zeit blocker** (#653). A swap is a permanent Mieterwechsel, and the flag means "furniture can be taken over".
+  - Fire the blocker only with real markers: `befristet|auf Zeit|Zwischenmiete|Untermiete`, a Mietende or Mindest-/Höchstdauer, a Pauschalmiete with "inkl. alles", or a hotel-style inventory.
+  - Raise it as an open question with the conditional ≤2,0.
+- **A relative can post as proxy** ("Meine Eltern haben …", #776). The motive is then proximity to the poster, and Block H has no tenant voice.
+- **Anbieter-ID magnitude ≈ account age.** Low ids (#665 38298, #685 199871, vs 400k–480k for current posters) mean long unmatched: the criteria are firm, not an opening position.
 
-**The OTHER outcome shape: an ad with NO Suche at all — and that is the only thing that has ever
-reached `Swap-candidate`.** #721 (Immowelt `ddfc7e62-…`, Anbieter-ID 449780, Babelsberg Nord, 5 Zi /
-110 m² / 2.000 EUR kalt): the whole description is three sentences of platform boilerplate —
-*„Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: 449780) Willkommen in meiner
-geräumigen 110 m² Wohnung … Ich freue mich auf einen Wohnungstausch!"* — and **the full documented
-trigger set returns zero hits over the 616-KB payload** (`Ich suche`, `wir suchen`, `daher suchen`,
-`auf der Suche nach`, `Da wir …`, `im Gegenzug`, `SUCHE:`, `Du suchst`, `Tausche … gegen`,
-`Gesuchte`, `mindestens|min\.|ab \d+ ?m²`, `maximal|max\. Miete`, `zwei Wohnungen|Gemeinschaft`,
-`für \d Personen|zu klein|Familie|Nachwuchs`). There are **no structured search fields either** —
-the Immowelt feed of the Tauschwohnung GmbH carries no NUXT `search` dict, no `selectedGeos`, no
-`radius`, so the #610 „`radius: 0` settles the area axis" shortcut has nothing to read. Three things
-to keep:
-  - **Distinguish "no Suche" from "Suche I failed to find".** Zero hits on the *complete* trigger
-    set **plus** a description under ~500 chars that is entirely boilerplate = genuinely absent.
-    Confirm by checking the description length, not by adding more greps.
-  - **Then `evaluate.md` step 4 forces the lenient outcome: surface as `Swap-candidate`, flagged
-    "Suche unknown — verify on contact". Do NOT substitute the base rate for the missing text.**
-    The temptation is strong and it is wrong: on #721 the a-priori is terrible (we would be asking a
-    5-Zimmer/110-m² household to take 2 Zi / 54,19 m² — **−50,7 % Fläche, the biggest downsize
-    `swap_offer` has ever demanded**), but "5-room households don't seek 2 rooms" is a statistic, not
-    a stated floor, and the rule discards only on a *stated* one.
-  - **Write the verdict as "Side 2 unanswered, not passed", and pre-commit the decision rule in Next
-    Steps** — one message asking only for the Suche, no documents; a reply naming any Zimmer-Floor
-    ≥3 or Mindestfläche ≥60 m² → immediate `Discarded`. Two axes do genuinely favour us and belong in
-    the message: Golm **is** Potsdam (same city, no commuter-belt leniency needed) and our
-    1.025,25 EUR kalt is **974,75 EUR/month cheaper** — the largest rent lever the offer has ever had.
-  *Why:* five consecutive swaps in one batch died on a stated room floor, so the reflex by #721 is to
-  write the sixth discard from the pattern. The rule exists precisely for the case where the pattern
-  has no evidence behind it — and it is, so far, the only route to a candidate at all.
-  ✅ **The control case that makes the distinction concrete: #722, the very next ad, same portal,
-  same 5 Zi / 2.000 EUR headline — and it DISCARDS.** (Immowelt `b308b2f6-…`, Anbieter-ID 333539,
-  130 m² DG-Maisonette am Luisenplatz.) Its Suche is one plain sentence in the same three-sentence
-  boilerplate slot where #721 had nothing: „**Ich suche für mich und meine Jungs (10 und 14) in der
-  Innenstadt eine Wohnung mit 3+ Zimmern, wobei die 3 Zimmer keine Durchgangszimmer sein sollten.**"
-  ⇒ *stated* floor 3+ Zimmer + 3-Personen-Haushalt ⇒ deterministic side-2 fail against our 2 Zi.
-  Keep three things: (a) **`3+ Zimmern` is a floor written without any documented trigger word** — no
-  `mindestens`, no `min.`, no `ab`; add the bare `\d\+ ?Zimmer(n)?` shape to the numeric sweep;
-  (b) the qualifier „**keine Durchgangszimmer**" is a *layout* requirement — it means 3 genuinely
-  separate rooms and is unanswerable by a 2-room flat even before the count is compared;
-  (c) this is a real DOWNSIZER (130 m² → 3+ Zi) with **no Mietobergrenze at all**, and our
-  −974,75 EUR/month kalt is the largest rent lever the `swap_offer` has ever had — it still loses,
-  confirming #667: only the stated floor decides. Write the #721-vs-#722 contrast into the report so
-  the reader sees the rule is "Suche *absent*", not "Suche *unfavourable*".
-
-### The counterparty can be the EIGENTÜMER, not an outgoing tenant — and that changes three things
-#722: „**Ich bin der Eigentümer, also ist die Kaltmiete verhandelbar!**" The poster owns the flat and
-is himself looking to *rent* elsewhere, so the „swap" is really an exchange of tenancies-for-tenancy.
-Consequences worth scoring: (1) **no Vermieter-consent gate on their side** — he *is* the Vermieter,
-so only our own `swap_offer.landlord_consent` (DIBAG / Bayerische Städte- und Wohnungsbau) remains;
-(2) the documented rule „the advertised rent is the partner's ALTVERTRAG, not our price" **does not
-apply** — it is his asking price, it would genuinely be our rent, and he says it is negotiable;
-(3) Block H moves the *other* way: an owner who rents his own flat out and lives in a rental keeps a
-textbook Eigenbedarf claim, so the private-landlord risk is higher than on a tenant-to-tenant swap,
-not lower. Tell: the phrase `ich bin der Eigentümer|als Eigentümer` in the description. *Why:* the
-whole Tausch doctrine assumes a tenant on the far side; reading #722 that way would have invented a
-consent gate that isn't there and priced an Altvertrag that doesn't exist.
-
-**But "downsizer" is NOT automatically a side-2 pass — a second, independent kill axis is a
-qualitative BAUSUBSTANZ requirement, which our 2024 Neubau can never satisfy.** #579 was the first
-genuine downsizer (offers 4 Zi/89 m², seeks 3 Zi) and still failed categorically: the Suche was
-"3 Zimmer **mit Altbau-Deckenhöhe für Hochbett**". Ceiling height, Stuck, Dielen, Altbau, "hohe
-Decken", Loft/Fabriketage are *physical building-era* criteria — no amount of side-2 leniency turns
-a Neubau 2024 with ~2,50 m standard ceilings into one; treat them exactly like an explicitly stated
-deal-breaker, not a soft must-have. Note the direction still helps on the *numeric* axes (their rent
-1.375 EUR kalt vs our 1.025,25 → budget fits), so the report must say which axis actually decided.
-**The cleanest side-2 PASS shape so far — an ALL-CAPS `SUCHE:` label, and it is a new trigger.**
-#712 (Immowelt `001f6218-…`, Anbieter-ID 210693, Tauschwohnung-GmbH-Feed): the whole Suche is one
-labelled line at the end of the Eckdaten block — „**SUCHE: Kleine Wohnung (1-2 Zimmer) in Potsdam
-oder dem Westen von Berlin.**" Every axis passes our Golm offer *without any leniency*: Zimmer
-1–2 ✓ (we are 2), Stadt **Potsdam wörtlich genannt** ✓ (no commuter-belt allowance needed), no
-m²-Floor ✓, no Mietobergrenze ✓, no Must-haves ⇒ our fehlender Balkon/Keller harmless.
-⇒ Two things to keep: (a) **add the bare uppercase label `SUCHE:` to the trigger list** — it
-contains no verb of wanting and sits in the middle of a dash-list, so the documented triggers
-(`Ich suche`, `im Gegenzug`, `mindestens`, `Tausche … gegen`, `Du suchst`) do not reach it in that
-form; (b) the base rate is real but not a law — a **downsizer to 1–2 Zimmer who names Potsdam**
-is exactly the profile `swap_offer` was built for, so do not pre-declare side 2 dead.
-(This one died anyway: the ad title said „VERGEBEN" and side 1 failed on Ortsteil + fehlendem
-Balkon. Worth a targeted feed filter on `1-2 Zimmer` + `Potsdam` rather than on Berlin geography.)
-
-**Third kill axis: an explicitly NUMBERED Mindestfläche.** The Tauschwohnung-GmbH template Suche is
-frequently one fully-quantified sentence at the end of the description, in a fixed shape:
-*"Ich suche nach einem Tausch in **{Stadt}** mit **mindestens {N} Zimmern** und einer Größe von
-**mindestens {M} m²** für **maximal {P} € Miete**."* (#597, Golm). Grep `mindestens|min\.|ab \d+ ?m²|
-maximal|max\.` — when M is stated, our 54,19 m² offer **deterministically fails any M ≥ 60**, no
-leniency applies (a stated minimum is not a soft preference), and it fails *independently* of the
-direction axis: #597's poster was a downsizer on rent (1.250 → max 1.000) but a *holder* on area
-(85 → min 70). Check the rent ceiling P against BOTH our numbers — 1.025,25 kalt vs 1.214,93 warm can
-land on opposite sides of P (on #597: +2,5 % vs +21,5 %), so say which reading you used.
-  - **Sub-variant: the rent ceiling P is the SOLE decider, and the Suche carries no m²/Zimmer at
-    all.** #598 (Kleinanzeigen, Zentrum Ost) had the short form — one clause inside the platform
-    boilerplate, *"Wir suchen nach einem Tausch gegen eine **kleinere** Wohnung in **Potsdam** mit
-    **maximaler Miete von 700 Euro**."* — i.e. direction ✓, Stadt ✓, Größe ✓ (54,19 < 73 m², 2 < 3 Zi)
-    and it still fails categorically on P alone (+46,5 % kalt / +73,6 % warm). So do NOT treat a
-    missing Mindestfläche as "no numeric criterion"; grep P on its own with
-    `max(imal)e[nr]? Miete|bis (zu )?\d{3,4} ?(€|Euro)|nicht mehr als|höchstens`.
-    **Diagnostic shortcut: when P is BELOW the partner's own current rent, they are downsizing *for
-    price*** (#598: 1.150 → 700, −39 %) — then no offer of ours can ever work, because our Golm flat
-    is a freifinanzierter 2024er Neubau on an **Indexmiete** that moves the wrong way over time.
-    Say in the report which axis decided; here size/city were perfect and only P mattered.
-    Frequency note: #597 and #598 both landed on the same day, so a rent cap under ~1.000 EUR is
-    currently the most common side-2 kill on the Kleinanzeigen swap flow, not a rarity.
-    - **…and it is NOT Kleinanzeigen-specific: the Immowelt/Tauschwohnung-GmbH feed produces the
-      same shape.** #727 (Immowelt `8991a275-…`, Anbieter-ID 479086, Berliner Vorstadt, 95 m²/3 Zi,
-      1.200 EUR kalt): *„Die Kaltmiete beträgt 1200 €. **Ich suche ein Zuhause mit mindestens
-      2 Zimmern in Potsdam für maximal 600 €.**"* — the purest single-axis kill of the series so
-      far: Zimmer-Floor **2** (we are exactly 2 ✓), Stadt **Potsdam** literally named with **no
-      Ortsteil list** (Golm ✓), **no** Mindestfläche, **no** Ausstattungswunsch, no household size.
-      Every documented axis passes *without leniency* and the written number still kills it
-      (+70,9 % kalt / +102,5 % warm over P). ⇒ Do not soften a stated P because every other axis
-      passed — and say in the report that P was the sole decider.
-    - **Sharpen the diagnostic: P ≈ HALF their own current rent = structurally unreachable.**
-      #598 was 1.150 → 700 (−39 %), #727 is 1.200 → 600 (**−50,0 %**). The bigger the cut, the
-      more certain it is that our Golm flat (freifinanzierter 2024er Neubau, **Indexmiete**, i.e.
-      priced at the top of the Potsdam Mietspiegel and rising) can never serve them — their exit
-      motive is price, and ours is the most expensive €/m² class in the table. A P below ~700 EUR
-      in Potsdam can be treated as a determined fail on sight.
-      Cheap triage win: a prefilter on `max(imal)|bis (zu)? \d{3} ?(€|Euro)` with a value under
-      ~1.000 EUR would have caught #597, #598, #727, #808 **and #825** before any evaluation — five full
-      evaluations spent on an arithmetic fail, which is the case for actually building it.
-      (#825, Immowelt ID 417623, Nördliche Innenstadt DG: „etwas kleineres Zuhause in Potsdam, maximal
-      700 Euro Miete, mindestens 30 m²" vs. own 1.450 kalt = −51,7 %; city/m²/direction all passed.)
-      #808 (Immowelt `e81abcad-…`, Anbieter-ID 409294, Potsdam West, side 1 = 4,1/5) is the variant
-      where **P is not labelled kalt or warm** — „maximal 800 Euro im Monat", against their own
-      **1.549 EUR warm** (−48,4 %). Don't spend a call deciding which it is: test P against BOTH of
-      ours and report the weaker overshoot too (800 vs. our 1.025,25 **kalt** = +28,2 % is already
-      fatal, warm = +51,9 %), exactly as in the #804 shape above. It also stacks a room floor
-      („**mindestens 3 Zimmern**", we offer 2) on top — so the ceiling was not even the only kill
-      axis, and a downsizing poster (3,5 Zi → „ab 3") still lands a floor above our 2 Zi.
-    - **P stated as a WARM ceiling that is BELOW the poster's own current WARM rent ⇒ the sharpest
-      determined fail of the series, even when every other axis passes.** #804 (Kleinanzeigen
-      3386976335, Anbieter-ID 438279, Am Stern): 3 Zi / 60 m² / 845 EUR warm, Suche = „1,5 bis
-      2-Zimmer-Wohnung bis ca. 45 m² in Potsdam, **idealerweise bis 500 € Warmmiete**". Three axes
-      pass **without any leniency** — direction ✓ (genuine downsizer), Zimmer ✓ (our 2 hits the top
-      of „1,5 bis 2" exactly), Stadt ✓ (Potsdam literally named, Golm needs no commuter-belt
-      allowance) — the #684/#685 profile the `swap_offer` was built for. It still dies: our
-      1.214,93 EUR warm is **2,43× P**, and our **Kaltmiete alone is +105 % over their WARM ceiling**.
-      Three things to keep: (a) when P is written as *warm*, compare warm-to-warm first, then show
-      that even kalt-vs-warm overshoots — that second line is what makes the fail unarguable;
-      (b) **P < their own current rent** is the decisive diagnostic (845 → 500 = −40,8 %): they are
-      downsizing **for price**, and our freifinanzierter 2024er Indexmiete-Neubau moves the wrong way
-      — a swap would raise their warm rent +43,8 % against today; (c) a stated **m² ceiling** („bis
-      ca. 45 m²", we are 54,19 = +20,4 %) is a *cost* cap in this shape, not a space wish, so it
-      confirms rather than softens the rent fail. ⇒ Write explicitly in the report that rooms/city/
-      direction all passed and only P decided, otherwise the next reader re-litigates the discard
-      (same failure mode as #683). *Why:* the pull toward "surface it anyway" is strongest exactly on
-      this profile — it is the one that keeps *almost* working.
-**Fourth kill axis: the WOHNKONSTELLATION Suche — they want MULTIPLE units, or a household size
-that no single flat of ours serves.** #606 (Kleinanzeigen, 14478 Potsdam): *"Am liebsten in einem
-Haus **ZWEI Wohnungen mit 2 Zimmern**, oder 2,5 oder 3 oder 4… Auch eine **Gemeinschaft** wäre
-schön. Alles was mehr Platz bietet. **Für vier Personen** ist unsere Wohnung inzwischen zu klein."*
-Three things to take from that shape:
-  - **The "2 Zimmer" in such a sentence is a TRAP for the room-count matcher.** Read literally it
-    reads as an exact match for our 2-Zi Golm flat — but the quantifier in front (`ZWEI Wohnungen`)
-    means two such units under one roof. `swap_offer` holds exactly one flat (Königsallee is
-    gekündigt), so a multi-unit Suche is a fail by arithmetic, not by leniency. Grep
-    `zwei Wohnungen|2 Wohnungen|Gemeinschaft|WG|Mehrgeneration|zwei Einheiten` before matching rooms.
-  - **The household-size clause is the strongest direction signal there is, and it sits at the very
-    END of the description — after the tauschwohnung.com boilerplate paragraph.** "Für {N} Personen
-    ist unsere Wohnung zu klein" with N ≥ 3 is a deterministic upsize fail. Read the description to
-    the last line; grep `für (drei|vier|fünf|\d) Personen|zu klein|Familie|Nachwuchs|Kind`.
-    **Add the adjective form `\d-köpfig|(drei|vier|fünf|sechs)köpfig`** — #777 (Immowelt, ID 103773,
-    Neuer Garten 3 Zi/83 m²) wrote „Wir sind eine **5-köpfige Familie** und auf der Suche nach einer
-    4 oder 5 Zimmerwohnung", which the `Personen` pattern misses (`Familie` catches it only by luck).
-    Side 1 scored 4,3 and side 2 still died on the room floor, same as #719/#720.
-  - **Positive-form area clause: "Bevorzugt A, B, C … aber bietet gern alles an" = lenient PASS**,
-    the mirror image of #578's "alle Bereiche außer A, B, C". A named preference list that ends in an
-    openness clause never fails side 2 on area — do not record it as "our Ortsteil not on their list".
-  *Why:* on #606 the numeric axes all passed (rent +2,5 % kalt / −6,5 % warm, area covered by the
-  openness clause) and a room-count match on "2 Zimmer" would have surfaced a Swap-candidate the
-  partner can never accept — a four-person household downsizing by 20,8 m² and one room.
-**Fifth kill axis: `search.radius == 0` together with NAMED Ortsteile — the machine-readable
-"no commuter-belt leniency" flag.** The lenient area rule ("surface a city's commuter belt") only
-applies when the Suche names a *city* loosely. When the NUXT `search` dict carries
-`selectedGeos: [{name:"Westend"},{name:"Charlottenburg"}]` **and `radius: 0`**, the poster has
-actively excluded everything outside those Ortsteile — treat it as an explicit exclusion, not a soft
-target, and do NOT surface Golm for such a "Berlin" seeker. Read `radius` before applying leniency:
-one field, settles the area axis outright. Seen on #610 (expose 170120501, Kladow EFH): free text
-"mindestens 3 Zimmern und 80 m² in Charlottenburg bzw. Westend bis maximal 1800 Euro" + structured
-`radius 0 / roomsMin 3 / sizeMin 80 / rentMax 1800` — the two sources agreed on every axis, which is
-what made the verdict robust (contrast #454, where they contradicted each other).
-  - **Free-text equivalent, for the platforms that carry NO `search` dict (Immowelt/Kleinanzeigen
-    cross-posts): a CLOSED enumeration of Ortsteile with no openness clause = `radius 0`.** #710
-    (Immowelt `f7e26e14-…`, Anbieter-ID 73058, Grunewald): *„zum Tausch gegen eine mind. 4
-    Zimmer-Wohnung in den Bezirken **Grunewald, Schmargendorf, Dahlem oder Zehlendorf**"* — four
-    adjacent SW-Berlin Ortsteile, connected by „oder", and nothing after them. Test: does a sentence
-    like „bevorzugt …, biete aber gern alles an" / „oder im nahen Umland" follow? **No ⇒ explicit
-    exclusion, no commuter-belt leniency for Golm** (contrast the #606 positive-form list, which is a
-    lenient PASS precisely because of its closing openness clause, and #683's „Rand-Berlin oder im
-    nahen Umland", which literally covers Potsdam). *Why:* without a structured `radius` field the
-    reflex is to fall back to the lenient city rule and surface a Golm offer for a „Berlin" seeker who
-    has in fact named four villa Ortsteile they are not leaving.
-  - **Also on #710: the Suche can live entirely in the TITLE** („TAUSCHWOHNUNG 3 Zi. Wohnung 80qm
-    Grunewald **gegen mind. 4 Zi.**") — read the title as a Suche source before the description, it
-    often carries the decisive `mind. N Zimmer` even when the body is boilerplate.
-**Sixth kill axis: ORT-RICHTUNGSUMKEHR — the poster ALREADY LIVES in the region our offer sits in
-and names a DIFFERENT city as the target. The commuter-belt leniency must NOT be applied.** #684
-(Immowelt/Wohnungsswap, Ref 1483177, Hans-Sachs-Str., Brandenburger Vorstadt 14471): „Tausche …
-3-Zimmer-Wohnung **in Potsdam West** gegen eine … Wohnung **in Berlin, bevorzugt im Prenzlauer
-Berg**." Offering Potsdam-Golm leaves them in the city they are leaving and pushes them ~7 km onto
-the **Berlin-averted** side of Potsdam — worse Berlin access than the Bhf Charlottenhof they praise
-in their own ad *and still abandon*. ⇒ **Their own address is an implicit exclusion.** The lenient
-rule ("they name a city ⇒ surface its commuter belt") exists for seekers who live *elsewhere* and
-might accept the Speckgürtel; it is exactly inverted for someone escaping the Speckgürtel, where the
-swap's purpose would be not merely unmet but negatively met. Cheap machine test, computable from
-`pipeline.md` metadata alone: **their listing's city == our offer's city AND their stated target
-city != it ⇒ area fail, no leniency.** *Why:* on #684 the room axis passed, so a leniency-minded
-reader with three-of-four green had real momentum toward a Swap-candidate.
-  - **Second datapoint, now on Kleinanzeigen: #704** (Anzeige 3495809074, Anbieter-ID 258002,
-    „TAUSCHWOHNUNG Helle 3-Zi-Whg. **in Potsdam** gegen 3/4-Zi-Whg. **in Zehlendorf**", Bornstedter
-    Feld 14469 → Suche „3/4-Zimmerwohnung **mit Balkon** in Steglitz-Zehlendorf"). Same shape as
-    #684 across a different portal, so the axis is portal-independent and the cheap test fires
-    straight off the pipeline row (their PLZ 14469 = Potsdam, target = Berlin). Here it stacked with
-    the room floor (3 vs our 2), −34,7 % Fläche and the **bare** „mit Balkon" (no `oder` ⇒ the #664
-    alternative-set leniency does not apply, and their own flat has a West-Balkon) — four axes,
-    only the rent passed. ⇒ **Both signals are readable from the title alone** („{unsere Region}
-    gegen {andere Stadt}"), which makes this the cheapest triage prefilter candidate seen so far.
-⚠ **Bound on axis 6 — it only fires when the TARGET city differs from ours. When their target sits
-INSIDE our own city (another Ortsteil of Potsdam), leniency applies at Ortsteil level and the axis is
-silent.** #685 (Immowelt, Anbieter-ID 199871, Babelsberg Süd 14482) seeks „Babelsberg", i.e. the
-Ortsteil they already live in — target city == Potsdam == our offer's city. Running axis 6 on it
-would produce a bogus area fail on a poster who is explicitly staying put in our city.
-
-**Seventh kill axis: the PUNKTADRESSE-Suche — a named street/corner plus a proximity SUPERLATIVE
-plus a stated reason. It beats the #685 in-city leniency, and it is the first axis that ever had to
-override a passing room axis.** #723 (Immowelt `64e0a0da-…`, Anbieter-ID 396787, Brunnenallee/
-Waldstadt I): *„Ich möchte **aus familiären Gründen so nah wie möglich an die Grossbeerenstr / Ecke
-Kopernikusstrasse in Babelsberg** ziehen und biete im Gegenzug …"*
-  - **Why it is not a near-miss:** the target is not a loosely named Ortsteil but a **point**, the
-    constraint is a *minimize-distance* superlative, and the motive is named and non-negotiable.
-    Their current flat is ~4–5 km from that corner; Golm is ~13–14 km ⇒ the swap would move them
-    **~3× further from its own sole purpose** (the #684 Richtungsumkehr logic, but *within* one city).
-  - **Boundary vs. the #685 bound — this is the case that bound does NOT cover.** #685 („gegen 1-2 Z.
-    Babelsberg", target Ortsteil inside Potsdam) earned Ortsteil-level leniency and became the first
-    Swap-candidate. The distinguishing test is **what kind of object the Suche names**: a bare
-    Ortsteil ⇒ leniency (#685); a **street/corner + `so nah wie möglich`/`in unmittelbarer Nähe` +
-    a reason** ⇒ explicit exclusion, no leniency. Without this split, the #685 bound reads as
-    "any in-city target gets leniency" and produces a Swap-candidate the partner can never accept.
-  - **Asymmetric flexibility is itself evidence.** The ad flexes explicitly on rooms and not at all
-    on location — when a poster concedes one axis in writing and leaves another absolute, the
-    unconceded one is the hard one. Use it instead of hunting for an openness clause.
-  - **⭐ First time ever the ROOM axis passed** — the six previous swaps (#667, #683, #710, #719,
-    #720, #722) all died on a stated floor ≥3 Zimmer. Here: *„Ich suche im Idealfall eine 3-4
-    Zimmerwohnung, **kann mich aber auch auf eine gut geschnittene 2 Raumwohnung einlassen**, wenn
-    die Rahmenbedingungen stimmen."* ⇒ **an „ideal N, notfalls M" clause sets the floor at M, not N**
-    — grep `kann mich auch|notfalls|zur Not|im Idealfall|auch eine \d`. Rent, m² (none stated) and
-    „ruhige Lage + kinderfreundliches Umfeld" all passed too; only the Ortsachse failed. Side 1 was
-    **4,3/5, the highest Tauschwohnung side-1 score so far**. *Why:* the standing pattern is "the room
-    floor decides"; when it doesn't, the reflex is to call it a Swap-candidate on momentum — exactly
-    the #683/#719 failure mode, one axis over.
-
-### A swap ad and a Nachmietergesuch can be TWO EXIT CHANNELS OF ONE FLAT — and the swap price is the Altvertrag
-#723's Grundriss („Haus I – WE 8", 74,84 m²) is byte-identical to **#642**'s (Kleinanzeigen
-Nachmietergesuch, 21.08.2026, same quarter). Same unit, two ads, two very different numbers:
-swap **1.100 kalt / 1.400 gesamt** vs. Nachmieter **1.250 kalt / 1.660 gesamt** (+ Kaution 3.750
-+ 500 Ablöse). Three consequences:
-  - **Score Block A with the OWNER's ask, not the swap ad's.** The documented "the advertised rent is
-    the partner's Altvertrag" rule stops being a hedge here — the owner's real number is *in our own
-    tracker*, dated. Quote both and take the deduction.
-  - **The non-swap channel is strictly the better route** and belongs in Next Steps: same flat, no
-    Wohnungstausch, no `swap_offer.landlord_consent` gate, no giving up Golm — for the price delta.
-    (This is the `CLAUDE.md` Nachmieter-vs-Vermieterkanal rule, in a swap-vs-Nachmieter variant.)
-  - **How to find the twin:** the swap feed's `Referenznummer` is the syndicator's Anbieter-ID and
-    dedups nothing across portals — but the **developer Grundriss caption (`Haus {N} – WE {n}` +
-    exact Wohnfläche) does**. Fetch the last gallery image on every swap ad and grep the tracker for
-    the unit designator/area before scoring. See [[immowelt]].
-
-## The FIRST Swap-candidate (#685) — and the two rules that produced it
-**(a) On Immowelt the Suche can live ONLY in the headline, in telegram „Tausche {Angebot} gegen
-{Suche}" grammar, with the description carrying no Suche clause at all.** #685's headline is
-„TAUSCHWOHNUNG Ruhige 3 Z. Neubau Wohnung **gegen 1-2 Z. Babelsberg**"; the body describes only their
-own flat and ends on „Bei Interesse und passender Tauschwohnung schreibt mir gerne direkt:)".
-`mindestens|min\.|maximal|max\.` = 0, `Personen|Kinder|Familie` = 0 over 634 KB. This is the mirror of
-#664 ("a silent TITLE is not a silent Suche") — **a silent BODY is not a silent Suche either**; read
-both, and if only the title carries it, say so rather than recording "Suche unknown".
-**(b) A bare Ortsteil inside a five-word TITLE FRAGMENT is weaker evidence than the same Ortsteil in a
-written-out sentence — do NOT apply the #668 bare-Ortsteil area fail to it mechanically.** #668's
-„Wir suchen eine Tauschwohnung in Potsdam West" is a considered sentence; #685's „gegen 1-2 Z.
-Babelsberg" is a headline under a character limit. Combined with the axis-6 bound above (same city),
-that is a **KEEP with the Ort flagged as the single open axis** and put in the FIRST sentence of the
-contact message, not a discard.
-⇒ **#685 is the first ever `Swap-candidate`.** Side 1 = 4,4/5 (best of the series, beats #684's 4,1);
-side 2 passes on **four** axes at once because their Suche states **no m² floor, no room floor and no
-rent ceiling**: direction ✓ (3 Zi/72 m² → 1-2 Zi, genuine downsizer), rooms ✓ (our 2 Zi hits „1-2 Z."
-exactly), area-size ✓, rent ✓ (their 1.000/1.150 vs our 1.025,25/1.214,93 = +2,5 % kalt / +5,6 % warm
-— note it runs the *wrong* way: they pay more for less space, on an Indexmiete). Only the Ortsteil is
-open. ⇒ The "swap_offer inventory is the binding restriction" thesis is now falsified twice (#684 on
-rooms, #685 outright): a triage prefilter on „Suche nennt ≥3 Zi / ≥60 m²" would have kept both.
-⇒ Two honest counter-signals to record in any such report, so the user can overrule: they **praise
-their own location** in the ad („2 min zur Tramstation", „Direkt in der Innenstadt") ⇒ the swap motive
-is size only, not a move; and a **low Anbieter-ID** (199871 vs the 400k–480k of current GmbH-feed
-posters) + 9 months online ⇒ long-standing account whose criteria are firm, not an opening position.
-
-**Rent axis when NO ceiling is stated: use the partner's OWN Kaltmiete as the ceiling proxy.**
-Extends the #598 shortcut, which required a written P. #684 names no maximum at all — but they sit on
-a **350 EUR kalt Genossenschafts-Bestandsmiete** (5,83 EUR/m², inside the official Potsdam
-Mietspiegel span, not a typo) against our **1.025,25 kalt / 1.214,93 warm = +193 % / +247 %**.
-Nobody swaps into a tripling of their rent, so "no stated ceiling" is NOT the free pass the lenient
-rule makes it look like. Two amplifiers to name in the report: a **Genossenschaft / kommunaler
-Bestand** on their side is structurally capped, and our Golm flat is a **freifinanzierte Indexmiete**
-that only diverges further over time. Rule of thumb: partner's own Kaltmiete < ~60 % of 1.025,25
-(≈ 615 EUR) ⇒ treat as a hard rent fail even with no P written down.
-
-⇒ **#684 is the counterexample to the "swap_offer inventory is the binding restriction" thesis.**
-After eleven straight discards on a room/area floor (#492, #505, #533, #541, #550, #578, #579, #597,
-#606, #667, #683), #684 is the **first swap where the room axis PASSES**: a genuine downsizer
-(60 m² / 3 Zi → seeks **1,5–2 Zimmer**, no m² floor, no rent ceiling) whose target our 2 Zi /
-54,19 m² hits exactly, and they lose only 5,81 m². It fails anyway, on Ort-Richtungsumkehr and rent.
-⇒ Do not conclude "only a bigger swap_offer would help" — and a triage prefilter on
-"Suche nennt ≥3 Zi / ≥60 m²" would **not** have caught this one; it needs axes 6 and the rent proxy.
-(#685 then went one step further and passed side 2 outright — see the Swap-candidate section above.)
-
-**Eighth kill axis: the AUSSTATTUNGS-MUSS — one amenity the partner declares mandatory that sits in
-`swap_offer.lacks`. The first axis ever to decide a swap on EQUIPMENT instead of
-direction/rooms/m²/rent/area, and the first case where FIVE axes passed.** #805 (Kleinanzeigen
-3514854537, privater DIY-Tausch, Zeppelinstr. Potsdam West, 92 m²/3 Zi Altbau-DG, 831 kalt):
-„Suche: kleinere **2 oder 3 Zimmer-Wohnung** mit **Garten zur Alleinnutzung oder Balkon/Terrasse**
-in P-West oder einem Stadtteil VOR der Langen Brücke … **Keller ist ein Muss.**" … „Wäre auch
-interessiert an einer Wohnung bspw. in Geltow, Werder, **Marquardt** oder Neu-Fahrland."
-  - **Every other axis passed, most of them without any leniency:** Richtung ✓ (echter Downsizer),
-    Zimmer ✓ (2 trifft „2 oder 3" exakt), Ort ✓ (Golm liegt nördlich der Havel ohne Brücken-Nadelöhr,
-    und sie nennt selbst das an Golm grenzende Marquardt), Garten ✓ — und zwar auf der *stärkeren*
-    Hälfte ihrer Disjunktion, denn unser ~29-m²-Garten ist „zur **Allein**nutzung", während ihre
-    eigene Wohnung nur einen Gemeinschaftsgarten hat, Miete ~ (+23,4 % kalt / +12,4 % warm, kein P
-    genannt ⇒ lenient PASS). Entschieden hat das Wort **„Muss"**.
-  - **Regelgrundlage:** `evaluate.md` Schritt 4 macht ein von uns nicht erfüllbares Must-have nur
-    dann zum Hard Fail, wenn der Partner es *als Deal-Breaker ausspricht*. `ein Muss` / `zwingend` /
-    `unbedingt` / `Bedingung` ist genau diese Aussprache — **und ein Keller ist an einem
-    EG-Neubau 2024 nicht nachrüstbar**, also kein Verhandlungsspielraum wie bei einer Miete.
-    Grep-Set für die Achse: `ist ein Muss|zwingend|unbedingt|Bedingung|muss (vorhanden|dabei) sein`
-    gegen die Begriffe aus `swap_offer.lacks` (**Keller · Balkon · Stellplatz**).
-  - **Zweiter Fundort derselben Anforderung: die HARD-FACTS-CHECKLISTE am Textende.** #805 schließt
-    mit „schreibt mir gern direkt mit den Hard Facts: Größe, Zimmer, Warmmiete, **Keller ja/nein**
-    **Stellplatz ja/nein**, Parkmöglichkeiten…" — eine abgefragte Ja/Nein-Liste ist eine *zweite*
-    Nennung der Kriterien und bestätigt, welche davon hart sind. Immer bis zur letzten Zeile lesen.
-  - **Merke für die Lage-Achse in Potsdam:** „VOR der Langen Brücke / VOR der Humboldtbrücke" bzw.
-    „nicht unterhalb der Havel (Waldstadt, Am Stern, Kirchsteigfeld)" ist eine **topologische**
-    Ausschlussformel, keine Ortsteilliste — Golm/Marquardt/Neu-Fahrland liegen auf der *gewünschten*
-    Seite. Nicht reflexhaft als geschlossene Aufzählung im Sinne von #710 lesen.
-  - **Seite 1 war 4,3/5 — gleichauf mit #723 der höchste Tauschwohnungs-Score der Serie** (beide
-    Must-haves *und* beide Nice-to-haves erfüllt, 9,03 EUR/m², Mietpreisbremse grenzwertig
-    eingehalten). Wieder gilt #719: ein Spitzen-Seite-1-Score darf Seite 2 nicht aufweichen. Die
-    „falls sie regulär als Nachmiete auftaucht, sofort zugreifen"-Folgezeile ist hier aber korrekt
-    (vgl. #610: erst den Seite-1-Wert prüfen, bevor man sie schreibt).
-  - **Neue Trigger-Form, die billigste bisher: die zweigeteilte Beschreibung mit den Labels
-    `Suche:` … `Biete:`.** Bei privaten DIY-Tauschanzeigen steht die Suche als *allererster* Absatz
-    unter dem wörtlichen Label `Suche:` und die eigene Wohnung darunter unter `Biete:` — kein Verb
-    des Wollens, also greift keiner der dokumentierten Trigger (`Ich suche`, `auf der Suche nach`,
-    `im Gegenzug`, `SUCHE:` als Zeilenende). Grep `^\s*Suche:` und `Biete:` an den Anfang des
-    Trigger-Sets; das Titelmuster „Tausche X **gg.** Y" (Abkürzung mit Punkt) gehört zur
-    `gg`/`gegen`-Familie aus [[kleinanzeigen-de]].
-
-⇒ Eight-axis side-2 check, in this order: (1) direction/size (vergrößern, "mehr Platz", "für N
-Personen zu klein" → fail), (2) qualitative Bausubstanz keywords (Altbau/Deckenhöhe/Stuck/Dielen →
-fail), (3) explicit numeric floor/ceiling (mindestens m² / maximal EUR → arithmetic fail), (4)
-Wohnkonstellation (zwei Wohnungen / Gemeinschaft → fail, we can only offer one unit), (5) `radius: 0`
-+ named Ortsteile (→ area fail, leniency does not apply), (6) **Ort-Richtungsumkehr** (they already
-live where we offer and target **another city** → area fail, leniency does not apply; silent when
-their target Ortsteil is inside our own city, see the #685 bound above), (7) **implicit
-rent ceiling** = their own Kaltmiete when none is written, (8) **Ausstattungs-Muss** that maps onto
-`swap_offer.lacks` (Keller/Balkon/Stellplatz declared `ein Muss`/`zwingend` → fail; see #805 above).
-All eight belong in the same triage
-prefilter — axes (3), (6), (7) and (8) are the cheapest to automate (regex on the description;
-city+price comparison off the search-result row), axis (5) the cheapest to read (one NUXT field),
-axis (4) is the cheapest to get WRONG. *Why:* on #579 the favourable direction made the swap look promising
-right up to the last clause of the title; on #597 the favourable *rent* direction did the same, and
-only the stated 70-m²-Minimum settled it; on #684 the size fit perfectly and only (6)+(7) decided.
-
-**Both sides can fail at once — score side 1 anyway and say so.** #610 was the first swap where
-side 1 *also* missed the 3,5 gate (3,3 — a 160 m²/6-Zi EFH is +33 % over `max_m2` and one room over
-`max_rooms`, plus out-of-area and no Baujahr/Energieausweis/NK/Kaution). The habitual Next-steps line
-"side 1 passed, grab it if it ever reappears as a normal Vermietung" then does NOT apply and would be
-a wrong recommendation — check the side-1 number before writing that follow-up.
-
-### The base rate is NOT a law — #608 is the first side-2 PASS. Don't pre-judge a swap as doomed.
-**Pass roster (four known shapes, keep it current):** #608 „{N} Raum **gegen {M} Raum**" with M ≤ our
-2 Zi (the Suche IS the title) · #662 · **#672 silent-except-a-bare-city-clause** (see the „TOTALLY silent
-Suche" section below) · **#685** headline-only „gegen 1-2 Z. {Ortsteil}" · **#696 the strongest shape yet:
-„Suche {N} Zimmer / Biete {M} Zimmer" in the HEADLINE *plus* an explicit motive sentence
-(„Möchte mich **verkleinern** und suche deshalb eine neue Wohnung") as sentence 1 of the body.** Note the
-split: #608/#696's pass is a *match against stated criteria*, #641/#672's is a pass *by silence*. Both are
-legitimate Swap-candidates, but only the first carries real odds — say which kind you have, so the user can
-budget attention accordingly.
-  - **#696 also breaks the „our offer's missing Keller always costs us" reflex: check whether the PARTNER
-    has one.** Their Siemensstadt flat had `Keller` **0 hits** and a nachweislich complete 5-chip
-    Merkmalsliste (`features.details:null`), only „eine kleine Abstellkammer im Flur" — so the Ausstattungs-
-    delta of the swap was the smallest of the whole series (they lose only Balkon + EBK, gain ~29 m² garden
-    + Aufzug + Neubau 2024). ⇒ Score the amenity axis of side 2 as a **delta between the two flats**, not
-    as a list of what our offer lacks in the abstract. Same listing, mirror lesson for side 1: „Keller not
-    stated" on a **Berlin pre-1990 Bestandsbau** is weak evidence of absence (Kellerabteile are near-
-    universal there) — apply the E-2,0 rubric penalty, bump to 2,5, and make the Keller question the
-    cheapest-highest-leverage first-contact item (confirmed ⇒ E ≈ 4,0, ~+0,15 on the global score).
-  - **Rent axis, #696 variant: the partner's €/m² sitting AT the Ortsteil-Angebotsanker kills the usual
-    Altvertrag caveat.** 11,40 EUR/m² vs Siemensstadt-Anker 11,84 (−3,7 %) ⇒ no deep legacy discount to
-    lose, so „Zustimmung kommt als neuer Vertrag zu Marktmiete" is a small risk here — but the flipside is
-    that the **Mietpreisbremse** becomes the live Block-A story instead (cf. the #669 rule of thumb).
-After a long unbroken failure run (#492, #505, #533, #541, #550, #578, #579, #597, #598, #606) it is
-tempting to treat every swap as a foregone Discard. **#608** (Kleinanzeigen, „TAUSCHWOHNUNG *Günstige
-3 Raum Wohnung **gegen 2 Raum Wohnung***", 89 m² / 980 EUR kalt, Potsdam 14469) passed both sides.
-The shape that produces a pass — spot it early, it is a *positive* triage signal:
-- **Title is "{N} Raum gegen {M} Raum" with M ≤ our offer's room count.** M is then the entire Suche,
-  and an exact hit on M is the strongest side-2 evidence available (here M = 2 = the Golm flat exactly).
-- **No m²-Minimum, no Mietobergrenze, no Ortsteil, no Ausstattungswunsch, no Personenzahl anywhere** —
-  the description is pure Tauschwohnung boilerplate. All four kill axes are then *silent*, and under
-  the lenient rule silence is a PASS, not an "unknown Suche" hedge. (Contrast #597/#598, where a
-  single stated number decided it, and #606, where the last line did.)
-- **Check the rent axis in BOTH readings before calling it.** Here their 980 kalt / 1.330 warm vs our
-  1.025,25 / 1.214,93 = **+4,6 % kalt but −8,7 % warm**, a real saving for them. A partner whose own
-  Kaltmiete is *near* ours (not the usual sub-800 Altvertrag) is the one class the Golm offer serves.
-⇒ Practical rule: run the four kill axes; if all are silent AND the room count matches, stop hunting
-for a reason to discard — write it up as a Swap-candidate with the open questions listed instead.
-
-**The `"{N} Zimmer … gegen {M} Zimmer"` title is the cheapest side-2 read there is — and it cuts BOTH
-ways.** #608 was the positive form (M ≤ our 2 Zi ⇒ pass); **#661 (Immowelt, „TAUSCHWOHNUNG Moderne
-3- Zimmer Wohnung in Bornstedt **gegen 4 -5 Zimmer**") is the negative form and was decidable from the
-title alone** — M = 4 is a *numbered absolute floor*, two rooms above our only offer, so axes 1
-(direction: they are upsizing) and 3 (explicit numeric minimum) both fire independently. The
-description's last pre-boilerplate sentence repeated it verbatim ("Wir suchen 4/5- Zimmer-Wohnung
-oder ein Haus in Potsdam, am liebsten in Drewitz."). ⇒ **Read the title's `gegen …` half first, then
-confirm against the description tail; when the two agree the verdict is robust and no A–H pass is
-needed to reach it** (still score side 1 for the record — #661's flat was 4,3/5). A named
-Wunsch-Ortsteil in that sentence ("am liebsten in Drewitz") is a *preference* riding on a hard
-"in Potsdam" — do not upgrade it to an exclusion, and do not need it: the room floor already decided.
-
-**Third form: `gegen {M1}-{M2} Z` — a stated RANGE, and it passes when our 2 Zi hits its TOP.**
-#662 (Immowelt, „TAUSCHWOHNUNG Sonnige 3-Zimmwhn. mit Balkon **gegen 1-2 Z**", Am Stern Potsdam,
-3 Zi/60,20 m², 550 kalt/781 warm) = **the second side-2 PASS ever**, after #608. Read a range as a
-range: `1,5-2 Zimmer` is satisfied by our 2-Zi Golm flat at its upper bound, and "in Potsdam" is
-satisfied *literally* — Golm is a Potsdam Ortsteil, so no commuter-belt leniency is even needed.
-Here the Suche sat in **the title AND the first prose sentence, identically** — a new position pair;
-keep reading the tail anyway (it was pure boilerplate) but two agreeing statements up front make the
-verdict robust immediately.
-**Sub-rule that decided it: a large rent delta with NO stated ceiling is a PASS + a labelled
-inference, never a fail.** Their 550/781 vs our 1.025,25/1.214,93 = **+86,4 % kalt / +55,6 % warm
-(~+434 EUR/Mon.)** on an Indexmiete — by the #598 diagnostic ("downsizing for price") this smells
-like a decline. But #598 had an explicit `maximale Miete von 700 Euro`; #662 states **no P at all**,
-and an unstated ceiling must never be converted into an assumed one. ⇒ Keep it, and write the
-economic read as an explicitly-labelled inference (as on #641) plus the *counter-offer* the first
-message should lead with — here Bj. 2024 vs ~1975 Platte, EG + ~29 m² Garten vs 4. OG ohne Aufzug,
-Personenaufzug. *Why:* three of the five kill axes are about numbers the poster never wrote down,
-and inventing one of them would have discarded the best side-2 fit on record.
-
-**Fourth form: `gegen {N}+ Z` — a stated FLOOR, in the TITLE ONLY, with a body that never restates
-it. This is the shape that fakes a "silent Suche" and must NOT be routed to the #641 lenient KEEP.**
-#663 (Immowelt, „TAUSCHWOHNUNG 3-Zimmer in Potsdam Traumlage **gegen 4+ Zimmer in Berlin**", Neuer
-Markt, 95 m²/3 Zi, 1.030+330): the description is a **pure self-description** of their own flat and
-ends in the tauschwohnung.com boilerplate — grepping the ad text for `such|Suche|Gegenzug` returns
-**0**, and `Berlin` appears **only** in the headline. So the body-only reader sees exactly #641's
-signature (no Zimmer/m²/Miete/Ortsteil/Personenzahl anywhere) and would fire "Suche unknown ⇒ lenient
-KEEP" — producing a Swap-candidate the partner can never accept. ⇒ **Rule: the Suche is "unknown"
-only when the TITLE is silent too. Read the headline first, and count a title-only Suche as fully
-stated, not as vague** — no leniency is owed to a criterion the poster did write down, merely wrote
-down once. (`mainDescription.headline` in the Immowelt payload = the ad's real headline; the pipeline
-card blob is not.)
-  - `{N}+` is an **absolute floor**, the exact mirror of #662's `1-2 Z` range: 4+ vs our 2 Zi = two
-    rooms below ⇒ deterministic fail, kill axis 3. #662 and #663 landed in the same batch and were
-    **both settled by the title alone, in opposite directions** — that pair is the argument for a
-    title-regex prefilter (`gegen \d+\+? ?Z`) ahead of full evaluation.
-  - Watch the axis bookkeeping: on #663 the *rent* axis was a clean PASS (our 1.025,25 kalt = −0,5 %
-    vs their 1.030; warm −10,7 %) and no ceiling was stated, so the report has to say the rooms —
-    not the money — decided. A favourable rent axis on a swap is common and never rescues a stated
-    room/area floor.
-  - Their target city being a **different** city (Berlin) while our offer sits in *their current*
-    city (Potsdam) is a second, softer fail: commuter-belt leniency formally applies, but the
-    direction points *away* from where our offer is. Record it as a soft miss under the hard one.
-
-**Fifth form: the SINGLE-CRITERION Suche — one bare room count and literally nothing else.**
-#665 (Immowelt `1fdae0cc-…`, Berliner Vorstadt Potsdam, 3 Zi/104 m², 1.300+350): title
-„… **gegen 4 Zimmer**", body paragraph „**Wir suchen eine 4 Zimmerwohnung.** Am liebsten mit
-Badewanne und Balkon/Terrasse." That is the *entire* Suche — **no Stadt, no Ortsteil, no m², no
-Mietobergrenze, no Personenzahl**. It is the mirror of #598 (rent-only Suche): exactly one axis is
-stated and it alone decides.
-  - **Do not read the silence on area/rent as a fail — both are lenient PASSes, and here the rent
-    axis ran strongly in OUR favour** (our 1.025,25 kalt / 1.214,93 warm = −21,1 % / −26,4 % below
-    their own 1.300 / 1.650, i.e. the swap would *save* them money). Write that as a labelled
-    inference and state plainly that only the room count decided. *Why:* a report that lists five
-    silent axes as "unclear" reads like a marginal call when it is actually a clean single-axis fail.
-  - **`4 Zimmerwohnung` written as a flat noun is still an absolute floor**, not a range and not a
-    wish — same class as #663's `4+`. Two rooms above our only offer ⇒ axes 1 (they hold 104 m² and
-    are upsizing) and 3 (numbered room floor) fire together.
-  - **Generalise the `am liebsten` softener beyond the Ortsteil case (line ~132):** it softens
-    *whatever follows it*, Ortsteil **or** Ausstattung. „Am liebsten mit Badewanne und
-    Balkon/Terrasse" is a preference, so our missing Balkon is a con and never a fail — and the
-    alternative-set half is the one thing our ~29 m² Golm garden half-answers. It still cannot
-    rescue the numeric fail.
-  - **Cheap prefilter:** `such\w* (eine?|nach) .{0,20}\b(\d)[ -]?Zimmer` catches this shape in the
-    body, and the existing `gegen \d+\+? ?Z` title regex catches it in the headline. #665 was
-    decidable from either.
-
-**Sixth form: the SPLIT Suche — the WHERE in the first sentence, the DIRECTION in the
-second-to-last paragraph, and no number anywhere.** #668 (Immowelt `42a71ce9-…`, Brandenburger
-Vorstadt, 3 Zi/70 m², 570+260): headline „TAUSCHWOHNUNG Sonnendurchflutete Altbauwohnung im
-Seitenflügel" carries **no `gegen …` half at all** (pure self-description, the #664 shape), and the
-Suche is two sentences that sit at opposite ends of the body:
-  1. first paragraph — „hiermit bieten wir unsere Wohnung zum Tausch an. **Wir suchen eine
-     Tauschwohnung in Potsdam West.**" (the WHERE, and nothing else);
-  2. second-to-last paragraph, right before the tauschwohnung.com boilerplate — „Da unsere
-     **Familie immer weiter wächst**, ist die Wohnung **zu klein für uns geworden**." (the
-     DIRECTION — the #606 household clause, here without a Personenzahl).
-⇒ **Neither half alone decides, and each half alone looks like a lenient PASS.** Read in
-isolation, sentence 1 is "a Suche with zero numbers" (⇒ #641/#608 lenient KEEP) and sentence 2 is
-just the poster's reason for moving. Together they are two independent hard fails. So the
-"silent Suche ⇒ KEEP" rule needs a stricter trigger: **silent means the title AND every prose
-paragraph, including the motive sentence.** Grep the *motive* (`wächst|zu klein|Familie|Nachwuchs|
-Zuwachs|mehr Platz`) as a first-class Suche criterion, not as colour.
-  - **An Ortsteil-level target inside our own city is still an area FAIL.** „in **Potsdam West**"
-    is not „in Potsdam": Golm is a Potsdam Ortsteil, but ~6,5 km from the one they named, and
-    there is no `am liebsten` / `ggf. auch` / `bevorzugt … aber` softener. Do not let the shared
-    city name upgrade it to a match — the #662 „in Potsdam" *literal* pass only works when the
-    poster wrote the bare city.
-  - Rent axis was a lenient PASS (no ceiling stated) but ran hard against us for once: their
-    570/830 vs our 1.025,25/1.214,93 = **+79,9 % kalt / +46,4 % warm** on an Indexmiete. Write it
-    as a labelled inference (#662 rule) and say plainly that direction + Ortsteil, not the money,
-    decided.
-  - Side 1 still passed at **4,2** (both must-haves double-evidenced), so the "watch for it as a
-    normal Vermietung" follow-up applies — check the side-1 number before writing that line (#610).
-
-**Anbieter-ID magnitude ≈ how long the swap has been unmatched.** Recent GmbH-feed posters ran
-113343 (#662), 338350 (#664), 427872 (#661), 476848 (#641); #665 was **38298** — an order of
-magnitude lower, i.e. a long-standing tauschwohnung.com account, and Immowelt's `tags.isNew` was
-`false`. Not a scam signal and not a scoring input, but a useful freshness read: a very low id on a
-still-live ad means the poster has been looking for a long time (⇒ their stated criteria are
-probably firm, not an opening position). Complements the *cross-portal dedup* use of the same field
-documented below.
-
-### A `Möbliert/Teilmöbliert` flag on a swap is NOT the furnished / "auf Zeit" hard blocker
-#653 (Kleinanzeigen, Tauschwohnung GmbH, 14055 Berlin-Westend) carries the checktag
-**`Möbliert/Teilmöbliert`** next to Balkon/Terrasse/Keller. Taken at face value that fires the
-furnished/Zwischenmiete cap (≤2,0) from `evaluate.md` and kills a 4,1 flat. It should not, because a
-swap is by construction a **permanent Mieterwechsel**, and the flag on these feed-imported ads means
-"furniture can be taken over", not "let furnished for a limited period".
-⇒ Decide it on the *accompanying* evidence, never on the tag alone. Fire the blocker only if at least
-one real furnished-let marker is present: `befristet` / `auf Zeit` / `Zwischenmiete` / `Untermiete`,
-a Mietende or Mindest-/Höchstmietdauer, a **Pauschalmiete** (one all-in figure with no Kalt/NK split
-*and* an explicit "inkl. alles"), or a hotel-style inventory list. On #653 all of those were absent
-and the 17 photos plainly showed the **resident family's own belongings** (toys, bunk beds, fridge
-magnets, personal pictures) — i.e. an occupied home, not a furnished rental product.
-⇒ Still raise it as an explicit open question in Block E + Next Steps ("Möbelübernahme oder möbliert
-auf Zeit?") and state the conditional: if the answer is the latter, the blocker applies and the score
-drops to ≤2,0. *Why:* the tag alone would have discarded the best Berlin swap seen so far; ignoring it
-silently would have hidden a genuine ≤2,0 risk. Watch whether it recurs across the GmbH feed — if so
-it is a systematic import artefact and belongs in `evaluate.md` next to the furnished rule.
-
-### Swap-specific Block A caveat: the advertised rent is the partner's ALTVERTRAG, not our price
-A Mieterwechsel per Tausch needs the landlord's consent, and consent frequently comes as a **new
-contract at market rent** rather than continuation of the old one. #608 advertises 980 EUR kalt =
-11,01 EUR/m², ~29 % under the Potsdam Angebotsanker (~15,51) — at market that flat is ~1.380 EUR.
-So the most valuable question in the first contact is *"Wird der bestehende Vertrag übernommen oder
-neu abgeschlossen?"*; the answer can move Block A by ~1,5 points. Say this in the report rather than
-scoring the partner's Altvertrag price as if it were ours. Corollary: a cheap swap rent is the
-*signature* of an Altvertrag, which is why the "> 20 % unter Mietspiegel" High scam signal must not
-fire on it — it needs an address-precise band, and against the **ortsübliche** Vergleichsmiete these
-prices usually sit ABOVE the Mittelwert, not below.
-  ⚠ **The Altvertrag premise is an inference, not a given — test it against the Angebotsanker.**
-  #669: 1.100 EUR / 75 m² = **14,67 EUR/m²**, i.e. ~−5 % off the Potsdam Angebotsanker (~15,51) and
-  **+95,9 % over** the ortsübliche Vergleichsmiete (bis 1948 · kein EA · Spalte C = 7,49). Every
-  other swap in the series sat at 6–12,6 EUR/m². At Angebotsmarktniveau there is **no Altvertrag to
-  inherit**, so the "consent may come as a new contract" risk is already priced in — and the real
-  Block-A story flips to a **Mietpreisbremse overshoot** (zulässig 8,24 EUR/m² = 618 EUR ⇒ +78 %),
-  making § 556g Abs. 3 BGB (Vormiete, Baujahr, Modernisierungsumfang) the first contact question
-  instead. ⇒ Rule of thumb: swap €/m² near the Angebotsanker ⇒ young contract, Mietpreisbremse
-  check; swap €/m² at half the Angebotsanker ⇒ Altvertrag, successor-rent question. *Why:* writing
-  "Bestandsmiete, günstig geerbt" on a 14,67-EUR/m² ad would invert the actual risk.
-  ✅ **Dritter Zustand, erstmals auf #724: Neubau-Vertrag, der UNTER der ortsüblichen Miete liegt.**
-  15,79 EUR/m² ≈ Angebotsanker (junger Vertrag, Erstmieter seit 11/2021) **und** −5,6 % unter dem
-  Mietspiegelfeld `ab 2021`, dazu § 556f ⇒ keine Bremse. Hier ist *weder* ein Altvertrag zu erben
-  *noch* ein § 556g-Hebel zu ziehen: das Repricing-Risiko beim Mieterwechsel ist bereits eingepreist
-  und reicht nur bis zum Spannen-Oberwert. ⇒ Die Kontaktfrage „Vertrag übernommen oder neu?" bleibt
-  richtig, aber ihr Hebel ist klein — nicht mit „±1,5 Punkte in Block A" bewerten wie bei #608.
-
-## "Potsdam Nord" in a Suche LITERALLY includes Golm — area axis passes, don't mark it a miss
-Potsdam's official Sozialraum II "Potsdam Nord" = Bornim, Bornstedt, Eiche, **Golm**, Grube, Nedlitz
-(potsdam.de / Bürgerbudget Sozialraum 2). So a Suche naming "Potsdam Nord" is met by our offer
-without leniency; only a *named* Ortsteil (e.g. "Bornstedt") next to it softens that to a near-miss.
-#776 (Kleinanzeigen 3512001996): passed area + Fahrstuhl (our EG + Personenaufzug is the best fit for
-the pensioner households who ask for a lift), died on "Wir **benötigen** eine Dreizimmerwohnung".
-Also on #776: a private DIY swap can be posted by a **relative as proxy** ("Meine Eltern haben …") —
-the Suche's motive is then proximity to the poster ("bei uns in der Nähe"), and Block H has no tenant
-voice at all. *Why:* without the Sozialraum fact the area axis reads as a fail and hides that the
-room floor alone decided.
-
-## Even on IS24 the object-specific twg.click link is NOT guaranteed — check "Weitere Links" first
-Some IS24 swap exposés carry only the **generic** `https://twg.click/is24-homepage` in the
-`REFERENCE_LIST` titled "Weitere Links" (it 302s to the tauschwohnung.com front page with utm
-params), not the per-object `twg.click/is24-{objektNr}-NN`. **Do not construct the object link
-from `OBJECT_INFO`'s Objekt-Nr.** — on #526 (expose 169826619, Objekt-Nr. 349800) `is24-349800-01/02/03`
-were all hard **404**, and `tauschwohnung.com/wohnung/349800` answered 200 with the soft-404 body
-("Seite nicht vorhanden"): the IS24 Objekt-Nr. is NOT a tauschwohnung housing id.
-⇒ Rule: read the actual `url` in "Weitere Links". If it is `is24-homepage`, the NUXT route does not
-exist for this listing — fall back to the free-text Suche exactly as on Immowelt/Kleinanzeigen
-(Keller/Baujahr/Kaution/moveInDate stay whatever IS24's ATTRIBUTE_LIST says, Suche = description).
-Budget: one grep of the REFERENCE_LIST, not 4 curls. *Why:* #526 burned 4 probes rediscovering this.
-
-Confirmed again on #549 (expose 169908691, Objekt-Nr. 443422): "Weitere Links" held only
-`is24-homepage`. Treat the generic link as the *common* case on IS24 swaps, not the exception —
-go straight to the free text. **But always look: it is roughly a coin flip, not a dead end.** #610
-(expose 170120501) carried BOTH `is24-homepage` and a working object link `twg.click/is24-401260-899`
-(note the **3-digit** tail, not the `-NN` two-digit form) → 302 to the tauschwohnung.com detail page,
-full `__NUXT_DATA__`, structured `search` + `housing`. When the object link is there it is worth the
-one curl: it delivered `market: "free"` (= no WBS, otherwise unknowable), `constructionYear`/
-`energyEfficiency`/`moveInDate`/`deposit` as explicit nulls (so "unstated" is *proven*, not assumed),
-and the `search.radius` field that decided side 2.
-
-### IS24 `realEstateType: houserent` swaps are the sparsest variant — expect NO Ausstattung at all
-On #549 the whole expose carried just three ATTRIBUTE_LISTs: "Hauptkriterien" (only `Wohnfläche ca.`
-+ `Grundstück ca.` — the rest are SCHUFA/Telekom ad LINKs), "Kosten" (Kaltmiete + Preis/m² +
-`Gesamtmiete: "1.900 € zzgl. Heiz- und Nebenkosten"`, i.e. **NK and Warmmiete genuinely absent, not
-zero**), and "Bausubstanz & Energieausweis" containing the single line `Wesentliche Energieträger:
-Keine Angabe`. There is **no Ausstattung block and not one CHECK attribute**, so Keller / Balkon /
-Terrasse / EBK are *unresolvable* — the one-line Objektbeschreibung is the only amenity source.
-Score the must-haves as unconfirmed (Block E ~2,5), don't read the absence as a negative.
-MEDIA was 10 PICTURE tiles **all** captioned `www.tauschwohnung.com` (+1 AD) = 0 real photos → cap D.
-`PRICE_INFO.priceBar` still works and is the only price anchor worth having, which matters doubly
-here: the **Berliner Mietspiegel excludes Ein-/Zweifamilien- und Reihenhäuser**, so for a Berlin
-`houserent` there is no Mietspiegel field to compare against at all — use the priceBar percentile
-plus a § 556g Abs. 3 BGB Auskunft note. *Why:* without this you hunt for a criteria table and a
-Mietspiegel row that cannot exist, and risk logging "keine Ausstattung" as if the flat lacked it.
-
-**The free-text Suche is often one sentence in the middle of the Objektbeschreibung, not a tail
-block** — #526: *"Ich möchte mich Ende 2026 verkleinern um weniger Miete zahlen zu müssen und suche
-daher auf diesem Weg eine 3 Zimmer Wohnung."* It carries rooms + timing + an implicit rent ceiling
-(their own "derzeit 1175 € Kalt") and no Ort at all. Read the WHOLE description, and mine the
-*motive* ("verkleinern", "weniger Miete") — it is the decisive side-2 axis, often more decisive than
-the literal room count: a 2-Zi offer that is 150 EUR cheaper serves a downsizer's stated goal even
-though it misses "3 Zimmer" by one.
-
-**IS24 swap description text can end in a literal "…" that is the poster's own ellipsis, not
-truncation** — verify with `len()` on the raw `text` field before hunting for a fuller copy
-(#526: 231 chars, complete).
-
-## The NUXT route only exists from IS24 — from Immowelt AND Kleinanzeigen you are on free text alone
-An Immowelt swap expose has **no `twg.click` / "Original-Exposé" link**, and its `Referenznummer`
-is the poster's **Anbieter-ID**, not a tauschwohnung.com housing id. `tauschwohnung.com/wohnung/{id}`
-answers **HTTP 200 with a soft-404 body** ("Fehler - Seite nicht vorhanden"), so probing by status
-code alone gives a false positive — grep the body for `Seite nicht vorhanden` before parsing.
-⇒ On an Immowelt-sourced swap, the description's free-text "Ich suche …" paragraph is the whole
-side-2 input; Keller / Baujahr / Energieausweis / Kaution / moveInDate stay **unknown**, not
-resolvable. Details in `immowelt.md`. *Why:* #521 spent two calls on the IS24-only route.
-
-**Same on Kleinanzeigen** (#524): no `twg.click` link anywhere in the HTML, and the ad's
-"Anbieter-ID / Anbieter-Objekt-ID" (e.g. 237825) is the *poster's* id — `tauschwohnung.com/wohnung/237825`
-returns 200 + the soft-404 body, and `twg.click/ka-{id}-01` is a hard 404. There is no housing id on the
-page, so the Suche is whatever the title + `#viewad-description-text` say — and on #524 they said nothing
-at all. Record "Suche unknown", fall back to their own flat as the yardstick, apply the lenient rule.
-**Status-code update (2026-08-22, #641, Anbieter-ID 476848): the probe now returns a HARD `404`**
-(status 404 *and* the "Seite nicht vorhanden" body), not the old 200+soft-404. So one `curl -w
-"%{http_code}"` settles it — but keep grepping the body, since 200-with-soft-404 was the behaviour for
-months and may come back. Either way it is ONE curl, not four: the ID on a Kleinanzeigen swap is never
-a housing id, so the outcome is known before you send it.
-
-**Where the free-text Suche sits on the Immowelt/Tauschwohnung-GmbH variant: the SECOND-TO-LAST
-paragraph, immediately before the "Diese Anzeige wurde von einem Nutzer eingestellt …
-tauschwohnung.com stellt nur die Plattform bereit" legal boilerplate.** #664: headline was pure
-self-description ("TAUSCHWOHNUNG Biete 3 Raum Babelsberg mit kleinem Garten EG Perfekte Lage" — no
-"gegen …" half), and the whole side-2 input was one sentence in that slot: *"Wir suchen eine 3
-Wohnung **ab 85 m2** mit Balkon, Terrasse oder Garten in Babelsberg, Innenstadt, Berliner- oder
-Templiner Vorstadt oder Klein Glienicke."* ⇒ **A silent TITLE is not a silent Suche** — read the
-full description down to the boilerplate before invoking the lenient-KEEP rule of the next section.
-⚠ **"Second-to-last" is the modal slot, NOT a rule — the Suche is just as often the SECOND
-paragraph, i.e. right after the "(Anbieter-ID: N)" line.** #656 had it in the title + first sentence;
-**#683 has it in paragraph 2** (*"Wir suchen ein helles Zuhause mit mind. 3-4 Zimmern, mit Garten
-oder Gartenzugang, bevorzugt in ruhiger, grüner Lage in Rand-Berlin oder im nahen Umland"*), while
-the second-to-last paragraph carried only the *direction* (*"mit wachsender Familie wünschen wir uns
-einfach mehr Platz, Natur und am liebsten einen eigenen Garten"*). ⇒ **Never slot-hunt: read the
-whole `sections.mainDescription.description` end to end and collect EVERY Suche clause, because the
-numeric criteria and the direction clause routinely sit in different paragraphs** and each can decide
-side 2 on its own. *Why:* stopping at the documented slot on #683 would have found the direction but
-missed the „mind. 3-4 Zimmern" floor, i.e. the one clause that makes the fail deterministic rather
-than a judgement call.
-**Richest documented form (#667): a colon-headed BULLETED Suchprofil in that same slot** — *"Ich
-suche einen Tausch mit einer Wohnung in Berlin Schöneberg, Wilmersdorf oder Charlottenburg, ggf.
-auch Potsdam:"* followed by `- mind. 3 Zimmer / - mind. 80 qm / - Balkon / - Badewanne /
-- vorzugsweise Altbau / - gerne mit Aufzug`. Note the built-in priority grammar: **`mind.` = hard
-floor, bare noun = hard must-have, `vorzugsweise`/`gerne` = soft preference** — the poster grades
-their own criteria, so score each bullet at the weight they gave it instead of treating the list as
-uniform. Here the title *also* carried the direction ("… in Potsdam **gegen Berlin**"), so title and
-body agreed; a bulleted list is the easiest Suche to read and the easiest to under-weight.
-Two sub-details from the same ad:
-- **An alternative-set Ausstattungswunsch ("Balkon, Terrasse **oder** Garten") is satisfied by our
-  Golm garden** — it is the one criterion our offer routinely meets, and it never rescues a numeric
-  fail. Score it ✓ in the checklist so the email row is honest, then let axis 3 decide.
-  ⚠ **Its mirror: a BARE standalone „Balkon" is an Ausstattungs-FAIL for us, not a near-miss.**
-  #667 listed „- Balkon" as its own bullet with no `oder`; our EG flat has a ~29 m² Garten and no
-  balcony, so the criterion is simply unmet. The whole difference between #664 (✓) and #667 (✗) is
-  the word `oder`. Corroborate with their own flat: a poster who already has two Balkone plus a
-  Dachterrasse wrote „Balkon" deliberately. ⇒ Read the conjunction, not just the noun.
-  ⚠ **THIRD form — „Disjunktion PLUS Konjunktion" — reads like the ✓ case and is actually a ✗.**
-  #671: „**Unbedingt mit Balkon oder Terrasse und Gartenmitbenutzung.**" The word `oder` is present,
-  so the #664 rule fires on a skim — but the `oder` only ranges over *Balkon|Terrasse*, and the
-  Garten is bolted on by `und` as a **separate, additional** requirement. Our Golm garden therefore
-  satisfies the second conjunct and **cannot substitute for the first**, which our flat fails
-  outright (no Balkon, no Terrasse). ⇒ **Parse the scope of `oder` before crediting it:** if a
-  `und {Garten…}` follows the disjunction, the garden is an extra demand, not an alternative.
-  Decision rule: `A oder B oder Garten` ⇒ ✓ · `A oder B **und** Garten` ⇒ ✗ (Garten ✓, A/B ✗) ·
-  bare `A` ⇒ ✗. The intensifier `unbedingt` (also `zwingend`, `muss`, `Bedingung`) marks the clause
-  as hard and removes any near-miss leniency. *Why:* crediting the `oder` here would have flipped a
-  correct DISCARD into a contact on a Suche that rules us out in its own words.
-- **A named Ortsteil list with NO openness clause is an area FAIL** — the exact mirror of #606's
-  "Bevorzugt A, B, C … aber bietet gern alles an" (lenient PASS). The presence/absence of a closing
-  openness sentence is the whole difference; **third documented form, #667: a trailing
-  „…, *ggf. auch Potsdam*" appended to a Berlin-Ortsteil list is a genuine openness clause ⇒ area
-  PASS on the poster's own wording, no commuter-belt leniency needed.** Grep the tail of the Ort
-  clause for `ggf|eventuell|evtl|oder Umgebung|auch in|gern auch|am liebsten` before calling an area
-  fail — the clause is usually 2–3 words and easy to read past.
-  **Fourth documented form, #669: the openness word LEADS the clause instead of trailing it —
-  „**Am besten** auch in Babelsberg oder in zentraler Lage in Potsdam."** Two named targets, both
-  narrower than Golm, yet „am besten" (+ the „auch") frames the whole clause as a *preference*, so
-  it is an area **PASS** — and the follow-up „zentraler Lage in Potsdam" names our own city, which
-  Golm is part of. ⇒ Add `am besten|bevorzugt|vorzugsweise|idealerweise|vor allem` to the grep and
-  check the **head** of the Ort clause too, not only its tail.
-  **Fifth documented form, #671: the bare adverb „Gerne" opening the clause — „**Gerne** in der
-  Brandenburger Vorstadt/ Potsdam West."** Same class as „am besten"/„am liebsten", but shorter and
-  with no `auch` to help; it is easy to read as a plain statement of target. It is an openness
-  clause ⇒ area **PASS**. Note the direct contrast within the same portal and Ortsteil: **#668 wrote
-  „Wir suchen eine Tauschwohnung in Potsdam West" (bare, no adverb) ⇒ area FAIL, while #671 wrote
-  „Gerne … Potsdam West" ⇒ area PASS.** Identical Ortsteil, opposite verdict, and the entire
-  difference is one six-letter adverb. ⇒ Grep list becomes
-  `gerne|gern auch|am besten|am liebsten|bevorzugt|vorzugsweise|idealerweise|vor allem|ggf|eventuell|evtl|oder Umgebung|auch in`.
-  *Why:* scanning only for a trailing
-  clause makes a leading „Am besten" invisible and converts a lenient PASS into a bogus area fail —
-  which then hides *which* axis really killed the swap. On Immowelt there is no `radius` field to fall back on
-  (axis 5 is IS24-NUXT-only — `roomsMin`/`sizeMin`/`rentMax`/`selectedGeos` return **0 hits** in
-  636 KB of Immowelt HTML, and the only price pair on the page, `defaultBackToSearch`
-  priceMin/priceMax, is a mechanical ±20 % window around the asking price, see `immowelt.md`).
-
-**Cross-PORTAL swap dupes: Tauschwohnung GmbH syndicates one flat to Kleinanzeigen AND Immowelt.**
-CONFIRMED 2026-08-23: report #641 (Kleinanzeigen, Babelsberg, 700 EUR / 60 m² / 3 Zi / 1. OG, 2021
-renoviert, 5 Fotos, Anbieter-ID 476848) and the queued Immowelt expose `94b8c035-…` are **one flat**
-— closed as DUPE, no #665 written. All five prose-fingerprint axes matched verbatim: identical
-headline (`TAUSCHWOHNUNG Klein aber Fein: 3-Zimmer-Wohnung in Babelsberg`), identical description
-(1.OG, „viele liebe Nachbarn", 2021 komplett renoviert incl. Netzwerk + Heimkino, 10-min-Radius mit
-Linden- und Filmpark), 5 Fotos, 700 EUR / 60 m² / 3 Zi.
-⚠ **CORRECTION to the "never dedupe swaps by Referenznummer" rule: that holds only ACROSS
-syndicators. WITHIN the Tauschwohnung-GmbH feed the poster's `Anbieter-ID` is stable cross-portal
-and is the single cheapest dedup key there is.** Immowelt prints it in **two** places —
-`Referenznummer: 476848` in the Anbieter tail *and* a literal line in the description body,
-„Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: 476848)" — and Kleinanzeigen prints
-the same 476848 as its Anbieter-/Objekt-ID. (Immowelt's `Online-ID`, here `261G6BY8HXRI`, stays
-portal-internal and is useless cross-portal.) The #660/#661 case that produced the original warning
-was **Wohnungsswap.de vs Tauschwohnung GmbH** = two different syndicators, hence two different ids.
-⇒ On a suspected cross-portal swap dupe, grep both ads for `Anbieter-ID` FIRST (one field, settles
-it), then confirm with the prose fingerprint. *Why:* the orchestrator explicitly instructed "do NOT
-try to settle it with Referenznummer — on swap ads those always differ", which is only half true and
-would have cost a full A–H re-scoring.
-⚠ **…but grep the Anbieter-ID over `reports/*.md`, NOT over `data/listings.md` — the tracker's Notes
-column usually does NOT carry it.** #673: the briefing said "grep it against `data/listings.md` Notes
-first"; `grep 477331 data/listings.md` returned **nothing**, while `grep -rn 477331 reports/` hit
-`606-…md` instantly ("Inserent ist ein privater Mieter (Anbieter-Objekt-ID 477331)"). #606's tracker
-row records only the *portal-internal* Kleinanzeigen Ad-ID 3488620217, which by the rule above is
-useless cross-portal. The full-body report is where the id survives. ⇒ Standard dedup grep for a swap
-is `grep -rn "{id}" data/listings.md data/pipeline.md reports/` — all three at once, one call. A
-listings-only grep returns a **false "not a dupe"** and buys a whole redundant evaluation.
-⇒ Cheap belt-and-braces second key: grep a **distinctive prose phrase** from the Suche at the same
-time (#673: `"ZWEI Wohnungen"`), which caught the same report independently.
-**Bonus: fetch the sibling even on a confirmed dupe — the richer post can RESOLVE an open question
-from the first report.** #641 could not decide whether the bare `700 €` was kalt or warm (it flips
-the side-2 rent delta by ~27 points and the whole Mietpreisbremse verdict). The Immowelt twin states
-it outright: `"price":{"value":"700 €","additionalInformation":"Kaltmiete"}` plus a `Mietkosten`
-block reading `Kaltmiete 11,67 €/m² · 700 €` and `Kaution: keine Angabe`. ⇒ 700 EUR = **Kaltmiete**,
-Nebenkosten genuinely unstated. Also corroborated: the Suche is silent on BOTH portals (Immowelt
-headline has no `gegen …` half; body is self-description + boilerplate; `Keller/Balkon/Terrasse/
-Garten/Baujahr/möbliert/WBS/Aufzug/Einbauküche` = **0 hits in 616 KB**, and there is no `"features"`
-key at all — the Merkmale block is entirely absent, not merely truncated) ⇒ #641's lenient-KEEP
-stands, now on two independent posts.
-
-### The Suche can be a COORDINATED CLAUSE of the self-description sentence, not a sentence of its own
-#669 (Immowelt, Babelsberg Süd): the entire description is three sentences, and the middle one is
-*„Wir wohnen in der Hochparterre eines schönen Altbaus mit 3 Zimmer, Flur, Küche, Bad und einer
-Loggia **und suchen mind. 4 Zimmer**. Am besten auch in Babelsberg oder in zentraler Lage in
-Potsdam."* — i.e. the Suche hangs off the self-description by a bare `und`, sharing its subject.
-Sentence-splitting or paragraph-hunting ("which paragraph is the Suche?") finds **one** paragraph
-that reads as pure self-description and can be filed as "silent". ⇒ Match on the **verb**
-(`suche|suchen|gesucht|wünschen uns|bräuchten|benötigen`) anywhere in the body, not on a
-sentence/paragraph boundary, and always read the self-description sentence to its end. *Why:* this
-is the cheapest Suche shape to miss (whole side 2 in nine words), and missing it flips a determined
-DISCARD into a bogus "Suche unknown → lenient KEEP".
-  - Also #669's positive lesson: **a Suche can be lenient-PASS on every axis but one and still be a
-    determined fail.** Area PASS („Am besten …"), m² unstated, no rent ceiling, no Ausstattung, no
-    Bausubstanz, and — a first in 14 swaps — the **money axis running in OUR favour** (their
-    1.100/1.350 vs our 1.025,25/1.214,93, i.e. the partner would pay *less*). One numbered floor
-    („mind. 4 Zimmer") killed it anyway. ⇒ Never let an accumulating run of PASSes soften the
-    reading of the one written number, and say in the report which single axis decided.
-
-### The Suche can be an INVERTED `gegen … suchen wir` clause — every documented trigger returns 0
-#670 (Immowelt, Drewitz, Anbieter-ID 105369): the *entire* description is one sentence —
-*„Wir tauchen eine 3 Mietwohnung in Potsdam Drewitz an **gegen eine 4 zimmer wohnung in Potsdam
-oder Ludwigsfelde suchen wir** wir sind 2 Erwasche und 2Kind"* — and the title
-(„TAUSCHWOHNUNG **Tauschwoungung**") is a pure typo carrying no `gegen …` half.
-Sweep result: `im Gegenzug` **0** · `Ich suche` **0** · `Wir suchen` **0** · `Nun suche ich` **0** ·
-`Suchprofil`/`Das suche ich` **0** · `mindestens` **0** · `Du suchst`/`bietest` **0**. Only the bare
-stem `suchen` hits, and it sits **after** its object in an inverted V2 clause (`gegen X suchen wir`),
-so even a `such(e|en) (eine|nach)` pattern misses it. ⇒ **Add `gegen …` as a body-level trigger, not
-just a title trigger, and match the bare stem `such` anywhere.** *Why:* the `gegen X` construction
-was so far only ever seen in titles („… gegen 4+ Zimmer in Berlin"), so a body-only trigger list
-plus a title check both come up empty and produce a bogus "Suche unknown → lenient KEEP".
-
-  - **New independent side-2 axis: the stated HOUSEHOLD SIZE.** #670 closes with „**wir sind
-    2 Erwasche und 2Kind**" = 4 persons. That is a *structural* floor that stands even where no
-    room number is given: 4 people do not fit our 2 Zi / 54,19 m² (13,5 m²/person), and most
-    Vermieter apply an Überbelegungs-check. ⇒ Grep the body for `wir sind \d`, `\d ?(Kind|Kinder)`,
-    `Familie`, `zu (zweit|dritt|viert)`, `Personen` and score it as its own row in the checklist.
-    It is also the *reason* behind a room floor, so it makes the discard defensible even if the
-    partner later "softens" the number.
-  - **The money axis STILL cannot fail when no ceiling is stated — now proven at the extreme.**
-    #670 is the largest rent delta of the whole series: their 324/457 vs our 1.025,25/1.214,93 =
-    **+216,4 % kalt / +165,8 % warm (2,66×)** — and the ad states **no** Mietobergrenze, not even
-    an adjective („bezahlbar"). Under the lenient rule that is a **PASS**, with the delta written
-    down as a *labelled inference* only. The orchestrator had pre-called this as "the first of the
-    batch to fail on money"; it failed on rooms + household size instead. ⇒ Never convert a large
-    computed delta into a stated criterion; a rent axis fails only on words the partner wrote
-    (a number, or „bis max. …", or „bezahlbar/günstig"). *Why:* letting arithmetic manufacture a
-    fail is exactly the recall loss the lenient rule exists to prevent.
-  - Positive note for our offer, worth reusing: **partners leaving an upper floor without a lift
-    are the one group our EG+Personenaufzug genuinely serves.** #670 sits in a 4. OG/DG with
-    `Aufzug` = 0 hits. It still fails on rooms, but say it in the report — it is the second time
-    (after #655 „weniger Treppen steigen") that barrierearm was our strongest matching axis.
-
-### Side-2 sub-case: the TOTALLY silent Suche (no "gegen X" title, no Suche sentence at all)
-#641 (Kleinanzeigen, "TAUSCHWOHNUNG Klein aber Fein: 3-Zimmer-Wohnung in Babelsberg", 60 m² / 3 Zi /
-700 EUR): the description describes only their own flat and ends in the tauschwohnung.com boilerplate —
-**zero** Zimmer/m²/Miete/Ortsteil/Ausstattung/Personenzahl anywhere, and no `{N} Raum gegen {M} Raum`
-title either. This is NOT #608's positive shape (there M was stated and matched our 2 Zi exactly); here
-there is no matchable criterion at all. Verdict is still **lenient KEEP / Swap-candidate** — all five
-kill axes silent = pass, and "unknown Suche" must never be converted into an assumed ceiling.
-⇒ But the report must then carry the **honest economic read as an explicitly-labelled inference**, not
-as a Suche: when their flat is BOTH cheaper AND bigger than the Golm offer (700 EUR / 60 m² / 3 Zi vs
-1.025,25 / 54,19 / 2 Zi = −1 Zi, −5,81 m², +46,5 % kalt or +73,6 % warm), the partner is by construction
-in the one class our offer cannot serve, so a decline is the likely outcome — say so, cap the time
-budget at one message, and let the user decide. *Why:* without that paragraph a "Swap-candidate" with a
-100 %-unknown Suche reads as a promising lead, and with it the user gets the same recall at honest odds.
-Also state which reading of an unsplit price you used: when the ad shows a bare price heading and **no**
-NK/Warmmiete field, kalt-vs-warm is genuinely undecidable and flips the rent delta by ~27 points.
-
-- **Variant „silent except for a bare city clause" — and the honest read can point the OTHER way.**
-  #672 (Immowelt, Anbieter-ID 474144, Eiche, 4 Zi / 94 m² / 900 kalt / ca. 1.300 warm): the only search
-  statement in the whole exposé is the sign-off „Wir freuen uns auf einen **Wohnungstausch in Potsdam**".
-  All five kill axes silent ⇒ lenient pass, and the city clause is **literally satisfied** (Golm *is* an
-  Ortsteil of Potsdam) so leniency is not even invoked — say that, it is stronger than a soft match.
-  What differs from #641: there the partner was cheaper AND bigger, so the honest read was "they will
-  decline". Here their flat is bigger (−2 Zi / −42,4 % for them) but their **warm rent is HIGHER than
-  ours** (1.214,93 vs ca. 1.300 = **−6,5 %**) even though our kalt is +13,9 %. ⇒ On a silent Suche always
-  compute **both** deltas: a partner can be worse off on space and better off on money, and that is the
-  only lever the first message has. Same duty as #641 — label it an inference, not a Suche.
-- ⚠️ **The mirror of the #666 „Du suchst …" trap: a second-person RHETORICAL OPENER that describes the
-  OFFER and reads exactly like a Suche.** #672 opens „**Bist du auf der Suche nach einer geräumigen
-  Wohnung in Potsdam?**" — same grammar family as #666's real second-person Suche, opposite meaning:
-  #666 attached the criteria to *deine Wohnung* (= what the partner owns ⇒ their Suche), #672 attaches
-  them to what the reader *wants* (= a pitch for their own listing). Taking it as a Suche would have
-  invented a floor of „geräumig … in Potsdam" and could have flipped the verdict.
-  **Test that separates them in one step: which flat do the criteria describe?** If the sentence's
-  object is the READER's flat („bietest deine 4-Zi-Wohnung", „deine Wohnung in X") ⇒ Suche. If it is the
-  POSTER's flat, restated in the next sentence with „Wir bieten …" ⇒ marketing, not a Suche. Second tell:
-  a rhetorical opener is a **question ending in „?"** followed immediately by „Wir bieten/Wir haben".
-  Same duty for the headline: #672's „**Perfekt für Familien**" describes the offer's suitability, **not**
-  the poster's household — do not read it as a household-size clause (`personen`/`kind` were 0).
-
-## ⚠️ The SAME swap ad appears twice on Immowelt — via Wohnungsswap.de AND via Tauschwohnung GmbH
-Two competing swap platforms syndicate into Immowelt, and a tenant who registers with both gets
-**two `/expose/` pages for one flat**. Confirmed 2026-08-23: #660 (`53228bd7-…`, Anbieter
-**Wohnungsswap.de**, Herr Tobias Jonnarth, Ref **1501708**, Online-ID **26F63QCEXRZE**, headline
-`Wohnungsswap - In der Feldmark`) and #661 (`3a7cb8ce-…`, Anbieter **Tauschwohnung GmbH** c/o THE
-9TH Bonn, Herr John Weinert, Ref **427872** = the poster's Anbieter-ID, Online-ID **26AX5VKYBCHT**,
-headline `TAUSCHWOHNUNG Tausche Garten-Glück …`) are **one flat**.
-
-**Never dedupe swaps by Referenznummer/Online-ID** — both are the *syndicator's* ids, so they always
-differ and always read as "two different ads". Dedupe on a **unit fingerprint** taken from the prose:
-the description's own title line, the exact m² (`70,53`, not the portal's rounded `70`), a physical
-oddity (garden `ca. 6x8m` + Außenwasseranschluss), the occasion (`WG-Auflösung, Mitbewohner bereits
-versorgt`), and the price triple (1.280 kalt / 250 NK / 65 EUR TG-Platz). All five matched verbatim.
-
-**The Tauschwohnung.com variant is the RICHER one — fetch it before writing "confirmed missing".**
-Same flat, wildly different structured data:
-
-| | Wohnungsswap.de (#660) | Tauschwohnung GmbH (#661) |
-|---|---|---|
-| Merkmale-Chips | **1** (`Erdgeschoss`) | **7** — Erdgeschoss, **Barrierefrei**, Einbauküche, Bad mit Dusche, **Keller**, Bodenbelag, Garten |
-| Fotos | 10 | **17** |
-| `Keller` in HTML | 0 Treffer ⇒ „vierfach bestätigt kein Keller" | Chip vorhanden, Liste **nicht** abgeschnitten (`Alle N Merkmale anzeigen` = null) |
-| Anbieter-Bewertung | keine | 4,4/5 (510 Bew.), 3 Jahre Partnerschaft |
-
-⇒ The `immowelt.md` triple-negative test ("no expander + 0 HTML hits + no photo = confirmed absent")
-is **sound per page but unsound per flat**: it certified a Keller as absent that the sibling ad lists
-as a feature. **Add a fourth condition: no known sibling posting.** When a swap looks like a dupe of
-something already evaluated, fetch the other variant and let the richer one win on amenities.
-
-**The free-text Suche can also differ between the two posts** — here `mindestens 55 m²`
-(Wohnungsswap) vs `mindestens 50 m²` (Tauschwohnung). Treat a single-platform m²/EUR floor as
-approximate and score side 2 against the **more permissive** figure; a −1,5 % "near-miss" was in
-fact a +8 % pass. Constraints that are *identical* across both posts (here: the five inner-city
-Ortsteile, Must-haves EBK + Balkon, max 1.100 EUR warm) are the real, load-bearing ones.
-
-*Why:* without this, one flat burns two full evaluations and the weaker post's gaps get written into
-reports (and into `potsdam-mietspiegel.md`) as verified facts.
-
-## Getting the partner's Suche (the side-2 input) — no browser needed
-⚠ **Von Immowelt aus gibt es keine Abkürzung zur NUXT-Suche: `tauschwohnung.com/wohnung/{Referenznummer}`
-ist ein 404.** Die Immowelt-`Referenznummer` auf Tauschanzeigen ist die **Anbieter-ID** (= die Zahl aus
-„Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: N)"), **nicht** die Housing-ID der
-Plattform — geprüft #711 (424471 → HTTP 404, „Seite nicht vorhanden"). Gleiche Falle wie bei der
-IS24-Objekt-Nr. weiter unten. ⇒ Von Immowelt/Kleinanzeigen aus **immer** auf den Freitext setzen; den
-curl nur ausgeben, wenn ein echter `twg.click`-Link im Inserat steht. Kein Verlust, solange die Suche
-quantifiziert ist (#711: „mindestens 4 Zimmern und 100 m² … Maximalmietpreis 2250 Euro" — vollständig).
-
-The IS24 expose NEVER contains the Suche. The expose's "Weitere Links" section has an
-**"Original-Exposé"** link (`https://twg.click/is24-{objektNr}-NN`) that 302s to the
-tauschwohnung.com detail page — plain `curl -sL` with a Firefox UA returns the full SSR
-HTML (no consent wall, no bot-block).
-
-Two places to read it:
-1. **Rendered HTML**: `<h2>{Name} sucht</h2>` block with `search-item` divs (Miete bis X,
-   Wohnfläche ab Y, Zimmer ab Z, Orte — but Orte collapses behind "Mehr anzeigen").
-2. **`__NUXT_DATA__` script (better — complete)**: devalue-style flat array where dict
-   values are indices into the same array. Find the dict with keys
-   `{sourceUserId, targetUserId, housing, user, search, match,...}` (near index ~42):
-   - `search` → `{cityNames, radius (km), rentMax, roomsMin, sizeMin, storeyMin/Max,
-     residentCountAdults/Children, housingPropertyIds}` — the FULL Suche incl. radius
-     and must-have property ids the HTML hides.
-   - `housing` → their flat, richer than IS24: `isActive`, `deposit`, `moveInDate`,
-     `constructionYear`, `energyEfficiency` (often missing on IS24!), `propertySize`,
-     `market: "free"` (= no WBS), `housingPropertyIds`.
-   - Property-id map: the array also holds `{id, key, inSearch}` dicts mapping ids →
-     keys (`1=balconyOrTerrace, 2=fittedKitchen, 4=garage, 6=garden, 8=guestToilet,
-     9=cellar, 12=petsAllowed, 14=floorHeating, 36=terracedHouse, 64=centralHeating,
-     66=bathtub, 71=levelShower`). Absence of 9 = no Keller — the only reliable
-     Keller signal (IS24 CHECK list omits negatives).
-   - Resolve values with `data[idx]`; do NOT recursively follow ints (booleans/ids
-     collide with array indices).
-3. `moveInDate` can be a stale past date (seen 2024-03-01 on a live 2026 listing) —
-   treat as "nach Vereinbarung", not as availability data.
-4. Photos: the caption `www.tauschwohnung.com` is a **watermark attribution, not proof of a logo
-   tile** — do NOT infer "0 real photos" from the caption alone (that misread would have capped D
-   on #548, which has 14 genuine phone photos all captioned that way). Decide by **fetching one
-   `fullImageUrl`**: a real photo is ~40–60 KB at 1333×1000 (amateur snap with a translucent
-   "Tauschwohnung" wordmark across the middle); a placeholder/logo tile is tiny and uniform, and
-   the `Gesponsert`-captioned tile has an **empty** `fullImageUrl` (it is the AD slot, never count
-   it). One curl + `file` settles it; only then cap Block D at 3.0 for "no real photos".
-
-**Why:** without the twg.click fetch the two-sided swap match runs blind ("Suche unknown")
-and the Keller/Energieausweis facts are wrong or missing; the NUXT payload gave the exact
-radius (10 km) that decided the side-2 verdict on #335.
-
-## The NUXT structured `search` dict can CONTRADICT the owner's free-text Suche — read BOTH
-On #454 (expose 169486171, obj 191235, Lankwitz DHH) the housing owner's own
-Objektbeschreibung said the Suche was "**2-3 Zimmer**, günstig, ruhig/hell/grün, am liebsten
-**Bergmannkiez/Kreuzberg**, nur nah angrenzend ok", while the resolved NUXT `search` dict (idx-42
-`{...,search}`, userId matching the housing) said `roomsMin 4, sizeMin 110, rentMax 1500,
-storeyMin 2, cityNames [Berlin], radius 0`. The two disagree on rooms (2-3 vs ≥4) and size.
-Don't trust the structured dict alone as "the Suche" — it can be a stale/match-derived filter.
-**Treat the Objektbeschreibung tail ("Suche dafür …") as the authoritative human intent, and use
-the structured dict only as a corroborator.** When they agree on the decisive axis (here: both
-say **Berlin** city, both exclude a 2-Zi/54-m² Golm flat) the side-2 verdict is robust regardless.
-IS24 MEDIA here was 5 tiles all captioned `www.tauschwohnung.com`/`Gesponsert` = 0 real photos
-(cap D 3,0), and `energyEfficiency` (Klasse A) came ONLY from NUXT — IS24 ATTRIBUTE_LIST was all null.
-**Why:** scoring side 2 off the structured `roomsMin 4/110 m²` alone would misstate what the partner
-wants; reading the free text confirmed the real target (Kreuzberg) and made the mismatch unambiguous.
-
-## Side-2 sub-case: the Suche names BOTH of `swap_offer.lacks` (Balkon *und* Keller) — still a PASS
-#726 (Immowelt `aa2c696c-…`, Anbieter-ID 384558, Bornstedt/Volkspark, 4 Zi / 144,92 m² / 1.630 kalt)
-is the first Suche that hits **both** of the Golm flat's `lacks` at once:
-> „Ich bin Allgemeinärztin und suche eine kleinere Wohnung in Postdam (2-3 Zimmer) **mit Balkon und
-> Keller** für höchstens 1300 € warm. Gerne moderner Neubau und **zentral**, aber ruhig."
-Six axes pass and pass *well* — kleiner (54,19 vs 144,92 m², −63 %), Stadt Potsdam (Golm ist
-Ortsteil), 2 Zi im Band „2-3", 1.214,93 warm unter ihrem 1.300er Deckel, „moderner Neubau" = Bj 2024
-(besser als gefordert), ruhig — und der Rest sind drei weiche Fehlstellen: kein Balkon (~29 m²
-Privatgarten als Teilersatz), kein Keller (kein Ersatz), Golm ist nicht „zentral".
-⇒ **Ausstattungswünsche sind KEINE Kill-Achse.** Die vier Kill-Achsen bleiben Ort (expliziter
-Ausschluss / Punktadresse), Zimmer-Floor, Flächen-Floor, Mietobergrenze. `evaluate.md` sagt es
-ausdrücklich: fehlende Must-haves = Con, kein Hard-Fail ohne Deal-Breaker-Formulierung. „mit Balkon
-und Keller" ist eine Aufzählung, kein „zwingend"/„Bedingung" ⇒ **Swap-candidate mit offener Ansage**,
-nicht Discarded. *Why:* der Reflex, zwei genannte Ausstattungswünsche wie einen Zimmer-Floor zu
-behandeln, hätte den bis dahin **strukturell besten** Tauschfall der Serie weggeworfen.
-
-**Das strukturell beste Muster überhaupt: echter Downsizer + echter Upsizer + großer Mietvorteil für
-die Gegenseite.** #726 spart beim Tausch **604,75 EUR/Monat kalt / 707,52 EUR warm** (bzw. 787,07
-gegen die von ihr selbst genannten 2.002) und landet 85 EUR unter ihrem eigenen Deckel; wir zahlen
-dieselbe Differenz für +90,73 m² und +2 Zimmer und bleiben unter beiden Caps. Bisher scheiterte
-praktisch jeder Kandidat daran, dass die Gegenseite **vergrößern** wollte (#492/#505/#533/#541/#550/
-#578/#667/#683/#720/#724) — „sie verkleinert" ist das seltene Spiegelbild und sollte im Triage als
-**positives** Signal gelten (Titel-Tell: „Suchen {M}, bieten {N}" mit M < N, oder eine große
-Wohnfläche im Suchergebnis). Der Mietvorteil der Gegenseite ist dabei das belastbarste
-Überzeugungsargument und gehört in die erste Nachricht — nicht die fehlenden Ausstattungsmerkmale
-verschweigen, sondern gegen die ~700 EUR/Monat stellen.
-
-**Preisfalle in genau diesem Muster:** je größer ihre Wohnung, desto größer der Altvertragshebel —
-und desto härter der Repricing-Schaden. #726: 11,25 EUR/m² Bestandsmiete gegen 19,7–22,4 EUR/m²
-Quartiersniveau (Bornstedter Feld) ⇒ ein Neuvertrag kostet je nach § 556f-Status 1.914–1.975 EUR
-(gedeckelt) oder bis ~3.200 EUR (Neubau-Ausnahme, = sofort disqualifizierend). ⇒ Bei jedem
-Großflächen-Downsizer ist **„Baujahr/Erstbezug + sagt der Vermieter eine Vertragsübernahme zu
-unveränderten Konditionen zu?"** die erste Frage; die Antwort entscheidet mehr als der halbe Score.
+## §Dedup
+- **Within the Tauschwohnung-GmbH feed, the poster's Anbieter-ID is stable across portals.**
+  - Immowelt shows it twice: the `Referenznummer` and the "(Anbieter-ID: N)" line. Kleinanzeigen shows it as "Anbieter-/Objekt-ID".
+  - #641 (Kleinanzeigen) = Immowelt `94b8c035-…`: closed as DUPE.
+- **Grep all three stores in one call:** `grep -rn "{id}" data/listings.md data/pipeline.md reports/`. The tracker's Notes column usually lacks the id; the full report has it (#673). Add a distinctive Suche phrase as a second key.
+- **Numeric re-list matchers flag false dupes** on ~price/m²/rooms (#696, #779 vs #484). The id settles it.
+- **Across syndicators** (Wohnungsswap.de vs Tauschwohnung GmbH) the ids always differ.
+  - Dedup on a prose fingerprint: the exact m² (70,53, not 70), a physical oddity (garden 6×8 m + Außenwasser), the occasion (WG-Auflösung), and the price triple (#660 = #661).
+  - The Tauschwohnung variant is the richer one (7 vs 1 chips, 17 vs 10 photos, rating). Fetch it before writing "confirmed missing".
+- **Fetch the sibling even on a confirmed dupe.** The richer post can resolve an open question: #641's bare 700 € was "Kaltmiete" on the Immowelt twin.
+- **Developer Grundriss unit designators** (`Haus {N} – WE {n}`, `WE 65.01`) are the cross-portal identity key. Grep the tracker for them.

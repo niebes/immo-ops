@@ -30,6 +30,7 @@ import { handleCookieConsent, isCaptcha } from './portals/base.mjs';
 import { resolveSearchUrl, findProfileSearch } from './lib/search-url.mjs';
 import { toHistoryLine as tsvHistoryLine } from './lib/tsv.mjs';
 import { loadSeenUrls, canonicalizeUrl } from './lib/seen-urls.mjs';
+import { outsidePlzRegion } from './lib/plz-gate.mjs';
 import { writeAtomic } from './lib/fsx.mjs';
 import { withLock } from './lib/lock.mjs';
 import { insertPendingEntries, toPipelineLine } from './lib/pipeline-md.mjs';
@@ -228,7 +229,10 @@ function loadCriteria(groupName) {
 // Only objective numeric criteria + dedup gate here. Title relevance is judged by
 // the AI triage step (see modes/scan.md), never by keyword matching.
 
-function filterCriteria(listing, criteria) {
+function filterCriteria(listing, criteria, portal = null) {
+  // Opt-in postcode gate for nationwide feeds (portals.yml `plz_prefixes:`) —
+  // acts only on a printed 5-digit PLZ, see lib/plz-gate.mjs.
+  if (outsidePlzRegion(listing.location, portal?.plz_prefixes)) return 'skipped_criteria';
   if (!criteria) return null;
   if (criteria.minRooms && listing.rooms && listing.rooms < criteria.minRooms) return 'skipped_criteria';
   if (criteria.minM2 && listing.m2 && listing.m2 < criteria.minM2) return 'skipped_criteria';
@@ -859,7 +863,7 @@ async function main() {
         // title is ambiguous (e.g. "DHH mit … Garage" is a house that HAS a garage,
         // not a garage). Only the objective numeric criteria + dedup gate here; the
         // AI reads every survivor's title downstream. See modes/scan.md "AI triage".
-        const criteriaResult = filterCriteria(listing, criteria);
+        const criteriaResult = filterCriteria(listing, criteria, portal);
         if (criteriaResult) {
           totalStats.skipped_criteria++;
           allHistoryLines.push(toHistoryLine(listing, criteriaResult));

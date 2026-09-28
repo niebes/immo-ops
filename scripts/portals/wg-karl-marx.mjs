@@ -9,6 +9,14 @@ import { parseNumber } from './base.mjs';
 //       div.price > div.number (€, labeled "Miete pro Monat")
 //       div.rooms > div.number (date, labeled "Verfügbar ab" — NOT room count!)
 // Room count is NOT in the card — only on detail page or inferred from title.
+//
+// LEGITIMATE EMPTY STATE (2026-09-28): the coop is not taking new members
+// ("zurzeit grundsätzlich keine Neuaufnahme von Mitgliedern") and the page often lists
+// ONLY commercial units (Büro/Praxis, Gastronomie). Filtering those out left 0 cards,
+// which scan.mjs recorded as a bot-block ⛔ every run since 2026-09-24. When the card
+// grid rendered (so the selectors still work) but holds no flat, return [] marked
+// `.empty = true` — scan.mjs then logs "legitimately empty" instead of a failure.
+// A page with NO cards at all is still reported as drift (the grid itself is missing).
 
 export async function extract(page) {
   const listings = [];
@@ -22,7 +30,10 @@ export async function extract(page) {
     try {
       const card = cards.nth(i);
       const dataType = await card.getAttribute('data-type').catch(() => '');
-      if (dataType && !/Wohnung\s*Miete/i.test(dataType)) continue;
+      // Accept any flat type: the header notes "Mietwohnung", the site's filter UI says
+      // "Wohnung Miete" — the old /Wohnung\s*Miete/ would have dropped "Mietwohnung".
+      // Commercial types (Büro/Praxis, Gastronomie/Hotel, Gewerbe) never contain "wohnung".
+      if (dataType && !/wohnung/i.test(dataType)) continue;
 
       const link = card.locator('a.card-link').first();
       const href = await link.getAttribute('href').catch(() => null);
@@ -51,6 +62,8 @@ export async function extract(page) {
     } catch { /* skip */ }
   }
 
+  // Grid rendered but no flat on offer (commercial-only) → clean empty scan, not ⛔.
+  if (listings.length === 0 && count > 0) listings.empty = true;
   return listings;
 }
 

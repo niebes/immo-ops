@@ -41,10 +41,11 @@ gilt für **voll ausgestattete** Wohnungen (Sammelheizung + Bad + WC in der Wohn
 - ⚠ **Häufigster Fehler: Baujahr 1919–1930 in die „bis 1918"-Zeile legen.** Ein Altbau von **1920**
   gehört in **1919–1949**, und das ist ein anderer, deutlich niedrigerer Wert (#646: 8,11 statt 8,97).
   Die m²-Staffelung unterscheidet sich pro Baualtersklasse — immer die Zeilenbeschriftung lesen.
-- Die Wohnlage ist **ausschließlich** über das **Straßenverzeichnis zum Mietspiegel 2026**
-  (Amtsblatt 28.05.2026, eigenes Dokument) bestimmbar — nicht aus dem Bezirk ableiten. Solange es
-  nicht abgefragt ist: **die für den Vermieter günstigste Wohnlage annehmen** und das im Bericht
-  offenlegen, damit die festgestellte Überschreitung ein Mindestwert ist.
+- Die Wohnlage ist **ausschließlich** adressgenau bestimmbar — nicht aus dem Bezirk ableiten. Ein
+  Straßenverzeichnis-PDF gibt es nicht mehr (404); der Weg ist der **GDI-Berlin-WFS**, siehe
+  „Wohnlage hausnummerngenau" unten (ein curl). Nur wenn der WFS nicht abgefragt werden kann: **die für
+  den Vermieter günstigste Wohnlage annehmen** und das im Bericht offenlegen, damit die festgestellte
+  Überschreitung ein Mindestwert ist.
 - Es gibt **keine Sondermerkmalzuschläge** mehr (anders als in älteren Ausgaben); die Feinjustierung
   innerhalb der Spanne läuft über die **Orientierungshilfe/Merkmalgruppen** (nicht Teil des
   qualifizierten Mietspiegels, aber BGH-anerkannt, VIII ZR 123/20).
@@ -239,3 +240,22 @@ Mietenbegrenzungsverordnung läuft bis 31.12.2029 — vor 2030 nichts nachzuschl
 **Promotion-Hinweis:** sobald ein zweiter Berlin-Fall dieselben Zahlen braucht, gehört dieser Block
 neben die Potsdamer Grundmietentabelle in `modes/_shared.md` ("Mietspiegel & Mietpreisbremse —
 regional reference data") statt hier ins Agent-Memory.
+
+## Wohnlage hausnummerngenau in EINEM curl — GDI-Berlin WFS (moved here from potsdam-mietspiegel.md, 2026-09-28)
+Einstieg `mietspiegel.berlin.de/berliner-mietspiegel/erlaeuterungen-zum-mietspiegel/wohnlagen/` → `gdi.berlin.de/view/wohnlagenadr2026`.
+
+    curl -sG "https://gdi.berlin.de/services/wfs/wohnlagenadr2026" \
+      --data-urlencode "service=WFS" --data-urlencode "version=2.0.0" \
+      --data-urlencode "request=GetFeature" \
+      --data-urlencode "typeNames=wohnlagenadr2026:wohnlagenadr2026" \
+      --data-urlencode "outputFormat=application/json" --data-urlencode "count=30" \
+      --data-urlencode "CQL_FILTER=strasse LIKE 'Machnower%' AND plz='14165'"
+
+- Felder: `strasse` · `hnr` (dreistellig nullgepolstert + Buchstabe: `011`, `002A`) · **`wol`** (`einfach|mittel|gut`) · `plz` · `stadtteil` · `bezname` · `plr_name`. Property-Namen nicht raten (`strname` → „Illegal property name"); im Zweifel `request=DescribeFeatureType`.
+- Nicht auf die exakte Hausnummer filtern, sondern Straße + PLZ ziehen und die Liste lesen.
+- **Die Einstufung springt von Haus zu Haus:** Machnower Str. 14165 Nr. 11 = gut, Nachbarn 10 und 12 = mittel (ungerade = gut / gerade = mittel). Bei „bis 1918 / 90–110 m²" 7,65 vs 8,45 Mittelwert ≈ 10 % auf die zulässige Miete (#570: Zeile 138 = 6,60 · **8,45** · 12,99).
+- Layer-Name enthält das Jahr → jeden Januar auf `wohnlagenadr20NN` hochzählen.
+- Die schlanke **Tabellen-PDF** `…/uploads/2026/05/mietspiegeltabelle2026.pdf` (~140 KB, ~88 Zeilen `pdftotext -layout`) enthält die ganze Tabelle; die drei Wohnlagen stehen dort **nebeneinander in einer Zeile** (Zeilen-Nr. 1–67 einfach, 68–129 mittel, 130–192 gut) — der Baualters-Header steht nur in der ersten Zeile der Gruppe.
+
+## Vonovia-Berlin aus dem Potsdam-Bucket (Perimeter 30 km: Kladow/Spandau, Zehlendorf, Staaken)
+Anker Bj. **1973–1985 West, ab 85 m²**: mittel (Zeile 95) 6,79 · **8,35** · 10,70; gut (Zeile 157) 7,98 · **10,39** · 13,80. #515 Lanzendorfer Weg 27 (Kladow): Vonovia rief **16,13 EUR/m²** = ~+55 % über dem Mittelwert gute Lage und über deren Oberwert. **Berliner 70er-Bestand ist bei Vonovia routinemäßig weit über der Mietpreisbremse bepreist** → immer § 556g Abs. 3 (Vormiete + Modernisierungskosten) als Next Step, nie „compliant" ohne Rechnung.

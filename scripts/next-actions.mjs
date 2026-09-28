@@ -10,7 +10,7 @@
  *
  * Usage:
  *   node scripts/next-actions.mjs                 # human report
- *   node scripts/next-actions.mjs --json          # + machine JSON as last line
+ *   node scripts/next-actions.mjs --json          # stdout = ONE JSON object; human report → stderr
  *   node scripts/next-actions.mjs --fix           # apply safe advances (Viewing→Viewed)
  *   node scripts/next-actions.mjs --mark-verified 216,230   # record liveness checks
  *
@@ -35,6 +35,10 @@ const STATE_PATH = join(ROOT, 'data/next-actions-state.json');
 
 const args = process.argv.slice(2);
 const JSON_OUT = args.includes('--json');
+// --json: stdout carries ONLY the JSON object, so callers can `> file` and parse it.
+// The human report still prints, on stderr. (It used to precede the JSON on stdout
+// and broke JSON.parse of the captured file — 2026-09-28.)
+const say = JSON_OUT ? (...a) => console.error(...a) : (...a) => console.log(...a);
 const FIX = args.includes('--fix');
 const mvIdx = args.indexOf('--mark-verified');
 
@@ -54,7 +58,7 @@ if (mvIdx !== -1) {
     state.lastRun = new Date().toISOString();
     writeAtomic(STATE_PATH, JSON.stringify(state, null, 2));
   });
-  console.log(`✓ Marked verified: ${nums.join(', ')}`);
+  say(`✓ Marked verified: ${nums.join(', ')}`);
   process.exit(0);
 }
 
@@ -106,36 +110,36 @@ if (FIX && safeAdvances.length > 0) {
 
 // ── Human report ─────────────────────────────────────────────────────
 const bySeverity = (sev) => actions.filter((a) => a.severity === sev);
-console.log(`next-actions — ${new Date().toISOString().slice(0, 16).replace('T', ' ')}\n`);
+say(`next-actions — ${new Date().toISOString().slice(0, 16).replace('T', ' ')}\n`);
 
 for (const adv of appliedAdvances) {
-  console.log(`✓ #${adv.num} ${adv.from} → ${adv.to} (${adv.reason})`);
+  say(`✓ #${adv.num} ${adv.from} → ${adv.to} (${adv.reason})`);
 }
 if (!FIX && safeAdvances.length > 0) {
-  for (const s of safeAdvances) console.log(`→ would advance #${s.num} ${s.from} → ${s.to} (${s.reason}) — run with --fix`);
+  for (const s of safeAdvances) say(`→ would advance #${s.num} ${s.from} → ${s.to} (${s.reason}) — run with --fix`);
 }
 
 const sections = [['⚠ OVERDUE', 'overdue'], ['◷ Due soon', 'due-soon'], ['ℹ Suggestions', 'info']];
 for (const [label, sev] of sections) {
   const items = bySeverity(sev);
   if (items.length === 0) continue;
-  console.log(`\n${label} (${items.length}):`);
+  say(`\n${label} (${items.length}):`);
   for (const a of items) {
     const days = a.daysOverdue > 0 ? ` [${a.daysOverdue}d]` : '';
-    console.log(`  #${a.listing} · ${a.rule}${days} — ${a.summary}`);
-    console.log(`      evidence: ${a.evidence.file}${a.evidence.detail ? ` (${a.evidence.detail})` : ''}`);
+    say(`  #${a.listing} · ${a.rule}${days} — ${a.summary}`);
+    say(`      evidence: ${a.evidence.file}${a.evidence.detail ? ` (${a.evidence.detail})` : ''}`);
   }
 }
 
 if (livenessQueue.length > 0) {
-  console.log(`\n⟳ Liveness queue (${livenessQueue.length} — verify these URLs are still active, then --mark-verified):`);
+  say(`\n⟳ Liveness queue (${livenessQueue.length} — verify these URLs are still active, then --mark-verified):`);
   for (const q of livenessQueue) {
-    console.log(`  #${q.num} [${q.status}] ${q.url || '(no URL in report)'}`);
+    say(`  #${q.num} [${q.status}] ${q.url || '(no URL in report)'}`);
   }
 }
 
 if (actions.length === 0 && livenessQueue.length === 0 && safeAdvances.length === 0) {
-  console.log('Nothing overdue. All followed through. ✓');
+  say('Nothing overdue. All followed through. ✓');
 }
 
 if (JSON_OUT) {

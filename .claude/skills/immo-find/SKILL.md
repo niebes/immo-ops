@@ -154,8 +154,15 @@ its status (`lib/decided-index.mjs`):
   `next-actions.mjs` handles it (e.g. "contacted, awaiting reply → overdue").
 - `Expired` is deliberately NOT routed — a re-list of an expired flat means it is back on the
   market and SHOULD be re-evaluated.
+- **Identity folds:** when the twin is only `Evaluated` but the evidence is *identity* — the same
+  unit code (`H4-00-02`-style, printed in new-build titles) or a title already folded into that
+  row as `DUPE of #N` — and the price is unchanged (Δ ≤ 2 %), the entry is folded as
+  `DUPE of #N (… already scored; unit|title match)` instead of being re-evaluated. A different
+  unit code is a hard veto, so sibling units of one building never weld onto each other. A price
+  move keeps the entry pending (a price cut deserves a fresh score).
 It also appends the candidate URL to the tracker row's Notes as a "re-list seen" alias so URL
-dedup catches that URL next time. This is why per-listing state belongs in the **tracker
+dedup catches that URL next time. What it still leaves pending ("Best match is a non-decided
+row") is numeric-only evidence — judge those in triage. This is why per-listing state belongs in the **tracker
 status**, never in memory: mark a flat once, and every future re-appearance folds in here.
 Matching reuses the `dedup-core` thresholds (price Δ<5% + m² Δ≤3, rooms-equal when the
 Ortsteil is unknown, hard veto on KNOWN-different neighbourhoods) but — unlike batch dedup —
@@ -241,13 +248,13 @@ Do NOT restate the steps, file paths, scoring rules, number format, or portal qu
 
 **Concurrency — serialize only what actually needs a browser.** The constraint is the shared browser (CiC tabs and the single stealth-Firefox context can't be driven by two agents at once), NOT evaluation itself. Most evaluations no longer touch a browser: ImmoScout24 answers fully on `api.mobile.immobilienscout24.de/expose/{id}` and Kleinanzeigen detail pages render server-side, so both are plain `curl` (6 of 10 evaluations in the 2026-08-09 cycle needed no browser at all). So:
 
-- **Curl-only portals — ImmoScout24 (incl. ImmoScout24 Haus) and Kleinanzeigen: launch in parallel** with `Parallel: yes`, several agents in one message. `Parallel: yes` tells the worker it gets no browser and no direct memory edits. A worker that finds it genuinely needs a browser returns `NEEDS-BROWSER` without writing output; re-run that listing later with `Parallel: no` (same `{NNN}`).
-- **Browser-bound portals — Immowelt, Vonovia, aggregators that redirect to a source page, anything unknown: strictly one at a time**, with `Parallel: no`. Wait for each to finish before launching the next, and do not overlap one with a parallel batch.
+- **Curl-only portals — ImmoScout24 (incl. ImmoScout24 Haus) and Kleinanzeigen — and driver-script portals — Immowelt: launch in parallel** with `Parallel: yes`, several agents in one message. `Parallel: yes` tells the worker it gets no shared browser and no direct memory edits; Immowelt workers each spawn their own read-only stealth-driver process (`IP_SAVE_STATE=false`). Keep at most **3 Immowelt workers** running at once (one site, one IP). A worker that finds it genuinely needs a browser returns `NEEDS-BROWSER` without writing output; re-run that listing later with `Parallel: no` (same `{NNN}`).
+- **Browser-bound portals — Vonovia, aggregators that redirect to a source page (Süddeutsche, Regionalimmobilien24, Ab ins Zuhause), eBay, anything unknown: strictly one at a time**, with `Parallel: no`. Wait for each to finish before launching the next, and do not overlap one with a parallel batch.
 - **Workers share no writable file.** Each writes only its own report, `batch/tracker-additions/{NNN}-*.tsv`, `batch/pipeline-updates/{NNN}.json`, `tmp/eval/{NNN}/` and (in parallel mode) `batch/memory-inbox/{NNN}-*.md`. Nobody but the orchestrator's serial steps below writes `data/listings.md`, `data/pipeline.md` or the evaluator memory. Keep it that way: if you ever need a new shared output, stage it per-`{NNN}` and merge it serially. Don't let workers edit one file together.
 
 After all agents complete, run these serially:
 1. `node scripts/merge-tracker.mjs`: merges the tracker TSVs AND applies the staged pipeline updates. A file it keeps with a warning needs fixing.
-2. If `batch/memory-inbox/` holds notes: launch ONE `immo-evaluator` with the prompt `MEMORY CONSOLIDATION`, and wait for it. It's the only memory writer during that pass.
+2. If `batch/memory-inbox/` holds notes, OR `node scripts/verify-pipeline.mjs` warns that an evaluator memory file is over 60 KB: launch ONE `immo-evaluator` with the prompt `MEMORY CONSOLIDATION` (add "compact {files} to ≤ 60 KB, split by topic if needed" when the size warning fired), and wait for it. It's the only memory writer during that pass. The consolidation is not on the notify path — it may run in the background while you build the email, but never alongside evaluators.
 
 **Step 5 — Verification (MUST pass before notify):**
 Before sending any notification, verify:
@@ -260,7 +267,7 @@ If verification fails, DO NOT notify. Complete the missing work (e.g. run the bo
 
 **Step 5b — Follow-through (the act-phase watchdog):**
 The scan finds flats; this step makes sure found flats don't rot. It exists because a fully-prepared application (#216) once sat unsubmitted for 6 days after an "apply same day" viewing and nothing noticed.
-1. Run `node scripts/next-actions.mjs --json --fix`. `--fix` applies the only mechanically safe advance — `Viewing → Viewed` once a Confirmed viewing's date has passed. Everything else is recommend-only; notably it NEVER marks anything `Applied` (an unsubmitted application is exactly the failure this step exists to catch).
+1. Run `node scripts/next-actions.mjs --json --fix > tmp/next-actions.json` (stdout is pure JSON; the human report goes to stderr — `build-email.mjs --actions` reads this file). `--fix` applies the only mechanically safe advance — `Viewing → Viewed` once a Confirmed viewing's date has passed. Everything else is recommend-only; notably it NEVER marks anything `Applied` (an unsubmitted application is exactly the failure this step exists to catch).
 2. Keep the JSON's `overdue`/`dueSoon` items for Step 6 — overdue items go at the TOP of the email and lead the push message.
 3. Run `node scripts/prune-pipeline.mjs` (pipeline section hygiene + bounded growth; add `--history` on the first run of a month).
 
@@ -303,6 +310,8 @@ PushNotification({
 Under 200 chars. Lead with total count, break down by target, mention top pick. If the `PushNotification` tool is unavailable in the session, skip the push and rely on the email.
 
 **2. Email draft** (detailed):
+
+**Generate it with `scripts/build-email.mjs` — do NOT hand-type the HTML.** The script implements every format rule below (sections, bgcolor on every cell, ✓/✗ detail rows, swap Suche line, overdue block, footer counts, system-clock subject); the rules stay here as its spec. Hand-typed HTML drifted (approximate footer counts, 2026-09-28). See **Implementation** at the end of this section.
 
 **What to include:** Scored listings from `data/pipeline.md` with score ≥ 3.0 (max 50). Exclude DISCARDED, DUPE, and sub-3.0 entries — these are not actionable and waste the reader's attention. Sort by score descending within each section. Mention the count of excluded sub-3.0 listings in the footer.
 
@@ -392,10 +401,19 @@ Subject: `immo-ops: {N} listing(s) — {summary, e.g. '5 Miete, 2 Haus, 1 Grunds
 Footer (`<p style="margin-top:18px;font-size:12px;color:#777">`): excluded sub-3.0 listings with ID, score, and one-line reason (e.g. `#117 (2.5/5 — stale Bestandsmiete price fiction)`); discarded/duped counts per section; reports path (e.g. `reports/113–121-*.md`); link to immo-ops repo.
 
 **Implementation:**
+1. Write the coverage note (every enabled portal's disposition, ⛔ blockers first) as plain text to `tmp/scan-note.txt`.
+2. Build the email for this cycle's tracker range (the report numbers you assigned in Step 4):
+```
+node scripts/build-email.mjs --from {first NNN} --to {last NNN} \
+  --actions tmp/next-actions.json --scan-note-file tmp/scan-note.txt --out tmp/email.html
+```
+   stdout is one JSON line: `{subject, out, count, breakdown, top, overdue, excluded, discarded}`. Sections are assigned config-driven (portal → groups in `portals.yml`, narrowed by miete/kauf, city, and the report's `**Type:**`). Spot-check the section placement of any Kauf listing.
+3. Pass the file's contents and the printed subject to Gmail:
 ```
 mcp__claude_ai_Gmail__create_draft({
   to: ["{notification_email}"],
-  subject: "immo-ops: {N} listing(s) — {type breakdown} — {timestamp}",
-  htmlBody: "{HTML with one section + table per search target}"
+  subject: "{subject from build-email}",
+  htmlBody: "{contents of tmp/email.html}"
 })
 ```
+4. The push message can use `count`, `breakdown` and `top` from the same JSON line.

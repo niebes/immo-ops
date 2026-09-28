@@ -140,3 +140,51 @@ test('reportPathFromCell extracts the markdown link target', () => {
   assert.equal(reportPathFromCell(''), '');
   assert.equal(reportPathFromCell('-'), '');
 });
+
+// ── identity signals (unit codes, folded titles) — 2026-09-28 ──────────────
+import { unitCodes, titleKey, foldedTitles, makeIdentity, priceWithin } from '../lib/decided-index.mjs';
+
+test('unitCodes extracts new-build unit codes, not dates', () => {
+  assert.deepEqual([...unitCodes('H4-00-02 / 3-Zi. I / EG')], ['H4-00-02']);
+  assert.equal(unitCodes('Bezug 2026-09-28').size, 0);
+});
+
+test('titleKey is empty for generic titles and stable across punctuation', () => {
+  assert.equal(titleKey('3-Zimmer-Wohnung mit Balkon'), '');
+  assert.equal(titleKey('Helle & moderne 3-Zimmer-Wohnung im Obergeschoss mit großem'),
+    titleKey('Helle & moderne 3-Zimmer-Wohnung im Obergeschoss mit großem Balkon zu vermieten!'));
+});
+
+test('foldedTitles indexes DUPE-of lines by tracker number', () => {
+  const t = foldedTitles(['- [x] DUPE of #193 (cross-post) | https://x/1 | ImmoScout24 | Potsdam flat rental | Helle & moderne 3-Zimmer-Wohnung im Obergeschoss mit großem | 1675 EUR']);
+  assert.ok(t.get('193').has(titleKey('Helle & moderne 3-Zimmer-Wohnung im Obergeschoss mit großem')));
+});
+
+test('identity: same unit code matches, different code vetoes, folded title matches', () => {
+  const folded = foldedTitles(['- [x] DUPE of #193 (x) | https://x | IS24 | g | Helle & moderne 3-Zimmer-Wohnung im Obergeschoss mit großem | 1675 EUR']);
+  const id = makeIdentity('/nonexistent', folded);
+  const e826 = { num: '826', report: '', notes: 'Wohnen am Brauhausberg H4-01-03, 1.OG' };
+  const e193 = { num: '193', report: '', notes: '' };
+  assert.equal(id({ title: 'H4-01-03 / 3-Zi. II / 1.OG' }, e826), 'unit');
+  assert.equal(id({ title: 'H4-02-14 / 3-Zi. II / 2.OG' }, e826), 'unit-conflict');
+  assert.equal(id({ title: 'Helle & moderne 3-Zimmer-Wohnung im Obergeschoss mit großem Balkon zu vermieten!' }, e193), 'title');
+  assert.equal(id({ title: 'Ganz andere Wohnung am Stadtrand von Potsdam' }, e193), null);
+});
+
+test('findBestMatch: unit code beats a numerically closer row and vetoes a different unit', () => {
+  const id = makeIdentity('/nonexistent', new Map());
+  const cand = { title: 'H4-02-14 / 3-Zi. II / 2.OG', price: 1890, m2: 85.5, rooms: 3, location: '14473 potsdam' };
+  const list = [
+    { num: '826', status: 'Evaluated', notes: 'H4-01-03', report: '', price: 1890, m2: 85.5, rooms: 3, location: 'potsdam südliche innenstadt' },
+    { num: '828', status: 'Evaluated', notes: 'H4-02-14', report: '', price: 1890, m2: 85.5, rooms: 3, location: 'potsdam südliche innenstadt' },
+  ];
+  const m = findBestMatch(cand, list, { identity: id });
+  assert.equal(m.entry.num, '828');
+  assert.equal(m.kind, 'unit');
+  assert.equal(findBestMatch(cand, [list[0]], { identity: id }), null);
+});
+
+test('priceWithin fails open on unknown prices', () => {
+  assert.equal(priceWithin({ price: 0 }, { price: 1000 }, 0.02), true);
+  assert.equal(priceWithin({ price: 1030 }, { price: 1000 }, 0.02), false);
+});

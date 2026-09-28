@@ -22,6 +22,14 @@
  * through is what attached #502's re-list to the Applied #216 (2026-08-03) and
  * #510's to the Swap-candidate #251 (2026-08-07).
  *
+ * Exception — identity folds: when the best match is an `Evaluated` row AND the
+ * evidence is identity, not numbers (same unit code like `H4-00-02`, or a title
+ * already folded into that row as `DUPE of #N`) AND the price is unchanged
+ * (Δ ≤ 2 %), the entry IS folded as a DUPE of that row: it was scored already and
+ * nothing about it changed. A price move keeps it pending, since a changed price is
+ * worth a fresh score (#852, #861 on 2026-09-28). Before this, 30 such re-lists per
+ * cycle were folded by hand.
+ *
  * Expired is intentionally NOT routed — a re-list of an expired flat means it is
  * back on the market and should be evaluated afresh.
  *
@@ -29,10 +37,12 @@
  *   node scripts/route-decided.mjs [--dry-run]
  */
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, readdirSync } from 'node:fs';
 import { withLock } from './lib/lock.mjs';
 import { parsePipelineLine } from './lib/dedup-core.mjs';
-import { loadTrackerListings, findBestMatch, makeTitleConflict } from './lib/decided-index.mjs';
+import {
+  loadTrackerListings, findBestMatch, makeTitleConflict, makeIdentity, foldedTitles, priceWithin,
+} from './lib/decided-index.mjs';
 
 const ROOT = process.cwd();
 const PIPE = `${ROOT}/data/pipeline.md`;
@@ -41,6 +51,21 @@ const DRY = process.argv.includes('--dry-run');
 const today = new Date().toISOString().slice(0, 10);
 const routed = [];
 const heldBack = [];
+const folded = [];
+const FOLD_STATUSES = new Set(['Evaluated']);
+const FOLD_PRICE_TOL = 0.02;
+
+/** Pipeline texts that record earlier DUPE folds (live file + monthly archives). */
+function pipelineHistoryTexts(liveText) {
+  const texts = [liveText];
+  const dir = `${ROOT}/data/archive`;
+  if (existsSync(dir)) {
+    for (const f of readdirSync(dir)) {
+      if (/^pipeline-.*\.md$/.test(f)) texts.push(readFileSync(`${dir}/${f}`, 'utf8'));
+    }
+  }
+  return texts;
+}
 
 function appendAlias(listingsText, num, url) {
   const lines = listingsText.split('\n');
@@ -66,6 +91,7 @@ async function main() {
     const titleConflict = makeTitleConflict(ROOT);
 
     const text = readFileSync(PIPE, 'utf8');
+    const identity = makeIdentity(ROOT, foldedTitles(pipelineHistoryTexts(text)));
     const lines = text.split('\n');
     const head = [], pendingKeep = [], processedAdd = [], processedExisting = [], tail = [];
     let section = 'head';
@@ -78,7 +104,7 @@ async function main() {
       else if (section === 'other') tail.push(line);
       else if (section === 'pending') {
         const cand = parsePipelineLine(line);
-        const match = cand ? findBestMatch(cand, tracker, { titleConflict }) : null;
+        const match = cand ? findBestMatch(cand, tracker, { titleConflict, identity }) : null;
         if (!match) { pendingKeep.push(line); continue; }
         const { entry, kind } = match;
         // Only a DECIDED row may route. When the best match is anything else
@@ -86,13 +112,21 @@ async function main() {
         // normal triage + evaluation — the point is that it no longer falls
         // through to a worse-matching decided row and attaches there.
         if (!entry.decided) {
+          if ((kind === 'unit' || kind === 'title') && FOLD_STATUSES.has(entry.status) &&
+              priceWithin(cand, entry, FOLD_PRICE_TOL)) {
+            processedAdd.push(
+              `- [x] DUPE of #${entry.num} (re-list of ${entry.status} flat, already scored; ${kind} match) | ${line.slice(6)}`,
+            );
+            folded.push({ ...match, url: cand.url, title: cand.title });
+            continue;
+          }
           heldBack.push({ entry, kind, url: cand.url, title: cand.title });
           pendingKeep.push(line);
           continue;
         }
         const action = entry.skip ? 'auto-skip' : 'attached to live lead';
         processedAdd.push(
-          `- [x] DUPE of #${entry.num} (re-list of ${entry.status} flat, ${action}; ${kind} match) | ${cand.url} | ${cand.portal}`,
+          `- [x] DUPE of #${entry.num} (re-list of ${entry.status} flat, ${action}; ${kind} match) | ${line.slice(6)}`,
         );
         routed.push({ ...match, url: cand.url, title: cand.title });
       } else pendingKeep.push(line);
@@ -107,14 +141,19 @@ async function main() {
       }
     }
 
-    if (routed.length === 0) { console.log('No re-lists of decided flats found.'); return; }
+    if (folded.length > 0) {
+      console.log(`Re-lists of Evaluated flats folded (identity match, price unchanged): ${folded.length}`);
+      for (const f of folded) console.log(`  ⤷ #${f.entry.num} (${f.kind}): ${f.title || f.url}`);
+    }
+
+    if (routed.length === 0 && folded.length === 0) { console.log('No re-lists of decided flats found.'); return; }
 
     let listingsText = readFileSync(LISTINGS, 'utf8');
-    for (const r of routed) listingsText = appendAlias(listingsText, r.entry.num, r.url);
+    for (const r of [...routed, ...folded]) listingsText = appendAlias(listingsText, r.entry.num, r.url);
 
     const out = [...head, ...pendingKeep, '', '## Processed', ...processedAdd, ...processedExisting, ...tail].join('\n');
 
-    console.log(`Re-lists routed: ${routed.length}${DRY ? ' (dry-run, no writes)' : ''}`);
+    console.log(`Re-lists routed: ${routed.length}, folded: ${folded.length}${DRY ? ' (dry-run, no writes)' : ''}`);
     for (const r of routed) {
       console.log(`  → #${r.entry.num} [${r.entry.status}] ${r.entry.skip ? 'SKIP' : 'ATTACH'} (${r.kind}): ${r.title || r.url}`);
     }

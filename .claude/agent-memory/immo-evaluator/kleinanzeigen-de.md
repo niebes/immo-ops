@@ -1,954 +1,183 @@
 # Kleinanzeigen (kleinanzeigen.de) — listing-page quirks
+Portal match: kleinanzeigen.de `/s-anzeige/{slug}/{adId}-{cat}-{loc}` (rentals cat 203, Kauf cat 208, swaps). Swap side 2 (reading the partner's Suche, kill axes) lives in [[tauschwohnung]]; this file keeps the Kleinanzeigen field quirks only.
 
-Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien pages.
+Consolidated 2026-09-28 from a 91 KB append log. Listing numbers stay only as the example behind a rule. Sections: §Access · §Scope · §Price · §Amenities · §Photos · §Location · §Poster · §Expired · §TypeTraps · §Swaps · §Kauf · §Triage.
 
-## Getting the data
-- **Detail pages (`/s-anzeige/...`) are plain-curl accessible** — a simple `curl -A "Mozilla/5.0 ... Firefox"` returns the full 200 HTML with every field (title `#viewad-title`, price `#viewad-price`, locality `#viewad-locality`, `#viewad-details` list incl. Standort street address, `#viewad-description-text`, seller block with "Aktiv seit", gallery elements). Only the SEARCH pages bot-block headless. *Why:* on 2026-07-13 the invisible-playwright driver was crashed session-wide; curl evaluated #324 with zero browser. Prefer curl for single-listing evals.
-- **⚠ After every curl, check the served ad-ID (`<link rel="canonical">` / `og:url` / `"adid"`) == the
-  requested one; on mismatch re-fetch, never score it or call it EXPIRED.** The 2026-09-23 "Kleinanzeigen
-  served a different ad / a hybrid page" reports (#812, #821, #822, #823) were NOT portal behaviour: parallel
-  evaluators curled into the same shared scratchpad filename (`ad.html`) and overwrote or interleaved each
-  other's downloads (3519436701 was sibling #823's ad). Re-probe 2026-09-24: 9/9 full-slug fetches of those
-  three ads served the correct canonical. The real fix is isolation — every temp file under your own
-  `tmp/eval/{NNN}/` (agent definition, Isolation) — the ID check stays as a cheap safety net.
-  *Why:* a swapped/interleaved payload scores another flat, or borrows its gallery (fake scam signal), silently.
-- **⚠ SCOPE every keyword sweep and every photo count to THIS ad's own DOM — the page embeds ~10
-  FOREIGN ads in full.** The sidebar ("Weitere Anzeigen") ships each recommended ad as complete
-  JSON-LD: its whole `description` text **and** its `contentUrl` image. A page-wide grep therefore
-  reads other people's flats. On #804 a raw `grep -i WBS` hit **"WBS erforderlich"** and `möbliert`
-  hit "vollständig möbliert" — both belonged to strangers' ads (Anbieter-IDs 365155 / 354175), and
-  taken at face value each one fires a **hard blocker** (WBS without WBS / furnished cap ≤2,0) on a
-  clean listing. Same mechanism inflates photos: 11 distinct `prod-ads/images/...` URLs page-wide,
-  but **1** belonged to the ad (1 own + 10 sidebar thumbnails).
-  ⇒ Sweep only inside `#viewad-description-text`; count photos only from `data-imgsrc` (dedupe by
-  image UUID — the same picture appears as `?rule=$_59.AUTO` and `$_57.AUTO`) or a container scoped
-  to `#viewad-product`.
-- **Contamination is NOT always present — run the check, never assume either way.** #811 (Makler
-  Kauf-Anzeige) served **zero** foreign ads: 1 ad id and 2 own images on the whole page, while
-  #804–#807 the day before were all heavily contaminated. Assuming contamination is as wrong as
-  assuming its absence.
-- **⚠ The contamination check to use is the AD-ID COUNT, not `Anbieter-ID`.**
-  `grep -o "Anbieter-ID: [0-9]*"` is unreliable: on #811 it returned **0 matches** although the
-  seller block was fully present, so an empty result means "field absent", *not* "clean page" —
-  it silently looks identical to a clean page and tells you nothing. Use instead:
-  `grep -o '/s-anzeige/[^"]*/[0-9]\{10\}-' | sed 's/.*\///' | sort -u | wc -l` → **1 = clean**
-  (only its own ad), >1 = foreign ads embedded. Cross-check with the count of distinct
-  `prod-ads/images/` UUIDs, which must match your own gallery count.
-  The seller's numeric id is **not** in an "Anbieter-ID" label either — read it from
-  `profileUserId = "..."` or the `s-bestandsliste.html?userId=` link, which is also the only
-  reliable liveness test (see the EXPIRED section).
-  *Why:* the recommended `Anbieter-ID` grep fails open — it reports "clean" on every page where the
-  label is missing, which is exactly when you most need to know whether a `WBS`/`möbliert`/
-  `befristet` hit belongs to a stranger's ad and would fire a false hard blocker.
-  *Why:* a page-wide sweep produces both false hard blockers and an inflated photo count — two
-  independent ways to misscore an ad, and neither announces itself.
-- **A gallery of "1 image" is often ZERO real photos — the single image is the Grundriss.** Check what
-  it is (download + view) before scoring Block D; a floor plan does not verify condition, so the
-  "no real photos ⇒ cap D at 3,0" rule still applies (#804: only a watermarked Grundriss, while the ad
-  claimed "frisch renoviert im April 2025"). Upside: the plan is load-bearing evidence elsewhere — it
-  settled Balkon-vs-Terrasse against the checktags and proved 3 genuinely separate rooms (#606 check).
-  The single image can also be an **AI-generated promo collage** (#850: Uni Campus Golm / Neues Palais /
-  Sanssouci + a headline card "3-Zimmer-Wohnung in Potsdam Eiche"). The "KI-generiert" label is printed
-  INSIDE the image (bottom-right), and the description has no Visualisierung/KI keyword, so only viewing the
-  image catches it. It counts as 0 real photos (D cap 3,0). It is labelled and shows no flat, so it is not a
-  scam signal. *Why:* a text-only sweep counts 1 real photo and lets D escape the cap.
-- A cookie consent overlay appears ("Willkommen bei Kleinanzeigen", buttons "Alle akzeptieren" /
-  "Datenschutzeinstellungen"). It does NOT block `read_page` — full listing DOM renders behind it,
-  so you can extract everything without touching the banner. Do not click "Alle akzeptieren".
-- All load-bearing fields are in the `read_page` accessibility tree, no interaction needed:
-  - Price heading (e.g. "1.000 €"), location line ("14482 Potsdam - Babelsberg Süd").
-  - Spec `list` items: Wohnfläche, Etage, Wohnungstyp (Erdgeschosswohnung…), "Verfügbar ab",
-    "Online-Besichtigung", and **"Tauschangebot" → "Kein Tausch"** (use this to confirm a genuine
-    rental vs a swap — even when the title says "Nachmieter").
-  - **"Wohngemeinschaft"/"WG" in the description is NOT automatically a room share** — in
-    owner-written ads for small houses it routinely means the *Hausgemeinschaft*. #767: "Eine
-    familiäre, gemütliche **Wohngemeinschaft** auf Augenhöhe … Weniger Haus, mehr Zuhause. **Nur 3
-    Parteien**" on a whole 90-m² flat. Four cheap checks decide it, and all four must agree before
-    you write "WG": (1) breadcrumb / `ct`+`tcat` = **203 Mietwohnungen** vs Kleinanzeigen's separate
-    "Auf Zeit & WG" category (cat 203 is weak evidence alone — see the Wohnen-auf-Zeit section — but
-    decisive *together with* the rest); (2) the ad rents a **complete unit** (own Einbauküche, own
-    Bad, own Keller in the detail list); (3) **Kaution ÷ Kaltmiete ≈ 3** on the *whole* rent — a room
-    share's deposit never lands on exactly 3 NKM of the full flat; (4) no `WG_geeignet` /
-    `Mitbewohner` / "Zimmer in" anywhere. Mirror-image trap: `WG_geeignet:true` in the targeting JSON
-    means "suitable for a WG", not "is a WG".
-    *Why:* on #767 the orchestrator flagged the WG wording as a possible hard mismatch; treating the
-    word as the listing type would have discarded the highest-scoring Kleinanzeigen flat of that run.
-  - Second `list`: Nebenkosten + Warmmiete. (Kaltmiete = the top price heading — BUT for
-    Genossenschafts/Nachmieter ads the top heading is often the **Warmmiete**, and the true
-    Kaltmiete/Heizkosten/Betriebskosten split only appears in the free-text description. Always
-    read the description to split warm vs cold; the search-snippet number is frequently the Kaltmiete
-    while the page heading is the Warmmiete.)
-  - **The price heading and the "Warmmiete" detail field can carry the SAME number** when the poster
-    left Nebenkosten empty (#356: heading 1.950 € and Warmmiete 1.950 €, no NK field at all). Don't
-    silently treat the heading as Kaltmiete then — report the ambiguity, score conservatively with the
-    figure as Kaltmiete, and put "Kalt/Warm klären" in next steps. *Why:* otherwise you invent a
-    Nebenkosten split that the ad never stated.
-    - **BUT before declaring it ambiguous, grep the description for a self-declaring price sentence.**
-      Private posters often close the text with one line that settles it outright — #575:
-      "**Der angegebene Preis ist die aktuelle Warmmiete.**" Patterns to grep:
-      `angegebene[nr]? Preis|Preis ist|Miete ist|alles inklusive|warm pro Monat|inkl\. NK|zzgl\.`.
-      **Second, very common form: a labelled bullet inside an "Eckdaten:" list** — `* Warmmiete:
-      1.442,67 €` (#580). Grep `Warmmiete\s*:` / `Kaltmiete\s*:` in the description, not just prose
-      sentences; the bullet is more precise than the heading (cents vs rounded euro) and confirms
-      which figure the heading is. *Why:* on #580 the heading/detail field both said "1.443 €" with
-      no NK field — the #356 ambiguity rule would have applied, but the Eckdaten bullet settles it
-      outright as Warmmiete.
-      When present it OVERRIDES the conservative default: score the figure as Warmmiete, say the
-      Kaltmiete/NK are unstated, and estimate the split (Potsdam Neubau w/ Fußbodenheizung+Aufzug+TG
-      ≈ 3,00–3,50 EUR/m² NK incl. heating) instead of treating the number as Kaltmiete.
-      *Why:* on #575 the default reading would have inflated €/m² from ~14,4 to 17,66 and swung the
-      Mietpreisbremse verdict, on an ad that states the answer in plain German.
-  - **All three price fields can be present AND not add up**: heading (Kaltmiete) + spec-list
-    "Nebenkosten" ≠ spec-list "Warmmiete" (#520: 1.300 + 450 = 1.750 vs stated Warmmiete 1.717 →
-    derived NK 417). Always do the arithmetic; report both the stated and the derived NK and put
-    "NK klären" in next steps. *Why:* silently trusting the NK field overstates the monthly cost by
-    the delta, and trusting the Warmmiete hides that one of the poster's numbers is wrong.
-    - **Sub-case that is decidable by pure arithmetic: the stated `Warmmiete` is LOWER than the
-      heading** (#718: heading 1.350 €, Nebenkosten 250 €, `Warmmiete` **1.300 €**). Unlike #520
-      (where warm > kalt and only the delta is wrong) this is *internally impossible*, so one field
-      is simply junk — do NOT treat it as a #356-style coin flip. Default to the form's own
-      semantics: Kleinanzeigen's Immobilien form labels the headline field **"Preis" = Kaltmiete**
-      with Nebenkosten/Warmmiete as separate optional fields, so score heading = Kaltmiete and
-      derive warm = heading + NK, present the stated Warmmiete as the discarded reading in a
-      two-row table, and put "Kalt/Warm klären" first in next steps. Sanity-check whether BOTH
-      readings clear the profile caps — if they do, the ambiguity costs nothing but a contact
-      question; if they straddle a cap, escalate it to the top of the report.
-      *Why:* on #718 the two readings are 17,31 vs 13,46 EUR/m² — both inside the 18-EUR/m² cap, so
-      the honest move is to score the conservative one and ask, not to agonise over which is real.
-  - **Third price variant — heading == "Warmmiete" field WHILE NK *and* a separate "Heizkosten" field
-    are both filled** (#522: heading 898 €, Warmmiete 898 €, Nebenkosten 125 €, Heizkosten 125 €).
-    Unlike #356 (NK empty) the ad gives you enough to derive the other reading, so present BOTH as a
-    two-row table — (a) heading = Kaltmiete → warm 1.148, (b) heading = Warmmiete → kalt 648 — score
-    the conservative (a), and put "Kalt/Warm klären" first in next steps. Note the spec list has a
-    **separate `Heizkosten` field** next to `Nebenkosten`; Warmmiete = Kalt + NK + Heiz, so forgetting
-    Heizkosten under-states warm by a whole line. *Why:* on #522 the €/m² swings 10,45 ↔ 14,48 and the
-    Mietpreisbremse verdict flips with it — picking one silently would fabricate the answer.
-    - **Run Kaution ÷ 3 here too. It usually decides the reading, and a small leftover amount means
-      a Stellplatz is included in the rent.** #813: heading 1.594 == `Warmmiete`, NK 150, Heiz 150,
-      prose "Stellplatz … im Mietpreis eingeschlossen", Kaution 3.762 ÷ 3 = **1.254**, but
-      1.594 − 300 = 1.294. The 40 EUR gap is the Stellplatz. Kaution is levied on the
-      Wohnungs-NKM only, so compute EUR/m² from the Kaution quotient, not from warm − NK − Heiz.
-      Report the split as derived.
-      *Why:* without it the scoring defaults to reading (a), heading = Kaltmiete. That gives
-      19,93 EUR/m² and fails the cap, when the real figure is 15,68.
-    - **Sub-variant with NO `Warmmiete` field (NK + Heizkosten both filled): test Kaution ÷ 3 + NK ==
-      heading.** An exact hit means the heading is **Kalt + NK (Teilwarm)**, not Kaltmiete (#853: heading
-      1.350, NK 400, Heiz 189, Kaution 2.850 → 950 + 400 = 1.350). If NK/m² already matches the quarter's
-      all-in warm surcharge (~4,7–4,9 EUR/m² in Kirchsteigfeld), the Heizkosten field is probably a share
-      *inside* the NK, so warm = heading. Score that reading and show "heading = Kalt" as the second row.
-      *Why:* reading the heading as Kalt adds NK + Heiz on top (warm 1.939, 15,88 EUR/m², Bremse +59 %),
-      while the Kaution says 950 kalt / 11,18 EUR/m² (+12 %): gross vs moderate Mietpreisbremse.
-  - **Fourth price variant — heading == "Warmmiete" field, NK filled, NO Heizkosten field** (#540:
-    heading 1.692 €, Warmmiete 1.692 €, Nebenkosten 305 €). Unlike #356 (NK empty) and #522 (extra
-    Heizkosten field) the arithmetic closes cleanly in exactly one direction, so you can *rank* the
-    two readings instead of calling it a coin flip: (b) heading = Warmmiete → kalt = heading − NK is
-    the plausible one whenever (a) heading = Kaltmiete would push **warm EUR/m² past ~25 EUR/m² for
-    Potsdam**. Present both readings as a two-row table, score the conservative (a), but say in prose
-    which one the arithmetic + market level favour, and put "Kalt/Warm klären" first in next steps.
-    *Why:* on #540 (a) implied 26,6 EUR/m² warm — impossible for Potsdam; declaring it a pure tie
-    would have thrown away decidable evidence.
-    - **Run the Kaution ÷ 3 test on THIS variant too — it usually settles it outright, and it can
-      overturn the "score the conservative (a)" default.** The Kaution rule below is filed under the
-      no-NK case (#694), which makes it easy to skip when NK *is* filled. #767: heading 1.400 € ==
-      `Warmmiete` 1.400 €, `Nebenkosten` 250 €, no price sentence anywhere — but Kaution 3.450 ÷
-      (1.400 − 250) = **exactly 3,00 NKM**, while heading-as-Kaltmiete gives 3.450 ÷ 1.400 = **2,46
-      NKM**, a number no landlord computes. ⇒ heading = Warmmiete, kalt 1.150, and reading (b) is
-      *scored*, not merely mentioned. Order of operations: self-composing sentence → **Kaution ÷ 3**
-      → Haushaltseinkommen ÷ 3 → only then the conservative default.
-      *Why:* on #767 the conservative default would have reported 15,56 EUR/m² kalt instead of 12,78
-      and roughly doubled the apparent Mietpreisbremse overshoot on an ad that decides itself.
-  - **Sixth price variant — the CLEAN one, and it still hides a trap: heading ≠ Warmmiete field, NO
-    Nebenkosten field, and the prose names the total** (#593: heading 1.250 €, Warmmiete 1.600 €, kein
-    NK-Feld; Beschreibung: "Die Gesamtmiete für die Wohnung **inkl. Stellplatz** und Betriebskosten-
-    vorauszahlungen beträgt 1.600,00 €"). Two different numbers ⇒ no #356-style ambiguity: heading =
-    Kaltmiete, derive NK = warm − kalt and say it's derived. **The trap is the "inkl. Stellplatz":** a
-    separately-let Stellplatz is NOT Wohnraummiete, so if the heading already contains it the true
-    Wohnungs-Kaltmiete (and thus EUR/m² and the whole Mietpreisbremse rechnung) is lower. Always ask
-    which side of the 1.250 the Stellplatz sits on and put it in next steps. *Why:* silently treating
-    the heading as pure Wohnraummiete over-states EUR/m² by ~0,5 EUR and hands away a real negotiating
-    lever the ad itself created.
-  - **THE VARIANT THAT ENDS THE GUESSING — the SELF-COMPOSING description. Grep for it FIRST, before
-    running any of the heading-vs-Warmmiete heuristics above.** (Naming note: the ordinal labels above
-    have collided — there are three "Sixth price variant"s. Stop numbering new ones; name them by
-    their tell.) Some posters spell the whole split out in one line, e.g. #642: *"die Miete setzt sich
-    wie folgt zusammen: EUR 1250 Nettokaltmiete, EUR 300 Nebenkostenvorauszahlungen + EUR 110
-    Tiefgaragenstellplatz"*. Greps that catch it: `setzt sich .{0,40}zusammen|Nettokaltmiete|
-    zzgl\.|Betriebskostenvorauszahlung|Nebenkostenvorauszahlung`. Two consequences:
-    1. It **overrides the #356 ambiguity even when heading == the `Warmmiete` field** — #642 had
-       heading 1.660 € AND `Warmmiete 1.660 €` AND `Nebenkosten 300 €`, which by the rules above is a
-       coin flip; the sentence settles it outright (1.250 + 300 + 110 = 1.660).
-    2. **The heading can be MORE than the Warmmiete — it can be the all-in Gesamtbelastung including a
-       compulsory Stellplatz.** This is the #593 Stellplatz trap in its worst form: there the
-       Stellplatz was hidden inside the *Kaltmiete*, here it sits on top of the *Warmmiete*, so the ad
-       has three price levels (kalt 1.250 · Wohnraum-warm 1.550 · Gesamt 1.660). Always split the
-       Stellplatz out before computing EUR/m² and before touching the Mietspiegel — and check for
-       "**muss mit gemietet werden**": a compulsory Stellplatz is an unavoidable monthly cost (Block A
-       con) even though it is not Wohnraummiete.
-    *Why:* on #642 the search hint's naive `heading ÷ m²` gave **22,13 EUR/m²**, over the profile's
-    18-EUR/m² cap and heading for a rejection; the real figure is **16,70 EUR/m²**, comfortably under
-    it — a 32 % error that flipped the whole verdict, on an ad that states the answer in one sentence.
-  - **When the description settles NOTHING, two NON-price fields still decide the kalt/warm reading —
-    and they are independent of each other.** #694 (heading 1.885 € == `Warmmiete` field, no NK field,
-    no price sentence anywhere = a textbook #356 coin flip) was decided outright by:
-    1. **Kaution ÷ 3 — and the quotient is allowed to carry CENTS.** The #594 rule says "exact multiple
-       of a plausible rent", which reads as "must be round". It is not: 4.276 ÷ 3 = **1.425,33**, i.e.
-       3 × 1.425,33 = 4.275,99 ≈ 4.276. A rent computed as m² × rate almost always has cents, so a
-       *non*-round quotient is the normal case, not a miss. Always also test the reverse for
-       impossibility: heading-as-Kaltmiete would make the Kaution 2,27 NKM — a number nobody computes.
-    2. **The poster's stated MINIMUM HOUSEHOLD INCOME is a price-reading discriminator.** German
-       private ads routinely close with "Bitte nur Anfragen bei einem Haushaltseinkommen von mind.
-       X €", and X is set by the ⅓-rule on the **Warmmiete**: #694 asked 5.600 € against a heading of
-       1.885 € → 1.885 × 3 = 5.655 ≈ 5.600. Had 1.885 been the Kaltmiete (warm ≈ 2.200) she would have
-       asked ~6.600. Grep `Haushaltseinkommen|Nettoeinkommen|mind\.|mindestens.{0,20}€` and divide by 3.
-    Both are cheap and neither needs the description to say anything about the price.
-    *Why:* on #694 the conservative default (heading = Kaltmiete) gives 21,92 EUR/m², busts the
-    18-EUR/m² cap by +21,8 % and pushes the Warmmiete over the 2.200 cap — a rejection profile — while
-    the true 16,57 EUR/m² clears all three caps. Two independent non-price fields flipped the verdict
-    on an ad that states no split at all.
-  - Posting date + view count: `#viewad-extra-info` (e.g. "14.08.2026") and the counter right after it
-    ("6" Aufrufe). Useful for "how fresh / how contested is this ad" in next steps — there is no
-    "Anzeige online seit N Tagen" string to grep.
-  - **The BOOLEAN amenities are bare labels with no value, in the SECOND `ul.addetailslist`**, right
-    after Nebenkosten/Warmmiete/Kaution — e.g. `Terrasse · Einbauküche · Badewanne · Fußbodenheizung ·
-    Altbau · Neubau · Haustiere erlaubt` (#652). They have no `addetailslist--detail--value` span, so a
-    parser that only reads label→value pairs drops them entirely. **Absence of a label is how you
-    decide a must-have is unbelegt** — on #652 there was no `Keller` label anywhere, which is what
-    pinned Block E. Note `Altbau` and `Neubau` can BOTH be set (= Erstbezug nach Sanierung im Altbau),
-    so neither one alone tells you the Baujahr — read the description for that. *Why:* without this
-    list you have to infer amenities from prose and will silently miss a must-have.
-  - **…but the boolean list can be ENTIRELY ABSENT from the served HTML while the flags still exist in
-    the ad-targeting JSON** (#716: the second `ul.addetailslist` held only `Warmmiete 1.000 €`, yet the
-    targeting payload carried `Terrasse:true`, `Badewanne:true`, `Altbau:true`, `Haustiere_erlaubt:true`,
-    `WG_geeignet:true`). So the "no label ⇒ must-have unbelegt" test is only valid **after** checking the
-    targeting JSON — otherwise you declare a present amenity missing. Conversely, a flag that appears ONLY
-    there and is contradicted by silence in title, description and visible list is *unconfirmed*, not
-    proven: score the must-have as met but write "per Ad-Attribut, nicht in der Beschreibung belegt — bei
-    Kontakt verifizieren". Absence from BOTH sources is what actually pins Block E (#716: no `Keller`
-    anywhere → must-have fehlt). *Why:* on #716 reading only the visible list would have dropped
-    Terrasse/Badewanne/Haustiere and cost two must-haves instead of one.
-  - **Machine-readable attribute dump: the ad-targeting JSON** (`%ENCODED_BIDDER_CUSTOM_PARAMS%` /
-    `%DFP_TARGETS%` inline in a `<script>`) repeats the ad's fields as flat keys — `Preis`,
-    `ExactPreis`, `Nebenkosten`, `Warmmiete`, `Kaution_/_Genoss._Anteile`, `Zimmer`, `Schlafzimmer`,
-    `Badezimmer`, `Etage`, `Wohnungstyp`, `Tauschangebot`, `Verkaeufer` (privat/gewerblich),
-    `Haustiere_erlaubt`, `Terrasse`, `Badewanne`, `Einbaukueche`, `Fussbodenheizung`, `Altbau`,
-    `Neubau`, `Verfuegbar_ab_Monat/_Jahr`, `posterid`. Handy cross-check, and `posterid` saves digging
-    it out of `#viewad-contact`. ⚠ **But `Wohnflaeche` in that payload is NOT the literal m²** — on
-    #652 it read `"160"` while the visible list and the description both said **83 m²** (Grundfläche
-    123 m², so 160 matches nothing on the page). Every other key matched exactly. **Always take
-    Wohnfläche from `ul.addetailslist` / the description, never from the targeting JSON.** *Why:*
-    reading 160 there would have given 12,50 EUR/m² instead of 24,10 — a 48 % error that flips the
-    Mietspiegel/Mietpreisbremse verdict and Block A.
-    - **`Wohnflaeche` and `Preis` in that payload are BUCKETS, not values — `ExactPreis` is the real
-      price.** #767 read `Wohnflaeche:"160"` for a 90-m² flat — the *same* "160" that #652 showed for
-      83 m², so it is a size band, not a one-off typo, and it will never match the ad. Same shape on
-      the price side: `Preis:"1500"` vs `ExactPreis:"1400"` (heading 1.400 €). Rule: take m² from
-      `ul.addetailslist`/description, take the price from `ExactPreis` (or the heading), and use the
-      payload only for the boolean amenity flags + `posterid`/`Verkaeufer`/`Tauschangebot`.
-      *Why:* two ads now prove `Preis`/`Wohnflaeche` are rounded band codes; quoting either as a fact
-      invents a price and a size the listing never stated.
-  - **`og:latitude`/`og:longitude` are the PLZ centroid when no street address is given**, and for a
-    PLZ that is mostly forest/water the pin lands in the middle of nowhere — #652 (14193 Grunewald)
-    pinned 52,481662 / 13,204770, i.e. inside the Grunewald-Forst. Do NOT read that as a location
-    contradiction (that's the separate, real #640 case where the poster typed the *wrong PLZ* and the
-    geo inherited it). Rule: geo disagreeing with the *description* only matters when the **PLZ/Ort
-    field itself** disagrees with the title/description too.
-  - **The exact street address is NOT in any `ul.addetailslist`** — it sits in a separate
-    **"Standort"** block (and once more right under the price heading) and is only reachable by
-    dumping the *visible text* of the own-ad region, e.g. `Tiroler Damm 16b, 14478 Brandenburg -
-    Potsdam` (#607). So: after parsing the spec lists, always also strip-tag the region
-    `title … sidebar` and read it — `#viewad-locality` alone gives you "{PLZ} Brandenburg -
-    {Stadt}" and nothing more. A house-number-precise address is the single highest-value field on
-    a Mieterinserat: it unlocks Baujahr/Bauvorhaben via one WebSearch (see below).
-  - **The PLZ/Ort field can be flat-out WRONG — a different Gemeinde 55 km away — and `og:latitude/
-    og:longitude` inherit the error, so the map is not a second opinion.** #640 rendered
-    `#viewad-locality` "14473 Brandenburg - Potsdam" + geo `52,386116 / 13,072902` (= Potsdam
-    Südliche Innenstadt) on an ad whose title AND description say **Grünheide (Mark)** (Oder-Spree).
-    The poster simply typed their own PLZ. Resolution recipe, in order of strength:
-    1. **Triangulate the description's distance claims.** #640 gave three ("Tesla Gigafactory ca.
-       10 Min. mit dem Auto", "Müggelsee ca. 10 km", "BER ca. 35 km"); only Grünheide satisfies all
-       three, Potsdam satisfies one. Two independent distance claims that agree beat any single field.
-    2. **Pull the poster's other ads: `curl "https://www.kleinanzeigen.de/s-bestandsliste.html?
-       userId={id}"`** — the id sits in the `href` inside `#viewad-contact`. Plain-curl accessible,
-       and each row yields title + `aditem-main--top--left` (PLZ/Ort) + price + description snippet
-       via `data-href`. On #640 the sibling ad (Leipzig-Gohlis) carried the *correct* PLZ, which
-       proved the Grünheide ad's PLZ was the outlier rather than the title.
-    3. **Compare the two ads' `data-imgsrc` UUID sets** while you're there — same UUIDs across two
-       "different" flats would be the Medium "photos from different properties" signal. On #640 the
-       sets were disjoint, so it did NOT fire.
-    *Why:* the ad only reached the pipeline because the PLZ said Potsdam; scoring the field instead of
-    the text would have produced a Potsdam report for an Oder-Spree flat — and would have fired the
-    High "price >20 % below Mietspiegel" signal (10,62 EUR/m² is cheap for Potsdam, ordinary for
-    Grünheide). Whenever title-Ort ≠ field-Ort, settle it before scoring anything else.
-    - **Mirror case — the field is RIGHT and the TITLE upsells to the neighbouring prestige Ortsteil.**
-      #682: title "3 Zimmer Wohnung **Grunewald** …", `#viewad-locality` "**14199 Berlin - Wilmersdorf**",
-      Standort "Helene-Jacobs-Straße 18" → one WebSearch on the street name returns Ortsteil
-      **Schmargendorf**, Neubauquartier *Maximilians Quartier*. So title-Ort ≠ field-Ort does **not**
-      always mean the field is broken; in Berlin it usually means Lagemarketing toward the adjacent
-      posher Ortsteil (Grunewald/Dahlem/Westend). **Decision rule: the STREET beats both.** Always pull
-      the Standort street address and WebSearch `"{Straße}" {PLZ} Berlin Ortsteil` before scoring
-      Block B — it settles the Ortsteil *and* usually names the Bauvorhaben, which is the only route to
-      a Baujahr on an ad that states none. Consequence for an Ortsteil-scoped search group (Grunewald
-      = 14193 only): this is a near-miss, **not** an excluded area (no hard blocker when
-      `excluded_areas` is empty) — score Block B ~3,5 and say the title was marketing.
-      *Why:* taking the title at face value files a Grunewald report for a Schmargendorf flat and
-      hands the user a wrong preferred-area bonus.
-  - **Vermieter name + exact address ⇒ settle Baujahr AND the kalt/warm reading with ONE WebSearch.**
-    On #607 the ad gave only "1.200 €" (heading == `Warmmiete` field, no NK field ⇒ the #356
-    ambiguity) plus "Der Vermieter ist die Pro Potsdam" and the Standort address. A single search
-    on `"{Straße}" {Stadt} {Vermieter} Neubau` returned the Bauvorhaben (Tiroler Damm 16 A–E,
-    ProPotsdam, fertig Q2/2019, 95 WE, 75 % belegungsgebunden) → Baujahr for the Mietspiegel field,
-    *and* it decided the price reading: 1.200 as Kaltmiete = 15,97 EUR/m² is impossible for a
-    kommunale Gesellschaft, as Warmmiete it lands on the Mietspiegel-Mittelwert. Do this BEFORE
-    falling back to the "score the conservative reading" default — it converts a coin flip into a
-    decided case. *Why:* the photo-based Baualter-Gegenprobe (see [[potsdam-mietspiegel]]) is
-    unavailable on a 0-photo ad; the address+Vermieter route is the replacement and is harder evidence.
-  - **Sixth price variant — heading reads "Zu verschenken" on a RENTAL** (#594). This is NOT a
-    giveaway and NOT a Verschenk-Anzeige: the raw markup carries `<meta itemprop="price" content=""/>`
-    (empty) and Kleinanzeigen renders its free-of-charge fallback for an empty price field. The h1 also
-    gets `data-soldlabel="Verschenkt"` instead of the usual "Nicht mehr verfügbar" — do NOT read that
-    as sold/expired either. Recovery: the only stated cost is the `Warmmiete` field in `#viewad-details`
-    (repeated in the description), and **Kaltmiete = `Kaution / 3`** whenever the Kaution field is an
-    exact multiple of a plausible rent (#594: Kaution 2.625 = 3 × 875 → kalt 875, NK = warm − kalt =
-    210 = 2,96 EUR/m², plausible). Sanity-check the other direction: a 2-NKM reading would put the
-    Kaltmiete *above* the Warmmiete → impossible, which is what makes the 3-NKM derivation safe. Say
-    "derived" in the report, and note the circularity — if the true Kaltmiete is lower, the Kaution
-    would be illegal (>3 NKM), so it doubles as a contact question. *Why:* the heading looks like a
-    data-entry joke and the obvious move (treat the heading as the price) yields "0 EUR"; without the
-    Kaution ÷ 3 route the ad has no Kaltmiete at all and the whole Mietspiegel/Mietpreisbremse check
-    is unrunnable on an otherwise 4,1/5 flat.
-    - **Run Kaution ÷ 3 even when the Kaltmiete IS stated — then it is a COPIED-TEXT detector, not a
-      price derivation.** #715 spelled the split out in full (kalt 950 · NK 120 · Heiz 100 · warm
-      1.170, arithmetic closes) yet wrote "Kaution: 2.550 € (**3 Nettokaltmieten**)" — but 3 × 950 =
-      2.850, and 2.550 ÷ 3 = **850**. A self-labelled NKM multiple that doesn't match the ad's own
-      Kaltmiete is the classic residue of a description lifted from another/older ad with only the rent
-      overwritten. Report it as an inconsistency (the *amount* is still legal — 2,68 NKM is under the
-      § 551 cap, so don't call it an illegal Kaution), put it in Next Steps as a verbatim question, and
-      weigh it with the other provenance signals. *Why:* the existing rules only reach for Kaution ÷ 3
-      when the price is missing, so on a fully-priced ad the mismatch goes unnoticed — and on #715 it
-      was one of only two concrete traces that the text wasn't written for this flat.
-    - **Follow-up (#703, same flat): an already-evaluated ad can be SILENTLY EDITED and then ALSO
-      re-posted under a fresh ad-ID — and the repost's photo UUIDs are all-new.** The #594 ad
-      (3483783446) still returns HTTP 200, but its `Warmmiete` had been raised 1.085 → 1.200 € and the
-      Kaution 2.625 → 2.700 € after the report was written; two weeks later the identical ad reappeared
-      as 3495849124 with a *word-for-word identical* description. Consequences:
-      1. **Never dedupe a Kleinanzeigen repost by `data-imgsrc` UUID** — re-uploading the same 12
-         photos mints 12 new UUIDs, so the overlap with the earlier ad is **0**, which reads as
-         "different flat". (The UUID-set comparison from the #640 recipe below only works *between two
-         ads live at the same time*, not across a repost.) Dedupe on the tuple
-         `posterid + m² + Zimmer + Etage + Verfügbar-ab + Kaution` instead — that was identical.
-      2. **Re-fetch the OLD ad before trusting the old report's numbers.** A price recorded in the
-         tracker can be stale within days, and the Kaution moves with it, so the Kaution ÷ 3 Kaltmiete
-         silently changes too. Cheap: one curl of the old URL, diff `#viewad-details`.
-      3. `data-soldlabel="Verschenkt"` persists on the edited old ad — still not "sold".
-      4. **`data-soldlabel` is a TEMPLATE attribute on EVERY ad's `<h1>`, live ones included — it is
-         NEVER a liveness test.** #807 found `data-soldlabel="Nicht mehr verfügbar"` on a live *and* on
-         a withdrawn ad, and a substring grep for `nicht mehr verfügbar` returns exactly 1 hit on each.
-         There is no `#viewad-sold` / `is-sold` / `class="*sold*"` marker either, and a **withdrawn ad
-         still serves HTTP 200 with the complete cached detail page** (price, spec list, gallery,
-         contact block) — so every content-based liveness check passes on a dead ad. The only reliable
-         test is the poster's inventory: `curl ".../s-bestandsliste.html?userId={id}"` and check whether
-         the ad-ID still appears. On #807 the old flat ad was absent from its account's 20 remaining ads
-         (all Mercedes parts/radios/CDs, zero Immobilien) ⇒ genuinely withdrawn.
-      5. **A repost can move to a DIFFERENT ACCOUNT**, which breaks the `posterid + …` dedupe tuple in
-         (1). #807: the same Alt-Drewitz flat reappeared under a brand-new posterid (account 13 days
-         old) four days after the original account dropped it. Dedupe on
-         `m² + Zimmer + Etage + NK + Verfügbar-ab + description hash` and treat `posterid` as optional.
-      6. **Photo md5 forensics discriminate a LANDLORD re-list from a COPIED-AD scam** — the positive
-         test (1) lacks. Download both galleries at `rule=$_57.JPG` and `md5sum` them. Byte-identical
-         renders ⇒ the **same original camera files** were re-uploaded (a copier only has the published
-         CDN renders, which re-encode to different bytes); and any photo in the NEW ad that is **absent
-         from the old** ⇒ the poster holds unpublished originals ⇒ owner/landlord with access to the
-         flat, not a copier. On #807, 7 of 11 matched by md5 and 4 were previously unpublished; together
-         with a shared Mercedes-enthusiast Berlin+Potsdam footprint across both accounts that settled it
-         as a legitimate re-list. Score it, but drop Block H (verifiability lost: the old account's
-         12-year history and positive badges do not transfer) and fire the two Medium scam signals
-         ("reposted with different prices", "new account") ⇒ *Proceed with Caution*, with
-         identity-verification as step 1 of Next Steps rather than avoidance.
-      *Why:* without (1) the repost looks like a second, distinct Fahrland flat and earns a duplicate
-      report; without (2) the tracker keeps a Kaltmiete that the poster abandoned.
-  - **Seventh price variant — `Warmmiete` is the ONLY money field AND there is no Kaution** (#803).
-    The Kaution ÷ 3 recovery above then has nothing to bite on. Fallback, in this order: (1) a
-    **Betriebskosten-Anker from an already-evaluated flat in the SAME building/quarter** (EUR/m²
-    warm-Aufschlag, see [[potsdam-mietspiegel]] — Brunnen Viertel = 3,47 EUR/m²): kalt ≈ warm −
-    anker × m²; (2) failing that, the generic 3,00–4,00 EUR/m² band. Always label the number
-    **"abgeleitet"**, quote the resulting range, and check that the Mietspiegel verdict holds
-    across the whole range — if it does, say so, because that is what makes the derivation
-    load-bearing rather than a guess. *Why:* a Warmmiete-only ad otherwise has no Kaltmiete at all,
-    so Block A, the €/m² cap and the Mietpreisbremse check are all unrunnable; and comparing the
-    *Warmmiete* against a Kaltmiete band (the tempting shortcut) fabricates a ~20 % overpricing.
-  - **A Nachmieter ad with NO Ablöse is worth stating explicitly as a plus.** Grep
-    `Ablös|Abschlag|Abstand|übernehmen|Übernahme` over the own-ad text (before `viewad-title`);
-    0 hits on #803 including a fitted kitchen. *Why:* the Ablöse is the default expectation on
-    tenant ads (#324 ≈ 2.300 EUR, #540 "Abschlagszahlung"), so its absence is a real, quantifiable
-    advantage the report should name — not a non-finding to pass over in silence.
-  - **On a tenant's Nachmieter ad, the stated rent is the BESTANDSMIETE — always price the
-    re-letting risk.** The landlord signs a *new* contract and may re-price to the quarter's asking
-    band; where the Mietpreisbremse is switched off by § 556f (post-01.10.2014 Erstbezug) there is
-    no legal ceiling at all. Quantify it in Block A (#803: band ⇒ up to +124 EUR/month) instead of
-    scoring the advertised figure as if it were the offer.
-  - **The poster's OTHER ads reveal their ROLE, which the flat ad never states.** Same
-    `s-bestandsliste.html?userId={id}` call as the PLZ-triangulation recipe below, read for a different
-    purpose: on #703 the Fahrland flat sat alongside ten **household clear-out** ads from the same
-    account (Waschmaschine, Geschirrspüler, Wohnlandschaft, Kommode, Couchtisch, Drehstuhl, Spiegel…)
-    — that pattern identifies the poster as the **outgoing tenant**, not the owner. Act on it: go
-    looking for the landlord-channel twin (Hausverwaltung/Semmelhaack/IS24) and route the application
-    there, and score Block H on the *landlord* once found rather than docking it for an anonymous
-    private account. Conversely, several *flats* on one private account = re-poster/gewerblich-getarnt,
-    a different read. *Why:* #594 had to score H at 2,5 for "role not stated at all" — one extra curl
-    answers it, and it is the same call you already make for a location contradiction.
-  - **The Ablöse is often NOT called "Ablöse".** #540 used "**Abschlagszahlung** von 1500€" for a
-    tenant-installed Geschirrspüler + Kochinsel; a grep for `Ablöse` returns 0 hits. Grep for
-    `Abschlag|Ablös|Abstand|übernehmen|Übernahme` when checking a Nachmieter ad for the
-    outgoing-tenant demand. Note the sub-case: when the Ablöse covers **equipment the tenant owns and
-    installed themselves** (not the landlord's fitted kitchen), taking the landlord channel removes
-    the payment *and* the appliances — say so instead of framing the landlord channel as pure saving.
-    *Why:* a keyword-blind read reports "no Ablöse" on an ad that has one.
-  - **Private Nachmieter ads:** price heading is often the **Warmmiete** and the only proof is one prose
-    line ("Miete: ca. 1.370 € warm pro Monat"); Nebenkosten/Kaution/Baujahr/Energieausweis/Adresse are
-    usually absent entirely, and the Zimmerzahl runs half a room high (HWR/Abstellraum counted). Before
-    scoring such an ad, look for the **landlord-channel twin** (Semmelhaack/Hausverwaltung/IS24) and
-    dedupe on an **exact Warmmiete + m² + Etage** match — the tenant ad typically adds an Ablöse
-    ("Küche muss übernommen werden") and a hard move-in date the landlord listing doesn't have.
-    *Why:* on #521 that match turned a would-be full evaluation into a DUPE of #516 and revealed the
-    Ablöse as avoidable.
-  - ⚠️ **`data-imgsrc` is NOT the only gallery markup — some ads render the gallery purely as CSS
-    `background-image: url(...)` inside `div.galleryimage-large--cover`, and then a `data-imgsrc`
-    grep returns literally ZERO for a photo-rich ad.** #653 (Tauschwohnung, 14055 Westend) has **17
-    real photos** and `grep -c data-imgsrc` on the pre-title region = **0**. The counting recipe must
-    therefore be **UUID-based, not attribute-based**: take the HTML *before* `id="viewad-title"` and
-    dedupe on the CDN path's UUID —
-    `python: len(set(re.findall(r'prod-ads/images/[0-9a-f]{2}/([0-9a-f\-]{36})', html[:html.find('id="viewad-title"')])))`.
-    That is immune to both failure modes at once: the `?rule=$_57/$_59` duplication *and* the
-    sidebar-ad JSON-LD `ImageObject` overcount (those all sit AFTER the title, so the pre-title slice
-    already excludes them). Verify the images are real by downloading 3–5 with
-    `curl ".../{pp}/{uuid}?rule=\$_57.JPG"` and Reading them — 60–120 KB at 1024×768 = genuine
-    phone photos. *Why:* on #653 the documented `data-imgsrc` recipe said "0 images" and would have
-    capped Block D at 3.0 with a "no photos, condition unverified" con in the summary — on an ad whose
-    17 photos actually **verified** the room count, the Badewanne, the Balkon/Terrasse and the
-    household composition. A false zero here is worse than an overcount: it invents a defect.
-  - **Read the WHOLE gallery, not the first 3–4 images — the Grundriss is often the LAST one.**
-    #609 had it at position 7 of 8, and it was the only source for: the maisonette split
-    (untere Ebene 2 Zimmer + Bad + Küche, obere Ebene = **offene Galerie** as the "3rd room" →
-    Block C caveat), Balkon *and* Terrasse as two distinct Freisitze (text said only "2 Balkone"),
-    and the unit id "WE 13". The captioned slides ("Grundriss unten (Zimmer 1 und 2)") show the
-    poster built their own mini-Exposé — a screenshot-looking image with white margins + a German
-    room caption is self-made material, **not** the re-captured foreign-Exposé pattern, so do NOT
-    fire the "photos from different properties" Medium signal on it. Also use the photos to date the
-    building when Baujahr is absent (verputzte Fassade + Dachflächenfenster + Rollläden + Glasbaustein
-    + Wendeltreppe ⇒ Nachwende-Neubau 1990er/2000er, i.e. Mietspiegel-Feld 1991–2008).
-    *Why:* stopping at image 4 would have missed both the layout caveat and the Baualtersklasse.
-    - **Find the Grundriss for free with `file -b` instead of Reading the gallery one by one.** Phone
-      photos come off the CDN at a uniform **900×1600 portrait**; the Grundriss is a scan/PDF export
-      and has a different aspect ratio (#642: **873×978**, and it was image 4 of 14, not the last).
-      So: download all deduped UUIDs, run `for f in *.jpg; do echo "$f $(file -b $f)"; done`, and Read
-      the odd one out first. On #642 that one image carried more than the rest of the ad combined:
-      unit id **"Haus I – WE 8"**, the exact **74,84 m²** (spec list said "75"), the room-by-room split
-      that proved three *real* rooms plus a separate Essen/Kochen (killing the Wohnküche-as-3rd-room
-      doubt raised by the structured field `Schlafzimmer: 1`), the Balkon at 8,61 m² (4,31 angerechnet),
-      a separate HWR, and a **compass rose** giving the orientation. The unit id is also what lets you
-      chase the landlord channel on an ad with no house number.
-      Gotcha in the download loop: `'\n'.join(urls)` has no trailing newline, so a
-      `while read -r url` loop silently **drops the last URL** — check the file count against the
-      unique-UUID count.
-      *Why:* Reading 14 images to find one costs ~14× the tokens, and the ratio test is one Bash call.
-  - **0 gallery images happens on ordinary private ads too**, not just Tauschwohnung ads — cap Block D
-    at 3,0 when it's 0.
-    - **A 1-image ad can still be a 0-real-photo ad: the single image is sometimes a phone snapshot of
-      an old architect's Bauzeichnung** (#718 — 1084×1600, whole 3.OG level, hand-annotated,
-      "ZWISCHENPODEST 2. ZU 3.OG"). Apply the D cap as if there were no photos (condition
-      unverifiable), but mine the drawing anyway — on #718 it alone supplied the **Baualtersklasse**
-      (blueprint style + Zwischenpodest-WC ⇒ Altbau ≤1948, which sets the Mietspiegel field and
-      therefore the whole Mietpreisbremse verdict), the **absence of a Balkon** (turns an unstated
-      must-have into a positively-refuted one) and a **room-count contradiction** (drawing shows
-      4 Zimmer + Küche on the ~78 m² footprint the ad sells as "3 Zimmer"). Do not credit its
-      fixtures as current equipment (the tub drawn in the Bad is the 1919 Urzustand).
-      *Why:* counting it as "1 photo" skips the D cap, and ignoring it throws away the only
-      evidence on the ad for Baujahr, Balkon and Zuschnitt.
-    - **Third 1-image form: a HEIZLASTBERECHNUNG printout** (#822): room boxes read like
-      `EG-R1; Wohnraum 26,24 m²/… 20 °C 0 W`. The `EG-` prefix is a software default, so it does not
-      contradict a DG flat. Sum the rooms to check the m² claim (89,48 vs 90). The plan draws only
-      heated rooms, so it never shows a Balkon and its absence proves nothing. The poster's room
-      names (`Kind`) hint at household size for swap side 2, but only as an inference. A heat-load
-      plan hints weakly at a new build, DG conversion or new heating: treat it as a § 556f lead,
-      never as the Baujahr.
-  - **Counting photos: DEDUPE the `data-imgsrc` URLs — the raw grep count is 2× the real photo count.**
-    Each gallery photo is emitted twice, once as `…?rule=$_59.AUTO` (thumb strip) and once as
-    `…?rule=$_57.AUTO` (main slide), same image UUID. So count *unique* UUIDs:
-    `grep -o 'data-imgsrc="[^"]*"' f.html | sed 's/?rule.*//' | sort -u | wc -l`. Also restrict to the
-    part of the HTML **before `id="viewad-title"`** — everything after belongs to the "Das könnte dich
-    auch interessieren" sidebar. *Why:* on #505 a plain grep said 8 images for an ad that actually has 4
-    (Block D photo-evidence judgement was about to be made on a doubled number).
-    - **Do not substitute a whole-page grep on the bare CDN path** (`img.kleinanzeigen.de/api/v1/
-      prod-ads/images/…`) for that recipe: each sidebar ad emits its own `<script type="application/
-      ld+json">` **ImageObject** with a `contentUrl`, so the page carries ~10 foreign UUIDs on top of
-      the ad's own. On #608 that read **11 images for a 1-photo ad** — an 11× overcount, far worse than
-      the 2× duplication above, and exactly the range where the 0-/1-photo Block-D cap is decided.
-      Those JSON-LD blocks are also *not* a counting route: there is only **one per ad**
-      (`representativeOfPage: true`), so they identify the ad's lead photo, never its gallery size.
-      Useful side effect: each sidebar ImageObject carries the neighbour ad's full `title` +
-      `description`, which is why keyword greps for "Tauschangebot" false-positive (see below).
-    - **Scope EVERY keyword sweep to `title + #viewad-description-text + the ul.addetailslist blocks`
-      (~2–3 KB) — never to "everything after `id="viewad-title"`".** That slice is ~157 KB on a normal
-      detail page because the recommended-ads sidebar sits inside it. On #807 the unscoped sweep
-      returned `befristet: 12 · möbliert: 6 · Nachmieter: 18 · WBS: 3 · Balkon: 14 · Terrasse: 21`
-      for an ad whose own text contains **none** of them (properly scoped: all 0). Every one of those
-      is either a hard-blocker term or a must-have, so an unscoped sweep manufactures blockers that
-      would cap the score at ≤2.0 *and* invents amenities the flat does not have.
-  - Kaution field may read **"Kaution / Genoss.-Anteile"** → for a Genossenschaftswohnung this is
-    refundable cooperative shares, NOT a deposit and NOT an advance-fee scam signal; the low rent is
-    the coop structure, not too-good-to-be-true. *Why:* otherwise you'd wrongly flag scam + illegal Kaution.
-  - Feature `list`: Terrasse/Balkon, Einbauküche, Badewanne, Keller, Aufzug, Haustiere erlaubt, etc.
-    - **An ad can carry ZERO checktags** (`li.checktag*` returns nothing at all, #594) — then the
-      must-haves are undecidable from structured data and you must **download the gallery images and
-      Read them**. It is cheap and decisive: `curl "{data-imgsrc base}?rule=\$_57.JPG"` per deduped
-      UUID, then Read the files. On #594 photo 1 was the **Grundriss**, which alone gave the exact
-      Wohnfläche (71,50 m² vs "71" in the spec list), the unit number ("Whg. 1.07" — the only
-      identifier in the whole ad), and a **confirmed Balkon**; further photos confirmed an
-      unadvertised Einbauküche and a bodengleiche Dusche (⇒ no Badewanne). Also cross-check the
-      photo-derived Baualter against the Mietspiegel field (see [[potsdam-mietspiegel]]) — an ad with
-      no Baujahr and no Energieausweis is otherwise unscoreable on A and D.
-      *Why:* judging E from the empty checktag list would have recorded "Balkon missing" and fired the
-      missing-must-have penalty on a flat whose floor plan plainly shows one.
-  - Anbieter block: name + "Privater Nutzer" + "Aktiv seit {date}" (account age = scam signal).
-    - **Positive-feedback badges are load-bearing in the other direction**: "TOP Zufriedenheit" /
-      "Besonders freundlich" / "Besonders zuverlässig" come from real transaction feedback, so the
-      "new account, single listing" Medium scam signal does **not** fire even on an otherwise
-      anonymous private poster (#594: no name, no address, no phone, but active since 09/2024 with
-      all three badges).
-  - Photo count: gallery shows "/13" style counter.
-  - **Letterboxed phone screenshots alone are NOT the "photos from different properties" signal — the
-    APP CHROME is.** #682 had 2 of 12 images as `624x1600` / `1200x1600` screenshots with fat black
-    bars top+bottom, but **no** overlay badge, no UI text, and motifs identical to the 10 native
-    `1600x1200` shots (same parquet, same window front, same view direction). That is a tenant
-    re-uploading their own photos out of a messenger, not re-captured foreign marketing material →
-    do **not** fire the Medium signal and do **not** dock Block H. Cheap discriminator before you even
-    Read the files: `file -b` the whole gallery — a mix of native landscape *and* tall letterboxed
-    frames of the SAME rooms is the harmless case; uniform letterboxing across the whole set plus
-    baked-in chrome is the #594 case below. *Why:* firing the signal here would have invented a
-    provenance defect on a clean private ad.
-  - **Photos can be phone SCREENSHOTS of another listing's gallery** — tell-tales: black bars down the
-    left/right of most images (phone screen capture) and, on at least one, baked-in app chrome such as
-    a "**12 Fotos**" overlay badge and greyed UI text below the picture. The images are still real
-    photos of one consistent property (so Block D is NOT capped), but the material was re-captured
-    from a parent Exposé that exists elsewhere. Fire the **Medium** "photos from different properties /
-    re-used marketing material" scam signal, dock **Block H** (provenance, ~2,5), and make "who is
-    letting, and which Exposé are these from" the first contact question. Frequent companions on the
-    same ad: a content-free machine-generated-sounding description that only paraphrases the spec
-    fields, no address, no Baujahr, no Energieausweis. *Why:* on #594 this was the only reason to
-    doubt an otherwise clean 4,1/5 ad — and none of it is visible unless you actually Read the images.
-  - **The cheapest provenance test of all — the gallery's ASPECT RATIO, no image Reading needed.**
-    The CDN **preserves the source aspect ratio** across every rule (verified #715: the same UUID
-    returns 1280×943 at `$_57`, 960×707 at `$_59`, 200×147 at `$_2` — all 1,357). So the ratio you
-    measure is the *uploader's* crop, not a portal artefact, and one `file -b` over the downloaded set
-    is a complete test. Read it as:
-    - **Camera-native ratios** (4:3 = 1,333 · 3:2 = 1,5 · 16:9 · the 900×1600 portrait phone case) →
-      ordinary owner/tenant photos.
-    - **One odd ratio among native ones** → that's the Grundriss/scan (the #642 rule above).
-    - **EVERY image on the SAME non-native ratio** (#715: all 5 at exactly 1280×943 = 1,357) → the
-      whole set went through one export/crop pipeline, i.e. **Exposé or portal-viewer material**, not
-      photos taken for this ad. Fire the Medium "photos from different properties / re-used marketing
-      material" signal *as a stated suspicion* — it is weaker than the #594 baked-in-app-chrome case
-      (which is proof), so do **not** cap Block D; the photos still show one consistent property.
-      Corroborate with the usual companions: no Grundriss, no Baujahr, no Energieausweis, no house
-      number, `Eckdaten:`-style description.
-    ⚠ **Missing EXIF is NOT evidence either way** — Kleinanzeigen strips Make/Model/CreateDate from
-    every upload, so `exiftool` returns bare dimensions on honest and dishonest ads alike.
-    - **When the ad settles nothing about price, check the poster's SIBLING ad in the same building
-      before falling back to the default.** Posters like #774 (investor KG with 2 units) apply one
-      Kaution rule to every unit. Using the `s-bestandsliste` curl, compute Kaution ÷ heading for each
-      ad under both readings. The reading where a sibling's Kaution would exceed 3 NKM is the wrong
-      one: #774's sibling gave 3.000 ÷ (1.210 − 250) = 3,13 NKM, so heading = Kaltmiete for both.
-      The same sibling also showed that the **Ortsteil label is a poster-picked dropdown tied to the
-      URL location suffix**: same building, one ad `-24192` "Dahlem", the other `-24194` "Grunewald",
-      both PLZ 14193. Trust PLZ + title over the Ortsteil label.
-      *Why:* on #774 there was no price sentence, no Warmmiete field and no clean Kaution multiple, so
-      the sibling was the only non-guess evidence for the price reading and for the Ortsteil.
-    *Why:* on #715 this was the only thing separating "anonymous 1-day-old account with a suspiciously
-    good flat" from "anonymous 1-day-old account with a lifted exposé", and it costs one `file -b`
-    plus two extra curls instead of Reading the whole gallery.
-  - **Account age is a computable scam signal: diff "Aktiv seit" (`#viewad-contact`) against the
-    posting date (`#viewad-extra-info`).** #715: account created 10.09.2026, ad posted 11.09.2026, and
-    `s-bestandsliste.html?userId=…` returned exactly 1 ad → the Medium "new portal account, single
-    listing" signal fires on hard numbers instead of a feeling. Both dates are already in the page you
-    parsed; the ad count comes from the bestandsliste curl you make anyway. Note the asymmetry with the
-    badge rule above: positive-feedback badges *suppress* this signal, a same-week account *confirms*
-    it. *Why:* "Privater Nutzer, no name" describes most honest private ads too — the date delta is
-    what makes it reportable.
-  - **Fake-ad pattern: a REAL corporate address + another building's photos. Grep the Standort
-    street against our own data before scoring anything.** #775: a private account created 4 days
-    before posting (1 ad) gave "Maxie-Wander-Straße 6, 14480". `grep -n "{Straße}" data/listings.md`
-    showed that house is **Vonovia stock, Bj. 1995, no Aufzug, 12,10 EUR/m²** (#678). The ad claimed
-    1. OG + Aufzug + EBK at 16,67 EUR/m², with NK+Heiz 3,33 EUR/m² against the building's known 4,9–5,3.
-    All 5 photos (uniform 834×1116) showed a **Gründerzeit Altbau**: Dielen, Segmentbogenfenster, a
-    cast-iron balcony railing and a facade opposite. That contradicted both the Baujahr and the ad's
-    own "Design-Vinylboden". Read the photos for **building-age tells** against the address's known
-    Baualter, not only for app chrome/aspect ratio. A mismatch proves "photos from a different
-    property" (Medium) outright. Other tells: the account name echoing the street ("maxi" ↔ Maxie-Wander),
-    a private poster at a Vonovia/ProPotsdam/Genossenschaft address, "Online-Besichtigung: Möglich" ticked.
-    *Why:* the ad was internally consistent (kalt+NK+Heiz = warm, Kaution exactly 3 NKM, all caps
-    cleared), so every price heuristic above passed it as a clean ~4,2 flat. Only the address-vs-own-data
-    diff and the photo-vs-Baujahr check exposed it.
+## §Access — fetch + identity
+- **Detail pages are plain-curl accessible:** `curl -A "Mozilla/5.0 … Firefox"` returns the full 200 HTML. Only SEARCH pages bot-block. Prefer curl for single-listing evals; no browser needed (so it is fine under `Parallel: yes`).
+- **Field anchors:** title `#viewad-title` · price `#viewad-price` · `#viewad-locality` · `#viewad-details` (= `ul.addetailslist`, first list = specs, second list = money + boolean amenities) · description `#viewad-description-text` · seller `#viewad-contact` · posting date + view counter `#viewad-extra-info` · gallery before the title.
+- **The cookie overlay** ("Alle akzeptieren") does not block anything. Don't click it.
+- **After every fetch, check the served ad id** (`<link rel="canonical">` / `og:url` / `"adid"`) against the requested one; on a mismatch, re-fetch. The 2026-09-23 "Kleinanzeigen served a different/hybrid ad" reports (#812, #821–#823) were parallel evaluators overwriting a shared scratch file, not the portal (a 9/9 clean re-probe). The fix is isolation in `tmp/eval/{NNN}/`; the id check is the safety net.
 
-## EXPIRED / deleted detection (important)
-- A deleted or reserved ad still renders the FULL cached listing — it does NOT 404 or show
-  "nicht gefunden". Instead the status appears as badges in the gallery `article` AND prepended to
-  the page `heading`: e.g. heading reads "Reserviert • Gelöscht • {title}". Generic refs
-  "Gelöscht" / "Reserviert" sit right above the title.
-- **"Gelöscht" = deleted → EXPIRED. Do NOT score the still-visible cached numbers.** *Why:* the page
-  looks fully populated, so without checking the heading/badges you'd wrongly produce a full score for
-  an ad the Anbieter has already taken down (typically because a Nachmieter was found).
-- **Third state, between active and gone: the SOFT-CLOSED ad.** Title/description shout
-  "**Nicht mehr Schreiben!**" / "BITTE KEINE ANFRAGEN MEHR SENDEN!!! Die bisherigen Anfragen werden
-  sortiert und dann Termine vergeben" (#609), while the page carries **no** "Gelöscht"/"Reserviert"
-  badge and the flat is still free. This is **NOT EXPIRED** — the *applicant channel* is closed, not
-  the tenancy. Score it normally and put the closed channel in the Summary + Next Steps (one short
-  "falls jemand abspringt" message + hunt for the landlord-channel twin), never as an early exit.
-  *Why:* the phrase reads like "gone" and would have thrown away a 4,3/5 flat; conversely, scoring it
-  without flagging the closed channel would send the user into a stack that is no longer being read.
-- **Beware hidden badge templates:** EVERY listing page (also active ones) carries display:none
-  elements containing "Gelöscht"/"Reserviert" (matched by `[class*="reserved"]`-style selectors),
-  and the h1 always has `data-soldlabel="Nicht mehr verfügbar"` as an ATTRIBUTE — a grep for
-  "nicht mehr verfügbar" in raw HTML false-positives on every active ad (hit on #328).
-  Decide status only from VISIBLE text — `document.body.innerText.includes('Gelöscht')` or an h1
-  prefix — never from DOM presence. *Why:* selector-based badge checks false-positive an active ad
-  as EXPIRED (hit on #314).
+## §Scope — the page embeds ~10 FOREIGN ads in full
+- **The sidebar ("Das könnte dich auch interessieren") ships each recommended ad as JSON-LD** with its whole `description` and a `contentUrl` image. Page-wide greps therefore read strangers' flats and manufacture hard blockers and amenities.
+  - #804: `WBS erforderlich` + `vollständig möbliert` both belonged to other ads.
+  - #807: an unscoped sweep said `befristet 12 · möbliert 6 · WBS 3 · Balkon 14` for an ad whose own text had none.
+  - #522: "Tauschangebot"/"TAUSCHWOHNUNG" hits on a plain rental.
+  - #580: 10 "befristet" hits from one Teltow sidebar ad.
+- **Scope every keyword sweep to `title + #viewad-description-text + the ul.addetailslist blocks`** (~2–3 KB).
+  - If you slice by offset: `ti = html.find('id="viewad-title"')`, own-ad region = `html[ti : html.find('interessieren')]`.
+  - The "everything before the title" form is WRONG on a 0-image ad. Normally the description is repeated once per gallery image before the title (14 photos → 14 copies, #599: never read a hit COUNT as emphasis). With no gallery the only copy sits after the title (#607), so the pre-title filter reported "WBS: 0" on "Die Wohnung ist keine WBS Wohnung".
+  - Print the offsets of `viewad-title`, `viewad-description-text` and `interessieren` once per page.
+- **Contamination check = the AD-ID count.** `grep -o '/s-anzeige/[^"]*/[0-9]\{10\}-' | sed 's/.*\///' | sort -u | wc -l`: 1 = clean, >1 = foreign ads embedded.
+  - Contamination varies per page (#811: clean; #804–#807: heavy), so run the check, never assume.
+  - `grep "Anbieter-ID:"` fails open (#811: 0 matches with the seller block present).
+  - The seller id is `profileUserId = "…"` or the `s-bestandsliste.html?userId=` link.
 
-## Tauschwohnung swaps (two-sided match)
-- Genuine swaps: Anbieter block = "Tauschwohnung GmbH", "Gewerblicher Nutzer"; description opens
-  "Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: …)".
-- **A GmbH swap can carry NO `Tauschangebot` field in `#viewad-details` at all** (#524 had the full
-  Wohnfläche/Zimmer/Etage/NK list and none of "Nur Tausch"/"Kein Tausch"). The structured proof is then
-  the `#viewad-contact` Anbieter name ("Tauschwohnung GmbH … Gewerblicher Nutzer, aktiv seit …, N Anzeigen")
-  **plus** the boilerplate opener inside `#viewad-description-text` — both are ad-own DOM, unlike the
-  sidebar hits. *Why:* demanding the `Tauschangebot` field as the only structured confirmation would have
-  read #524 as a plain rental.
-- **Second, distinct swap variant: the private DIY swap** — no Tauschwohnung GmbH, just a private
-  tenant with a "[TAUSCH]" title. Tell-tale is the spec-list field **"Tauschangebot" → "Nur Tausch"**
-  (vs "Kein Tausch" on ordinary rentals). These read like normal quality ads: 18 real photos, long
-  ortskundige prose, account active for years — so none of the GmbH-swap heuristics (0 images,
-  boilerplate opener, gewerblicher Nutzer) fire. *Why:* on #357 only the "Nur Tausch" field and the
-  title bracket distinguished a swap from a regular rental; scoring it as rentable would have been wrong.
-  - **…and the `Tauschangebot` field can be ABSENT ENTIRELY on a private DIY swap, not just on the
-    GmbH feed (#524).** #805's `ul.addetailslist` held only Wohnfläche/Zimmer/Schlafzimmer/
-    Badezimmer/Etage/Wohnungstyp/Online-Besichtigung — **no `Tauschangebot` row in either value**,
-    and the Anbieter is an ordinary private account (since 2013, 4 ads, three positive badges). The
-    only structured proof of a swap is then the **title** ("Tausche … **gg.** …" — note the
-    abbreviated `gg.` with a period) plus a description split into two labelled blocks,
-    `Suche: …` / `Biete: …`. ⚠ Do **not** look for the GmbH boilerplate opener
-    ("Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: …)") to confirm it: a raw-HTML
-    grep for that string returns hits from the **sidebar** "Das könnte dich auch interessieren"
-    ads' JSON-LD (#805 matched Anbieter-IDs 371941/401396 that belong to *other* listings), which is
-    the documented sidebar false-positive. Restrict every swap grep to `#viewad-description-text`.
-    *Why:* absent the field, a field-driven reader logs a plain rental; a boilerplate-driven reader
-    attributes a foreign Anbieter-ID to this ad.
-- **Third swap variant: Wohnungsswap.de syndication** (#851, 3525453795). Anbieter "Wohnungsswap.de ·
-  Gewerblicher Nutzer · Aktiv seit 16.04.2024" (`posterid` 140044646). Title prefix "Wohnungsswap - {Zi},
-  {m²} - {Straße}, {Stadt}" (none of the Tausch/Tausche/gegen title triggers match, so key on the prefix +
-  Anbieter). Description opens "Es handelt sich hierbei um ein Tauschangebot." and ends with a "Wichtig … bei
-  Wohnungsswap als Tauschobjekt angeboten" boilerplate + `Anbieter-Objekt-ID: {n}`. Structured data is thin:
-  no `Tauschangebot` row, `Wohnungstyp` = "Andere Wohnungstypen", zero checktags, no NK/Warmmiete/Kaution.
-  Warmmiete and Suche live only in the tenant's free text ("Warm: 1.525€", "max 800€ warm"). Gallery = the
-  platform's watermarked app screenshots at mixed ratios. That is its own presentation, not the "re-captured
-  foreign Exposé" Medium. The Grundriss can hold neighbouring units, and the tenant circles their own in red:
-  read the circle before crediting a Balkon (#851's only Balkon belonged to the neighbour).
-  *Why:* the other swap heuristics key on Tauschwohnung GmbH / "Nur Tausch" / Tausch title words, and this
-  variant trips none of them, so it would be scored as a plain rental.
-  On private DIY swaps the Suche is a proper "Wir suchen …" paragraph under a "TAUSCHWOHNUNG" heading in the
-  description, and the price heading = **Warmmiete** (the detail list confirms it) with Kaltmiete/NK
-  never stated → Mietpreisbremse not checkable, say so instead of splitting an invented NK.
-- **The partner's Suche/Gesuchte Wohnung lives in the free-text `#viewad-description-text`**, not in
-  any structured list — a plain sentence like "Wir suchen eine 4-Raum-Wohnung in Potsdam bis max. 900€
-  Kaltmiete." Always read the description for Side 2 of the swap match. *Why:* the spec `list` only
-  carries THEIR flat (Wohnfläche/Zimmer/Wohnungstyp); the Suche is prose-only.
-  - **Cleanest Kleinanzeigen form: a `Gesucht:` label on its own line, after a dashed divider, at the
-    very end of the description** (#804: a `-----` rule, then "**Gesucht:** 1,5 bis 2-Zimmer-Wohnung
-    bis ca. 45 m² in Potsdam, idealerweise bis 500 € Warmmiete."). Add the bare label `Gesucht:` to
-    the trigger set next to `SUCHE:` / `Unsere Wunschwohnung:` — like those it carries **no verb of
-    wanting**, so `Ich suche|wir suchen|auf der Suche nach` all miss it. The divider is the tell that
-    the offered-flat half has ended. *Why:* the ad's own prose never says "suche"; a verb-based grep
-    records "Suche unknown" and pushes a determined fail into lenient/near-miss territory.
-  - **Sometimes the Suche is ONLY in the title** ("TAUSCHWOHNUNG Suche bezahlbare 4 Zimmerwohnung in
-    Babelsberg-Nord") and the description describes only the OFFERED flat + platform boilerplate.
-    Read BOTH; the title states what they seek, the description/spec-list what they offer — the
-    search-result metadata (m²/rooms/price) refers to the OFFERED flat despite the "Suche…" title.
-    *Why:* on #317 the hint said "4 rooms" (their Suche) while the offered flat was 3,5 Zi.
-    - **Title sub-pattern "Biete X – Suche Y"** ("TAUSCHWOHNUNG **Biete 4** – **Suche 3 Zimmer mit
-      Altbau-Deckenhöhe für Hochbett**", #579): same both-sides-in-one-title shape as "gg"/"gegen"
-      below — first number = OFFERED, number after "Suche" = the Suche — and the description held
-      nothing but Tauschwohnung boilerplate + `# Weitere Angaben`. Two consequences: (a) the
-      **search-result hint copies the Suche's room count** (hint said "3 Zi", spec list said
-      **Zimmer 4**) — always take rooms from `#viewad-details`, never from the hint on a swap;
-      (b) the clause AFTER the room number is a real Suche criterion, not decoration —
-      "mit Altbau-Deckenhöhe für Hochbett" is a categorical side-2 fail (see `tauschwohnung.md`).
-      *Why:* on #579 reading the hint would have logged a 3-Zi flat, and stopping the Suche parse at
-      the room count would have made a physically impossible swap look like a one-room near-miss.
-    - **Title sub-pattern "X gg Y" / "X gegen Y"** ("Tauschen **3 Raum** Wohnung **gg 4 Raum**", #541):
-      one title carries BOTH sides — the first number is the OFFERED flat, the number after
-      `gg`/`gegen`/`→` is the **Suche**. Parse it that way and the Suche is a hard, structural
-      criterion (rooms) even when the description says nothing about what they seek; an
-      *upsize* direction (offered < sought) is a categorical side-2 fail against our 2-Zi Golm
-      offer, not a lenient near-miss. *Why:* on #541 the description held zero Suche and the
-      search hint said "3 Zi" — reading only those would have recorded "Suche unknown" and
-      surfaced a Swap-candidate the partner can never accept.
-  - **Title and description can each hold a DIFFERENT half of the Suche**: the title states the
-    *motive* — a structural, non-negotiable criterion ("Tausch in eine höhere Etage") — while the
-    description states the *numeric* criteria (Zimmer, Ortsteil, Ausstattung). Merge both into one
-    Suche. A title-motive can be a categorical side-2 fail even when every number fits.
-    *Why:* on #360 rooms/price/city all matched, but title+desc together demanded höhere Etage +
-    Balkon and our Golm offer is EG without Balkon — reading only the description would have
-    scored that as a lenient near-miss instead of the categorical mismatch it is.
-- These swap ads often (not always) carry **0 gallery images** → Block D capped at 3,0. Count with the
-  deduped-UUID method above (#355 had 2, #358 had 16, #505 had 4 real photos) — do NOT assume image-poor
-  just because the Anbieter is Tauschwohnung GmbH. The page price heading is usually the **Kaltmiete**
-  while the Warmmiete is only in the description text (or NK in the spec list) — and the prose form is
-  often "**Die Miete beträgt 1600 € mit Nebenkosten**" (= Warmmiete; derive NK = warm − heading, and say
-  it's derived, #505).
-  - **Counter-case: the heading IS the Warmmiete and the prose says so outright** — #806 (Anbieter-ID
-    410390, Kirchsteigfeld): heading `702 €` + *"**Die Warmmiete beträgt 702 €.**"*, with no NK, no
-    Heizkosten, no Kaution field at all. Grep `Die Warmmiete beträgt|Die Miete beträgt|Warmmiete\s*:`
-    before defaulting the heading to Kaltmiete. **But do not stop at the self-declaration — test it
-    against the local NK anchor**, because the poster's label can be wrong: 702 warm on 89,5 m² leaves
-    only 228–263 € kalt (2,55–2,94 EUR/m²) once the Kirchsteigfeld NK+Heiz anchor of 4,90–5,30 EUR/m²
-    is subtracted, i.e. implausible even for geförderten Wohnungsbau, while reading it as *Kaltmiete*
-    gives 7,84 EUR/m² (−13 % unter ortsüblich), which fits a 90er-Altvertrag cleanly. Present both
-    readings as a two-row table (#718 convention), score the conservative one, and check whether both
-    clear the profile caps — when they do, the ambiguity is a contact question, not a scoring problem.
-    *Why:* taking the prose label at face value would have implied a rent so low it reads as a
-    belegungsgebundene WBS-Wohnung, inventing a hard blocker out of a mislabelled field.
-  - **Spec list rounds the m² that the prose states exactly** (#806: `Wohnfläche 89 m²` vs prose
-    "89,5 m²") — take the area from the description when both exist; at a Mietspiegel column edge
-    (75/90 m²) that half metre decides the column.
-- **Tauschwohnung-GmbH ads frequently ship NO cost/legal fields at all** — no Nebenkosten, no
-  Warmmiete, no Kaution, no Baujahr, no Energieausweis anywhere in the page (#358). Report these as
-  "nicht angegeben" and say Mietpreisbremse isn't checkable; don't hunt for a second list that isn't
-  there. *Why:* wasted greps + risk of inventing an NK split.
-- **`#viewad-locality` on these ads is useless for the Ortsteil** — it renders as "{PLZ} Brandenburg -
-  Potsdam" (Bundesland, not Bezirk). The real Ortsteil is only in the description prose ("liegt im
-  schönen Bornstedt"). *Why:* Block B would otherwise be scored blind on the PLZ alone.
-  - **The TITLE can name a DIFFERENT Ortsteil than the description — trust the description.** #717:
-    title "…in ruhiger Lage, **Jägervorstadt**" vs. description saying **Bornstedt** twice ("unsere
-    3-Raumwohnung … in Bornstedt", "Ebenfalls in Bornstedt"), both inside PLZ 14469 so the PLZ can't
-    arbitrate. The description is the tenant's own prose and repeats the Ortsteil for BOTH sides of the
-    swap (offer + Suche); the title is the platform-generated/SEO half. Report the conflict, score on
-    the description. *Why:* the locality rule above only warns that `#viewad-locality` is empty of
-    Ortsteil — it implies the title is safe, and on #717 it wasn't.
-- **The cleanest Suche form: a two-block "Unsere Wohnung: / Unsere Wunschwohnung:" bullet pair.** #717
-  listed the offered flat under `Unsere Wohnung:` and the Suche under `Unsere Wunschwohnung:` as bullet
-  lists (4 Zimmer · Erdgeschoss/1. Etage · möglichst Terrasse oder kleiner Garten · ebenfalls in
-  Bornstedt), plus a one-line motive sentence ("Da unsere Familie **mehr Platz benötigt**, suchen wir
-  eine 4-Raumwohnung"). Grep anchors: `Unsere Wunschwohnung|Wunschwohnung:|Unsere Wohnung:`. When this
-  pair exists the Suche is fully structured — do NOT fall back to the "Suche unknown → lenient" rule.
-  *Why:* all the Suche heuristics above hunt for prose sentences; this ad states everything in bullets
-  and a trigger-grep for "Wir suchen" alone would have found only the motive line, missing the
-  Etage/Außenfläche/Ortsteil criteria that decide side 2.
-- The Suche is often not a "Wir suchen …" sentence but an **intent clause buried mid-description**
-  ("Wir möchten uns vergrößern und möchten im waldstadt 1 oder 2 bleiben" = bigger flat + stay in
-  that Ortsteil). Read the whole description as the Suche, not just sentences starting with "Suche".
-  *Why:* on #355 a keyword grep for "suche" would have found nothing and mislabelled the Suche unknown.
-  - **The Suche can be MISSING ENTIRELY** — title is just "TAUSCHWOHNUNG {flat description}" with no
-    Suche clause, and the description covers only the offered flat + platform boilerplate + "# Weitere
-    Angaben" (#524). From Kleinanzeigen there is **no recovery route**: these ads carry no twg.click /
-    "Original-Exposé" link, and `tauschwohnung.com/wohnung/{Anbieter-Objekt-ID}` soft-404s ("Seite nicht
-    vorhanden") because the Anbieter-Objekt-ID is NOT a housing id. Don't burn calls on it — record
-    "Suche unknown", use their own flat as the fallback yardstick, and apply the lenient rule
-    (surface as Swap-candidate, "verify on contact"). *Why:* #524 spent 3 fetches proving the route
-    doesn't exist.
-  - **The Suche can be a NEGATIVE area filter plus a one-word direction, both typo'd.** #578:
-    "**Wie** wollen uns vergrößern" (sic — "Wir") + "Wir sind für alle Bereiche in Potsdam offen
-    **außer Stern, Schlaatz oder Drewitz**". Two consequences: (a) grep the description
-    typo-tolerantly — `vergrößer|vergroesser|größer|verkleiner|mehr Platz|mehr Raum` catches the
-    direction whatever the subject pronoun says, a grep for `Wir suchen|Wir wollen` does not;
-    (b) an "alle Bereiche in X außer A, B, C" clause is a **pass** for side-2 area as long as our
-    offer's Ortsteil isn't on the exclusion list — don't record it as "Suche unknown / no target area".
-    Bonus inference: the excluded Ortsteile are usually the poster's OWN neighbourhood (they want out),
-    which is the only way to narrow the Ortsteil when `#viewad-locality` shows just "{PLZ} Brandenburg -
-    Potsdam". *Why:* the pronoun typo makes the decisive upsize clause invisible to the obvious grep,
-    and an exclusion list looks like "no area stated" if you only scan for a named target.
-- **The Suche can be a bare comparative with zero numbers** — "Wir tauschen mit einer ähnliche{n} Wohnung."
-  (#359). Then the yardstick for side 2 is THEIR OWN flat's figures (m², Zimmer, Kaltmiete, Ortsteil,
-  Ausstattung) — score our offer against those, don't record the Suche as "unknown". *Why:* "unknown Suche"
-  would push a categorical fail into lenient/near-miss territory.
-- **Side-2 shortcut for cheap Altvertrag swaps:** our Golm offer is 1.025,25 EUR kalt / 54,19 m² / 2 Zi /
-  kein Keller. Any swap partner whose own flat is under ~800 EUR kalt or ≥3 Zi and who seeks "ähnlich"
-  fails side 2 on affordability alone, however lenient the matching. Still score side 1 for the record.
-- On GmbH-swap ads **Nebenkosten can sit in the MAIN `#viewad-details` list with no Warmmiete field at
-  all** (#359: price heading 598 € = Kaltmiete, NK 112 € in the details list, Warmmiete only derivable).
-  There is then no second list — compute Warmmiete yourself and say so.
-- Tauschwohnung spec lists are frequently **self-contradictory** (e.g. "Etage 3" + Wohnungstyp
-  "Erdgeschosswohnung"). Report both, don't pick one — these are tenant-entered fields.
-  - **The contradiction that actually costs points is the ZIMMER count.** #606: `Zimmer 3` in
-    `#viewad-details` vs. the poster's own description "Zwei Zimmer / **Wohnküche** mit Balkon / ein
-    Bad / kleine Abstellkammer" — i.e. 2 Zi + Wohnküche, the eat-in kitchen counted as the third
-    room. Always diff the spec-list room count against the room-by-room enumeration in the
-    description (`Wohnküche|Abstellkammer|Kammer|Diele|halbes Zimmer`) before scoring Block C
-    against `min_rooms`. *Why:* the structured "3" satisfies min_rooms: 3 on paper while the flat
-    has no third separable room — worth ~1,0 on C and belongs in the Summary as an explicit con.
+## §Price — reading heading / Nebenkosten / Warmmiete
+The form labels the headline field "Preis" = Kaltmiete, with NK / Heizkosten / Warmmiete / Kaution as optional fields. Posters misuse it constantly. **Order of operations** (stop at the first test that decides):
+1. **A self-declaring sentence or bullet in the description.** Grep `setzt sich .{0,40}zusammen|Nettokaltmiete|zzgl\.|Betriebskosten-?vorauszahlung|Nebenkostenvorauszahlung|angegebene[nr]? Preis|Preis ist|Miete ist|alles inklusive|warm pro Monat|inkl\. NK|Die (Warm)?miete beträgt|Warmmiete\s*:|Kaltmiete\s*:`.
+   - #642 "1250 Nettokaltmiete, 300 NK-Vorauszahlungen + 110 TG-Stellplatz" settled a heading == Warmmiete coin flip (naive 22,13 → real 16,70 EUR/m²).
+   - #575 "Der angegebene Preis ist die aktuelle Warmmiete".
+   - #580 an Eckdaten bullet "* Warmmiete: 1.442,67 €" (cents beat the rounded heading).
+   - A self-label can still be wrong: test it against the local NK anchor (#806: "Die Warmmiete beträgt 702 €" on 89,5 m² would leave 2,55–2,94 EUR/m² kalt, implausible; the Kalt reading fits a 90s Altvertrag). Present both readings.
+2. **Kaution ÷ 3 = NKM.** Also test the reverse for impossibility (a 2,27–2,46 NKM reading is a number nobody computes).
+   - The quotient may carry cents (#694: 4.276 ÷ 3 = 1.425,33).
+   - It decided #767 (1.400 heading == Warm, NK 250, Kaution 3.450 = 3,00 × 1.150) and #853 (NK + Heiz filled, no Warm field: 2.850 ÷ 3 + 400 NK = heading ⇒ heading = Kalt + NK).
+   - A small remainder is a Stellplatz inside the rent (#813: 1.594 − 300 = 1.294 vs Kaution ÷ 3 = 1.254 → 40 EUR Stellplatz). Compute EUR/m² from the Kaution quotient.
+   - On a fully priced ad a mismatch is a copied-text detector: #715 "Kaution 2.550 (3 Nettokaltmieten)" with kalt 950 (3 × 950 = 2.850). Report it as an inconsistency; the amount itself (2,68 NKM) is legal.
+3. **Stated minimum household income ÷ 3 ≈ Warmmiete** (#694: 5.600 vs heading 1.885 × 3 = 5.655). Grep `Haushaltseinkommen|Nettoeinkommen|mind\..{0,20}€`.
+4. **A sibling ad of the same poster in the same building** (via the `s-bestandsliste` curl): the reading under which a sibling's Kaution would exceed 3 NKM is wrong (#774).
+5. **The Vermieter name + exact address → one WebSearch** `"{Straße}" {Stadt} {Vermieter} Neubau`: it gives the Baujahr AND the plausible rent level (#607 ProPotsdam: 1.200 as Kalt impossible for a kommunale Gesellschaft, as Warm = Mietspiegel-Mittelwert).
+6. **A Betriebskosten anchor from an evaluated flat in the same quarter** when Warmmiete is the ONLY money field and there is no Kaution (#803, Brunnen Viertel 3,47 EUR/m²; otherwise a generic 3,00–4,00 band). Label the result "abgeleitet", give the range, and check that the Mietspiegel verdict holds across it. Never compare a Warmmiete with a Kaltmiete band.
+7. **Only then the conservative default:** heading = Kaltmiete. Show a two-row table (heading as Kalt vs as Warm), rank the readings when the arithmetic allows (#540: the Kalt reading implied 26,6 EUR/m² warm, impossible in Potsdam), check whether both readings clear the profile caps (if yes, the ambiguity costs only a contact question, #718), and put "Kalt/Warm klären" first in Next Steps.
 
-## Kauf / Haus listings + ohne-makler cross-posts
-- **Haus/Kauf ads carry a different `#viewad-details` set** than rentals: Wohnfläche, Zimmer,
-  Schlafzimmer, Badezimmer, **Grundstücksfläche**, Haustyp (Doppelhaushälfte…), Etagen, Baujahr,
-  Provision. Feature checktags (`li.checktag*`) hold Terrasse/Badewanne/Keller/Garage-Stellplatz/
-  Garten. Price heading = Kaufpreis. #448 (Neu Fahrland DHH) all-curl.
-- **Kauf ads (cat 208) embed a clean `window.kaReFinancingFrontend.render({ adAttributes: { adId, categoryId,
-  adPrice, propertyType, livingArea, plotSize, constructionYear, postalCode, street } … })`** right after the
-  description. It is sidebar-free: use `adId` as the identity check and cross-check price/m²/plot/Baujahr against
-  `#viewad-details` (`street: ""` = address withheld). The `mortgageData` beside it (20 % equity, 11 % NK) is
-  Check24's generic assumption, not the seller's figures. *Why:* on #860 it confirmed the ID and facts in one
-  grep while the page carried 3 foreign ad-IDs.
-- **The "# Weitere Angaben" / "# Energie" prose sections are importer markdown used by broker feeds too**
-  (Evernest #860), not just ohne-makler. On every Kauf ad grep the description for Energie data before
-  reporting it missing.
-- **ohne-makler.net cross-posts:** Anbieter block reads "OM Ohne Makler – Privat vom Eigentümer",
-  Gewerblicher Nutzer, thousands of ads (the platform account, not the owner) — NOT a scam signal;
-  it's a legit FSBO Direktverkauf. Objektzustand / Verfügbar ab / **Energieausweis (Energiebedarfs-
-  ausweis, Endenergiebedarf kWh/m²a, Energieträger)** live in the `#viewad-description-text` prose
-  under "# Weitere Angaben" / "# Energie", not in the structured lists. The expose PDF link
-  (ohne-makler.net/immobilie/file/{id}.pdf) is in the description too. *Why:* Energieausweis/Objekt-
-  zustand aren't in any spec `list` on these — grep the description or you'll report "no energy data".
+Shapes to recognise:
+- **heading == `Warmmiete`:**
+  - NK empty (#356): step 7.
+  - NK filled, no Heiz (#540, #767): steps 1–2.
+  - NK + separate `Heizkosten` filled (#522): Warm = Kalt + NK + **Heiz**; forgetting Heizkosten understates warm by a whole line.
+- **Three fields that don't add up** (#520: 1.300 + 450 ≠ 1.717): report the stated and the derived NK, "NK klären".
+- **Stated Warm LOWER than the heading** (#718: 1.350 / NK 250 / Warm 1.300): internally impossible. Take the form semantics (heading = Kalt) and discard the Warm field in the table.
+- **heading ≠ Warm, no NK field, prose names the total** (#593): heading = Kalt, NK derived.
+  - Watch "inkl. Stellplatz": a Stellplatz is not Wohnraummiete, so the true Wohnungs-Kaltmiete (and €/m², Mietspiegel) is lower.
+  - Watch "muss mit gemietet werden" = an unavoidable cost (a Block-A con).
+  - #642 had three price levels (kalt 1.250 · Wohnraum-warm 1.550 · Gesamt 1.660).
+- **"Zu verschenken" on a rental** (#594): the price field is empty (`<meta itemprop="price" content="">`) and the h1 `data-soldlabel="Verschenkt"`. Neither means giveaway or sold. Kalt = Kaution ÷ 3 (#594: 2.625 → 875; warm 1.085 → NK 210). Say "derived".
+- **Per-ROOM heading on a WG/room share** with the whole flat's m² in the spec list (#547/#595): 650 € = one bedroom, and the flat is 1.250 warm = 15,43 EUR/m², not 8. Before firing the ">20 % below Mietspiegel" signal on any ad mentioning WG/Zimmer/Mitbewohner, divide the per-room SUM by the m².
+- **"Kaution / Genoss.-Anteile"** = refundable cooperative shares, not a deposit and not an advance-fee scam; the low rent is the coop structure.
+- **Tenant's Nachmieter ad:** the stated rent is the BESTANDSMIETE. The landlord signs a new contract and may reprice; under § 556f there is no ceiling at all. Quantify it in Block A (#803: up to +124 EUR/month).
+- **Ablöse:** it is often not called "Ablöse" (#540 "Abschlagszahlung 1.500 €"). Grep `Ablös|Abschlag|Abstand|übernehmen|Übernahme`.
+  - When it covers tenant-owned equipment, the landlord channel removes both the payment and the appliances.
+  - No Ablöse on a Nachmieter ad is a real plus worth stating (#803).
+  - Private Nachmieter ads: the heading is often Warm, NK/Kaution/Baujahr/EA/Adresse are usually absent, and Zimmer can run half a room high (HWR counted). Look for the landlord-channel twin (Semmelhaack / Hausverwaltung / IS24) by exact Warm + m² + Etage (#521 = #516).
+- **The spec list rounds m² that the prose states exactly** (#806: 89 vs 89,5). Take the prose; at a Mietspiegel column edge the half metre decides.
 
-## Bauträger / Fertighaus lead-gen ads (Kauf)
-- **allkauf haus GmbH** (and similar Fertighaus brands: Town&Country, Massa, Bien-Zenker) post generic
-  build-to-order ads via a "HD Handelsvertreter …" gewerblich account with 1000s of Anzeigen. Anbieter-
-  Objekt-ID like "3801-313-kw28-…" and a "# Sonstiges" allkauf sales boilerplate in the description are
-  the tell. These are **NOT specific existing properties** — no real address, boilerplate "# Lagebeschreibung",
-  no secured plot. Price heading is the **house/Ausbauhaus package price**, land + Grunderwerbsteuer often
-  NOT included. Watch for "Ausbauhaus"/"HEIMWERKER-Paket"/Eigenleistung (buyer finishes Trockenbau/Estrich).
-  Score as a real Kauf listing but flag prominently as aspirational: cap B (~3,5, unverifiable location),
-  dock A for the package/land ambiguity, H ~3,0 (mass lead-gen). Legit, not a scam. *Why:* #466 — without
-  flagging it you'd score a phantom "house in Golm" as a concrete buy. Their spec-list Grundstücksfläche
-  frequently contradicts the description (e.g. 1.052 m² vs "152 m²") — report both, don't pick one.
-- **Even more aspirational variant — the bespoke architect build "auf Ihrem Grundstück"** (#474,
-  SCHOSS INGENIEUR GmbH / Falk Schoß, gewerblich, active since 2009). No package price at all (price
-  heading = bare **"VB"**, no number), no plot, no address, no Baujahr, no Energieausweis, no rooms —
-  just Wohnfläche + Haustyp "Villa" + "Provision: keine". The description is a services pitch that also
-  solicits "Wir suchen ... Baugrundstücke". You bring the land; they design/build. Score as Kauf but
-  flag hard: A≈1,0 (no price + a 245 m² Reformarchitektur villa build busts a 500k budget), B≈2,5
-  (no site), C penalised (245 m² over the 150 m² cap). Legit firm, not a scam. *Why:* the locality
-  "14469 Potsdam" is decorative — nothing concrete is for sale.
+## §Amenities
+- **Boolean amenities are bare labels without values** in the second `ul.addetailslist` (`Terrasse · Einbauküche · Badewanne · Fußbodenheizung · Altbau · Neubau · Haustiere erlaubt`, #652). A label→value parser drops them. `Altbau` + `Neubau` together = Erstbezug nach Sanierung, so neither alone gives a Baujahr.
+- **That list can be ENTIRELY absent while the flags exist in the ad-targeting JSON** (#716: Terrasse/Badewanne/Altbau/Haustiere/WG_geeignet only there). Check the JSON before declaring a must-have unbelegt. A flag found ONLY there counts as met-but-unconfirmed ("per Ad-Attribut, bei Kontakt verifizieren"). Absence from both = missing.
+- **The ad-targeting JSON** (`%ENCODED_BIDDER_CUSTOM_PARAMS%` / `%DFP_TARGETS%`) gives flat keys: `ExactPreis`, `Nebenkosten`, `Warmmiete`, `Kaution_/_Genoss._Anteile`, `Zimmer`, `Schlafzimmer`, `Badezimmer`, `Etage`, `Wohnungstyp`, `Tauschangebot`, `Verkaeufer`, amenity booleans, `Verfuegbar_ab_Monat/_Jahr`, `posterid`.
+  - ⚠ `Preis` and `Wohnflaeche` there are BUCKETS: `Wohnflaeche:"160"` for 83 m² (#652) and 90 m² (#767); `Preis:"1500"` vs `ExactPreis:"1400"`. Take m² from the spec list/prose and price from `ExactPreis`/the heading. Use the JSON only for booleans + `posterid`/`Verkaeufer`/`Tauschangebot`.
+  - `WG_geeignet:true` = suitable for a WG, not "is a WG".
+- **"Neubau" is a poster-ticked box with no year.** It contradicts the stock regularly (#522: Neubau in a Waldstadt Plattenbau area). Never let it set the Baualtersklasse; run both fields and say the verdict hinges on the unstated Baujahr (#522: 5,82 vs 15,72 EUR/m²).
+- **Zero checktags** (`li.checktag*` empty, #594): the must-haves are undecidable from structure, so download and Read the gallery. On #594 the photos gave a Balkon, a Whg.-Nr. and an unadvertised EBK.
+- **The Zimmer count contradicts the room-by-room prose** (#606: `Zimmer 3` = 2 Zi + Wohnküche). Diff against `Wohnküche|Abstellkammer|Kammer|Diele|halbes Zimmer` before scoring Block C against `min_rooms`. Tenant-entered spec lists also self-contradict elsewhere ("Etage 3" + "Erdgeschosswohnung"): report both.
 
-## Triage
-- **Dedupe on the AD-ID, not the URL.** A poster can re-title an ad; Kleinanzeigen then serves it under a
-  brand-new slug (`/s-anzeige/{new-slug}/{same-id}-203-7966`) while the numeric ad-ID before `-203-` stays
-  constant. Price and title in the search hint change too, so URL-based dedup lets the same ad re-enter the
-  pipeline as "new". **First action on any Kleinanzeigen eval: `grep -rn "{ad-id}" data/`** — if
-  `pipeline.md` / `scan-history.tsv` already carry it, say so and re-apply the earlier verdict.
-  *Why:* #547 ("WG für zwei in Golm", 1.500 EUR) was ad-ID 3464538575 = the ad already discarded
-  2026-07-22 as "WG Zimmer in Potsdam-Golm oder Verkauf von Eigentumswohnung" (610 EUR) — a full
-  re-evaluation that the ID check would have short-circuited. **Same ID came back a THIRD time**
-  (#595, 2026-08-15, "WG in der Nähe vom Unicampus Potsdam Golm", 650 EUR) with the description text
-  **wordfor-word identical** to #547 — only title, slug and price heading changed. So: a re-list is
-  not a one-off, the same ad can cycle indefinitely, and comparing the **description text** against
-  the earlier report is the fastest confirmation once the ID matches.
-  - **It cuts the other way too — use the ad-ID to REFUTE a wrong dupe-skip.** Grab the ad-ID from
-    the earlier report's `**URL:**` line and compare. #575 was auto-skipped as a re-list of #357;
-    the IDs (3481658144 vs 3461620807) plus `Tauschangebot: Kein Tausch` vs `Nur Tausch` proved two
-    distinct ads, and the "dupe" was a genuine 4,4/5 rental. Similar-looking Potsdam ads cluster hard
-    (89 m² / 3 Zi / Bornstedt-Volkspark alone covers #351, #360 and #575) — **m² + rooms + Ortsteil
-    never identify a flat; Etage + exact rent + ad-ID do.** *Why:* a same-numbers heuristic silently
-    drops live listings.
-- **Monteur-/Projektwohnungen sit in the ordinary `c203 "Wohnung mieten"` category and never use the
-  words "auf Zeit", "Zwischenmiete" or "befristet".** The category is no guarantee of a long-term let.
-  Tells, all from `#viewad-description-text`: "komplett möbliert" + **hotel-style inventory**
-  ("Handtücher und Bettwäsche sind vorhanden", "Waschmaschine steht kostenlos zur Verfügung",
-  Kaffeemaschine/Wasserkocher/Mikrowelle aufgezählt) + an **employer-shaped target audience**
-  ("Top für Berufstätige oder Mitarbeiter der {Werk}", "Expats", "Projektmitarbeiter") + car/airport
-  distances instead of Schule/Kita/Nahversorgung. Corroborating structure: `#viewad-details` carries
-  **`Schlafzimmer` + `Badezimmer` counts** (a Ferienwohnungs-style field set) while **Nebenkosten,
-  Warmmiete, Kaution, Etage, Baujahr and Energieausweis are ALL absent** — the ad describes a product,
-  not a Mietvertrag. Two consequences: (a) fire the furnished/auf-Zeit hard blocker per `evaluate.md`
-  even without the keyword; (b) **the price may be per bed, not per flat** — count the beds in the
-  photos (#640: 2 Einzelbetten im Schlafzimmer + 1 im Wohnraum, no Doppelbett ⇒ 3 Schlafplätze, so
-  690 € could mean ~2.070 € for the unit). Say the price scope is undefined instead of assuming.
-  *Why:* on #640 keyword-grepping for "auf Zeit"/"befristet" returned zero hits on a textbook
-  Monteurwohnung, and the unqualified 690 € looked like a bargain.
-- **WG / room-share ads look like whole-flat rentals in the spec list.** `#viewad-details` shows the FULL
-  flat (81 m², 3,5 Zi, Etage, Balkon) and the search hint copies it, so the ad reads like a 3,5-Zi
-  Wohnung. Only `#viewad-description-text` reveals it's per-room ("Die beiden Schlafzimmer kosten jeweils
-  600 oder 650 Euro", "Wohnzimmer und der Balkon dürfen **mitbenutzt** werden"). Fifth price variant:
-  heading (1.500 €) ≠ Warmmiete field (1.250 €) and the **per-room sum in the prose decides** which is
-  real (600+650 = 1.250). Also check the `Möbliert/Teilmöbliert` checktag + a prose "befristet" — WG ads
-  are usually both → two hard blockers. *Why:* on #547 the structured data alone scored a 3,4 whole-flat
-  rental; the prose turned it into a furnished, befristete Zimmervermietung.
-  - **Sixth price variant, and the one that fakes a scam: the heading can be a PER-ROOM price while
-    the m² belongs to the whole flat.** #595 (same ad-ID re-listed): heading 650 € == "Warmmiete"
-    field 650 €, spec list 81 m² / 3,5 Zi → 8 EUR/m², which reads as ">30 % below Mietspiegel" i.e.
-    the classic bait profile. It is not: the prose says "Die beiden Schlafzimmer kosten jeweils 600
-    oder 650 Euro", so 650 € buys ONE bedroom and the flat as a whole is 1.250 € warm = 15,43 EUR/m²
-    — *above* market. **Rule: before firing the "price >20 % below Mietspiegel" High scam signal on a
-    Kleinanzeigen ad whose title or description contains WG / Zimmer / Mitbewohner, check whether the
-    heading is a per-room price; divide the per-room sum, not the heading, by the m².** *Why:* on
-    #595 the naive EUR/m² would have produced a "Likely Scam" verdict on an honest 4-year-old
-    private account with 6 real photos — and, in the other direction, would have hidden that the
-    flat is actually expensive.
-- "Nachmieter gesucht" / "Suche Nachmieter" titles are normal long-term rentals (the existing tenant
-  is leaving) — NOT sublets. Score normally unless the text says befristet / Untermiete / auf Zeit.
-- "Das könnte dich auch interessieren" sidebar is full of Tauschwohnung ads — ignore it; it is not
-  the listing under evaluation. **Concretely: a raw-HTML grep for "Tauschangebot" / "TAUSCHWOHNUNG" /
-  "Es handelt es sich hierbei um ein Tauschangebot" false-positives on almost EVERY Potsdam rental page**
-  — those strings live in the sidebar's JSON-LD + `.aditem-main--middle--description` blocks (#522 had
-  5 such hits on a plain rental). Decide swap-vs-rental ONLY from (a) the `Tauschangebot` entry inside
-  `#viewad-details` ("Nur Tausch" / "Kein Tausch"; **absent entirely on ordinary ads**), (b) the title,
-  and (c) the `#viewad-contact` Anbieter name. *Why:* on #522 a keyword grep said "swap" while the ad
-  was a plain Nachmieter rental — a bogus two-sided swap match was one step away.
-  - **The same sidebar poisons EVERY consequential keyword, not just Tausch** — `befristet`,
-    `möbliert`, `Untermiete`, `Eigenbedarf`, `WBS`. #580 had 10 raw-HTML hits for "befristet", all
-    from one sidebar ad ("3-Zimmer Wohnung in Teltow, auf 2 Jahre befristet"), on an unbefristete
-    Anzeige. Cheap guard: record `ti = html.find('id="viewad-title"')` once and print each match's
-    offset — anything at a higher offset is sidebar. *Why:* a bare `grep -c befristet` would have
-    fired the Zwischenmiete/Befristung hard blocker on a normal rental.
-- **Feature checktags carry a `Neubau` flag with no year attached.** It is a poster-ticked box, not
-  portal-verified, and routinely contradicts the location's building stock (#522: "Neubau" on a
-  Potsdam-Waldstadt Plattenbau-Ortsteil). Never let it set the Mietspiegel Baualtersklasse — run BOTH
-  fields (the Ortsteil's plausible Baualter and "ab 2021") and say the Mietpreisbremse verdict hinges on
-  the unstated Baujahr. *Why:* on #522 the two fields give 5,82 vs 15,72 EUR/m² ortsüblich — the tag
-  alone would have turned a +149 % overshoot into "compliant".
-- **Wohnen auf Zeit can hide with ZERO Befristung keywords — the tell is the all-inclusive
-  Pauschalmiete, not the word "möbliert".** #599: no "befristet", no Mindest-/Höchstmietdauer, no
-  end date anywhere, and the ad is filed under the ordinary rental category — yet it is plainly a
-  serviced let. The three structured tells, in order of strength:
-  1. **`Nebenkosten 0 €` AND `Heizkosten 0 €` in `#viewad-details` while `Warmmiete` == the price
-     heading**, plus a prose line listing what the Pauschale covers. When that list includes
-     **Strom, WLAN/WiFi and Rundfunkbeitrag/GEZ**, it is Wohnen auf Zeit: no landlord on an
-     open-ended Wohnraummietvertrag pays the tenant's electricity and GEZ. (Distinguish from the
-     #356 "NK empty" ambiguity — here NK is *explicitly* 0, not blank, so there is no kalt/warm
-     coin flip to report.)
-  2. The ad's **own self-description**: "Ihr **Zuhause auf Zeit**" / "Your **Home Away from Home**"
-     / "for a comfortable **stay**". Bilingual DE/EN copy + "Online-Besichtigung: Möglich" is the
-     corporate-let / relocation profile. This is the ad's word, not an inference from "möbliert" —
-     quote it and let the Zwischenmiete hard blocker fire on it.
-  3. **The real category is in the gaTagging JSON, not the breadcrumb**: grep
-     `selected_category_name` (e.g. `"Wohnung_mieten"`, cat 203) vs Kleinanzeigen's separate
-     "Auf Zeit & WG" category. A cat-203 filing is *weak counter-evidence only* — posters use the
-     bigger category for reach. Say so, cap anyway, and make "unbefristeter Wohnraummietvertrag
-     nach § 535 BGB, oder § 549 Abs. 2 Nr. 1 vorübergehender Gebrauch?" the first contact question.
-  Pricing consequence worth writing out: on a Pauschale, **the headline EUR/m² is not comparable to
-  any other listing** — subtract services (Betriebskosten+Heizung ~3,20 EUR/m², Strom ~65, WLAN ~35,
-  GEZ 18,36, Stellplatz ~55) and the Möblierungszuschlag (BGH VIII ZR 44/18: Zeitwert ÷
-  Restnutzungsdauer + ~2 % Verzinsung ≈ 120–180 EUR for a full 70-m² furnishing) to get the
-  unmöblierte Vergleichsmiete before touching the Mietspiegel. #599: 25,00 → ~17,10 EUR/m². And the
-  Mietpreisbremse is **doubly inapplicable** — § 549 Abs. 2 Nr. 1 BGB exempts vorübergehenden
-  Gebrauch, and the Potsdam Mietspiegel does not cover möblierten Wohnraum at all → no § 556g Rüge.
-  *Why:* a keyword search for befristet/Zwischenmiete/Untermiete returns nothing on these ads, so
-  the blocker is invisible unless you read the Pauschale composition; and scoring the raw 25 EUR/m²
-  against the Mietspiegel would report a 170 % overshoot on a flat whose Wohnraummiete is at market.
-- **The description is repeated ~N times BEFORE `viewad-title`, once per gallery image** (14 photos
-  → 14 copies, #599). So a raw match count in the "own ad" region is inflated by the photo count —
-  "30 hits for 'auf Zeit'" was 2 real mentions × 14 (+ meta tags). The `ti = html.find('id="viewad-title"')`
-  offset guard still correctly separates own-ad from sidebar; just never report the *count* as a
-  measure of emphasis, and dedupe contexts before reading them.
-  - **On a 0-image ad the `offset < ti` form of that guard is WRONG and hides the description.**
-    With no gallery there are no pre-title copies at all, so the only copy of
-    `#viewad-description-text` sits *after* the title (#607: title @76.000, description @81.900) and a
-    "own-ad = everything before `viewad-title`" filter reports **zero** hits for WBS/befristet/möbliert
-    on an ad whose description contains them. Correct guard in both shapes: own-ad region =
-    `html[ti : html.find('interessieren')]` (the "Das könnte dich auch interessieren" sidebar is the
-    real boundary; `#viewad-contact` sits inside it and is fine). Sanity-check by printing the offsets
-    of `viewad-title`, `viewad-description-text` and `interessieren` once per page.
-    *Why:* on #607 the pre-title filter said "WBS: own-ad-region=0" while the description literally
-    reads "Die Wohnung ist keine WBS Wohnung" — the guard would have flipped a decisive hard-blocker field.
-- **"Verfügbar ab {Monat}" is a START-only field and hides Befristung.** A spec-list "Verfügbar ab
-  August 2026" can actually be a 1-Monats-Zwischenmiete — the end date + "möbliert / untervermieten /
-  01.08.–31.08." only appear in `#viewad-description-text`. Always read the description before deciding
-  Zwischenmiete vs Dauermiete; the structured field never shows the end. *Why:* on #452 the field said
-  only "August 2026" (looked like a normal move-in start) while the prose revealed a single-month
-  furnished sublet → Zwischenmiete hard-blocker.
+## §Photos
+- **Count unique image UUIDs in the pre-title slice, not `data-imgsrc` attributes:** `len(set(re.findall(r'prod-ads/images/[0-9a-f]{2}/([0-9a-f\-]{36})', html[:html.find('id="viewad-title"')])))`.
+  - It is immune to the `?rule=$_57/$_59` duplication (a raw count is 2×, #505) and to the sidebar JSON-LD `ImageObject`s (#608 read 11 for a 1-photo ad).
+  - Some galleries render only as CSS `background-image` in `div.galleryimage-large--cover`, where a `data-imgsrc` grep returns 0 for 17 real photos (#653). A false zero invents a defect.
+- **Download:** `curl ".../{pp}/{uuid}?rule=\$_57.JPG"`; real phone photos are 60–120 KB. The URL-list trailing-newline trap applies (`while read` drops the last URL): compare the file count with the UUID count.
+- **Find the Grundriss without Reading everything:** run `file -b` over the downloads. Phone photos are uniform (900×1600 portrait or 4:3), while a scan/plan has an odd ratio (#642 873×978, image 4 of 14). Read the odd one first.
+  - It gave the unit id "Haus I – WE 8", the exact 74,84 m², three real rooms, the Balkon anrechnung, a HWR and the orientation.
+  - The Grundriss is often last (#609: 7 of 8; that plan revealed a Galerie as the "3rd room", Balkon AND Terrasse, "WE 13"). Read the whole gallery.
+- **"1 image" is often ZERO real photos** (D cap 3,0), but mine the image anyway:
+  - a watermarked Grundriss (#804) that settled Balkon-vs-Terrasse and the separateness of the rooms
+  - a phone shot of an old Bauzeichnung (#718): the Baualter ≤1948 (sets the Mietspiegel row), no Balkon, and a 4-vs-3 room contradiction. Don't credit drawn fixtures as current.
+  - a Heizlastberechnung printout (#822): the `EG-` room prefix is a software default; sum the rooms to check m². Heated rooms only, so no balcony can be inferred. A weak § 556f hint, never a Baujahr.
+  - an AI promo collage with "KI-generiert" printed INSIDE the image (#850): labelled, not a scam.
+- **0 images** happens on ordinary private ads too: D cap 3,0.
+- **Provenance tests** (the CDN preserves the uploader's aspect ratio across rules, #715; Kleinanzeigen strips EXIF from every upload, so missing EXIF means nothing):
+  - Camera-native ratios (4:3, 3:2, 16:9, 900×1600) = ordinary photos.
+  - One odd ratio among native ones = the Grundriss.
+  - EVERY image at the same non-native ratio (#715: all 1280×943) = one export pipeline, i.e. Exposé or viewer material. Fire the Medium "re-used marketing material" signal as a stated suspicion, with no D cap.
+  - Baked-in app chrome ("12 Fotos" overlay badge, greyed UI text) + black side bars = phone screenshots of another listing (#594). Medium signal, Block H ~2,5, "who is letting and whose Exposé?" first. The photos still show one property, so no D cap.
+  - Letterboxed screenshots WITHOUT chrome, mixed with native shots of the same rooms = a tenant re-uploading from a messenger (#682). No signal.
+  - Building-age tells in the photos that contradict the address's known Baujahr prove "photos from a different property" (#775: Gründerzeit interiors for a Vonovia 1995 address; see §Poster).
+  - A self-built mini-Exposé (screenshots with white margins + German room captions, #609) is not foreign material.
+- **Use the photos to date the building when the Baujahr is absent** (#609: verputzte Fassade + Dachflächenfenster + Rollläden + Glasbausteine + Wendeltreppe ⇒ 1990s/2000s, field 1991–2008). See [[potsdam-mietspiegel]] for the Baualter photo test.
+
+## §Location
+- **`#viewad-locality` = "{PLZ} {Bundesland} - {Stadt}"** only. The Ortsteil is in the prose. On swap ads the Ortsteil label is a poster-picked dropdown tied to the URL suffix (#774: same building labelled "Dahlem" (-24192) and "Grunewald" (-24194)). Trust PLZ + prose.
+- **The exact street is not in any `ul.addetailslist`.** It sits in the separate "Standort" block (and under the price heading); strip-tag the own-ad region to read it (#607). A house-number-precise address is the highest-value field on a Mieterinserat, because it unlocks Baujahr/Bauvorhaben via one WebSearch.
+- **The PLZ field can be flatly wrong, and `og:latitude/longitude` inherit it** (#640: PLZ 14473 Potsdam on a Grünheide (Oder-Spree) ad). Resolve by:
+  1. triangulating the prose's distance claims (Tesla 10 min, Müggelsee 10 km, BER 35 km)
+  2. the poster's other ads (`curl "https://www.kleinanzeigen.de/s-bestandsliste.html?userId={id}"`, plain curl, rows via `data-href`), where a sibling carried the correct PLZ
+  3. comparing UUID sets between the poster's live ads (identical UUIDs across "different" flats = a Medium signal)
+  - Whenever the title Ort ≠ the field Ort, settle it before scoring anything.
+- **Mirror case: the field is right and the TITLE upsells to the neighbouring prestige Ortsteil** (#682: "Grunewald" title, Helene-Jacobs-Str. 18 = Schmargendorf). The STREET beats both: WebSearch `"{Straße}" {PLZ} Berlin Ortsteil`, which also names the Bauvorhaben. This is a near-miss, not an excluded area (B ~3,5).
+- **For no-street ads, `og:lat/lon` is the PLZ centroid** (#652: middle of the Grunewald forest). Not a contradiction by itself.
+- **Title vs description Ortsteil on swaps:** trust the tenant's prose (#717: title "Jägervorstadt", prose "Bornstedt" twice, same PLZ 14469).
+
+## §Poster — account, role, scam signals
+- **The seller block:** name, "Privater Nutzer" / "Gewerblicher Nutzer", "Aktiv seit {date}", N Anzeigen.
+  - Positive-feedback badges ("TOP Zufriedenheit", "Besonders freundlich/zuverlässig") come from real transactions and suppress the "new account, single listing" signal (#594).
+  - A computable version of that signal: "Aktiv seit" vs the posting date + the bestandsliste count (#715: account 1 day old, 1 ad).
+- **The poster's other ads reveal their ROLE** (same `s-bestandsliste` curl).
+  - Household clear-out ads (Waschmaschine, Kommode …) = the outgoing tenant: hunt the landlord-channel twin and score Block H on the landlord (#703).
+  - Several flats on one private account = a re-poster or disguised gewerblich.
+- **Fake-ad pattern: a real corporate address + another building's photos.** Grep the Standort street against our data first: `grep -n "{Straße}" data/listings.md reports/`.
+  - #775 claimed Maxie-Wander-Str. 6 (known Vonovia 1995 stock, no Aufzug, 12,10 EUR/m²) with Aufzug at 16,67, NK + Heiz 3,33 vs the building's known 4,9–5,3, and Gründerzeit photos.
+  - Other tells: an account name echoing the street, a private poster at a Vonovia/ProPotsdam/Genossenschaft address, "Online-Besichtigung: Möglich".
+  - Every price heuristic passed that ad; only the address and photo check exposed it.
+- **Reposts:**
+  - An evaluated ad can be silently EDITED (#594 → Warm 1.085→1.200, Kaution 2.625→2.700) and re-posted under a new ad id with all-new photo UUIDs (#703).
+  - Never dedup a repost by UUID. Use `m² + Zimmer + Etage + NK + Verfügbar-ab + description hash`; `posterid` is optional because reposts can move to a new account (#807).
+  - Re-fetch the OLD ad before trusting the old report's numbers.
+  - **Landlord re-list vs copied-ad scam:** download both galleries at `rule=$_57.JPG` and `md5sum` them. Byte-identical files = the same originals re-uploaded (a copier only has re-encoded CDN renders), and NEW photos absent from the old ad = the poster has access to the flat (#807: 7/11 identical + 4 new ⇒ legitimate). Still drop Block H (the old account's history does not transfer) and fire the two Medium signals (reposted / new account) ⇒ "Proceed with Caution", identity verification first.
+
+## §Expired
+- **A deleted or reserved ad still renders the full cached page** with HTTP 200. The status shows as VISIBLE badges prepended to the heading, e.g. "Reserviert • Gelöscht • {title}". "Gelöscht" = EXPIRED; don't score the cached numbers.
+- **Hidden templates:** every page carries `display:none` "Gelöscht"/"Reserviert" elements, and every `<h1>` has a `data-soldlabel` attribute ("Nicht mehr verfügbar" / "Verschenkt"). Decide only from visible text (`innerText` / the h1 prefix), never from DOM presence or a raw-HTML grep (false positives #314, #328, #807).
+- **A withdrawn ad can show NO marker at all** (#807). The only reliable liveness test is the poster's inventory: `s-bestandsliste.html?userId={id}` still lists the ad id, or not.
+- **Soft-closed ad:** "Nicht mehr schreiben! / KEINE ANFRAGEN MEHR", no badge (#609). This is NOT EXPIRED: score it normally and flag the closed applicant channel in the Summary and Next Steps.
+
+## §TypeTraps — what the ad really is
+- **"Nachmieter gesucht"** is a normal long-term rental unless the text says befristet / Untermiete / auf Zeit.
+- **"Wohngemeinschaft" in owner prose often means the Hausgemeinschaft** (#767: "nur 3 Parteien", a whole 90-m² flat). All four must agree before you write "WG":
+  - category cat 203 Mietwohnungen vs "Auf Zeit & WG"
+  - the ad rents a complete unit (own EBK, Bad, Keller)
+  - Kaution ÷ Kalt ≈ 3 on the whole rent
+  - no `Mitbewohner` / "Zimmer in" / per-room prices
+- **A real WG/room share looks like a whole-flat rental in the spec list** (#547). Only the prose shows it: "Die beiden Schlafzimmer kosten jeweils 600 oder 650 Euro", "Wohnzimmer … mitbenutzt". These are usually also möbliert + befristet = two hard blockers.
+- **Monteur-/Projektwohnungen in the ordinary cat 203 never say "auf Zeit".** Tells: "komplett möbliert" + a hotel-style inventory (Handtücher, Bettwäsche, Kaffeemaschine) + an employer-shaped audience ("Mitarbeiter der {Werk}", Expats) + car/airport distances. The structure has Schlafzimmer/Badezimmer counts but no NK/Warm/Kaution/Etage/Baujahr/EA. Fire the furnished/auf-Zeit blocker without the keyword. The price may be per bed (#640: 3 beds) — say the price scope is undefined.
+- **Wohnen auf Zeit with ZERO Befristung keywords** (#599). Tells, strongest first:
+  1. `Nebenkosten 0 €` AND `Heizkosten 0 €` with Warm == heading, and a Pauschale that covers Strom, WLAN, Rundfunkbeitrag
+  2. the ad's own "Zuhause auf Zeit" / "Home Away from Home" / "stay", bilingual copy
+  3. `selected_category_name` in the gaTagging JSON (cat 203 is weak counter-evidence)
+  - Cap it. The headline €/m² is not comparable: subtract services (BK + Heizung ~3,20 EUR/m², Strom ~65, WLAN ~35, GEZ 18,36, Stellplatz ~55) and the Möblierungszuschlag (BGH VIII ZR 44/18: ~120–180 EUR for a full 70-m² furnishing) before any Mietspiegel comparison (#599: 25,00 → ~17,10).
+  - The Mietpreisbremse is doubly inapplicable (§ 549 Abs. 2 Nr. 1 BGB, and the Mietspiegel does not cover furnished space).
+  - First contact question: § 535 unbefristet or § 549 vorübergehender Gebrauch?
+- **"Verfügbar ab {Monat}" is a START-only field** and hides Zwischenmiete (#452: "August 2026" = a one-month furnished sublet 01.08.–31.08., found only in the prose). Always read the description.
+
+## §Swaps — Kleinanzeigen field quirks (side 2 → [[tauschwohnung]])
+- **Decide swap vs rental ONLY from ad-own DOM:** the `Tauschangebot` row in `#viewad-details` ("Nur Tausch" / "Kein Tausch"; absent on ordinary ads), the title, the `#viewad-contact` Anbieter, and the opener INSIDE `#viewad-description-text`. The same opener in raw HTML hits sidebar ads (#805 matched foreign Anbieter-IDs).
+- **Three swap variants:**
+  - **Tauschwohnung GmbH:** "Gewerblicher Nutzer"; the description opens "Es handelt es sich hierbei um ein Tauschangebot. (Anbieter-ID: N)". The `Tauschangebot` row can be absent (#524).
+  - **Private DIY swap:** "[TAUSCH]"/"Tausche … gg. …" titles, often a quality ad (18 real photos, long prose, an old account). "Nur Tausch" is the tell (#357), but the row can be absent too (#805), leaving only the title + the `Suche:` / `Biete:` blocks.
+  - **Wohnungsswap.de** (#851, posterid 140044646, "Gewerblicher Nutzer · Aktiv seit 16.04.2024"):
+    - Title "Wohnungsswap - {Zi}, {m²} - {Straße}, {Stadt}". None of the Tausch title triggers match, so key on the prefix + the Anbieter.
+    - The body ends with a "Wichtig … bei Wohnungsswap als Tauschobjekt angeboten" + `Anbieter-Objekt-ID` boilerplate.
+    - No `Tauschangebot` row, `Wohnungstyp` "Andere", no checktags, no NK/Warm/Kaution; Warm and the Suche are prose-only.
+    - The gallery is the platform's watermarked app screenshots at mixed ratios (its own presentation, not the re-captured-Exposé Medium).
+    - The Grundriss can show neighbouring units: read the tenant's red circle before crediting a Balkon (#851's balcony belonged to the neighbour).
+- **The price heading is usually Kaltmiete, with Warm only in the prose** ("Die Miete beträgt 1600 € mit Nebenkosten" = Warm, derive NK, #505). NK can sit in the main details list with no Warm field (#359). The heading IS Warm when the prose says so (#806, but test it against the NK anchor, §Price). Private DIY swaps: heading = Warm with Kalt/NK never stated ⇒ the Mietpreisbremse is not checkable; say so rather than inventing a split.
+- **GmbH swap ads often ship no NK/Warm/Kaution/Baujahr/EA at all** (#358): write "nicht angegeben", Mietpreisbremse not checkable. Don't hunt for a second list.
+- **The gallery ranges from 0 to 18 real photos** (#355 2, #358 16, #505 4). Count by UUID; never assume image-poor.
+- **No route to the tauschwohnung.com source** from Kleinanzeigen: see [[tauschwohnung]] §Sources.
+
+## §Kauf
+- **Haus/Kauf `#viewad-details`:** Wohnfläche, Zimmer, Schlafzimmer, Badezimmer, **Grundstücksfläche**, Haustyp, Etagen, Baujahr, Provision. Checktags Terrasse/Badewanne/Keller/Garage/Garten. The heading = Kaufpreis (#448, all curl).
+- **Cat 208 embeds a sidebar-free `window.kaReFinancingFrontend.render({adAttributes:{adId, categoryId, adPrice, propertyType, livingArea, plotSize, constructionYear, postalCode, street}})`** right after the description. Use `adId` as the identity check and cross-check price/m²/plot/Baujahr (`street:""` = withheld). The `mortgageData` next to it is Check24's generic assumption (#860).
+- **"# Weitere Angaben" / "# Energie" prose sections are importer markdown** used by ohne-makler.net AND broker feeds (Evernest #860). The Energieausweis, Objektzustand and Verfügbar-ab live there; grep the description before reporting "no energy data".
+- **ohne-makler.net cross-posts** ("OM Ohne Makler – Privat vom Eigentümer", gewerblich, thousands of ads) are the platform account for a legitimate FSBO, not a scam. The Exposé PDF link (`ohne-makler.net/immobilie/file/{id}.pdf`) is in the description.
+- **Fertighaus lead-gen** (allkauf, Town&Country, Massa, Bien-Zenker via "HD Handelsvertreter …" accounts with 1000s of ads; Objekt-ID `3801-313-kw28-…`, an allkauf "# Sonstiges" boilerplate):
+  - This is not an existing property: no address, no secured plot, and a package price that often excludes land + GrESt. Watch "Ausbauhaus"/"HEIMWERKER-Paket" = Eigenleistung.
+  - Score it but flag it as aspirational: B ~3,5, dock A for the package/land ambiguity, H ~3,0 (#466). Spec-list Grundstücksfläche vs the prose can disagree (1.052 vs 152 m²): report both.
+- **Bespoke "auf Ihrem Grundstück" architect builds** (#474, SCHOSS INGENIEUR GmbH): heading "VB" with no number, no plot/address/Baujahr/EA. A services pitch (also "Wir suchen Baugrundstücke"): A ≈ 1,0, B ≈ 2,5, legitimate firm.
+
+## §Triage
+- **Dedup on the AD-ID, never the URL.** A re-titled ad gets a new slug with the same 10-digit id, and title/price in the hint change too. The first action on any Kleinanzeigen eval: `grep -rn "{ad-id}" data/ reports/`.
+  - The same id cycled THREE times with word-for-word identical descriptions (#547/#595, from a 2026-07-22 discard).
+  - The id also REFUTES a wrong dupe-skip: #575 vs #357 (different ids, "Kein Tausch" vs "Nur Tausch") was a genuine 4,4 rental.
+  - m² + rooms + Ortsteil never identify a Potsdam flat (89 m² / 3 Zi / Bornstedt-Volkspark covered three ads); Etage + exact rent + ad id do.

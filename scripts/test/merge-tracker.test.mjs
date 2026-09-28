@@ -79,3 +79,37 @@ test('waits for the shared data lock before writing', async () => {
   await merge;
   assert.match(s.read('data/pipeline.md'), /- \[x\] #900/);
 });
+
+test('normalises a comma-decimal score to dot-decimal', async () => {
+  const s = sandbox();
+  writeFileSync(join(s.root, 'batch/tracker-additions/900-a.tsv'),
+    'num\tdate\tportal\ttype\tlocation\tprice\tm2\trooms\tscore\tstatus\treport\tnotes\n' +
+    '900\t2026-09-24\tP\tmiete\tLoc\t1\t2\t3\t4,1\tEvaluated\treports/900-a.md\tn\n');
+  await run(s.root);
+  assert.match(s.read('data/listings.md'), /\| 900 \|.*\| 4\.1 \| Evaluated \|/);
+});
+
+test('applies tracker_notes to other rows; status only to Expired', async () => {
+  const s = sandbox();
+  writeFileSync(join(s.root, 'data/listings.md'),
+    '| # | d |\n|---|---|\n' +
+    '| 757 | 2026-09-12 | IS24 | miete | Fahrland | 1.350 | 97 | 3 | 3.9 | Evaluated | [757](reports/757.md) | old note |\n' +
+    '| 365 | 2026-07-20 | IS24 | kauf | Marquardt | 495.000 | 120 | 6 | 4.2 | Evaluated | [365](reports/365.md) |  |\n');
+  s.stage('900', {
+    url: 'https://a.example/x/1', line: '- [x] #900 | https://a.example/x/1 | P | t1 | 4.0/5',
+    tracker_notes: [
+      { num: '757', append: '[superseded by #900]' },
+      { num: '365', status: 'Expired', append: '[404, re-listed as #900]' },
+      { num: '757', status: 'Rejected' },
+    ],
+  });
+  const { stdout, stderr } = await run(s.root);
+  const t = s.read('data/listings.md');
+  assert.match(t, /\| 757 \|.*\| Evaluated \|.*old note \[superseded by #900\] \|/);
+  assert.match(t, /\| 365 \|.*\| Expired \|.*\[404, re-listed as #900\] \|/);
+  assert.match(stdout + stderr, /refusing status "Rejected"/);
+  // idempotent: re-applying the same note does not duplicate it
+  s.stage('901', { url: 'https://a.example/x/2', line: '- [x] #901 | https://a.example/x/2 | P | t2 | 3.0/5', tracker_notes: [{ num: '757', append: '[superseded by #900]' }] });
+  await run(s.root);
+  assert.equal(s.read('data/listings.md').split('[superseded by #900]').length, 2);
+});

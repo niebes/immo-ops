@@ -21,6 +21,7 @@ import { readFileSync, appendFileSync, existsSync, mkdirSync } from 'fs';
 import yaml from 'js-yaml';
 import { toHistoryLine } from './lib/tsv.mjs';
 import { loadSeenUrls, canonicalizeUrl } from './lib/seen-urls.mjs';
+import { plzPrefixesFor, outsidePlzRegion } from './lib/plz-gate.mjs';
 import { writeAtomic } from './lib/fsx.mjs';
 import { withLock } from './lib/lock.mjs';
 import { insertPendingEntries, toPipelineLine } from './lib/pipeline-md.mjs';
@@ -51,6 +52,7 @@ function loadYaml(path) {
 }
 
 const portalsConfig = loadYaml(PORTALS_PATH) || {};
+const PORTAL_ARG = args.includes('--portal') ? args[args.indexOf('--portal') + 1] : '';
 const profile = loadYaml(PROFILE_PATH);
 
 // NOTE: title relevance (apartment swaps, garages/parking, commercial, WBS, sublets)
@@ -93,6 +95,9 @@ const criteria = search ? {
 // AI triage step, never by keyword matching.
 
 function filterCriteria(listing) {
+  // Opt-in postcode gate for nationwide feeds (portals.yml `plz_prefixes:`).
+  const prefixes = plzPrefixesFor(portalsConfig, GROUP_NAME || search?.name, listing.portal || PORTAL_ARG);
+  if (outsidePlzRegion(listing.location, prefixes)) return 'skipped_criteria';
   if (!criteria) return null;
   if (criteria.minRooms && listing.rooms && listing.rooms < criteria.minRooms) return 'skipped_criteria';
   if (criteria.minM2 && listing.m2 && listing.m2 < criteria.minM2) return 'skipped_criteria';

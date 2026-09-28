@@ -125,6 +125,17 @@ check(leftUpdates.length === 0,
 check(leftNotes.length === 0,
   `${leftNotes.length} unconsolidated evaluator memory note(s) in batch/memory-inbox/ — run the immo-evaluator MEMORY CONSOLIDATION pass`, 'warn');
 
+// Evaluator memory files must stay readable in ONE Read call. immobilienscout24.md
+// grew to 545 KB unnoticed and every evaluator had to grep it by heading
+// (2026-09-28). Past the budget, the consolidation pass compacts or splits it.
+const MEMORY_DIR = '.claude/agent-memory/immo-evaluator';
+const MEMORY_BUDGET = 60 * 1024;
+const oversized = staged(MEMORY_DIR, '.md')
+  .map(f => ({ f, size: readFileSync(join(ROOT, MEMORY_DIR, f)).length }))
+  .filter(x => x.size > MEMORY_BUDGET);
+check(oversized.length === 0,
+  `${oversized.length} evaluator memory file(s) over ${MEMORY_BUDGET / 1024} KB (${oversized.map(x => `${x.f} ${Math.round(x.size / 1024)} KB`).join(', ')}) — run the immo-evaluator MEMORY CONSOLIDATION pass with compaction`, 'warn');
+
 // Check scan-history.tsv
 console.log('\nScan History:');
 if (fileExists('data/scan-history.tsv')) {

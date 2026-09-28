@@ -31,6 +31,10 @@ HEADLESS = os.environ.get("IP_HEADLESS", "true").lower() == "true"
 LOCALE = os.environ.get("IP_LOCALE", "de-DE")
 TIMEZONE = os.environ.get("IP_TIMEZONE", "Europe/Berlin")
 STATE = os.environ.get("IP_STORAGE_STATE", "tmp/browser-state.json")
+# IP_SAVE_STATE=false: read the session trust but never write it back. Evaluators
+# run one driver process each, possibly several at once; only the scan (one
+# process) and `npm run login:invisible` should refresh the shared state file.
+SAVE_STATE = os.environ.get("IP_SAVE_STATE", "true").lower() not in ("0", "false", "no")
 
 CAPTCHA_MARKERS = (
     "Ich bin kein Roboter", "Are you a robot", "captcha",
@@ -147,11 +151,21 @@ async def do_eval(ctx, cmd):
 
 
 async def save_state(ctx):
+    if not SAVE_STATE:
+        return
     st = Path(STATE)
+    # Atomic: write a per-process temp file, then rename over the target. A plain
+    # write lets a concurrently starting driver read a half-written JSON file.
+    tmp = st.with_name(f"{st.name}.{os.getpid()}.tmp")
     try:
         st.parent.mkdir(parents=True, exist_ok=True)
-        await ctx.storage_state(path=str(st))
+        await ctx.storage_state(path=str(tmp))
+        os.replace(tmp, st)
     except Exception as e:
+        try:
+            tmp.unlink(missing_ok=True)
+        except Exception:
+            pass
         log(f"  ⚠ could not save storage state: {e}")
 
 

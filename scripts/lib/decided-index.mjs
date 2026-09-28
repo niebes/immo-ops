@@ -73,6 +73,7 @@ export function loadTrackerListings(root) {
       m2: toNum(c[6]),
       rooms: toNum(c[7]),
       report: c[10] || '',
+      notes: c[11] || '',
       decided: DECIDED_STATUSES.has(status),
       skip: SKIP_STATUSES.has(status),
     });
@@ -134,19 +135,117 @@ export function matchCloseness(a, b) {
  * Returns { entry, kind } or null.
  */
 export function findBestMatch(candidate, list, opts = {}) {
-  const { titleConflict } = opts;
+  const { titleConflict, identity } = opts;
   let best = null;
   for (const entry of list) {
-    const kind = matchesDecided(candidate, entry);
-    if (!kind) continue;
-    if (kind === 'numeric' && titleConflict && titleConflict(candidate, entry)) continue;
-    const rank = kind === 'confirmed' ? 0 : 1;
+    // Identity evidence (unit code / known title) outranks every numeric signal,
+    // and a KNOWN-different unit code vetoes the pair outright — see makeIdentity.
+    const id = identity ? identity(candidate, entry) : null;
+    if (id === 'unit-conflict') continue;
+    let kind;
+    if (id === 'unit' || id === 'title') {
+      if (!priceWithin(candidate, entry, 0.10)) continue; // same object, but a different price regime → not this row
+      kind = id;
+    } else {
+      kind = matchesDecided(candidate, entry);
+      if (!kind) continue;
+      if (kind === 'numeric' && titleConflict && titleConflict(candidate, entry)) continue;
+    }
+    const rank = { unit: -2, title: -1, confirmed: 0, numeric: 1 }[kind];
     const closeness = matchCloseness(candidate, entry);
     if (!best || rank < best.rank || (rank === best.rank && closeness < best.closeness)) {
       best = { entry, kind, rank, closeness };
     }
   }
   return best ? { entry: best.entry, kind: best.kind } : null;
+}
+
+/** Relative price gap within `tol` (fails open when either price is unknown). */
+export function priceWithin(a, b, tol) {
+  if (!(a.price > 0 && b.price > 0)) return true;
+  return Math.abs(a.price - b.price) / Math.max(a.price, b.price) <= tol;
+}
+
+// ── Identity signals (unit codes, known titles) ─────────────────────────────
+// Numbers cannot tell apart the units of one new-build: "Wohnen am Brauhausberg"
+// lists dozens of 3-Zi units at 1.890 EUR / 85,5 m². Numeric matching therefore
+// welded H4-02-14 and H4-02-09 onto #826 (H4-01-03) and an earlier cycle marked
+// H4-00-02 as a dupe of #730 (H5-00-01). Portals print the unit code in the title,
+// so it is the identity: equal codes = same flat, different codes = different flat.
+//
+// Known titles close the second gap: a tracker row's report title often differs
+// from a cross-post's title, but every cross-post already folded into that row
+// sits in the pipeline as `DUPE of #N | url | portal | group | title | …`. When
+// the next cross-post arrives with that same title, it is the same object
+// (#193 "Helle & moderne …", 2026-09-28).
+
+const UNIT_CODE_RE = /\b[A-Z]\d{1,2}-\d{2}-\d{2}\b/g;
+
+/** Unit codes like `H4-00-02` in a text. */
+export function unitCodes(s) {
+  return new Set(String(s || '').match(UNIT_CODE_RE) || []);
+}
+
+/**
+ * Normalised title key. Portals truncate titles at ~60 chars, so compare a
+ * prefix; '' for titles too short/generic to identify anything.
+ */
+export function titleKey(s) {
+  const k = String(s || '').toLowerCase()
+    .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
+    .replace(/[^a-z0-9]+/g, ' ').trim().slice(0, 45).trim();
+  return titleTokens(s).size >= 2 && k.length >= 20 ? k : '';
+}
+
+/**
+ * Titles already folded into each tracker row, from `- [x] DUPE of #N … | url |
+ * portal | group | title | …` lines in the given pipeline texts. Map num → Set(key).
+ */
+export function foldedTitles(pipelineTexts) {
+  const out = new Map();
+  for (const text of pipelineTexts) {
+    for (const line of String(text).split('\n')) {
+      const m = line.match(/^- \[x\] DUPE of #(\d+)/);
+      if (!m) continue;
+      const parts = line.split('|').map((s) => s.trim());
+      const title = parts[4] || '';
+      const key = titleKey(title);
+      if (!key) continue;
+      const num = m[1].replace(/^0+(?=\d)/, '');
+      if (!out.has(num)) out.set(num, new Set());
+      out.get(num).add(key);
+    }
+  }
+  return out;
+}
+
+/**
+ * Identity oracle for findBestMatch: 'unit' | 'unit-conflict' | 'title' | null.
+ * `folded` = foldedTitles(...) output; report titles are read lazily.
+ */
+export function makeIdentity(root, folded = new Map()) {
+  const cache = new Map();
+  const info = (entry) => {
+    if (!cache.has(entry.num)) {
+      const reportTitle = readReportTitle(root, entry.report);
+      const keys = new Set(folded.get(String(entry.num).replace(/^0+(?=\d)/, '')) || []);
+      const rk = titleKey(reportTitle);
+      if (rk) keys.add(rk);
+      cache.set(entry.num, { codes: unitCodes(`${reportTitle} ${entry.notes || ''}`), keys });
+    }
+    return cache.get(entry.num);
+  };
+  return (candidate, entry) => {
+    const cc = unitCodes(candidate.title);
+    const e = info(entry);
+    if (cc.size && e.codes.size) {
+      for (const c of cc) if (e.codes.has(c)) return 'unit';
+      return 'unit-conflict';
+    }
+    const ck = titleKey(candidate.title);
+    if (ck && e.keys.has(ck)) return 'title';
+    return null;
+  };
 }
 
 /** Back-compat alias: best match within an already-filtered decided list. */

@@ -23,7 +23,7 @@ General policies for opening listing pages. Stable, applies to every evaluation.
 - **Number format in reports is always German** (see Report Format): `1.443,87 EUR`, `80,5 m²`, `3,5 Zimmer`.
 - **Furnished / "auf Zeit" / Zwischenmiete / Mietkauf** are not standard long-term rentals: apply the hard-blocker cap per `_shared.md` (Zwischenmiete) or discard (Mietkauf is a sale), and say so.
 - **CiC truncates returned strings at ~1100 chars** — extract field-by-field, not in one giant blob.
-- **Immowelt: use the node driver-script path FIRST.** Plain `curl`/WebFetch is 403 even with a browser UA — don't bother. Spawn the stealth driver the way `scripts/scan.mjs` does (`bash scripts/invisible-venv.sh scripts/invisible-driver.py`, env `IP_HEADLESS=true IP_LOCALE=de-DE IP_TIMEZONE=Europe/Berlin IP_STORAGE_STATE=tmp/browser-state.json`), wait for the `{ready:true}` line, send one `{cmd:'eval', url, snippet}`, and parse `__UFRN_LIFECYCLE_SERVERREQUEST__` out of the result. Stable since 2026-08-15 across ~20 clean runs (re-confirmed 2026-09-12 on #710/#711), ~6 min per evaluation, and it does not hang.
+- **Immowelt: use the node driver-script path FIRST.** Plain `curl`/WebFetch is 403 even with a browser UA — don't bother. Spawn the stealth driver the way `scripts/scan.mjs` does (`bash scripts/invisible-venv.sh scripts/invisible-driver.py`, env `IP_HEADLESS=true IP_LOCALE=de-DE IP_TIMEZONE=Europe/Berlin IP_STORAGE_STATE=tmp/browser-state.json IP_SAVE_STATE=false`; `IP_SAVE_STATE=false` makes the process read-only on the shared session file, so several evaluators can each run their own driver in parallel), wait for the `{ready:true}` line, send one `{cmd:'eval', url, snippet}`, and parse `__UFRN_LIFECYCLE_SERVERREQUEST__` out of the result. Stable since 2026-08-15 across ~20 clean runs (re-confirmed 2026-09-12 on #710/#711), ~6 min per evaluation, and it does not hang.
   - Do **not** open Immowelt with `mcp__invisible-playwright__*`: `new_page` wedges on its detail pages and returns nothing (#397, #538, #539, #542; #538 burned a 30-min MCP idle timeout for a 35,7-min evaluation). `IP_TIMEOUT_MS` (30 s) and the per-server `"timeout": 120000` in `.mcp.json` now make it fail fast rather than hang, but it is still a wasted round trip.
   - CiC is the fallback only if the driver script itself is unavailable. Entry sequence that works there: `tabs_context_mcp{createIfEmpty:true}` (required — a bare `tabs_create_mcp` errors out) → `tabs_create_mcp` → `navigate` → `javascript_tool`. Close only the tab you created.
 - **Prefer a plain `curl` over any browser when the portal has a data route.** ImmoScout24 answers fully on `api.mobile.immobilienscout24.de/expose/{id}` with UA `ImmoScout24_1410_35_._`; Kleinanzeigen detail pages render server-side; Regionalimmobilien24 returns the full server-rendered detail page to a plain `curl` with a Firefox UA (stable since late August 2026); ohne-makler.net serves the full exposé to `curl --compressed`; and Ab ins Zuhause detail pages are fully server-rendered to `curl` (stable since 2026-06-17) — none of the five needs a browser at all. This is the single biggest lever on evaluation cost, and a curl-only evaluation holds no browser lock, so it is safe to run in parallel with other evaluations (see `immo-find` auto Step 4).
@@ -56,7 +56,19 @@ General policies for opening listing pages. Stable, applies to every evaluation.
      legacy behaviour — **stop**, mark `Discarded` with note "Tauschwohnung — swaps not
      enabled", register in tracker, inform user.
    - **If swaps are enabled:** run the **two-sided match**. A swap is a `Swap-candidate`
-     only if BOTH sides pass:
+     only if BOTH sides pass.
+     - **Side 2 FIRST (cheap pre-check).** Before scoring anything, read the listing's
+       description and extract their Suche. Side 2 is what usually decides a swap (4 of 7
+       Immowelt swaps on 2026-09-28 failed it after a full A–H evaluation, although the
+       Suche was in the description all along). If the Suche is **stated** and **clearly
+       fails** by the rules below (e.g. "nur Berlin" vs a Potsdam offer, max warm far
+       below our Warmmiete, ≥ one room more than our offer has with no flexibility),
+       stop there: write a **short report** — header block (URL, Portal, Type, Scam
+       Assessment from a quick look), a `## Swap Match` section with their Suche verbatim
+       + the `**Suche-Check:**` line + the fail reason, `## Summary` (one line), no A–H
+       blocks — and register it `Discarded` with note `swap-mismatch (pre-check): {reason}`
+       and an **empty score cell** (it was never scored). Unknown, vague or near-miss Suche
+       → continue to the full two-sided evaluation below; the lenient rules still apply.
      - **Side 1 — their flat fits us:** score their flat with the normal blocks A–H
        (steps 5–7 below). Gate: global score **≥ 3.5**. Below that → `Discarded`
        (note "swap — their flat scores {x}, below 3.5").
@@ -81,6 +93,11 @@ General policies for opening listing pages. Stable, applies to every evaluation.
        covering: which `swap_offer` flat matched, their Suche as extracted, the two-sided verdict,
        the Vermieter-consent caveat (`landlord_consent`), and the `swap_offer.caveats`
        (Indexmiete, Gartenpflege dispute) the partner must be told.
+     - **Always** put one machine-readable line in the Swap Match section (the email builder
+       `scripts/build-email.mjs` copies it verbatim into the swap's detail row):
+       `**Suche-Check:** {criterion} ✓|✗({our value}) · …` — e.g.
+       `**Suche-Check:** Teltow+10km ✗(Golm ~20km) · ≤1.200 ✓(1.025) · ≥2,5 Zi ✗(2) · Garten ✓`.
+       With no usable Suche write `**Suche-Check:** unbekannt — verify on contact`.
      - If Side 2 clearly fails → `Discarded` with note "swap-mismatch: {reason}".
 5. **Run scam detection** (from `_shared.md`)
 6. **Score all 8 blocks** (A–H) using rules from `_shared.md` and weight overrides from `_profile.md`
@@ -88,7 +105,7 @@ General policies for opening listing pages. Stable, applies to every evaluation.
 8. **Generate report** in the format below
 9. **Register in tracker**: write TSV to `batch/tracker-additions/{NNN}-{location-slug}.tsv`,
    and stage the pipeline line as `batch/pipeline-updates/{NNN}.json`
-   (`{"url": …, "line": "- [x] #{NNN} | …"}`). Never edit `data/pipeline.md` or
+   (`{"url": …, "line": "- [x] #{NNN} | …"}`, plus optional `"tracker_notes"` for findings about OTHER tracker rows — see `scripts/merge-tracker.mjs`). Never edit `data/pipeline.md` or
    `data/listings.md` directly. Evaluations may run in parallel, and one shared file
    edited by several workers loses updates. Temp files go in `tmp/eval/{NNN}/` only.
 10. **Merge**: `node scripts/merge-tracker.mjs`. Both files above are only staging;

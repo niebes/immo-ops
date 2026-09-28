@@ -22,6 +22,14 @@
 // The pending "- [ ]" line containing the URL is replaced by `line`; a file
 // whose URL has no pending line (already applied) is dropped; a file whose URL
 // is not in the pipeline at all is KEPT with a warning.
+//
+// An update may also carry `tracker_notes`: findings about OTHER tracker rows
+// that a parallel evaluator may not write itself (e.g. "#757 is the same flat,
+// now cheaper — see #852", "#365's exposé is 404, re-listed as #861"):
+//   "tracker_notes": [{ "num": "757", "append": "[2026-09-28: superseded by #852 …]" },
+//                     { "num": "365", "status": "Expired", "append": "[… 404 …]" }]
+// `append` is added to that row's Notes cell; `status` may only be set to
+// Expired (a verified-dead exposé) — every other status change is the user's call.
 
 import { readFileSync, readdirSync, unlinkSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -104,7 +112,10 @@ function mergeTracker() {
         dirtyFiles.add(file);
         continue;
       }
-      const [num, date, portal, type, location, price, m2, rooms, score, status, report, notes] = cells;
+      const [num, date, portal, type, location, price, m2, rooms, rawScore, status, report, notes] = cells;
+      // Machine columns are dot-decimal; evaluators sometimes write the German "4,1".
+      // verify-pipeline rejects that, so normalise here instead of failing the cycle.
+      const score = rawScore.replace(/^(\d+),(\d+)$/, '$1.$2');
       if (existingNums.has(num)) {
         console.log(`  Skip duplicate #${num}`);
         continue;
@@ -150,6 +161,7 @@ function applyPipelineUpdates() {
   const lines = readFileSync(PIPELINE_PATH, 'utf8').split('\n');
   let applied = 0;
   const consumed = []; // deleted only after pipeline.md is safely written
+  const trackerNotes = [];
   for (const file of files) {
     const full = join(PIPELINE_UPDATES_DIR, file);
     let update;
@@ -158,6 +170,9 @@ function applyPipelineUpdates() {
     } catch (e) {
       console.warn(`  ⚠ Keeping ${file}: not valid JSON (${e.message})`);
       continue;
+    }
+    if (Array.isArray(update.tracker_notes)) {
+      for (const n of update.tracker_notes) trackerNotes.push({ ...n, from: file });
     }
     const url = canonicalizeUrl(update.url);
     if (!url || typeof update.line !== 'string' || !update.line.startsWith('- [')) {
@@ -177,6 +192,40 @@ function applyPipelineUpdates() {
     }
   }
   if (applied > 0) writeAtomic(PIPELINE_PATH, lines.join('\n'));
+  if (trackerNotes.length > 0) applyTrackerNotes(trackerNotes);
   for (const full of consumed) unlinkSync(full);
   console.log(`Applied ${applied} pipeline update(s) from ${files.length} file(s).`);
+}
+
+// Cross-row findings staged by evaluators (see header). Notes are appended once
+// (idempotent on re-run); status may only become Expired.
+function applyTrackerNotes(notes) {
+  const lines = readFileSync(LISTINGS_PATH, 'utf8').split('\n');
+  let changed = 0;
+  for (const n of notes) {
+    const num = String(n.num || '').replace(/^#/, '');
+    const idx = lines.findIndex(l => l.startsWith('|') && parseListingRow(l)[0].replace(/^0+(?=\d)/, '') === num.replace(/^0+(?=\d)/, ''));
+    if (idx === -1) {
+      console.warn(`  ⚠ tracker_notes (${n.from}): #${num} not in listings.md — skipped`);
+      continue;
+    }
+    const cells = parseListingRow(lines[idx]);
+    while (cells.length < 12) cells.push('');
+    if (n.status) {
+      if (n.status !== 'Expired') {
+        console.warn(`  ⚠ tracker_notes (${n.from}): refusing status "${n.status}" for #${num} (only Expired is automatic)`);
+      } else if (cells[9] !== 'Expired') {
+        cells[9] = 'Expired';
+        changed++;
+      }
+    }
+    const append = String(n.append || '').replace(/[|\n]+/g, ' ').trim();
+    if (append && !cells[11].includes(append)) {
+      cells[11] = `${cells[11]} ${append}`.trim();
+      changed++;
+    }
+    lines[idx] = `| ${cells.join(' | ')} |`;
+  }
+  if (changed > 0) writeAtomic(LISTINGS_PATH, lines.join('\n'));
+  console.log(`Applied ${changed} tracker note change(s) from ${notes.length} staged note(s).`);
 }
