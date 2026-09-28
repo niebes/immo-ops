@@ -30,6 +30,11 @@ TMUX_SOCKET="claude-${SESSION}"
 
 # cron has no GUI env — point Chrome at the user's X display so it can start headful
 # (headful keeps the trusted fingerprint that clears the CAPTCHA). Harmless if unset.
+# cron runs with PATH=/usr/bin:/bin, but `claude` lives in ~/.local/bin. Without this
+# the respawned tmux session's `claude …` command is "not found", the pane exits and
+# the tmux server dies within seconds — every cron respawn failed this way, and from
+# 2026-08-26 (when no hand-started session was left to type into) every daily scan.
+export PATH="$HOME/.local/bin:$HOME/bin:/usr/local/bin:$PATH"
 export DISPLAY="${DISPLAY:-:0}"
 export XAUTHORITY="${XAUTHORITY:-$HOME/.Xauthority}"
 # notify-send needs the user's session bus, which cron also does not inherit.

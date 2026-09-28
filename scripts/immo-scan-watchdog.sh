@@ -25,6 +25,11 @@ STATE="${IMMO_REPO}/tmp/scan-watchdog.state"
 # genuinely quiet market, high enough to catch a run that died after one portal.
 MIN_ROWS="${IMMO_SCAN_MIN_ROWS:-25}"
 
+# cron runs with PATH=/usr/bin:/bin, but `claude` lives in ~/.local/bin. Without this
+# the respawned tmux session's `claude …` command is "not found", the pane exits and
+# the tmux server dies within seconds — every cron respawn failed this way, and from
+# 2026-08-26 (when no hand-started session was left to type into) every daily scan.
+export PATH="$HOME/.local/bin:$HOME/bin:/usr/local/bin:$PATH"
 export DISPLAY="${DISPLAY:-:0}"
 export XAUTHORITY="${XAUTHORITY:-$HOME/.Xauthority}"
 export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}"
