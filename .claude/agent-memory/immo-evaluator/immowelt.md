@@ -23,16 +23,7 @@ Consolidated 2026-09-28 from a 148 KB append log. Listing numbers (#NNN) stay on
   - Corroborate with `metadata.updateDate`, which equals the day the title was edited.
 
 ## §Payload — parse the embedded record, don't scrape
-```js
-const tail = raw.slice(raw.indexOf('__UFRN_LIFECYCLE_SERVERREQUEST__'));   // anchor FIRST
-const m = tail.match(/JSON\.parse\("([\s\S]*?)"\)\s*;?\s*<\/script>/);      // lazy + OPTIONAL ';'
-const o = JSON.parse(JSON.parse('"' + m[1] + '"'));
-const d = (o.app_cldp || o.app_demand_referral_cldp || o[Object.keys(o)[0]]).data.classified;
-```
-Each of these failure modes reads like "this listing has no structured data" and pushes you back to scraping `innerText` on a page that has the full record:
-- **No anchor, or a greedy regex:** it matches an unrelated earlier or later `JSON.parse` script, then fails with "Cannot read 'data' of undefined" (#673).
-- **No `;?`:** the regex returns null on the `JSON.parse("…");</script>` variant (#683).
-- **Wrong top-level key:** it is not always `app_cldp`. `app_demand_referral_cldp` also occurs, portal-wide (#846, #847). The correct payload has exactly one `app_*cldp` key; check `Object.keys(o)`.
+The extraction recipe (UFRN anchor, optional `;`, `app_cldp`/`app_demand_referral_cldp`) is doctrine now: `modes/evaluate.md` → Browser & portal quirks → Immowelt. Extra traps:
 - **Slicing instead of parsing:** `indexOf` the BARE key (`zipCode`, not `'"zipCode"'`, #671). Never regex `"key":"value"`: escaping is 1×–3× per page (#660), and one unescape pass is not enough.
 - **Missing sections:** null-guard every optional section. `sections.features` can be `null`, plots have no `energy`, swap ads can lack `rawData.tags`.
 

@@ -249,6 +249,12 @@ Modernisierung maßgeblich (nur Sanierung auf Neubaustandard rückt die Klasse).
 **How to use it:** field = Baualtersklasse × EEK-Zeile × m²-Spalte, start at the **Mittelwert** →
 Spanneneinordnung (PDF p. 8–9: wohnwerterhöhende minus -mindernde Punkte = %-Satz toward the
 Ober-/Unterwert; those are hard bounds) → zulässig = ortsüblich **+10 %**.
+- **The Ortsteil never fixes the Baualtersklasse.** Almost every Potsdam Ortsteil mixes 2–3 classes;
+  the house number, the Baujahr or a photo decides.
+- **Baujahr unknown → compute every plausible field side by side**, say which one flips the verdict,
+  and make the Baujahr a contact question.
+- **Column edges:** within ~1 m² of a column edge (45/60/75/90 m²) compute both columns — neighbouring
+  fields differ by ~8 % and the advertised area is only "ca." (#627 at 60,1 m², #702 at 75, #730 at 90).
 
 #### Brandenburg Umland — regulated since 01.01.2026
 
@@ -258,6 +264,19 @@ Eichwalde, Glienicke/Nordbahn. **In the Havelland there are exactly three: Falke
 Schönwalde-Glien (new), Brieselang (new)** — i.e. practically every Havelland rental that reaches
 the scan. Only buildings **completed before 2014** are covered; zulässig = ortsüblich +10 %,
 Kappungsgrenze 15 % in 3 years.
+
+Covered Gemeinden by Landkreis (MIL Brandenburg; "(neu)" = first covered 2026). This names 31 +
+Potsdam; the remaining few carry over from the old list of 19 — **re-check the full list every
+January**, the Verordnung is re-issued yearly:
+- Dahme-Spreewald: Bestensee (neu), Eichwalde, Königs Wusterhausen (neu), Schönefeld (neu), Schulzendorf, Wildau (neu), Zeuthen (neu)
+- Havelland: Brieselang (neu), Falkensee, Schönwalde-Glien (neu)
+- Märkisch-Oderland: Altlandsberg (neu), Fredersdorf-Vogelsdorf (neu), Rehfelde (neu), Strausberg (neu)
+- Oberhavel: Birkenwerder, Glienicke/Nordbahn, Leegebruch (neu), Mühlenbecker Land, Oranienburg (neu)
+- Oder-Spree: Erkner (neu), Grünheide (Mark) (neu), Woltersdorf
+- Potsdam-Mittelmark: Kleinmachnow, Nuthetal (neu), Stahnsdorf, Teltow, Werder (Havel) (neu)
+- Teltow-Fläming: Blankenfelde-Mahlow, Großbeeren, Ludwigsfelde (neu), Zossen (neu)
+- **NOT covered** (frequent cross-check): Beelitz, Michendorf, Borkheide, Brück, Nauen, Ketzin,
+  Brandenburg an der Havel, Schwielowsee (Caputh/Ferch/Geltow).
 
 → **Never write "Mietpreisbremse: not applicable" for a Speckgürtel/Havelland rental.** The intuitive
 assumption "Brandenburg small town → no Mietpreisbremse" has been simply wrong since 2026.

@@ -10,6 +10,7 @@ Consolidated 2026-09-28 from a 91 KB append log. Listing numbers stay only as th
 - **After every fetch, check the served ad id** (`<link rel="canonical">` / `og:url` / `"adid"`) against the requested one; on a mismatch, re-fetch. The 2026-09-23 "Kleinanzeigen served a different/hybrid ad" reports (#812, #821–#823) were parallel evaluators overwriting a shared scratch file, not the portal (a 9/9 clean re-probe). The fix is isolation in `tmp/eval/{NNN}/`; the id check is the safety net.
 
 ## §Scope — the page embeds ~10 FOREIGN ads in full
+Doctrine (own-text-only sweep, ad-ID contamination count) is in `modes/evaluate.md` → Browser & portal quirks. Implementation details and cases:
 - **The sidebar ("Das könnte dich auch interessieren") ships each recommended ad as JSON-LD** with its whole `description` and a `contentUrl` image. Page-wide greps therefore read strangers' flats and manufacture hard blockers and amenities.
   - #804: `WBS erforderlich` + `vollständig möbliert` both belonged to other ads.
   - #807: an unscoped sweep said `befristet 12 · möbliert 6 · WBS 3 · Balkon 14` for an ad whose own text had none.
@@ -25,6 +26,7 @@ Consolidated 2026-09-28 from a 91 KB append log. Listing numbers stay only as th
   - The seller id is `profileUserId = "…"` or the `s-bestandsliste.html?userId=` link.
 
 ## §Price — reading heading / Nebenkosten / Warmmiete
+The 7-step order is doctrine in `modes/evaluate.md` → Browser & portal quirks; the regexes and cases below are the working detail.
 The form labels the headline field "Preis" = Kaltmiete, with NK / Heizkosten / Warmmiete / Kaution as optional fields. Posters misuse it constantly. **Order of operations** (stop at the first test that decides):
 1. **A self-declaring sentence or bullet in the description.** Grep `setzt sich .{0,40}zusammen|Nettokaltmiete|zzgl\.|Betriebskosten-?vorauszahlung|Nebenkostenvorauszahlung|angegebene[nr]? Preis|Preis ist|Miete ist|alles inklusive|warm pro Monat|inkl\. NK|Die (Warm)?miete beträgt|Warmmiete\s*:|Kaltmiete\s*:`.
    - #642 "1250 Nettokaltmiete, 300 NK-Vorauszahlungen + 110 TG-Stellplatz" settled a heading == Warmmiete coin flip (naive 22,13 → real 16,70 EUR/m²).
@@ -127,6 +129,7 @@ Shapes to recognise:
   - **Landlord re-list vs copied-ad scam:** download both galleries at `rule=$_57.JPG` and `md5sum` them. Byte-identical files = the same originals re-uploaded (a copier only has re-encoded CDN renders), and NEW photos absent from the old ad = the poster has access to the flat (#807: 7/11 identical + 4 new ⇒ legitimate). Still drop Block H (the old account's history does not transfer) and fire the two Medium signals (reposted / new account) ⇒ "Proceed with Caution", identity verification first.
 
 ## §Expired
+Doctrine (visible badges only, `s-bestandsliste` as the liveness test) is in `modes/evaluate.md`. Cases:
 - **A deleted or reserved ad still renders the full cached page** with HTTP 200. The status shows as VISIBLE badges prepended to the heading, e.g. "Reserviert • Gelöscht • {title}". "Gelöscht" = EXPIRED; don't score the cached numbers.
 - **Hidden templates:** every page carries `display:none` "Gelöscht"/"Reserviert" elements, and every `<h1>` has a `data-soldlabel` attribute ("Nicht mehr verfügbar" / "Verschenkt"). Decide only from visible text (`innerText` / the h1 prefix), never from DOM presence or a raw-HTML grep (false positives #314, #328, #807).
 - **A withdrawn ad can show NO marker at all** (#807). The only reliable liveness test is the poster's inventory: `s-bestandsliste.html?userId={id}` still lists the ad id, or not.

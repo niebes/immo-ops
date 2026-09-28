@@ -88,16 +88,7 @@ Columns by Wohnfläche: A ≤45 · B >45–60 · C >60–75 · D >75–90 · E >
 ## Umland — Brandenburg regulation 2026, Havelland, Potsdam-Mittelmark
 - **The Brandenburger Mietpreisbegrenzungs-/Kappungsgrenzenverordnung** (Kabinett 25.11.2025) covers **36 Gemeinden from 01.01.2026** (previously 19). It only covers buildings completed before 2014 (Neubau exempt); zulässig = ortsüblich +10 %, Kappungsgrenze 15 % in 3 years. It is re-issued yearly: **re-check every January.**
 - **Never write "Mietpreisbremse: not applicable" for a Speckgürtel rental** (report #246 of 02.07.2026 was already wrong). These Gemeinden have no qualified Mietspiegel, so phrase it as the § 556g Abs. 3 lever (ask for Vormiete + Baujahr). As the ortsübliche proxy, take the same-age **Potsdam** field and label it as a proxy.
-- **The full list** (MIL Brandenburg; "(neu)" = first covered in 2026). `_shared.md` only says "u. a."; promotion candidate:
-  - Dahme-Spreewald: Bestensee (neu), Eichwalde, Königs Wusterhausen (neu), Schönefeld (neu), Schulzendorf, Wildau (neu), Zeuthen (neu)
-  - Havelland: Brieselang (neu), Falkensee, Schönwalde-Glien (neu)
-  - Märkisch-Oderland: Altlandsberg (neu), Fredersdorf-Vogelsdorf (neu), Rehfelde (neu), Strausberg (neu)
-  - Oberhavel: Birkenwerder, Glienicke/Nordbahn, Leegebruch (neu), Mühlenbecker Land, Oranienburg (neu)
-  - Oder-Spree: Erkner (neu), Grünheide (Mark) (neu), Woltersdorf
-  - Potsdam-Mittelmark: Kleinmachnow, Nuthetal (neu), Stahnsdorf, Teltow, Werder (Havel) (neu)
-  - Teltow-Fläming: Blankenfelde-Mahlow, Großbeeren, Ludwigsfelde (neu), Zossen (neu)
-  - (+ Potsdam and the remaining cases from the old list of 19)
-  - **NOT on the list** (a frequent cross-check): Beelitz, Michendorf, Borkheide, Brück, Nauen, Ketzin, Brandenburg an der Havel, Schwielowsee (Caputh/Ferch/Geltow).
+- **The list of covered Gemeinden (and the NOT-covered cross-check) is in `modes/_shared.md`** → Brandenburg Umland. Promoted 2026-09-28.
 - **§ 549 Abs. 2 Nr. 1 BGB** exempts Wohnraum zum vorübergehenden Gebrauch (möbliert/auf Zeit/Monteur) anyway. Name both grounds (Gemeinde regulated y/n AND § 549).
 - **Angebot anchors never fire the ">20 % below" signal alone.** The priceBar must also put the offer below `minSimilarPrice` (#507 Burgunderweg 5, Falkensee: −25 % vs the anchor, but P23 inside the address band 1.100–1.820, explained by Bj 1998 / EEK E).
 - **Falkensee:** Angebot Häuser ~16,03, Wohnungen ~13,50–15,70 EUR/m². The priceBar is the best address source (#506 Rotkehlchenstr. 14,29 = P57).

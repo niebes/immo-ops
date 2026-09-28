@@ -25,8 +25,21 @@ General policies for opening listing pages. Stable, applies to every evaluation.
 - **CiC truncates returned strings at ~1100 chars** — extract field-by-field, not in one giant blob.
 - **Immowelt: use the node driver-script path FIRST.** Plain `curl`/WebFetch is 403 even with a browser UA — don't bother. Spawn the stealth driver the way `scripts/scan.mjs` does (`bash scripts/invisible-venv.sh scripts/invisible-driver.py`, env `IP_HEADLESS=true IP_LOCALE=de-DE IP_TIMEZONE=Europe/Berlin IP_STORAGE_STATE=tmp/browser-state.json IP_SAVE_STATE=false`; `IP_SAVE_STATE=false` makes the process read-only on the shared session file, so several evaluators can each run their own driver in parallel), wait for the `{ready:true}` line, send one `{cmd:'eval', url, snippet}`, and parse `__UFRN_LIFECYCLE_SERVERREQUEST__` out of the result. Stable since 2026-08-15 across ~20 clean runs (re-confirmed 2026-09-12 on #710/#711), ~6 min per evaluation, and it does not hang.
   - Do **not** open Immowelt with `mcp__invisible-playwright__*`: `new_page` wedges on its detail pages and returns nothing (#397, #538, #539, #542; #538 burned a 30-min MCP idle timeout for a 35,7-min evaluation). `IP_TIMEOUT_MS` (30 s) and the per-server `"timeout": 120000` in `.mcp.json` now make it fail fast rather than hang, but it is still a wasted round trip.
+  - **Parse the embedded record, never scrape `innerText`.** Anchor on `__UFRN_LIFECYCLE_SERVERREQUEST__` FIRST, then match lazily with an OPTIONAL `;` before `</script>`, double-`JSON.parse`, and accept either top-level key (`app_cldp` or `app_demand_referral_cldp`, both seen portal-wide — the payload has exactly one `app_*cldp` key):
+    ```js
+    const tail = raw.slice(raw.indexOf('__UFRN_LIFECYCLE_SERVERREQUEST__'));
+    const m = tail.match(/JSON\.parse\("([\s\S]*?)"\)\s*;?\s*<\/script>/);
+    const o = JSON.parse(JSON.parse('"' + m[1] + '"'));
+    const d = (o.app_cldp || o.app_demand_referral_cldp || o[Object.keys(o)[0]]).data.classified;
+    ```
+    Each missing piece fails as "this listing has no structured data" on a page that has the full record: no anchor → an unrelated `JSON.parse` script (#673); no `;?` → null on the `…");</script>` variant (#683); fixed `app_cldp` → undefined (#846, #847). Null-guard optional sections (`sections.features`, plots without `energy`). Stable since #683/#846.
   - CiC is the fallback only if the driver script itself is unavailable. Entry sequence that works there: `tabs_context_mcp{createIfEmpty:true}` (required — a bare `tabs_create_mcp` errors out) → `tabs_create_mcp` → `navigate` → `javascript_tool`. Close only the tab you created.
 - **Prefer a plain `curl` over any browser when the portal has a data route.** ImmoScout24 answers fully on `api.mobile.immobilienscout24.de/expose/{id}` with UA `ImmoScout24_1410_35_._`; Kleinanzeigen detail pages render server-side; Regionalimmobilien24 returns the full server-rendered detail page to a plain `curl` with a Firefox UA (stable since late August 2026); ohne-makler.net serves the full exposé to `curl --compressed`; and Ab ins Zuhause detail pages are fully server-rendered to `curl` (stable since 2026-06-17) — none of the five needs a browser at all. This is the single biggest lever on evaluation cost, and a curl-only evaluation holds no browser lock, so it is safe to run in parallel with other evaluations (see `immo-find` auto Step 4).
+
+- **Kleinanzeigen — scope every keyword sweep to the ad's OWN text.** Each detail page embeds ~10 foreign ads in full (the "Das könnte dich auch interessieren" sidebar ships them as JSON-LD with whole descriptions), so a page-wide grep manufactures hard blockers and amenities (#804: `WBS erforderlich` + `vollständig möbliert` both belonged to other ads; #807: `befristet 12 · möbliert 6` for an ad with none). Sweep only `#viewad-title` + `#viewad-description-text` + the `ul.addetailslist` blocks. Detect contamination by counting unique ad IDs on the page (`/s-anzeige/…/{10 digits}-`): 1 = clean, >1 = foreign ads present — it varies per page, so always check.
+- **Kleinanzeigen — EXPIRED from VISIBLE state only.** A deleted/reserved ad still renders the full cached page with HTTP 200; the status is a visible badge prefixed to the heading ("Reserviert • Gelöscht • {title}" → "Gelöscht" = EXPIRED). Every page also carries hidden `display:none` Gelöscht/Reserviert templates and a `data-soldlabel` on every `<h1>`, so never decide from DOM presence or a raw-HTML grep (#314, #328, #807). A withdrawn ad can show no marker at all; the real liveness test is the poster's inventory, `s-bestandsliste.html?userId={id}` (plain curl), still listing the ad id. "Keine Anfragen mehr" with no badge is a soft-closed channel, not EXPIRED.
+- **Kleinanzeigen — reading Kalt vs Warm.** The headline "Preis" field is meant to be Kaltmiete but posters misuse it constantly. Decide in this order and stop at the first test that settles it: (1) a self-declaring sentence in the description (`Nettokaltmiete`, `zzgl.`, `Warmmiete:`, `Der angegebene Preis ist …`) — still sanity-check it against the local Nebenkosten level; (2) **Kaution ÷ 3 = NKM** (it may carry cents; a small remainder is a Stellplatz in the rent); (3) a stated minimum household income ÷ 3 ≈ Warmmiete; (4) a sibling ad of the same poster in the same building (via `s-bestandsliste`); (5) Vermieter + exact address → one web search for Baujahr and plausible rent level; (6) a Betriebskosten anchor from an evaluated flat in the same quarter (label "abgeleitet", give a range); (7) only then the conservative default heading = Kaltmiete, with a two-row Kalt/Warm table and "Kalt/Warm klären" first in Next Steps.
+- **Photos (any portal) — classify by the BYTES and by looking.** Decide an image's type from the downloaded bytes (`file N.bin`), never the URL suffix (`.webp` URLs have served JPEG, `.png` URLs WebP). A portal's photo-tag/classification is a guess, wrong in both directions (a facade tagged LOGO, ad banners tagged ENERGY_CERTIFICATE). Floor plans hide inside the photo array and "no floor plan" flags can lie in either direction — a lone "Bild 1" is often the Grundriss (= 0 real photos, Block D cap). Count real photos by what the images show, not by the image count or captions like `image.jpg`.
 
 ## Workflow
 
@@ -88,6 +101,22 @@ General policies for opening listing pages. Stable, applies to every evaluation.
          unless they state it as a deal-breaker.
        - **Suche missing / too vague:** surface anyway as `Swap-candidate`, flagged
          "Suche unknown — verify on contact". Never discard for an unreadable Suche.
+       - **Kill axes need WRITTEN words.** Score the Suche as a checklist (direction · rooms ·
+         m² · area · rent · must-haves · object type · household · floor); a row can only fail on
+         text the partner wrote. Established kill forms: a stated room/area FLOOR above our offer
+         (`mind. 3`, `3+ Zimmer`, `gegen 4-5 Zimmer`; "im Idealfall N, kann auch M" sets the floor
+         at M; a range `1-2 Z` is met at its top); a written rent ceiling (test it kalt AND warm);
+         an explicit area exclusion (a bare Ortsteil with no softener, a closed list, a named
+         Kiez/Punktadresse, or "our city → another city"); a must-have only with deal-breaker
+         wording ("… ist ein Muss", "unbedingt mit …"); physical impossibles (Haus, Altbau-
+         Deckenhöhe, higher floor vs our EG); a stated household of ≥ 3–4 people.
+       - **Not a kill axis:** a rent gap with no written ceiling, however large (#662 +86 %,
+         #670 +216 % passed) — report it as a *labelled inference* on the partner's economics.
+         Area softeners (`gerne`, `bevorzugt`, `am liebsten`, `idealerweise`, `oder Umgebung`,
+         `ggf. auch`) and a bare "in Potsdam" PASS. Direction (enlarge vs downsize) is the cheap
+         first read, never the verdict. A high side-1 score never softens side 2.
+       - The full trigger-phrase list and the worked examples live in the evaluator memory
+         (`tauschwohnung.md` §Side2); this is the doctrine.
      - If Side 1 passes and Side 2 does not clearly fail → **`Swap-candidate`**. Add a
        **🔄 SWAP** prefix to the report title and a dedicated **Swap Match** section
        covering: which `swap_offer` flat matched, their Suche as extracted, the two-sided verdict,
