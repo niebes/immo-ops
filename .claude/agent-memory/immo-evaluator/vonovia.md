@@ -171,7 +171,7 @@ Seen on #679 (IS24 expose 170256330, Maxie-Wander-Str. 8, Kirchsteigfeld, DG 73,
 #690 (170281438, Karoline-Schulze-Str. 1, 1. OG 74,51 m²) — it is the standard wording of the whole
 2026 Kirchsteigfeld re-letting wave, expect it on every flat of that batch. A second wording exists
 without "ACHTUNG": *"…wurde hier nur **Musterfotos** hochgeladen"* (#837, #566 Humboldtring 21) —
-grep with the unified example-photo regex in immobilienscout24.md ("Silent variant of the same D-cap").
+grep with the unified example-photo regex in immobilienscout24.md (§Photos, "ONE example-photo regex").
 **Why:** the photos look like a normal, verified interior, so without reading the last description
 line Block D gets a 4,0+ "modernisiert" on evidence that does not exist.
 
@@ -199,7 +199,7 @@ barely tell the units apart (#451 = Falkenhorst 15, 3. OG, "4,5 Zi", 8,03 EUR/m�
 #841 = Falkenhorst 13, 4. OG rechts, 4 Zi, 8,49 EUR/m², `82-1446320010`). Settle identity cheaply by
 (a) the building block of the Objekt-Nr. (`144633` vs `144632`), or (b) on IS24 cross-posts the
 address line printed **inside the Grundriss image** ("14478 Potsdam, Falkenhorst 13, 4.OG rechts" —
-fetch it uncropped, see immobilienscout24.md "Cheapest photo evidence path").
+fetch it uncropped, see immobilienscout24.md §Photos, "Download").
 **Mietpreisbremse here:** field **1971–1990 · A,B · Spalte D = 5,87 (5,42–6,41)** ⇒ zulässig 6,46
 EUR/m²; the 2026 asks of 8,0–8,5 are +25–45 % over the Mittelwert ⇒ § 556g Abs. 3 Vormiete-Auskunft.
 #451's report verdict "eingehalten, weit unter jedem Cap" was **wrong** — don't inherit it.

@@ -47,6 +47,11 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   "no real photos ⇒ cap D at 3,0" rule still applies (#804: only a watermarked Grundriss, while the ad
   claimed "frisch renoviert im April 2025"). Upside: the plan is load-bearing evidence elsewhere — it
   settled Balkon-vs-Terrasse against the checktags and proved 3 genuinely separate rooms (#606 check).
+  The single image can also be an **AI-generated promo collage** (#850: Uni Campus Golm / Neues Palais /
+  Sanssouci + a headline card "3-Zimmer-Wohnung in Potsdam Eiche"). The "KI-generiert" label is printed
+  INSIDE the image (bottom-right), and the description has no Visualisierung/KI keyword, so only viewing the
+  image catches it. It counts as 0 real photos (D cap 3,0). It is labelled and shows no flat, so it is not a
+  scam signal. *Why:* a text-only sweep counts 1 real photo and lets D escape the cap.
 - A cookie consent overlay appears ("Willkommen bei Kleinanzeigen", buttons "Alle akzeptieren" /
   "Datenschutzeinstellungen"). It does NOT block `read_page` — full listing DOM renders behind it,
   so you can extract everything without touching the banner. Do not click "Alle akzeptieren".
@@ -126,6 +131,13 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
       Report the split as derived.
       *Why:* without it the scoring defaults to reading (a), heading = Kaltmiete. That gives
       19,93 EUR/m² and fails the cap, when the real figure is 15,68.
+    - **Sub-variant with NO `Warmmiete` field (NK + Heizkosten both filled): test Kaution ÷ 3 + NK ==
+      heading.** An exact hit means the heading is **Kalt + NK (Teilwarm)**, not Kaltmiete (#853: heading
+      1.350, NK 400, Heiz 189, Kaution 2.850 → 950 + 400 = 1.350). If NK/m² already matches the quarter's
+      all-in warm surcharge (~4,7–4,9 EUR/m² in Kirchsteigfeld), the Heizkosten field is probably a share
+      *inside* the NK, so warm = heading. Score that reading and show "heading = Kalt" as the second row.
+      *Why:* reading the heading as Kalt adds NK + Heiz on top (warm 1.939, 15,88 EUR/m², Bremse +59 %),
+      while the Kaution says 950 kalt / 11,18 EUR/m² (+12 %): gross vs moderate Mietpreisbremse.
   - **Fourth price variant — heading == "Warmmiete" field, NK filled, NO Heizkosten field** (#540:
     heading 1.692 €, Warmmiete 1.692 €, Nebenkosten 305 €). Unlike #356 (NK empty) and #522 (extra
     Heizkosten field) the arithmetic closes cleanly in exactly one direction, so you can *rank* the
@@ -629,7 +641,19 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
     the documented sidebar false-positive. Restrict every swap grep to `#viewad-description-text`.
     *Why:* absent the field, a field-driven reader logs a plain rental; a boilerplate-driven reader
     attributes a foreign Anbieter-ID to this ad.
-  On these, the Suche is a proper "Wir suchen …" paragraph under a "TAUSCHWOHNUNG" heading in the
+- **Third swap variant: Wohnungsswap.de syndication** (#851, 3525453795). Anbieter "Wohnungsswap.de ·
+  Gewerblicher Nutzer · Aktiv seit 16.04.2024" (`posterid` 140044646). Title prefix "Wohnungsswap - {Zi},
+  {m²} - {Straße}, {Stadt}" (none of the Tausch/Tausche/gegen title triggers match, so key on the prefix +
+  Anbieter). Description opens "Es handelt sich hierbei um ein Tauschangebot." and ends with a "Wichtig … bei
+  Wohnungsswap als Tauschobjekt angeboten" boilerplate + `Anbieter-Objekt-ID: {n}`. Structured data is thin:
+  no `Tauschangebot` row, `Wohnungstyp` = "Andere Wohnungstypen", zero checktags, no NK/Warmmiete/Kaution.
+  Warmmiete and Suche live only in the tenant's free text ("Warm: 1.525€", "max 800€ warm"). Gallery = the
+  platform's watermarked app screenshots at mixed ratios. That is its own presentation, not the "re-captured
+  foreign Exposé" Medium. The Grundriss can hold neighbouring units, and the tenant circles their own in red:
+  read the circle before crediting a Balkon (#851's only Balkon belonged to the neighbour).
+  *Why:* the other swap heuristics key on Tauschwohnung GmbH / "Nur Tausch" / Tausch title words, and this
+  variant trips none of them, so it would be scored as a plain rental.
+  On private DIY swaps the Suche is a proper "Wir suchen …" paragraph under a "TAUSCHWOHNUNG" heading in the
   description, and the price heading = **Warmmiete** (the detail list confirms it) with Kaltmiete/NK
   never stated → Mietpreisbremse not checkable, say so instead of splitting an invented NK.
 - **The partner's Suche/Gesuchte Wohnung lives in the free-text `#viewad-description-text`**, not in
@@ -765,6 +789,15 @@ Matches: kleinanzeigen.de `/s-anzeige/{slug}/{id}-{cat}-{loc}` rental/immobilien
   Schlafzimmer, Badezimmer, **Grundstücksfläche**, Haustyp (Doppelhaushälfte…), Etagen, Baujahr,
   Provision. Feature checktags (`li.checktag*`) hold Terrasse/Badewanne/Keller/Garage-Stellplatz/
   Garten. Price heading = Kaufpreis. #448 (Neu Fahrland DHH) all-curl.
+- **Kauf ads (cat 208) embed a clean `window.kaReFinancingFrontend.render({ adAttributes: { adId, categoryId,
+  adPrice, propertyType, livingArea, plotSize, constructionYear, postalCode, street } … })`** right after the
+  description. It is sidebar-free: use `adId` as the identity check and cross-check price/m²/plot/Baujahr against
+  `#viewad-details` (`street: ""` = address withheld). The `mortgageData` beside it (20 % equity, 11 % NK) is
+  Check24's generic assumption, not the seller's figures. *Why:* on #860 it confirmed the ID and facts in one
+  grep while the page carried 3 foreign ad-IDs.
+- **The "# Weitere Angaben" / "# Energie" prose sections are importer markdown used by broker feeds too**
+  (Evernest #860), not just ohne-makler. On every Kauf ad grep the description for Energie data before
+  reporting it missing.
 - **ohne-makler.net cross-posts:** Anbieter block reads "OM Ohne Makler – Privat vom Eigentümer",
   Gewerblicher Nutzer, thousands of ads (the platform account, not the owner) — NOT a scam signal;
   it's a legit FSBO Direktverkauf. Objektzustand / Verfügbar ab / **Energieausweis (Energiebedarfs-

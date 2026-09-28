@@ -231,14 +231,19 @@ Bekannte **Plattenbau**-Adressen (Feld 1971–1990), Gegenstück zur Neubau-List
 - **Lilienthalstr. 12** — TAG Wohnen Stern-Wohnanlage, Bj. 1975. (#525)
 - **Hubertusdamm 43** (vermutlich die ganze Hubertusdamm-Zeile) — dieselbe TAG-Stern-Wohnanlage,
   5-geschossige Plattenblöcke mit Loggien; belegt über den Mapio-Cache `mapio.net/expose/3036523`
-  (TAG-Inserat 2017: Balkon, Wanne, Keller). (#843 — Kleinanzeigen-Nachmieter ohne Baujahr/EEK/
-  Vermieter; erst die Zuordnung entlarvte 17,00 EUR/m² kalt als unplausibel gegen den Korridor.)
+  (TAG-Inserat 2017: Balkon, Wanne, Keller). (#843, Kleinanzeigen-Nachmieter ohne Baujahr/EEK.)
+- **Hubertusdamm 33** — Bj. **1971** (laut Energieausweis), Verbrauchsausweis **EEK A / 42,6 kWh**
+  Fernwärme, 4 Geschosse, kein Aufzug → Feld 1971–1990 × A,B. (#856, IS24 171281021, Bärlin Housing GmbH)
 
 **Eigener Angebots-Korridor für 14480 Am Stern (aus 8 bewerteten Objekten) — als Plausibilitäts-
 schranke benutzen, bevor eine Zahl geglaubt wird:** sanierter Plattenbaubestand **7,66–11,18 EUR/m²
 kalt** (#146 7,66 · #149 9,46 · #279 10,07 · #192 10,13 · #239 10,63 · #231 11,18), Ortsteil-**Spitze**
-sind die Neubauten 2019/2021 mit **16,02–16,50** (#217 · #105). ⇒ **Jeder Aufruf über ~17 EUR/m² in
-14480 ist erklärungsbedürftig und sollte zuerst den Datenintegritäts-Check auslösen** (Tippfehler,
+sind die Neubauten 2019/2021 mit **16,02–16,50** (#217 · #105). **Ausnahme Hubertusdamm-Zeile:** dort ist
+~17 EUR/m² kalt das reale aktuelle Wiedervermietungsniveau für kosmetisch aufgefrischte Platte (#856
+Bärlin Housing 16,99 verifiziert; damit war auch #843s „1.139 lt. Vermieter", 17,00, echt und kein Tippfehler)
+→ dort ein Mietpreisbremsen-Fall (§ 556f braucht umfassende Modernisierung, Farbe + Vinyl reichen nicht),
+kein Datenintegritäts-Fall. *Why:* #843 verbrauchte Block A auf „wohl Tippfehler". ⇒ **Sonst gilt: jeder
+Aufruf über ~17 EUR/m² in 14480 ist erklärungsbedürftig und sollte zuerst den Datenintegritäts-Check auslösen** (Tippfehler,
 Stellplatz/Möblierung/Strom im Betrag enthalten, Quartals- statt Monatszahl), nicht sofort eine
 Mietpreisbremsen-Rechnung. Seen on **#742** (Mieternetzwerk, 68 m², `obj_totalRent` 1.880 EUR warm =
 27,65 EUR/m² warm → rekonstruiert 23,15–24,65 EUR/m² kalt) — das ist **+40–50 % über dem teuersten je
@@ -658,6 +663,11 @@ Miete „+130 %" oder „+25 %" über zulässig liegt, und ob § 556f (Erstbezug
 Mietpreisbremse ganz aussetzt. ÖPNV: S7 **Medienstadt Babelsberg** *und* Babelsberg, Tram 94/99,
 Hbf 4–6 Min., Wannsee ~7 Min. → **Block B 4,5** (ohne Hausnummer keine 5,0; 4,0 bei Nuthestraßen-
 (B2-) oder Bahnnähe am Nordrand). Gesehen auf #676 (expose 170161206).
+- **Stahnsdorfer Str. 93, „Villen am Filmpark"** (WEG, Gewobag als WEG-Verwalter, Bj. 2016, EEK B 71,7,
+  Fernwärme, TG): adressgenaue priceBar **similar 10,00–17,00, overall 7,70–22,20 EUR/m²**, also weder das
+  Altbestandsband (6,10–9,60) noch das Marlene-Dietrich-Allee-Neubauniveau. Mietspiegel 2013–2020 Spalte D
+  12,34 (10,90–14,23), § 556f befreit (Erstbezug nach 01.10.2014). #858 (expose 142070967) lag bei 20,99 =
+  P92. Entlang der Stahnsdorfer Str. entscheidet die Gebäudeklasse das Band, und ein priceBar-Abruf klärt es.
 *Why:* mit dem „Babelsberg Süd = älterer, günstiger Bestand"-Anker liest sich eine 23-EUR/m²-Miete
 in der Marlene-Dietrich-Allee als absurder Ausreißer statt als Neubau-Toplage — und der falsche
 Mietspiegel-Zeile kostet die Mietpreisbremsen-Aussage.
