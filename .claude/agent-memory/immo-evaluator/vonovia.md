@@ -174,6 +174,13 @@ without "ACHTUNG": *"…wurde hier nur **Musterfotos** hochgeladen"* (#837, #566
 grep with the unified example-photo regex in immobilienscout24.md (§Photos, "ONE example-photo regex").
 **Why:** the photos look like a normal, verified interior, so without reading the last description
 line Block D gets a 4,0+ "modernisiert" on evidence that does not exist.
+**Read singular vs plural — the disclaimer can cover ONE room only.** #872 (IS24 171299170,
+Anni-von-Gottberg-Str. 6 a): *"Bei dem **Foto des Badezimmers** handelt es sich um ein Musterbild,
+da die Sanierungsarbeiten aktuell nicht abgeschlossen sind"*. Only the bath shot is a sample; the
+other interior photos were real (the kitchen's rounded Erker matched the Grundriss) and showed the
+PRE-renovation state (old grey PVC tiles, bare walls) ⇒ **no D cap**, but score the promised target
+state as unverified (renovated 4,0 −0,5). **Why:** the whole-gallery rule would wrongly cap a
+visibly real unit; the opposite error would credit vinyl floor + new bath as already done.
 
 ## **Always recompute the Warmmiete from the components — Vonovia's `Gesamtmiete` can be wrong**
 On #690 the Kosten block read Kaltmiete 911,26 + Nebenkosten 198 + Heizkosten 165, but both
@@ -219,7 +226,8 @@ Grundriss) and **#702** (170286614, Marie-Juchacz-Str. 11, 76,02 m², 859,03 EUR
 *unrenoviert*, nur Musterbilder). Gleicher EUR/m², völlig anderer Gegenwert ⇒ **der EUR/m² allein
 sagt im Quartier nichts über den Zustand**; Übergabezustand + Fotolage separat prüfen.
 Die unsanierten Bestands-Neuvermietungen sitzen bei ~10,3–10,6 EUR/m² (#107/#200/#208/#209/#286/#576), die
-sanierungs-Neuverträge of 2026 are asking **12,1–12,3 EUR/m²** — two independent data points:
+sanierungs-Neuverträge of 2026 are asking **12,1–12,6 EUR/m²** (new top 12,62: #872, 81,3 m²,
+Spalte D, above both its priceBar band 6,40–10,90 and the Oberwert ×1,1 ceiling 11,20) — first two data points:
 #679 (889,23 EUR / 73,49 m², Bj 1995, EEK D) and #690 (911,26 EUR / 74,51 m², Bj 1995, **EEK C**,
 1. OG). Both blow through the Potsdam-Mietspiegel-2026 **Oberwert** of their field — *1991–2008 ·
 D–G · Spalte C* = 9,45 (8,20–11,51) for the EEK-D flat, *1991–2008 · A+,A,B,C · Spalte C* = **9,28

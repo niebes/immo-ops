@@ -131,28 +131,53 @@ export function extractSummary(md) {
   const pros = [];
   const cons = [];
   const prose = [];
+  // Evaluators write three shapes: one "✓ item" per line; a "✓ Pros:" heading
+  // followed by "- item" bullets; and a "✓ **Pro:** a · b ·" paragraph
+  // hard-wrapped across lines. Rejoin wrapped lines first, then let a bare
+  // heading claim the bullets under it (all three: #871/#873/#874).
+  const logical = [];
   for (const raw of body.split('\n')) {
-    const line = raw.replace(/^\s*[-*]\s+/, '').trim();
-    if (!line) continue;
+    if (!raw.trim()) { logical.push(null); continue; }
+    const bullet = /^\s*(?:[-*]|\d+\.)\s+/.test(raw);
+    const starts = bullet || /^\s*[✓✗✘]/.test(raw);
+    const prev = logical[logical.length - 1];
+    if (!starts && prev) prev.text += ' ' + raw.trim();
+    else logical.push({ bullet, text: raw.replace(/^\s*(?:[-*]|\d+\.)\s+/, '').trim() });
+  }
+  const HEADING = /^(pros?|cons?|vorteile|nachteile)\s*:?$/i;
+  let list = null;
+  for (const l of logical) {
+    if (!l) continue;
     // A line may carry several marked items ("✓ a · ✓ b. ✗ c · ✗ d").
-    for (const seg of line.split(/(?=[✓✗✘])/)) {
+    for (const seg of l.text.split(/(?=[✓✗✘])/)) {
       const s = stripMd(seg.replace(/^[✓✗✘]\s*/, '')).replace(/\s*[·;,]\s*$/, '').trim();
-      if (!s) continue;
-      if (/^✓/.test(seg)) pros.push(s);
-      else if (/^[✗✘]/.test(seg)) cons.push(s);
-      else prose.push(s);
+      const marked = /^✓/.test(seg) ? pros : /^[✗✘]/.test(seg) ? cons : null;
+      if (marked) list = marked;
+      if (!s || (marked && HEADING.test(s))) continue;
+      if (marked) marked.push(s);
+      else if (l.bullet && list) list.push(s);
+      else { list = null; prose.push(s); }
     }
   }
   return { pros, cons, text: prose.join(' ') };
 }
 
-/** First open action from `## Next Steps` (the `- [ ]` item, else first bullet). */
+/**
+ * First open action from `## Next Steps` (the `- [ ]` item, else first bullet),
+ * with its indented continuation — wrapped lines and sub-bullets — so an item
+ * like "In one message ask:" keeps the questions it introduces.
+ */
 export function extractAction(md) {
-  const body = section(md, 'Next Steps');
-  const open = body.match(/^\s*-\s*\[ \]\s*(.+)$/m);
-  if (open) return stripMd(open[1]);
-  const bullet = body.match(/^\s*(?:-|\d+\.)\s+(.+)$/m);
-  return bullet ? stripMd(bullet[1]) : '';
+  const lines = section(md, 'Next Steps').split('\n');
+  let i = lines.findIndex(l => /^\s*-\s*\[ \]\s*\S/.test(l));
+  if (i < 0) i = lines.findIndex(l => /^\s*(?:-|\d+\.)\s+\S/.test(l));
+  if (i < 0) return '';
+  const parts = [lines[i].replace(/^\s*(?:-\s*\[ \]|-|\d+\.)\s*/, '')];
+  for (const l of lines.slice(i + 1)) {
+    if (!/^\s+\S/.test(l)) break;
+    parts.push(l.replace(/^\s*(?:[-*]|\d+\.)?\s*/, ''));
+  }
+  return stripMd(parts.join(' '));
 }
 
 /**

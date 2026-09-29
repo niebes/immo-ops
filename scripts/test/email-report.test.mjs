@@ -43,6 +43,22 @@ test('extractSummary splits inline ✓/✗ items and keeps prose separately', ()
   assert.equal(extractAction(md), 'Ask for Suche');
 });
 
+test('extractSummary: a bare ✓ Pros: heading claims the bullets under it', () => {
+  const md = '## Summary\nScore: 4,1/5 — ok.\n\n✓ Pros:\n- **Balkon** confirmed\n- EBK\n\n✗ Cons:\n- Keller not stated\n\n## Next Steps\n1. **Contact** via form. Ask:\n   - (a) Keller?\n   - (b) Aufzug?\n2. View it.\n';
+  const s = extractSummary(md);
+  assert.deepEqual(s.pros, ['Balkon confirmed', 'EBK']);
+  assert.deepEqual(s.cons, ['Keller not stated']);
+  assert.equal(s.text, 'Score: 4,1/5 — ok.');
+  assert.equal(extractAction(md), 'Contact via form. Ask: (a) Keller? (b) Aufzug?');
+});
+
+test('extractSummary rejoins a ✓ paragraph hard-wrapped across lines', () => {
+  const md = '## Summary\n✓ **Pro:** KM 1.192 · Balkon +\nKeller · EEK B\n\n✗ **Con:** keine Fotos ·\nkein Grundriss.\n';
+  const s = extractSummary(md);
+  assert.deepEqual(s.pros, ['Pro: KM 1.192 · Balkon + Keller · EEK B']);
+  assert.deepEqual(s.cons, ['Con: keine Fotos · kein Grundriss.']);
+});
+
 test('extractSucheCheck reads a Suche-Check line, else unknown', () => {
   assert.equal(extractSucheCheck('**Suche-Check:** Teltow ✗(Golm) · ≤1.200 ✓(1.025)'), 'Suche: Teltow ✗(Golm) · ≤1.200 ✓(1.025)');
   assert.equal(extractSucheCheck('no suche here'), 'Suche: unbekannt — verify on contact');
