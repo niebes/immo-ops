@@ -115,7 +115,7 @@ Red flags — any of these should trigger a warning (authoritative signal list w
 5. Register in tracker after evaluating
 6. English for all system output; German domain terms where standard (Kaltmiete, not "cold rent")
 7. Include `**URL:**` in every report header
-8. Flag document expiry (SCHUFA > 3 months old)
+8. Do NOT flag document expiry (SCHUFA age) anywhere — not in reports, emails, pushes or follow-through. A fresh SCHUFA takes ~5 min at meineschufa.de and only some ads ask for one, so it is fetched on demand when applying. Mario 2026-10-03: "Stop reminding me" (an expired SCHUFA on #216 led the push + email as OVERDUE).
 9. Write tracker additions as TSV in `batch/tracker-additions/` — NEVER edit `data/listings.md` directly for new entries
 
 ## Tools

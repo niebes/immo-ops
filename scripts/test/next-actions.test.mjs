@@ -165,14 +165,11 @@ test('terminal statuses are excluded from every rule', () => {
   assert.ok(!livenessQueue.some((x) => x.num === '301'));
 });
 
-test('doc-expiry: 2026-07-15 SCHUFA is due-soon at NOW (4 days left)', () => {
-  const { actions } = run();
-  const a = actions.find((x) => x.rule === 'doc-expiry' && x.listing === '251');
-  assert.ok(a);
-  assert.equal(a.severity, 'due-soon');
-  const past = run({ now: new Date('2026-07-20T12:00:00') });
-  const b = past.actions.find((x) => x.rule === 'doc-expiry' && x.listing === '251');
-  assert.equal(b.severity, 'overdue');
+test('document expiry never produces an action (SCHUFA is fetched on demand)', () => {
+  for (const now of [undefined, new Date('2026-07-20T12:00:00')]) {
+    const { actions } = run(now ? { now } : {});
+    assert.ok(!actions.some((x) => x.rule === 'doc-expiry'));
+  }
 });
 
 test('docs-stalled skips submitted docs and listings already covered by apply-after-viewing', () => {

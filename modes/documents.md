@@ -60,7 +60,6 @@ Listing #{NNN} — {location}
 Documents to Prepare
 ━━━━━━━━━━━━━━━━━━━
 
-⚠ SCHUFA expires in 5 days (2026-05-16) — renew at meineschufa.de
 ⚠ Gehaltsnachweise: May payslip not yet added
 ✓ Arbeitsvertrag: current
 ✓ Personalausweis: valid until 2028-03-15
@@ -72,14 +71,11 @@ For Listing #003 (Kreuzberg):
 
 ### check-expiry
 
-Flag documents nearing or past expiry:
+Flag documents nearing or past expiry — only when the user runs this command. SCHUFA is excluded: it is fetched on demand when an ad asks (CLAUDE.md ALWAYS #8).
 
 ```
 Document Expiry Check — {date}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🔴 EXPIRED:
-  SCHUFA (from 2026-02-01) — 3+ months old, renew immediately
 
 🟡 EXPIRING SOON:
   Gehaltsnachweise — add current month's payslip

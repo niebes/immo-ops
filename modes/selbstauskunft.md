@@ -129,5 +129,4 @@ For purchases, generate a buyer profile:
 - NEVER include data not present in profile.yml — ask user to fill in missing fields
 - NEVER submit documents automatically
 - ALWAYS show complete form to user before any action
-- Flag if SCHUFA is older than 3 months (some landlords require recent)
 - Flag if Gehaltsnachweise need updating (should be last 3 months)

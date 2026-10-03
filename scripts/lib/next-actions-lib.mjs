@@ -128,7 +128,6 @@ const DEFAULTS = {
   applyGraceDays: 1,       // "apply same day" strategy → overdue after 1 day
   docsStalledDays: 4,
   nextActionAgeDays: 5,    // Next with no parsable due: nag when block older
-  expiryWarnDays: 14,
   minScore: 4.0,           // never-contacted threshold
   neverContactedDays: 3,
   neverContactedCap: 5,
@@ -208,18 +207,8 @@ export function computeActions({ tracker = [], viewings = [], documents = [], co
     }
   }
 
-  // ── doc-expiry ──
-  for (const d of documents) {
-    if (!d.expires) continue;
-    const t = byNum.get(d.listing);
-    if (!active(t)) continue;
-    const daysLeft = daysUntil(d.expires, now);
-    if (daysLeft < 0) {
-      push(d.listing, 'doc-expiry', 'overdue', `${d.doc} EXPIRED ${-daysLeft}d ago (${d.expires})`, -daysLeft, { file: 'data/documents.md', detail: d.doc });
-    } else if (daysLeft <= o.expiryWarnDays) {
-      push(d.listing, 'doc-expiry', 'due-soon', `${d.doc} expires in ${daysLeft}d (${d.expires})`, 0, { file: 'data/documents.md', detail: d.doc });
-    }
-  }
+  // No doc-expiry rule: document age (SCHUFA etc.) is never a follow-through item.
+  // A fresh SCHUFA takes ~5 min at meineschufa.de and only some ads ask for one, so it is fetched on demand when applying. Mario 2026-10-03: "Stop reminding me" (an expired SCHUFA on #216 led the push + email as OVERDUE).
 
   // ── next-action-due (correspondence) ──
   for (const [listing, corr] of correspondenceByListing) {

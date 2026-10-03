@@ -379,7 +379,7 @@ worn paths — and whether a street, kerb or driveway is visible at all. Paid of
 5. Register in tracker after evaluating
 6. English for system output; German domain terms where standard
 7. Include `**URL:**` in every report header
-8. Flag document expiry (SCHUFA > 3 months)
+8. Do NOT flag document expiry (SCHUFA age) — see CLAUDE.md ALWAYS #8
 9. Write tracker additions as TSV in `batch/tracker-additions/` — NEVER edit `data/listings.md` directly for new entries
 
 ### Tools
