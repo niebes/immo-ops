@@ -319,11 +319,16 @@ export function priceCell(item) {
   return `${km}<br><span style="color:#777">${wm}</span>`;
 }
 
-/** "📍 street, PLZ Ort" under the listing title; non-exact addresses carry their precision. */
+/** Google Maps search link for an address (Maps API URL scheme, opens app or web). */
+export function mapsUrl(address) {
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+}
+
+/** "📍 street, PLZ Ort" under the listing title, linked to Google Maps; non-exact addresses carry their precision. */
 function addressLine(address) {
   if (!address?.text) return '';
   const p = address.precision && address.precision !== 'exact' ? ` <i>(${escapeHtml(address.precision)})</i>` : '';
-  return `<br><span style="font-size:11px;color:#555">📍 ${escapeHtml(address.text)}${p}</span>`;
+  return `<br><span style="font-size:11px;color:#555">📍 <a href="${escapeHtml(mapsUrl(address.text))}" target="_blank" style="color:#555">${escapeHtml(address.text)}</a>${p}</span>`;
 }
 
 /** One listing: main row + ✓/✗ detail row (both colour-coded per cell). */

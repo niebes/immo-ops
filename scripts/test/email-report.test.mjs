@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   parseNum, fmtInt, extractWarm, extractSummary, extractAction, extractSucheCheck,
-  reportTitle, reportAddress, inferGroup, scoreColor, renderListing, trackerRow, discardReason,
+  reportTitle, reportAddress, mapsUrl, inferGroup, scoreColor, renderListing, trackerRow, discardReason,
 } from '../lib/email-report.mjs';
 
 test('parseNum handles German, dot and plain formats', () => {
@@ -125,11 +125,18 @@ test('reportAddress reads text + precision from the **Address:** header', () => 
   assert.equal(reportAddress('# Evaluation: X\n**URL:** https://x\n'), null);
 });
 
+test('mapsUrl encodes umlauts, commas and spaces', () => {
+  assert.equal(mapsUrl('Lindenstraße 12, 14467 Potsdam'),
+    'https://www.google.com/maps/search/?api=1&query=Lindenstra%C3%9Fe%2012%2C%2014467%20Potsdam');
+});
+
 test('renderListing shows the address under the title, marking non-exact ones', () => {
   const base = { row: row('ImmoScout24', 'miete', 'Grube, Potsdam'), url: 'https://x', title: 'T', warm: null,
     deal: 'miete', pros: [], cons: [], text: '', action: '', swap: false, suche: '', scam: 'Legitimate' };
-  assert.match(renderListing({ ...base, address: { text: 'Grube, 14469 Potsdam', precision: 'area' } }), /📍 Grube, 14469 Potsdam <i>\(area\)<\/i>/);
-  assert.match(renderListing({ ...base, address: { text: 'Habichtweg 6, 14476 Potsdam', precision: 'exact' } }), /📍 Habichtweg 6, 14476 Potsdam<\/span>/);
+  const area = renderListing({ ...base, address: { text: 'Grube, 14469 Potsdam', precision: 'area' } });
+  assert.match(area, /📍 <a href="https:\/\/www\.google\.com\/maps\/search\/\?api=1&amp;query=Grube%2C%2014469%20Potsdam"[^>]*>Grube, 14469 Potsdam<\/a> <i>\(area\)<\/i>/);
+  const exact = renderListing({ ...base, address: { text: 'Habichtweg 6, 14476 Potsdam', precision: 'exact' } });
+  assert.match(exact, />Habichtweg 6, 14476 Potsdam<\/a><\/span>/);
   assert.doesNotMatch(renderListing({ ...base, address: null }), /📍/);
 });
 
