@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   parseNum, fmtInt, extractWarm, extractSummary, extractAction, extractSucheCheck,
-  reportTitle, inferGroup, scoreColor, renderListing, trackerRow, discardReason,
+  reportTitle, reportAddress, inferGroup, scoreColor, renderListing, trackerRow, discardReason,
 } from '../lib/email-report.mjs';
 
 test('parseNum handles German, dot and plain formats', () => {
@@ -113,6 +113,24 @@ test('renderListing sets bgcolor on every cell and emits a ✓/✗ detail row', 
   assert.match(html, /✓ Balkon/);
   assert.match(html, /✗ SCAM CHECK: Proceed with Caution · no EA · → call/);
   assert.match(html, /<b>Suche: unbekannt — verify on contact<\/b>/);
+});
+
+test('reportAddress reads text + precision from the **Address:** header', () => {
+  const md = (v) => `# Evaluation: X\n\n**URL:** https://x\n**Address:** ${v}\n**Score:** 4.0/5\n`;
+  assert.deepEqual(reportAddress(md('Lindenstraße 12, 14467 Potsdam (exact; listing field)')),
+    { text: 'Lindenstraße 12, 14467 Potsdam', precision: 'exact' });
+  assert.deepEqual(reportAddress(md('**Grube, 14469 Potsdam** (area; derived: PLZ + geo_ot, street withheld)')),
+    { text: 'Grube, 14469 Potsdam', precision: 'area' });
+  assert.deepEqual(reportAddress(md('Gutenbergstraße, Potsdam')), { text: 'Gutenbergstraße, Potsdam', precision: '' });
+  assert.equal(reportAddress('# Evaluation: X\n**URL:** https://x\n'), null);
+});
+
+test('renderListing shows the address under the title, marking non-exact ones', () => {
+  const base = { row: row('ImmoScout24', 'miete', 'Grube, Potsdam'), url: 'https://x', title: 'T', warm: null,
+    deal: 'miete', pros: [], cons: [], text: '', action: '', swap: false, suche: '', scam: 'Legitimate' };
+  assert.match(renderListing({ ...base, address: { text: 'Grube, 14469 Potsdam', precision: 'area' } }), /📍 Grube, 14469 Potsdam <i>\(area\)<\/i>/);
+  assert.match(renderListing({ ...base, address: { text: 'Habichtweg 6, 14476 Potsdam', precision: 'exact' } }), /📍 Habichtweg 6, 14476 Potsdam<\/span>/);
+  assert.doesNotMatch(renderListing({ ...base, address: null }), /📍/);
 });
 
 test('discardReason extracts the swap-mismatch clause', () => {

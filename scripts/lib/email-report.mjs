@@ -62,6 +62,18 @@ export function reportHeader(md, key) {
   return m ? m[1].trim() : '';
 }
 
+/**
+ * The report's `**Address:**` header → { text, precision } (precision is
+ * exact | street | area, '' when the evaluator didn't state one). null when the
+ * report has no Address line (reports before 2026-10-04 predate the field).
+ */
+export function reportAddress(md) {
+  const v = reportHeader(md, 'Address');
+  if (!v) return null;
+  const m = v.match(/^(.*?)\s*\(\s*(exact|street|area)\b[^)]*\)\s*$/i);
+  return m ? { text: stripMd(m[1]), precision: m[2].toLowerCase() } : { text: stripMd(v), precision: '' };
+}
+
 /** Short listing title from the `# Evaluation: …` heading. */
 export function reportTitle(md, max = 80) {
   const m = String(md).match(/^#\s+(.+)$/m);
@@ -307,9 +319,16 @@ export function priceCell(item) {
   return `${km}<br><span style="color:#777">${wm}</span>`;
 }
 
+/** "📍 street, PLZ Ort" under the listing title; non-exact addresses carry their precision. */
+function addressLine(address) {
+  if (!address?.text) return '';
+  const p = address.precision && address.precision !== 'exact' ? ` <i>(${escapeHtml(address.precision)})</i>` : '';
+  return `<br><span style="font-size:11px;color:#555">📍 ${escapeHtml(address.text)}${p}</span>`;
+}
+
 /** One listing: main row + ✓/✗ detail row (both colour-coded per cell). */
 export function renderListing(item) {
-  const { row, url, title, pros, cons, text, action, swap, suche, scam } = item;
+  const { row, url, title, address, pros, cons, text, action, swap, suche, scam } = item;
   const bg = scoreColor(row.score);
   const flag = scam && !/legit/i.test(scam) ? '⚠ ' : '';
   const label = `${swap ? '🔄 SWAP ' : ''}${flag}${escapeHtml(title)}`;
@@ -317,7 +336,7 @@ export function renderListing(item) {
   const cells = [
     td(bg, escapeHtml(row.num)),
     td(bg, `<b>${Number.isFinite(row.score) ? row.score.toFixed(1) : '–'}</b>`),
-    td(bg, `<a href="${escapeHtml(url)}" target="_blank">${label}</a> <span style="color:#777">(${escapeHtml(row.portal)})</span>`),
+    td(bg, `<a href="${escapeHtml(url)}" target="_blank">${label}</a> <span style="color:#777">(${escapeHtml(row.portal)})</span>${addressLine(address)}`),
     td(bg, priceCell(item)),
     td(bg, size),
     td(bg, escapeHtml(row.rooms || '–')),

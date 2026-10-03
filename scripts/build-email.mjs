@@ -32,7 +32,7 @@ import { writeAtomic } from './lib/fsx.mjs';
 import { parseListingRow } from './lib/listings-md.mjs';
 import { canonicalizeUrl } from './lib/seen-urls.mjs';
 import {
-  trackerRow, reportHeader, reportTitle, extractWarm, extractSummary, extractAction,
+  trackerRow, reportHeader, reportTitle, reportAddress, extractWarm, extractSummary, extractAction,
   extractSucheCheck, inferGroup, dealType, renderSection, renderOverdue, buildSubject,
   groupShort, escapeHtml, discardReason,
 } from './lib/email-report.mjs';
@@ -125,6 +125,7 @@ for (const row of rows) {
     row,
     url: reportHeader(md, 'URL').split(/\s/)[0] || '',
     title: reportTitle(md) || row.location,
+    address: reportAddress(md),
     warm: extractWarm(md),
     deal: dealType(row, reportHeader(md, 'Type')),
     property: group?.property,

@@ -49,7 +49,14 @@ General policies for opening listing pages. Stable, applies to every evaluation.
    - If text: parse the pasted content
    - If listing #: read existing report from `reports/`, re-evaluate with current criteria
 3. **Extract structured data**:
-   - Title, address/location, Bezirk/PLZ
+   - Title, address/location, Bezirk/PLZ — and the **best address you can establish** for the
+     `**Address:**` header (required in every report, including short/early-exit ones). Take it
+     from wherever it is: the portal's address field, the description text ("in der Lindenstraße",
+     "Ecke X/Y"), the Exposé/Energieausweis PDF, photos (street signs, house numbers, landmarks),
+     the map pin/coordinates, or derive it (same building as an earlier report, Vermieter's
+     building list, PLZ + Ortsteil). Never leave it empty: if the street is hidden, write the
+     closest thing you have (`Grube, 14469 Potsdam`). State the precision and where it came from;
+     a derived address is a guess, so say so and do not present it as the listing's own.
    - Kaltmiete, Nebenkosten, Warmmiete (or Kaufpreis + Nebenkosten for purchases)
    - m², rooms, floor, total floors
    - Baujahr, condition, last renovation
@@ -76,7 +83,7 @@ General policies for opening listing pages. Stable, applies to every evaluation.
        Suche was in the description all along). If the Suche is **stated** and **clearly
        fails** by the rules below (e.g. "nur Berlin" vs a Potsdam offer, max warm far
        below our Warmmiete, ≥ one room more than our offer has with no flexibility),
-       stop there: write a **short report** — header block (URL, Portal, Type, Scam
+       stop there: write a **short report** — header block (URL, Portal, Address, Type, Scam
        Assessment from a quick look), a `## Swap Match` section with their Suche verbatim
        + the `**Suche-Check:**` line + the fail reason, `## Summary` (one line), no A–H
        blocks — and register it `Discarded` with note `swap-mismatch (pre-check): {reason}`
@@ -161,6 +168,7 @@ Write to `reports/{NNN}-{location}-{rooms}r-{date}.md`:
 **Date:** {YYYY-MM-DD}
 **URL:** {listing_url}
 **Portal:** {portal_name}
+**Address:** {best known address, e.g. Lindenstraße 12, 14467 Potsdam} ({exact | street | area}; {listing field | description | photos | map | derived: how})
 **Score:** {X.X}/5
 **Type:** {Mietwohnung | Eigentumswohnung | Haus | Grundstück}
 **Scam Assessment:** {Legitimate | Proceed with Caution | Likely Scam}

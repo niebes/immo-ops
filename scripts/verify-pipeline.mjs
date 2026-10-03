@@ -8,6 +8,9 @@ import { join } from 'path';
 import { parseListingRow } from './lib/listings-md.mjs';
 
 const ROOT = process.cwd();
+// Every report carries its best-known address (modes/evaluate.md step 3). Older
+// reports predate the field and are left as they are.
+const ADDRESS_REQUIRED_SINCE = '2026-10-04';
 let errors = 0;
 let warnings = 0;
 
@@ -79,6 +82,11 @@ if (listings) {
       const reportPath = report.replace(/^\[.*?\]\(/, '').replace(/\)$/, '');
       if (reportPath.startsWith('reports/')) {
         check(fileExists(reportPath), `Listing #${num}: report file not found: ${reportPath}`, 'warn');
+        const md = fileExists(reportPath) ? readFile(reportPath) : '';
+        const date = (md.match(/^\*\*Date:\*\*\s*(\d{4}-\d{2}-\d{2})/m) || [])[1];
+        if (date && date >= ADDRESS_REQUIRED_SINCE) {
+          check(/^\*\*Address:\*\*\s*\S/m.test(md), `Listing #${num}: report has no **Address:** header (${reportPath})`, 'warn');
+        }
       }
     }
   }

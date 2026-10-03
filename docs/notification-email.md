@@ -43,7 +43,9 @@ The email body is organized into sections, one per search target from `config/pr
 **Listing cell:** linked short descriptive title, portal name inline after the link in gray:
 ```html
 <a href="{url}" target="_blank">{short title — area}</a> <span style="color:#777">({Portal})</span>
+<br><span style="font-size:11px;color:#555">📍 {address}[ <i>(street|area)</i>]</span>
 ```
+The 📍 line comes from the report's `**Address:**` header (`reportAddress`); a non-exact address carries its precision. Reports without the header (before 2026-10-04) show no 📍 line.
 
 Color-code rows:
 - Green background (`#e8f5e9`): score 3.5+ (worth pursuing)
