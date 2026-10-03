@@ -82,6 +82,7 @@ Read `sections.energy` / "Bausubstanz und Energie" first. Four shapes; only shap
    - Richer variant: `{features:[heatingSystem], hasScales:false}`.
    - Poorer variant: no `energy` object at all (#669). Then there is no Heizungsart anywhere, so do not assume "warm = kalt + NK" is complete.
    - Mietspiegel: use the "kein EA" row where one exists (bis 1948 and 1949–1970 only). For 1971+ cite the whole EEK band ([[potsdam-mietspiegel]]).
+- **`sections.documents.files[]` "…Energieausweis….pdf" can be a 300-dpi scan** (#893: `pdftotext` = 5 bytes, `pdfimages -list` one JPEG per page). Render `pdftoppm -r 110 -f 1 -l 1 -png` and Read page 1: Adresse, Anzahl Wohnungen, Baujahr, Anlass (Neubau vs Vermietung), Registriernummer, Gültigkeit. *Why:* a text-only pass reads "PDF empty" and loses the proof of which building it is.
 - **`efficiencyClass.index` is not the GEG class.** It indexes Immowelt's own 9-segment kWh bar; derive the class from kWh (#824: index 1 at 86 kWh = class C). `validity` can be nonsense (#824 "bis 08.08.2020" on a 2023 Bedarfsausweis), so flag it.
 - **The summary `Energieträger` can be wrong.** On #570 it said Fernwärme, while the prose and the modal said Öl; modal and prose win. Öl vs Fernwärme moves Block D and the CO2/Nachzahlung risk.
 - **No `Heiz*` hit anywhere** means Immowelt's "Warmmiete" may be Kalt + NK only. Cross-check the IS24 twin's "Heizkosten in NK: Nein" (#632: 85–120 EUR/month, which decided the Warmmiete cap). A high NK/m² is only weak evidence that heating is included (#665: 3,37 EUR/m²).

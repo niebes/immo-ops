@@ -284,6 +284,7 @@ The numbers are data. Keep them, and append new datapoints to the matching Quart
 - **Bornstedter Feld — "Am Park Potsdam"** (Diamona & Harnisch, Georg-Hermann-Allee; 5 houses, 80 WE, Bj **2023**, every EG flat with its own garden, OGs Balkon/Loggia; ETW ⇒ single owners via **Passgenau Immobilien**, refs `VM_POTS_{Haus}.{Etage}.{WE}`, plan files `Grundriss_{Haus}.{Etage}{WE}`):
   - Tell without an address: "Diamona & Harnisch" + "direkter Zugang zum Volkspark".
   - Field ab 2021, § 556f. #824 (Haus 2 EG, 75,6 m², 20,49, **Staffelmiete + 2 years Kündigungsausschluss**, NK 3,51 incl. Fernwärme, inside the band).
+- **Bornstedter Feld — Erich-Mendelsohn-Allee 1 a** (Stadtteilplatz, shops in the EG): Neubau Bj 2016 (EA Anlass Neubau 09.01.2017), 43 WE on 5 floors, EEK B 70 kWh Bedarf, Fernwärme, FBH, Loggias, EG-Abstellräume instead of Keller; Verwalter ACOR GmbH (München) → field **2013–2020**, Spalte D 12,34 (10,90–14,23), § 556f. #893 asked 12,12 (88,89 m²); the swap #869 is in the same building.
 - **The Volkspark west edge is older: check the Baujahr per street, not per quarter.**
   - **Horst-Bienek-Straße** (a cul-de-sac): IS24 atlas No. 9 = Bj 2010, No. 4 = 1920–1949.
   - #726 (no Bj; kitchen self-installed 2016, TG, Loggia, fully barrier-free) → 2009–2012 or 2013–2020, E 12,01 (10,30–13,84) / 12,39 (10,31–14,00). The 01.10.2014 date decides: before ⇒ Bremse (cap ≈ 13,21–13,63 = 1.914–1.975 on 144,92 m²); from ⇒ § 556f (up to 19,7–22,4 = 2.855–3.246), a factor of 1,6. So "Baujahr/Erstbezug?" is the first contact question.
@@ -293,6 +294,7 @@ The numbers are data. Keep them, and append new datapoints to the matching Quart
   - Mixed EFH/ZFH/small MFH + Neubau islands on the Kaiser-Friedrich-Straße (#161/#182: Bj 2024, 18,04). No Ortsteil default; always ask the Baujahr. Observed ~10,0 (Bestand, #137/#145/#249) to 18,04.
   - priceBar Kaiser-Friedrich-Str. 8 (09/2026): similar 8,50–12,60, overall 7,00–15,30 (~19 % under 15,51) = the cheap corner in Bestand; an upper-band ask is no bait.
   - Seen on #100, #118, #137, #145, #169, #170, #249, #298/#299/#331, #802.
+- **Grube (14469, `geo_ot` grube, `obj_regio3` Potsdam_Nord):** ~430-inhabitant village between Golm and Bornim; no shops, bus only (605 extended from Golm), Bhf Golm ~3 km ⇒ Block B **4,0** (Golm-adjacent but remote). Mixed village stock, no default Baualtersklasse: bracket all of Spalte E and ask the Baujahr. priceBar 10/2026: similar 6,70–9,30, overall 5,70–11,00. Telekom 1.000 Mbit/s seen (#882).
 
 ### 14476 — Golm (+ "In der Feldmark") · Fahrland
 - **Golm** = the profile's top Ortsteil and the site of our swap offer; there is no dominant building type (village core / pre-war, 1990s–2000s around the campus and station, 2020s Neubau).

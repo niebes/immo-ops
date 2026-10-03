@@ -110,6 +110,12 @@ Bericht schreiben („einfach 6,63 · mittel 7,08 · gut 7,56 → gut ist auch d
 2026 bei **14–22 EUR/m²** liegen. Eine Wiedervermietung, die 60–100 % über der ortsüblichen Miete
 liegt, ist in Berlin der **Normalfall**, nicht die Ausnahme — trotzdem jedes Mal beziffern.
 
+### Mittlere Wohnlage (9.2), Neubau-Zeilen — untere / **Mittel** / obere
+Andere m²-Stufen als 9.3 (70/95 statt 60/85) — nie die 9.3-Zeile übernehmen (#895 Zehlendorf-Süd).
+- **2010–2015** (Z. 120–122): <70 m² 9,19/**12,60**/17,60 · 70–95 8,78/**11,39**/15,64 · ab 95 9,88/**12,54**/18,79
+- **2016–2019** (Z. 123–125): <70 m² 10,08/**13,48**/18,64 · 70–95 10,24/**14,42**/17,68 · ab 95 9,24/**13,18**/20,88
+- **2020–2024** (Z. 126–129): <50 12,52/**19,04**/26,81 · 50–65 10,78/**19,92**/24,04 · 65–95 12,48/**17,33**/22,40 · ab 95 11,79/**15,15**/21,02
+
 ## Angebotsmarkt-Anker (Anchor 2, immer zusätzlich nennen)
 - **Westend (14052/14055), Q2 2026: 14,65 EUR/m² Mittel, Spanne 11,87–21,73, −2 % y-o-y.**
 - **Spandau (Bezirk), Q2 2026: 11,34 EUR/m²** (−2,1 % y-o-y), Bezirksspanne **9,75–17,67**; ein zweiter
@@ -252,7 +258,7 @@ Einstieg `mietspiegel.berlin.de/berliner-mietspiegel/erlaeuterungen-zum-mietspie
       --data-urlencode "CQL_FILTER=strasse LIKE 'Machnower%' AND plz='14165'"
 
 - Felder: `strasse` · `hnr` (dreistellig nullgepolstert + Buchstabe: `011`, `002A`) · **`wol`** (`einfach|mittel|gut`) · `plz` · `stadtteil` · `bezname` · `plr_name`. Property-Namen nicht raten (`strname` → „Illegal property name"); im Zweifel `request=DescribeFeatureType`.
-- Nicht auf die exakte Hausnummer filtern, sondern Straße + PLZ ziehen und die Liste lesen.
+- Nicht auf die exakte Hausnummer filtern, sondern Straße + PLZ ziehen und die Liste lesen. Bei Ein-PLZ-Straßen reicht `strasse LIKE 'Lutterbacher%'` ohne `plz` (#895).
 - **Die Einstufung springt von Haus zu Haus:** Machnower Str. 14165 Nr. 11 = gut, Nachbarn 10 und 12 = mittel (ungerade = gut / gerade = mittel). Bei „bis 1918 / 90–110 m²" 7,65 vs 8,45 Mittelwert ≈ 10 % auf die zulässige Miete (#570: Zeile 138 = 6,60 · **8,45** · 12,99).
 - Layer-Name enthält das Jahr → jeden Januar auf `wohnlagenadr20NN` hochzählen.
 - Die schlanke **Tabellen-PDF** `…/uploads/2026/05/mietspiegeltabelle2026.pdf` (~140 KB, ~88 Zeilen `pdftotext -layout`) enthält die ganze Tabelle; die drei Wohnlagen stehen dort **nebeneinander in einer Zeile** (Zeilen-Nr. 1–67 einfach, 68–129 mittel, 130–192 gut) — der Baualters-Header steht nur in der ersten Zeile der Gruppe.

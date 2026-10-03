@@ -45,4 +45,17 @@ Portal-family match: `wgkarlmarx.de`. Genossenschaft's own site, expose URLs lik
 - Gallery on Neubau expose = architectural **renders/Visualisierungen**, not real interiors
   — normal for pre-completion, Neubau exception → no Block D cap.
 - Near-identical Neubau units are listed as separate exposes (`-1/-3/-4`); treat as a
-  cluster, eval one.
+  cluster, eval one. To tell siblings apart: curl all of them, tag-strip, and `diff` the
+  text. Usually only `Objekt-ID` and `Etage` differ. *Why:* the scan metadata looked
+  identical, but the units sat on different floors (#897).
+- **The headline price is the Warmmiete** ("Gesamtmiete"). The scan metadata carries that
+  figure, so always take the Kaltmiete from the Objektinformationen. "Kaution / Provision"
+  holds the Genossenschaftsanteile (2.665 EUR for a 4-Raum in 2026).
+- **`Etage` counts EG as 1:** Etage 8 is the 7. OG on the Grundriss. Quote the OG from the
+  plan.
+- **The Grundriss is the gallery image named after the Objekt-ID**
+  (`/fileadmin/user_upload/wgkarlmarx/user_upload/{198_1_26}-T.*.jpg`). Get the full-size
+  file from the `background-image` url, not the `csm_` thumbnail. It gives room sizes,
+  Wanne vs Dusche and the floor. The rest of the gallery is generic project renders.
+- **Keller and Energieausweis are often absent** from the Kahleberg Turm exposés. Never
+  assume a Keller from #295 (the Zeile building). Ask, and score E at the midpoint.
