@@ -16,7 +16,9 @@ Consolidated 2026-09-28 from a 148 KB append log. Listing numbers (#NNN) stay on
 - **CiC is the last fallback.** Sequence: `tabs_context_mcp{createIfEmpty:true}` → `tabs_create_mcp` → `navigate` → `javascript_tool`. There is no consent wall. The ~1 KB return cap means 4–6 calls (a 900-char head, 2–3 body slices, one regex sweep). If the first `navigate` lands on chrome://newtab, navigate again.
 
 ## §Liveness — EXPIRED
-- **Deleted exposé:** HTTP 200 shell, `document.title` = bare "Immowelt", `innerText` ~540 chars with "Anzeige gelöscht — Diese Anzeige wurde bereits gelöscht" (#542). If `L < ~1000`, it is EXPIRED.
+- **Deleted exposé = HTTP 200 shell with no payload.** Decide on the phrase `Anzeige gelöscht|nicht mehr verfügbar` in `innerText` (plus a bare `document.title`), NEVER on length. Two variants:
+  - `document.title` = "Immowelt", `innerText` ~540 chars, "Anzeige gelöscht — Diese Anzeige wurde bereits gelöscht" (#542).
+  - Online-ID URL (`/expose/26IN6Z1991TC`): `document.title` = the bare Online-ID, `innerText` ~3,1 KB: "Diese Anzeige ist nicht mehr verfügbar" + a "Mehr Angebote wie dieses" list of ~25 foreign cards (#905). *Why:* the old `L < ~1000` test missed it, and the similar-offers cards read like the listing's own price/m²/Ortsteil.
 - **Lister-declared VERGEBEN (now in evaluate.md):** the page is complete and live, `isNew:true`, but the headline reads "TAUSCHWOHNUNG VERGEBEN: …" (#712). Sweep `vergeben|bereits vergeben|nicht mehr verfügbar|reserviert` (case-insensitive) over `sections.mainDescription.headline` + `classified.title` + `document.title` together:
   - On the swap feed, `classified.title` holds the whole DESCRIPTION, and the real headline lives only in `mainDescription.headline` (#719, #779).
   - `classified.title` can be `undefined` (#730), so use `String(d.title)`, not `JSON.stringify(d.title).slice`.
@@ -153,9 +155,10 @@ Read `sections.energy` / "Bausubstanz und Energie" first. Four shapes; only shap
 ## §Location
 - **Resolution order (promoted to evaluate.md):** prose (landmarks, transit lines, named streets) → `zipCode` → street signs / shop names legible in the gallery (#763) → nothing else.
 - **`district` lies:**
-  - On swap feeds, `district:"Grunewald"` + `og:title:"Westend"` is a fallback pair meaning "location unknown". Seen on 6 flats (#655–#658, #683, #696). On #696 `city` lied too: a Siemensstadt (Spandau) flat was labelled Charlottenburg-Wilmersdorf. Only `zipCode` survives, and a repeated zipCode does not make the pair trustworthy.
+  - On swap feeds, `district:"Grunewald"` + `og:title:"Westend"` is a fallback pair meaning "location unknown". Seen on 6 flats (#655–#658, #683, #696). On #696 `city` lied too: a Siemensstadt (Spandau) flat was labelled Charlottenburg-Wilmersdorf. `zipCode` survives only at Bezirk level, and a repeated zipCode does not make the pair trustworthy. The Tauschwohnung-GmbH feed can be off by a neighbouring PLZ too: #902 `district:"Westend"` + `zipCode:"10825"`, prose "Crellekiez, Nähe U Kleistpark / S Julius-Leber-Brücke" (= 10827). The prose decides Kiez and PLZ. *Why:* the PLZ feeds the Address header and the Wohnlage lookup, and a neighbouring PLZ looks authoritative.
   - Potsdam: "Kirchsteigfeld" for an Am-Stern flat (#662). The PLZ 14480 is shared, but the Mietspiegel field differs by ~1,6×, so a matching `zipCode` clears the search group, never the Ortsteil.
   - Potsdam: "Bornstedt" for Eiche (#672).
+  - Potsdam: "Fahrland" for a Golm flat (#903; PLZ 14476 is shared by Golm/Fahrland/Marquardt). The prose said "Potsdam, Golm" and a hand-drawn Grundriss in the gallery named "Geiselbergstraße". *Why:* Fahrland is Block B ~3,5 (bus only), Golm 4,7, ~0,25 on the total.
   - Potsdam: the Wohnbau-GmbH Quartier Pappelallee/Voltaireweg is systematically tagged "Bornstedt", while the IS24 mobile API says `jägervorstadt` (#584, #700). If an IS24 twin exists, take `geo_ot`/`obj_regio4` from it.
   - `city` can fail by a same-name Ortsteil collision: #763 "Paaren" was resolved to Potsdam's Uetz-Paaren; the plot is in Paaren im Glien (Havelland, 14621, ~19 km out).
 - **The lister can disown the address:** grep `Adresse stimmt|stimmt nicht ganz|nicht die genaue Adresse` before writing "PLZ verified" (#654).

@@ -66,6 +66,7 @@ Consolidated 2026-09-28 from a 98 KB append log plus the Suche notes that were s
   - `im Gegenzug` LAST, and verify the hit: it is boilerplate in the Wohnungsswap "Wichtig" paragraph (#660).
 - **Also read to the last line:** a closing "Hard Facts: Größe, Zimmer, Warmmiete, Keller ja/nein, Stellplatz ja/nein" checklist is a second statement of which criteria are hard (#805).
 - **Two posts of the same flat** (Wohnungsswap + Tauschwohnung) can state different floors (#660 55 m² vs #661 50 m²). Score against the more permissive one; constraints identical in both posts are the load-bearing ones.
+  - **Silence is not the more permissive statement.** A Tauschwohnung-GmbH post can be Suche-silent while the tenant's private Kleinanzeigen twin states it (#903 Immowelt = #503 KA: "Ich suche eine 2-3 Zimmer Wohnung in Potsdam West, Zentrum oder Babelsberg"). Before writing "Suche unknown", look for a twin (§Dedup); its written Suche decides. *Why:* #903 would have gone out as a "Suche unknown" Swap-candidate, while the twin showed a Golm resident wanting out of Golm, a clear area fail.
 
 ## §Side2 — score the Suche as a checklist; fail only on WRITTEN words
 Checklist rows: direction · rooms · m² · area · rent · must-haves · object type/Bausubstanz · household/constellation · floor. Each kill axis needs text the partner wrote.
@@ -156,5 +157,6 @@ Checklist rows: direction · rooms · m² · area · rent · must-haves · objec
 - **Across syndicators** (Wohnungsswap.de vs Tauschwohnung GmbH) the ids always differ.
   - Dedup on a prose fingerprint: the exact m² (70,53, not 70), a physical oddity (garden 6×8 m + Außenwasser), the occasion (WG-Auflösung), and the price triple (#660 = #661).
   - The Tauschwohnung variant is the richer one (7 vs 1 chips, 17 vs 10 photos, rating). Fetch it before writing "confirmed missing".
+- **Private DIY post + syndicated post of the same flat** (tenant on Kleinanzeigen privately AND via Tauschwohnung GmbH on Immowelt, #903 = #503 KA 3471947654): the ids never match (KA userId/ad-id vs Anbieter-ID). Match on Ortsteil + Kaltmiete in the tracker (`grep Golm data/listings.md | grep 1.150`), then confirm with identical gallery photos. The private twin often carries the Suche (§WhereTheSucheIs).
 - **Fetch the sibling even on a confirmed dupe.** The richer post can resolve an open question: #641's bare 700 € was "Kaltmiete" on the Immowelt twin.
 - **Developer Grundriss unit designators** (`Haus {N} – WE {n}`, `WE 65.01`) are the cross-portal identity key. Grep the tracker for them.

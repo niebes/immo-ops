@@ -126,6 +126,7 @@ Shapes to recognise:
 - **Reposts:**
   - An evaluated ad can be silently EDITED (#594 → Warm 1.085→1.200, Kaution 2.625→2.700) and re-posted under a new ad id with all-new photo UUIDs (#703).
   - Never dedup a repost by UUID. Use `m² + Zimmer + Etage + NK + Verfügbar-ab + description hash`; `posterid` is optional because reposts can move to a new account (#807).
+  - A repost can also silently DROP spec rows (Etage/Schlafzimmer/Badezimmer) and regenerate even a single KI collage under a new UUID (#901 = #850, same account, 3 days apart), so the ad-id grep, the UUID and the Etage key all miss it. Grep `reports/` for the description's first sentence and for the `posterid`. *Why:* the §Triage ad-id dedup returned nothing for a flat already scored.
   - Re-fetch the OLD ad before trusting the old report's numbers.
   - **Landlord re-list vs copied-ad scam:** download both galleries at `rule=$_57.JPG` and `md5sum` them. Byte-identical files = the same originals re-uploaded (a copier only has re-encoded CDN renders), and NEW photos absent from the old ad = the poster has access to the flat (#807: 7/11 identical + 4 new ⇒ legitimate). Still drop Block H (the old account's history does not transfer) and fire the two Medium signals (reposted / new account) ⇒ "Proceed with Caution", identity verification first.
 
@@ -134,6 +135,7 @@ Doctrine (visible badges only, `s-bestandsliste` as the liveness test) is in `mo
 - **A deleted or reserved ad still renders the full cached page** with HTTP 200. The status shows as VISIBLE badges prepended to the heading, e.g. "Reserviert • Gelöscht • {title}". "Gelöscht" = EXPIRED; don't score the cached numbers.
 - **Hidden templates:** every page carries `display:none` "Gelöscht"/"Reserviert" elements, and every `<h1>` has a `data-soldlabel` attribute ("Nicht mehr verfügbar" / "Verschenkt"). Decide only from visible text (`innerText` / the h1 prefix), never from DOM presence or a raw-HTML grep (false positives #314, #328, #807).
 - **A withdrawn ad can show NO marker at all** (#807). The only reliable liveness test is the poster's inventory: `s-bestandsliste.html?userId={id}` still lists the ad id, or not.
+  - But the seller box's "N Anzeigen online" can contradict it (#901: old ad HTTP 200, no badge, box "2 Anzeigen online", bestandsliste only the NEW repost id). When the two disagree, record the old ad as "likely withdrawn, unconfirmed" and do NOT stage `status: Expired` for its row. *Why:* both tests were read and pointed opposite ways.
 - **Soft-closed ad:** "Nicht mehr schreiben! / KEINE ANFRAGEN MEHR", no badge (#609). This is NOT EXPIRED: score it normally and flag the closed applicant channel in the Summary and Next Steps.
 
 ## §TypeTraps — what the ad really is
