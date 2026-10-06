@@ -10,6 +10,15 @@ metadata:
 Next.js React SPA. `portals.yml` covers the **search** page (extractor
 `scripts/portals/engel-voelkers-extract.js`); this file covers the **detail/expose** page.
 invisible-playwright works first try — no bot wall, no CAPTCHA.
+- **No browser needed for the expose: plain `curl -sL --compressed` with a Firefox UA returns
+  HTTP 200 with the full server-rendered `__NEXT_DATA__`** (verified 2026-10-06, #904, ~65 KB).
+  Parse it in node (`.cjs` file — the repo is `"type":"module"`). Safe under `Parallel: yes`.
+- **Photos:** when `propertyImages[]` is absent, the gallery is `uploadCareImages[]` (`id`, `aiType`).
+  Bytes via `https://ucarecdn.com/{id}/-/resize/1400x/-/format/jpeg/` (curl, no auth). The
+  **last image can be an E&V house-ad banner** ("Jetzt vermieten" + QR, ~853×480) — not a photo
+  of the property; exclude it from the photo count.
+- `commissionType: COMMISSIONBYERTENANTSIDE` = **full** buyer Courtage (7,14 % on a plot), as
+  opposed to `COMMISSIONMIXED` (split).
 
 - **Expose URL pattern:** `/de/de/exposes/{uuid}`.
 - **Consent banner does NOT block content.** The Cookie text is present in
