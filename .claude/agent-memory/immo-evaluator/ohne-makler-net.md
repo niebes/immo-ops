@@ -129,6 +129,15 @@ potential deal-breaker: BVerwG 18.07.2023 (4 CN 3.22) held it EU-law-incompatibl
 nach § 2 Abs. 4 BauGB`** plus § 3(2)/§ 4(2) participation. If the Begründung says § 13b and you can't
 retrieve the final Satzungsbeschluss/Amtsblatt, flag it as the top Next Step, don't assume validity.
 
+## Private seller can be fully anonymous; the OM-ID says nothing about age
+- **`Angebot von:` is sometimes absent** even with `Privatangebot` (#910, OM-324748): no name, no
+  Impressum, form-only. Don't hunt for it. Score Block H ~3,0 (nothing verifiable) and record it as a
+  Low scam signal at most.
+- **A low OM-ID does not mean a stale listing.** 324748 (current IDs ≈ 490.000) was shown by mapio as
+  "Online seit 06.10.2026", so old IDs get re-activated. For freshness and local plot comparables
+  (EUR/m², Online-seit), use the mapio Gebiets-list (see [[mapio-net]] §Dritter Zweck), not the ID.
+  **Why:** without that check, #910 would have been framed as a years-old unsold plot.
+
 ## Liveness / expiry
 A live listing always renders the `Objekt-Nr` → `OM-{id}` line; deleted ones show
 "nicht gefunden". Use that line's presence as the expiry check.

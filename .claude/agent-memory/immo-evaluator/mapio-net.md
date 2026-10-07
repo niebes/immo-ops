@@ -13,6 +13,15 @@ kann (Nachmieter-Ablöse vermeiden). Seen on #843 (Hubertusdamm 43 → TAG, `map
 *Why:* auf #843 war das der einzige Weg zu Vermieter und Baujahr — und damit zur
 Unplausibilität der angegebenen Kaltmiete.
 
+## Dritter Zweck: lokale Grundstücks-Angebotsanker bei „Preis auf Anfrage"
+Eine WebSearch-Treffer-URL `mapio.net/expose/{id}/` kann per curl auf die **Gebiets-Trefferliste**
+(„Grundstück kaufen in {Ortsteil}") umleiten. Diese Liste nennt pro Inserat Preis, m², EUR/m²,
+manchmal die Straße und **„Online seit {Datum}"**. In einem curl bekommt man so 10–15 Ortsteil-
+Vergleichsangebote als Angebots-Anker neben dem BRW, dazu einen Frische-Beleg für das eigene Inserat
+(gleiche m² + „auf Anfrage"). Gleicher Text-Strip wie unten, Schnitt vor „Neue Angebote per E-Mail".
+**Why:** #910 (OM, Preis auf Anfrage) bekam so den Fichtenwalde-Markt von 160–250 EUR/m² aus einem
+einzigen curl. Ohne ihn hätte Block A nur auf dem BRW gestanden.
+
 ## Wozu — Rettungsanker für gelöschte Exposés
 Wenn ein Exposé an der Quelle weg ist (IS24-Mobile-API 404 `ERROR_RESOURCE_NOT_FOUND`, Immowelt
 „Anzeige gelöscht"), liefert mapio.net oft noch die **vollständige Objektbeschreibung + Ausstattung
