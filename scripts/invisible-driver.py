@@ -40,6 +40,11 @@ CAPTCHA_MARKERS = (
     "Ich bin kein Roboter", "Are you a robot", "captcha",
     "Please verify you are a human",
 )
+# Walls with no tell-tale title/text, only an embedded challenge. DataDome (Immowelt,
+# 2026-10-07) serves an empty <body> under the plain site title plus a
+# geo.captcha-delivery.com iframe — the text markers above miss it, so the scan read it
+# as "0 cards / selector drift" and evaluators nearly marked live exposés EXPIRED.
+BLOCK_HTML_MARKERS = ("captcha-delivery.com",)
 # Mirrors scripts/portals/base.mjs CONSENT_SELECTORS (kept in sync by hand).
 CONSENT_SELECTORS = [
     'button:has-text("Alle akzeptieren")',
@@ -81,7 +86,10 @@ async def is_blocked(page):
         if any(m.lower() in title.lower() for m in CAPTCHA_MARKERS):
             return True
         body = (await page.inner_text("body"))[:4000]
-        return any(m in body for m in CAPTCHA_MARKERS)
+        if any(m in body for m in CAPTCHA_MARKERS):
+            return True
+        html = await page.content()
+        return any(m in html for m in BLOCK_HTML_MARKERS)
     except Exception:
         return False
 
