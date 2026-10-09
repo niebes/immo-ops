@@ -132,6 +132,7 @@ Shapes to recognise:
 
 ## §Expired
 Doctrine (visible badges only, `s-bestandsliste` as the liveness test) is in `modes/evaluate.md`. Cases:
+- **A removed ad can instead 301 to the category list** (#575, ad 3481658144, 2026-10-09: `location: /s-wohnung-mieten/potsdam/c203l7958`). A 301 to `/s-…/c203l…` = gone → EXPIRED, no bestandsliste check needed. Test with `curl -s -o /dev/null -D -` (**no `-L`**). *Why:* `curl -L` silently returned 93 KB of category HTML full of foreign ads that looked like a normal 200.
 - **A deleted or reserved ad still renders the full cached page** with HTTP 200. The status shows as VISIBLE badges prepended to the heading, e.g. "Reserviert • Gelöscht • {title}". "Gelöscht" = EXPIRED; don't score the cached numbers.
 - **Hidden templates:** every page carries `display:none` "Gelöscht"/"Reserviert" elements, and every `<h1>` has a `data-soldlabel` attribute ("Nicht mehr verfügbar" / "Verschenkt"). Decide only from visible text (`innerText` / the h1 prefix), never from DOM presence or a raw-HTML grep (false positives #314, #328, #807).
 - **A withdrawn ad can show NO marker at all** (#807). The only reliable liveness test is the poster's inventory: `s-bestandsliste.html?userId={id}` still lists the ad id, or not.
