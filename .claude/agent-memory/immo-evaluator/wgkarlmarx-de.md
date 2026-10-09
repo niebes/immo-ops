@@ -35,7 +35,7 @@ Portal-family match: `wgkarlmarx.de`. Genossenschaft's own site, expose URLs lik
 - **Vergabe risk:** the outgoing tenant can only *propose* a Nachmieter — the coop decides. Make
   that contact question #1 and score it in Block G, not H.
 - **Their buildings:** Zum Jagenstein / Saarmunder Str. (Waldstadt II, ~2018/19, 113 WE — see
-  [[potsdam-mietspiegel]] anchor), Zum Kahleberg, Ahornstr. 20, Potsdamer Mitte (Alter Markt 5a /
+  [[potsdam-mietspiegel-ortsteile]] anchor), Zum Kahleberg, Ahornstr. 20, Potsdamer Mitte (Alter Markt 5a /
   Erika-Wolf-Str. / Friedrich-Ebert-Str. 1). ~7.500 Wohnungen total.
 - **Zero Eigenbedarf risk** — cooperative can't terminate for personal use → Block H = 5.0
   for the coop itself (established, ~7.500 Wohnungen). Rents to non-members too (no WBS by

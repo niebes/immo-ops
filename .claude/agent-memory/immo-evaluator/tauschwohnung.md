@@ -141,7 +141,7 @@ Checklist rows: direction · rooms · m² · area · rent · must-haves · objec
 - **A swap ad and a Nachmietergesuch can be two exit channels of ONE flat** (#723 = #642, matched by the Grundriss "Haus I – WE 8"):
   - score Block A with the owner's ask (1.250 vs swap 1.100)
   - the non-swap channel is strictly better: no `landlord_consent` gate, and we keep Golm.
-- **Feldmark vacancies:** a flat in our own street goes via an internal move with DIBAG, not a swap. See [[potsdam-mietspiegel]] (Quartiers-Anker, In der Feldmark).
+- **Feldmark vacancies:** a flat in our own street goes via an internal move with DIBAG, not a swap. See [[potsdam-mietspiegel-ortsteile]] (14476, In der Feldmark).
 - **A `Möbliert/Teilmöbliert` flag on a swap is NOT the furnished/auf-Zeit blocker** (#653). A swap is a permanent Mieterwechsel, and the flag means "furniture can be taken over".
   - Fire the blocker only with real markers: `befristet|auf Zeit|Zwischenmiete|Untermiete`, a Mietende or Mindest-/Höchstdauer, a Pauschalmiete with "inkl. alles", or a hotel-style inventory.
   - Raise it as an open question with the conditional ≤2,0.
