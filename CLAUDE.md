@@ -45,6 +45,16 @@ Treat `inbox/` as a user-layer source (never auto-delete or modify; it holds per
 **`inbox/` is the user's drop zone — Claude never writes into it.** Nothing Claude produces or fetches (downloads, renders, copies) goes there. Listing material Claude files — floor plans, Exposés, attachments fetched from a link the user pastes — goes to **`listings/{NNN}/`**, keyed by the tracker listing ID (e.g. `listings/918/grundriss-whg-03001.pdf`), never by street name. Reference it by that path in the tracker Notes, report and correspondence log.
 **Why:** 2026-10-10. Claude saved two pasted floor-plan PDFs (#917/#918) into a new `inbox/Nedlitzer Str. 27B/`. Mario: "The inbox is the inbox. I'm moving in stuff for you. This is not a place to keep it. Also we have IDs for listings". The inbox layout itself is not a pattern either: "Usually flat or I tell you where. There's no specific pattern to document."
 
+## Git: auto-commit hook
+
+A `Stop` hook in `.claude/settings.json` commits and pushes everything at the end of every turn: `git add -A`, commit `update {file names}`, then `pull --rebase` + `push`. Gitignored user-layer files never get committed. So:
+
+- Don't commit manually, and don't offer to. Never tell the user a change is "not committed yet": it will be, when the turn ends.
+- Commits named `update …` that you don't recognise are your own earlier turns, not the user's work. They are not a sign that someone else changed the files.
+- Anything not gitignored is pushed when the turn ends. Before creating a new folder for personal data, add it to `.gitignore` in the same turn.
+
+**Why:** 2026-10-10. Claude found its own edits in commit 2edc88d and reported them as "your earlier commit", with the newest edit "not committed yet". Mario: "This repo has a auto commit hook. Don't get confused by that. You should write it down".
+
 ## Data Contract
 
 See `DATA_CONTRACT.md`. User-layer files are NEVER auto-updated. System-layer files can be replaced on upgrade.
