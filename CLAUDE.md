@@ -34,16 +34,16 @@ Six skills mapped to the apartment hunting journey:
 
 ## Inbox Folder (email attachments)
 
-The user manually drops files that arrive by email into `inbox/`. **When the user references an email, an attachment, an Exposé, or a document "in the inbox", look in `inbox/` — do NOT try to pull bytes out of Gmail (the Gmail tools return attachment metadata only, and browser access to Gmail is refused).** Read PDFs/images directly with the Read tool.
+The user manually drops files into `inbox/`: email attachments, Exposés, forms, applicant documents. **When the user references an email, an attachment, an Exposé, or a document "in the inbox", look in `inbox/` — do NOT try to pull bytes out of Gmail (the Gmail tools return attachment metadata only, and browser access to Gmail is refused).** Read PDFs/images directly with the Read tool.
 
-Layout:
-- `inbox/{Listing name}/` — per-listing attachments, e.g. `inbox/Reiherbergstr. 15b/Exposé.pdf`, plus the landlord's Selbstauskunft/Datenschutz forms. An official Exposé here is authoritative for price/Kaution/Baujahr/Energieausweis — reconcile the tracker row against it (search-portal data is often stale or wrong).
-- `inbox/Mario-Niebes/` and `inbox/Amanda-Lamont/` — applicant documents for the Selbstauskunft (Schufa, Ausweis, Entgeltabrechnungen, Bewilligungsbescheid, Niederlassungserlaubnis). These are the source files `/immo-apply` documents mode assembles.
+There is no fixed layout. Files usually land flat in `inbox/`, or the user says where they are. Don't assume or document a folder pattern — look, or ask.
+
+An official Exposé dropped here is authoritative for price/Kaution/Baujahr/Energieausweis — reconcile the tracker row against it (search-portal data is often stale or wrong).
 
 Treat `inbox/` as a user-layer source (never auto-delete or modify; it holds personal/financial data — handle per the "NEVER share financial data" rule).
 
 **`inbox/` is the user's drop zone — Claude never writes into it.** Nothing Claude produces or fetches (downloads, renders, copies) goes there. Listing material Claude files — floor plans, Exposés, attachments fetched from a link the user pastes — goes to **`listings/{NNN}/`**, keyed by the tracker listing ID (e.g. `listings/918/grundriss-whg-03001.pdf`), never by street name. Reference it by that path in the tracker Notes, report and correspondence log.
-**Why:** 2026-10-10. Claude saved two pasted floor-plan PDFs (#917/#918) into a new `inbox/Nedlitzer Str. 27B/`. Mario: "The inbox is the inbox. I'm moving in stuff for you. This is not a place to keep it. Also we have IDs for listings".
+**Why:** 2026-10-10. Claude saved two pasted floor-plan PDFs (#917/#918) into a new `inbox/Nedlitzer Str. 27B/`. Mario: "The inbox is the inbox. I'm moving in stuff for you. This is not a place to keep it. Also we have IDs for listings". The inbox layout itself is not a pattern either: "Usually flat or I tell you where. There's no specific pattern to document."
 
 ## Data Contract
 
@@ -79,7 +79,7 @@ Hard blockers cap score at ≤2.0: excluded area, WBS required without WBS, no p
 - **Eigenbedarf**: Landlord eviction for personal use — risk with private landlords. Note in Block H.
 - **Energieausweis**: Required by law. Classes A+ to H. Score in Block D.
 - **Nachmieter vs. landlord dual-listing**: the same flat often appears twice from different parties — the **outgoing tenant** posts a *Nachmieter* ad (usually Kleinanzeigen) and demands an **Ablöse** for furniture/kitchen; the **landlord/Verwalter** lists it via the official channel (portal Exposé) with **no Ablöse**. The Ablöse is the tenant's private demand, not a tenancy condition. In dedup, link both as one flat but pursue the **landlord channel** — applying there avoids the Ablöse. (Seen on #324 Reiherbergstr. 15b Golm: Kleinanzeigen tenant wanted ~2.300 € Ablöse; DIBOLIVING/Verwalter offered the viewing with none.)
-- **Official Exposé is authoritative**: when the user drops an Exposé in `inbox/{listing}/`, reconcile the tracker against it — search-portal metadata is often stale/wrong (e.g. #324: portal said "Neubau/Keller/warm 1.132", Exposé said Bj 1999 / Dachboden not Keller / warm 1.110 / Indexmiete).
+- **Official Exposé is authoritative**: when the user drops an Exposé in `inbox/`, reconcile the tracker against it — search-portal metadata is often stale/wrong (e.g. #324: portal said "Neubau/Keller/warm 1.132", Exposé said Bj 1999 / Dachboden not Keller / warm 1.110 / Indexmiete).
 
 ### Purchase (Kauf)
 - **Grunderwerbsteuer**: Varies by state (Berlin: 6%, Bayern: 3.5%).
