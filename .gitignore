@@ -11,6 +11,7 @@ portals.yml
 
 # Generated content — all user-specific
 /applications/
+/listings/
 data/listings.md
 data/pipeline.md
 data/scan-history.tsv

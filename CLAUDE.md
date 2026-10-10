@@ -42,6 +42,9 @@ Layout:
 
 Treat `inbox/` as a user-layer source (never auto-delete or modify; it holds personal/financial data — handle per the "NEVER share financial data" rule).
 
+**`inbox/` is the user's drop zone — Claude never writes into it.** Nothing Claude produces or fetches (downloads, renders, copies) goes there. Listing material Claude files — floor plans, Exposés, attachments fetched from a link the user pastes — goes to **`listings/{NNN}/`**, keyed by the tracker listing ID (e.g. `listings/918/grundriss-whg-03001.pdf`), never by street name. Reference it by that path in the tracker Notes, report and correspondence log.
+**Why:** 2026-10-10. Claude saved two pasted floor-plan PDFs (#917/#918) into a new `inbox/Nedlitzer Str. 27B/`. Mario: "The inbox is the inbox. I'm moving in stuff for you. This is not a place to keep it. Also we have IDs for listings".
+
 ## Data Contract
 
 See `DATA_CONTRACT.md`. User-layer files are NEVER auto-updated. System-layer files can be replaced on upgrade.

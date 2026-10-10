@@ -26,6 +26,7 @@ These files contain your personal data, customizations, and work product. Update
 | `output/*`                 | Your generated exports (Selbstauskunft, …)               |
 | `correspondence/*`         | Your landlord correspondence logs (except the committed `correspondence/README.md`, which is system layer) |
 | `applications/*`           | Your application packages                                |
+| `listings/{NNN}/*`         | Per-listing material filed by listing ID (floor plans, Exposés, fetched attachments); Claude's filing place — `inbox/` stays the user's drop zone |
 | `documents/*`              | Your personal documents (SCHUFA, IDs, payslips, …; only the `.gitkeep` placeholder is committed) |
 | `inbox/*`                  | Your dropped-in URLs/files awaiting processing           |
 | `batch/tracker-additions/*`| Pending tracker rows written by evaluations              |
