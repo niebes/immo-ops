@@ -34,7 +34,10 @@ Six skills mapped to the apartment hunting journey:
 
 ## Inbox Folder (email attachments)
 
-The user manually drops files into `inbox/`: email attachments, Exposés, forms, applicant documents. **When the user references an email, an attachment, an Exposé, or a document "in the inbox", look in `inbox/` — do NOT try to pull bytes out of Gmail (the Gmail tools return attachment metadata only, and browser access to Gmail is refused).** Read PDFs/images directly with the Read tool.
+The user manually drops files into `inbox/`: email attachments, Exposés, forms, applicant documents. When the user references a document "in the inbox", look in `inbox/`. Read PDFs/images directly with the Read tool.
+
+**Gmail attachments are reachable — fetch them yourself, don't ask the user to drop them.** No Gmail tool returns attachment bytes, but `get_message` with `messageFormat: "RAW"` returns the whole MIME message base64url-encoded; `scripts/gmail-attachment.py <saved-json> listings/{NNN}/` decodes it (urlsafe-first — a standard `b64decode` silently drops `-`/`_` and the message reads as attachment-less). **Delegate the RAW fetch to a subagent** (a PDF is ~160k tokens of base64; never into the main context) that runs the script and reports only file names/sizes. Gmail only through the MCP, never a browser. Procedure ported from the ancestry repo (`.claude/references/gmail-mcp-guide.md` §"Reading an emailed document").
+**Why:** 2026-10-11. Claude told Mario it couldn't download a JNP form attached to a Gmail reply (#918). Mario: "Yes you can. Check the Gmail guide of our siblings project ancestry and copy the script".
 
 There is no fixed layout. Files usually land flat in `inbox/`, or the user says where they are. Don't assume or document a folder pattern — look, or ask.
 
