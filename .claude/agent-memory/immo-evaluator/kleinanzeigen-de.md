@@ -73,7 +73,7 @@ Shapes to recognise:
   - `WG_geeignet:true` = suitable for a WG, not "is a WG".
 - **"Neubau" is a poster-ticked box with no year.** It contradicts the stock regularly (#522: Neubau in a Waldstadt Plattenbau area). Never let it set the Baualtersklasse; run both fields and say the verdict hinges on the unstated Baujahr (#522: 5,82 vs 15,72 EUR/m²).
 - **Zero checktags** (`li.checktag*` empty, #594): the must-haves are undecidable from structure, so download and Read the gallery. On #594 the photos gave a Balkon, a Whg.-Nr. and an unadvertised EBK.
-- **The Zimmer count contradicts the room-by-room prose** (#606: `Zimmer 3` = 2 Zi + Wohnküche). Diff against `Wohnküche|Abstellkammer|Kammer|Diele|halbes Zimmer` before scoring Block C against `min_rooms`. Tenant-entered spec lists also self-contradict elsewhere ("Etage 3" + "Erdgeschosswohnung"): report both.
+- **The Zimmer count contradicts the room-by-room prose** (#606: `Zimmer 3` = 2 Zi + Wohnküche). Diff against `Wohnküche|Abstellkammer|Kammer|Diele|halbes Zimmer|Hobbyraum|Souterrain|im Mietvertrag als .{0,20} bezeichnet` before scoring Block C against `min_rooms`. A room the Mietvertrag calls a Hobbyraum (#925: `Zimmer 3`, 3rd room a Souterrain "Hobbyraum") is not Wohnraum, so it is 2 Zi; the spec list and the search hint both said 3. Tenant-entered spec lists also self-contradict elsewhere ("Etage 3" + "Erdgeschosswohnung"): report both.
 
 ## §Photos
 - **Count unique image UUIDs in the pre-title slice, not `data-imgsrc` attributes:** `len(set(re.findall(r'prod-ads/images/[0-9a-f]{2}/([0-9a-f\-]{36})', html[:html.find('id="viewad-title"')])))`.
@@ -93,6 +93,7 @@ Shapes to recognise:
   - Camera-native ratios (4:3, 3:2, 16:9, 900×1600) = ordinary photos.
   - One odd ratio among native ones = the Grundriss.
   - EVERY image at the same non-native ratio (#715: all 1280×943) = one export pipeline, i.e. Exposé or viewer material. Fire the Medium "re-used marketing material" signal as a stated suspicion, with no D cap.
+  - **One shared WIDTH with varying heights** (#927: all 9 images 1170 px wide = iPhone 12–14 screen width, heights 833–1.535, all q=80, no app chrome) = cropped phone screenshots, i.e. re-captured material. Camera originals keep their native ratio, so the width would differ between portrait and landscape. Check with `identify -format "%f %wx%h q=%Q\n" img*.jpg`. Medium "re-used material" signal like the app-chrome case, no D cap if the content is one coherent flat. *Why:* the single-odd-ratio and all-same-ratio tests both miss it because each image's ratio differs.
   - Baked-in app chrome ("12 Fotos" overlay badge, greyed UI text) + black side bars = phone screenshots of another listing (#594). Medium signal, Block H ~2,5, "who is letting and whose Exposé?" first. The photos still show one property, so no D cap.
   - Letterboxed screenshots WITHOUT chrome, mixed with native shots of the same rooms = a tenant re-uploading from a messenger (#682). No signal.
   - Building-age tells in the photos that contradict the address's known Baujahr prove "photos from a different property" (#775: Gründerzeit interiors for a Vonovia 1995 address; see §Poster).
@@ -121,7 +122,7 @@ Shapes to recognise:
   - Several flats on one private account = a re-poster or disguised gewerblich.
 - **Fake-ad pattern: a real corporate address + another building's photos.** Grep the Standort street against our data first: `grep -n "{Straße}" data/listings.md reports/`.
   - #775 claimed Maxie-Wander-Str. 6 (known Vonovia 1995 stock, no Aufzug, 12,10 EUR/m²) with Aufzug at 16,67, NK + Heiz 3,33 vs the building's known 4,9–5,3, and Gründerzeit photos.
-  - Other tells: an account name echoing the street, a private poster at a Vonovia/ProPotsdam/Genossenschaft address, "Online-Besichtigung: Möglich".
+  - Other tells: an account name echoing the street, a private poster at a Vonovia/ProPotsdam/Genossenschaft address, "Online-Besichtigung: Möglich" (machine form `"Online_Besichtigung":"ja"` in the ad-targeting JSON: grep it alongside `posterid`, #927).
   - Every price heuristic passed that ad; only the address and photo check exposed it.
 - **Reposts:**
   - An evaluated ad can be silently EDITED (#594 → Warm 1.085→1.200, Kaution 2.625→2.700) and re-posted under a new ad id with all-new photo UUIDs (#703).
@@ -169,6 +170,7 @@ Doctrine (visible badges only, `s-bestandsliste` as the liveness test) is in `mo
     - The gallery is the platform's watermarked app screenshots at mixed ratios (its own presentation, not the re-captured-Exposé Medium).
     - The Grundriss can show neighbouring units: read the tenant's red circle before crediting a Balkon (#851's balcony belonged to the neighbour).
 - **The price heading is usually Kaltmiete, with Warm only in the prose** ("Die Miete beträgt 1600 € mit Nebenkosten" = Warm, derive NK, #505). NK can sit in the main details list with no Warm field (#359). The heading IS Warm when the prose says so (#806, but test it against the NK anchor, §Price). Private DIY swaps: heading = Warm with Kalt/NK never stated ⇒ the Mietpreisbremse is not checkable; say so rather than inventing a split.
+- **A Tauschwohnung-GmbH TITLE price can be Kalt + BK** (#926: title "…, 80 m², 1275 €", heading/`ExactPreis` 1.025, prose "1.025 € + 250€ Betriebskosten", gas extra). The scan hint and pipeline line copy the title. Take Kalt from the heading/`ExactPreis`, confirm against the prose, never from the title. *Why:* a Kalt+BK figure nearly went into the tracker's Price (Kalt) column.
 - **GmbH swap ads often ship no NK/Warm/Kaution/Baujahr/EA at all** (#358): write "nicht angegeben", Mietpreisbremse not checkable. Don't hunt for a second list.
 - **The gallery ranges from 0 to 18 real photos** (#355 2, #358 16, #505 4). Count by UUID; never assume image-poor.
 - **No route to the tauschwohnung.com source** from Kleinanzeigen: see [[tauschwohnung]] §Sources.
