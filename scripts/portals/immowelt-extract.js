@@ -49,14 +49,24 @@
     seen.add(url);
 
     const price = deNum(txt(card, '[data-testid="cardmfe-price-testid"]'));
-    const facts = txt(card, '[data-testid="cardmfe-keyfacts-testid"]');
+    // Key facts ("2 Zimmer · 61 m² · frei ab …") are a plain text line inside the
+    // description box since 2026-10 — `cardmfe-keyfacts-testid` is gone. Without this,
+    // m²/rooms came back null and the criteria gate waved 1,5-/2-Zi flats through
+    // (2026-10-13). The price line also holds "€/m²", so take the first line without "€".
+    // Mirrored in scripts/portals/immowelt.mjs (the Playwright extractor).
+    const box = card.querySelector('[data-testid="cardmfe-description-box-text-test-id"]');
+    const lines = ((box && box.innerText) || '').split('\n').map((s) => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+    const facts = txt(card, '[data-testid="cardmfe-keyfacts-testid"]')
+      || lines.find((l) => !l.includes('€') && /\d\s*(?:Zimmer|m²)/.test(l)) || '';
+    const typeLine = lines.find((l) => !l.includes('€') && /zum Kauf|zur Miete/i.test(l)) || '';
     const m2 = deNum((facts.match(/([\d.,]+)\s*m²/) || [])[1]);
     // Rooms may be "3 Zimmer" or "2,5 Zimmer" — comma/dot are DECIMAL here, never thousands.
     const roomsRaw = (facts.match(/([\d]+(?:[.,]\d+)?)\s*Zimmer/) || [])[1];
     const rooms = roomsRaw ? parseFloat(roomsRaw.replace(',', '.')) : null;
     const title =
-      txt(card, '[data-testid="cardmfe-description-box-text-test-id"]') ||
-      txt(card, '[data-testid="cardmfe-description-text-test-id"]');
+      txt(card, '[data-testid="cardmfe-description-text-test-id"]') ||
+      [typeLine, facts].filter(Boolean).join(' · ') ||
+      lines.join(' ');
     const loc = txt(card, '[data-testid="cardmfe-description-box-address"]');
 
     listings.push({ url, price, m2, rooms, title, location: loc });

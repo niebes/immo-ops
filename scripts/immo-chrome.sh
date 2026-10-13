@@ -33,10 +33,25 @@ fi
 
 mkdir -p "$PROFILE"
 echo "Starting immo Chrome → CDP :${PORT}, profile ${PROFILE}"
+
+# Display: prefer Wayland when a compositor socket exists. Shells spawned by agents,
+# cron or tmux often inherit DISPLAY=:0 plus an XAUTHORITY that points at a missing
+# file, but no WAYLAND_DISPLAY — Chrome then picks X11 and dies at once with
+# "Authorization required … Missing X server or $DISPLAY". (2026-10-13: the debug
+# Chrome could not start at all until it was launched with --ozone-platform=wayland.)
+OZONE=()
+WL_SOCK="${WAYLAND_DISPLAY:-wayland-0}"
+if [ -n "${XDG_RUNTIME_DIR:-}" ] && [ -S "${XDG_RUNTIME_DIR}/${WL_SOCK}" ]; then
+  export WAYLAND_DISPLAY="$WL_SOCK"
+  OZONE=(--ozone-platform=wayland)
+  echo "  display: Wayland (${WAYLAND_DISPLAY})"
+fi
+
 # --remote-allow-origins is required by newer Chrome for CDP websocket clients.
 # The debug port binds to 127.0.0.1 only (Chrome default), so it is not exposed
 # off-box; keep it that way (do NOT add --remote-debugging-address=0.0.0.0).
 nohup "$CHROME" \
+  "${OZONE[@]}" \
   --user-data-dir="$PROFILE" \
   --remote-debugging-port="$PORT" \
   --remote-allow-origins="*" \
