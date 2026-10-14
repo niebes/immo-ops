@@ -87,6 +87,8 @@ Download + Read the images: OM sellers are private, and the photos carry the
 encumbrances the text omits (on 491744: a Freileitungs-Holzmast at the entrance,
 Bauschutt piles, and a slope so steep the usable plot is up a flight of steps).
 
+**Count VIEWS, not files: private sellers upload 3–4-panel collages.** #949 had 4 gallery files that held ≈ 15 room views (bathrooms with a Badewanne, the decentral electric water heaters). Read each image before writing the photo count or "not evidenced" for an amenity. **Why:** a file count of 4 reads as a thin gallery and under-evidences Blocks D/E.
+
 **Expect screenshots of OTHER portals in the gallery.** Private OM sellers
 cross-post and re-upload phone screenshots — 491744's image 3 was a Kleinanzeigen-
 style app gallery frame complete with "2 von 11" counter and an Amazon ad banner.

@@ -39,6 +39,8 @@ Three id forms appear, with very different data completeness:
 
 **Photo count without a browser:** either the `Bild N / {total}` caption in the body text or `grep -oE 'src="[^"]*images/immo/[^"]*"'` — Objektfotos liegen auf `bilder.regionalimmobilien24.de/get-file/img/images/immo/{maklerHash}/{objektId}/…`, Anbieterlogos unter `images/makler/`, alles andere ist `system_ri24/` (Banken-/Team-Deko). Der Energieausweis-Balken ist ein API-PNG `\/api\/epass\/lg\/{hash}-{Kennwert}.png` — der Dateiname trägt den kWh-Wert.
 
+- **Bare-id ohne-makler listing → the RI24 gallery is only the OM preview; hop to OM for the real one.** The footer's `Objekt-ID intern: {n}` IS the ohne-makler id, and `curl -sL --compressed https://www.ohne-makler.net/immobilie/{n}/` returns the full imgproxy gallery (count + identity check: [[ohne-makler-net]] §Photo count) plus fields RI24 lacks: `Stockwerk`, `Anzahl Etagen`, the Ortsteil in parentheses, `Summe Nebenkosten/Heizkosten`. **Why:** #949 had 1 RI24 image (an exterior) = "no interior photos"; OM had 4 collages ≈ 15 views incl. Badewanne and decentral electric water heaters, which changed Block E and the Warmmiete reconstruction.
+
 **Dieselbe Wohnung läuft unter zwei Region-Slugs UND zwei id-Formen** (#605: `/vogtland/…/072625535/` = `/havelland/…/wg16917407/`, identischer Preis). Das ist ohne-makler-Mehrfachausspielung → im Scam-Check ausdrücklich **kein** "reposted with different prices"; im Report als Dublette benennen und beide Pipeline-Zeilen mit einem Bericht abdecken.
 
 ## `imXXXXXXX` detail page = thin re-list → resolve to source
