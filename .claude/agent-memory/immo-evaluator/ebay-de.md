@@ -43,9 +43,19 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
 - Listing type: most plots are an **"Inserat"** (classified, fixed price, "kein Gebot") — contact-seller,
   no portal payment. Private sellers show "Angemeldet als privater Verkäufer" + member-since + feedback %.
   **But some are regular `Sofort-Kaufen` / "oder Preisvorschlag" items** ("Barzahlung bei Abholung",
-  "Kostenlose Abholung N km von {PLZ}" — that PLZ is the seller's, not the plot's). Clicking Sofort-Kaufen
+  "Kostenlose Abholung N km von {PLZ}"). Clicking Sofort-Kaufen
   or an accepted Preisvorschlag is a binding purchase; on a Kleingarten that binds before the Verein
   approves the Pächterwechsel → always say "contact via Nachricht only" in Next Steps (seen #870).
+- **"Kostenlose Abholung N km von {PLZ}": the PLZ is the VIEWER's location, not the seller's or the item's.**
+  It is the browser's `shipToLocation` (`GHpre = {…"shipToLocation":"15345"}` / `locality.postalCode` in the
+  HTML); "N km" is the item's distance from it. The item location is the `Standort` value and the pickup
+  "Karte anzeigen" Google-Maps link (`query=Niemtsch+DE+01968`), which carries the item PLZ even when
+  Artikelmerkmale has no PLZ field. *Why:* an earlier note called it the seller's PLZ, so #870 concluded
+  "seller probably Berlin-based" from 10557; on #958 the dump showed 15345 for an item in Niemtsch 01968.
+- **Pre-fetched CDP dump (`page.html`) holds the seller note untruncated** in the embedded JSON
+  (`"Hinweise des Verkäufers"` → `ExpandableTextualDisplayBlock` TextSpan) plus the `#desc_ifr` src (curl of
+  that src still worked 2026-10-16). Grep the JSON, not the truncated DOM span. The iframe body can be a
+  one-liner (#958: a photo caption).
 
 ## Price history / repost check (feeds the "reposted with different prices" scam signal)
 - **`https://www.ebay.de/rvh/{itemId}`** = "Übersicht der Änderungen": a dated list of what the
@@ -85,4 +95,6 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
   The **Oder corner (Frankfurt/Oder, Eisenhüttenstadt, Oder-Spree, Märkisch-Oderland/
   Oderbruch, PLZ 15xxx)** is the other recurring offender: ~120–145 km / 1,5–2 h from Golm (Neutrebbin
   15320 seen #834). Always check `Stadt / Kreis` + PLZ against the radius before
-  scoring — PLZ 03xxx and 15xxx are both auto-fails.
+  scoring — PLZ 03xxx and 15xxx are both auto-fails. **PLZ 01xxx in Brandenburg** (Senftenberg/OSL, Niemtsch
+  01968, #958) is the same far south-east corner as 03xxx, ~125 km → auto-fail. Use the item PLZ, never the
+  "Abholung … von {PLZ}" viewer PLZ (above).
