@@ -200,7 +200,7 @@ Read `sections.energy` / "Bausubstanz und Energie" first. Four shapes; only shap
     - The headline `Wohnungsswap - {Straße}` is real street data (#660).
     - The body is the tenant's first-person prose, and a 7-digit Referenznummer is used. A closing "Wichtig — … bei Wohnungsswap als Tauschobjekt angeboten … im Gegenzug …" paragraph is boilerplate.
     - The prose beats the structured fields: #654 had 1 chip, while the prose confirmed Balkon, Keller, Sanierung and Fernwärme. A classification payload can be present (#660).
-- **Neither feed routes to its source.** There is no twg.click link, and `tauschwohnung.com/wohnung/{Anbieter-ID}` is a 404 or soft-404. The free text is the only side-2 input.
+- **Tauschwohnung GmbH routes to its source after all:** the Referenznummer/Anbieter-ID is the housing id → `tauschwohnung.com/expose/{id}` (200, NUXT Suche). `/wohnung/{id}` is the dead route. See [[tauschwohnung]] §Sources (corrected 2026-10-20). Wohnungsswap.de has no known route.
 - **Typically absent:** EA (lead-gen shape), Baujahr, Kaution ("keine Angabe"), availability date, exact address. The missing Baujahr decides between the § 556f exemption and a large overshoot, so report both Mietspiegel fields (#533).
 - **"[Leider aktuell kein Pro, kann also nicht kontaktieren]"** means the tenant has no paid account and cannot initiate contact. It is a channel dead-end (Block H / Next Steps), not a scam signal (#655).
 
@@ -213,7 +213,7 @@ Read `sections.energy` / "Bausubstanz und Energie" first. Four shapes; only shap
 - **`tags.hasBrokerageFee:false` is NOT proof of "provisionsfrei".**
   - Read `price.base.commissionFee` and the breakdown's `BROKERAGE_FEE` item verbatim: rate, when it is due, and whether a same-rate seller contract exists (= § 656c split). Examples: #396 clean 2,38 %; #384's IS24 twin bound the Maklervertrag to the mere Exposé-Abruf at 3,57 %.
   - #833: tag `false`, but 3,57 % in commissionFee = 19.599 EUR.
-  - On Bauträger/Fertighaus ads (#798, #810) the printed 3,57 % is Immowelt's boilerplate assumption. Report it as unconfirmed and make §§ 656c/d BGB a contact question.
+  - On Bauträger/Fertighaus ads (#798, #810) the printed 3,57 % is Immowelt's boilerplate assumption. Report it as unconfirmed and make §§ 656c/d BGB a contact question. Same for the generic `commissionFee` "das Angebot kann bei Vertragsabschluss die Zahlung einer Provision beinhalten" next to a printed "Provision für Käufer (3,57%)" (#976), and for massa packages (#974: rep's IS24 ads 0 %, so compute Kaufnebenkosten without it).
   - A Bauunternehmen selling its own land: ask whether the "Provision" is really Kaufpreis (then grunderwerbsteuerpflichtig) and whether a Bauverpflichtung makes it an einheitliches Vertragswerk (#809).
 - **Price cuts are structured:** `sections.hardFacts.price.previousPrice` (e.g. "450.000 €") is the pre-cut price. In `innerText` it shows as a bare, unlabelled second figure under the €/m² ("399.000 € / 2.934 €/m² / 450.000 €"), so read the field, and pair it with `metadata.creationDate` for time-on-market (#946: −11 % after ~3,5 months). It is a negotiation lever, not a repost scam signal. *Why:* in `innerText` the bare 450.000 reads like a second price or an estimate.
 - **The header €/m² is Kaufpreis ÷ Wohnfläche only.** If the prose names a larger Wohn- + Nutzfläche (e.g. a fully finished Keller), compute the effective €/m² too (#398: 30 % over the €/m² cap on the header figure, ~35 % under on the real one). Total cost, not sticker price, goes against the budget cap.
@@ -257,6 +257,8 @@ Build offers are not existing properties; detect them before scoring.
   4. Prose selling a service: Grundstücksservice, Grundrissplanung, a named Bausatz.
   5. A Referenznummer that is the creation date (`15052026`).
 - **Plot priced in notionally (#798, allkauf "Pure Home 1"):** `hardFacts.locationDescription` says "Kalkulatorischer Grundstücksanteil: 300.000 EUR … Das Grundstück wird separat vom Eigentümer erworben". Subtract it for the house share, and don't add a plot on top (double-count). `energy.features` `Zustand: Projektiert` + `Haustyp: KfW 40` were reliable here.
+- **allkauf CAN include the plot: read `hardFacts.locationDescription` BEFORE the Erschöpfungs-/band test** (#976 Gebiet NORD, Ref `3850-313-kw42-…`, Dallgow-Döberitz): "Im Preis sind die Ausbaustufe Pro Time, die Bodenplatte und das Grundstück enthalten. Der Grundstückserwerb erfolgt unmittelbar vom Eigentümer." Decide on the "im Preis … enthalten" sentence; "direkt/unmittelbar vom Eigentümer" alone only names the plot's seller (it is NOT the house-only tell by itself). *Why:* 3.511 €/m² sat mid-band in the house-only band, so the band test would have read "house only" and inflated the all-in by ~150–200 T (Pro Time house share ≈ 2.050–2.490 €/m²).
+- **massa haus (Sonsalla) kw batches cross-post here too, sometimes Immowelt-first** (#974, #975): parcel keying, catalog anchors and the template lead price live in [[immobilienscout24-kauf]] K1. On Immowelt they carry the boilerplate "Provision für Käufer (3,57 %)" while the rep's IS24 ads show 0 %.
 - **OKAL / DFH Handelsvertreter — plot included (#914, #956):**
   - **Plot IS in the price.** #914 said so ("inklusive eines real vorhandenen Grundstückes" + `locationDescription` "keine Grundstücksdaten ohne Ihre Entscheidung" = undisclosed until you commit, so Block B is nominal). #956's prose was silent; the tells were Bild 1, an OKAL banner "Inkl. Baugrundstück" (classified LOGO), and `price.base.commissionFee` "3,57 % des beurkundeten **Grundstückskaufpreises**" (plot via a broker, commission on the plot share only). Opposite of the allkauf house-only case. *Why:* without the banner the Erschöpfungstest would wrongly read "house only".
   - **Commission:** Immowelt's `BROKERAGE_FEE` item still applies 3,57 % to the whole package (#956: 18.069 vs ~4–6k real), so "Geschätzte Gesamtkosten" is overstated; recompute on the plot share. § 656c does not cover an unbebautes Grundstück, so a buyer-only plot commission is legal.
@@ -267,13 +269,13 @@ Build offers are not existing properties; detect them before scoring.
 - **`aiEnrichments` "Keller" on build offers reads optional extras as included** (#914: derived from "Bodenplatte (optional Keller)"). Never score E from the AI chip here.
 - **Silent about the plot (#810, the commonest case):**
   - Run the **Erschöpfungstest**: a "Zu allen Häusern gehört" list enumerating items down to Steckdosen, with no Baugrundstück/Bodenplatte/Erschließung/Außenanlagen/Küche, means house-only.
-  - Run the **band test**: the allkauf house-ONLY band is **3.013–3.953 €/m²** (#422 3.013 · #709 3.246 · #514 3.155 · #367 3.586 · #419 3.921 · #377 3.953; #810 3.618 sat mid-band). Keep it updated; it is the only quantitative handle when the text is silent.
+  - Run the **band test**: the allkauf house-ONLY band is **3.013–3.953 €/m²** (#422 3.013 · #709 3.246 · #514 3.155 · #367 3.586 · #419 3.921 · #377 3.953; #810 3.618 sat mid-band). Keep it updated; it is the only quantitative handle when the text is silent. Invalid once the Lage text states plot inclusion (#976).
 - **Scoring:**
   - All-in ≈ headline +20–30 % (Bodenplatte/Keller, Erschließung, Hausanschlüsse, Baugenehmigung, Außenanlagen, Küche, Ausbauhaus Eigenleistung). Check that against the cap, not "Geschätzte Gesamtkosten".
   - Flag the einheitliches-Vertragswerk GrESt question.
   - If the plot is excluded, the `garten` must-have is not delivered (E 2,0) and Block B is nominal (a marketing catchment, not an address).
   - No D cap for renders (the `_shared.md` Neubau exception).
-- **Galleries (allkauf):** captions are bare "Bild N" and classification lies, so download. #810 had 0 real object photos (2 banners, 1 stock photo, 8 renders), and the renders showed a carport, terrace, fence and garden that are in no Leistungsposition.
+- **Galleries (allkauf):** captions are bare "Bild N" and classification lies, so download. #810 had 0 real object photos (2 banners, 1 stock photo, 8 renders), and the renders showed a carport, terrace, fence and garden that are in no Leistungsposition. Galleries can also mix house VARIANTS (#976: 5 renders of 4 different allkauf types + a roof-shapes banner, all HOUSE_FACADE "Bild N"), and the catalogue plans are type plans (5 rooms vs 4 advertised), not this house.
 - **Sum the catalogue floorplans before scoring C.** #810: EG + OG = 146,26 vs 146,04 advertised, no Dachschräge, so the €/m² is honest. #798: the OG Dachschräge cut ~7 m².
 
 ## §Kauf-ZV — Zwangsversteigerung

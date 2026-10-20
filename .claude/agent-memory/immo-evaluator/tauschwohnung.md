@@ -6,21 +6,23 @@ Consolidated 2026-09-28 from a 98 KB append log plus the Suche notes that were s
 **Our offer.** Numbers used below come from `swap_offer` golm-feldmark in `config/profile.yml` and must be re-read there: Golm, 2 Zi / 54,19 m², EG + Personenaufzug, ~29 m² Privatgarten, 1.025,25 kalt / 1.214,93 warm, Indexmiete, Bj 2024. It lacks Balkon, Keller and Stellplatz.
 
 ## §Sources — where their data and Suche come from
-- **Only IS24 can route to the tauschwohnung.com source.** Look in the expose's "Weitere Links" (`REFERENCE_LIST`):
-  - An object link `twg.click/is24-{objektNr}-NN` (the tail can be 3 digits, `-899`, #610) 302s to the detail page. Plain `curl -sL` with a Firefox UA returns full SSR HTML (no consent wall, no bot block).
-  - Often there is only the generic `twg.click/is24-homepage` (#526, #549): roughly a coin flip. Grep the list once; never construct the link from the IS24 Objekt-Nr. (#526: all 404).
+- **Every portal routes to the source: `https://www.tauschwohnung.com/expose/{housingId}`** (plain `curl -sL` + Firefox UA → 200, ~245 KB SSR with `__NUXT_DATA__`; verify identity via NUXT `housing.id`). Corrected 2026-10-20 (#971/#965): the housing id is
+  - **Kleinanzeigen / Immowelt:** the "Anbieter-(Objekt-)ID" / `Referenznummer` (#965 KA "Anbieter-ID 495674" = NUXT `housing.id` 495674; the poster's `userId` is a different number, 496647). Earlier notes called it the poster's id: wrong, the dead routes were only `/wohnung/{id}` and `twg.click/ka-…`.
+  - **IS24, current shape:** "Weitere Links" (`REFERENCE_LIST`) label "Original-Exposé" → `twg.click/is24-2-{Objekt-Nr}` (302 → `/expose/{Objekt-Nr}`), next to the generic `twg.click/is24-2-homepage`. Here the Objekt-Nr IS the housing id.
+  - **IS24, older shape:** `twg.click/is24-{objektNr}-NN` (tail can be 3 digits, `-899`, #610) 302s to the detail page; often only the generic `twg.click/is24-homepage` (#526, #549). For this shape never construct the link from the Objekt-Nr (#526: all 404) — try `/expose/{Objekt-Nr}` once instead.
+  - *Why:* #965 (KA) scored side 2 on the free text alone ("Miete unbegrenzt ✓", rooms silent); the NUXT Suche one curl away said min. 2,5 Zi / rentMax 900 — two stated misses against our offer. **Always make the one curl.**
 - **Reading the source page:** the rendered `<h2>{Name} sucht</h2>` block, or better `__NUXT_DATA__`, a devalue flat array where dict values are indices. Resolve with `data[idx]`, but do not recursively follow ints (ids and booleans collide with indices).
   - The dict with `{sourceUserId, targetUserId, housing, user, search, match}` (≈ idx 42) holds:
     - `search` = `{cityNames, radius (km), rentMax, roomsMin, sizeMin, storeyMin/Max, residentCountAdults/Children, housingPropertyIds}`.
     - `housing` = their flat: `isActive, deposit, moveInDate, constructionYear, energyEfficiency, propertySize, market` (`"free"` = no WBS), `housingPropertyIds`. Explicit nulls prove "unstated".
-  - Property-id map: `1=balconyOrTerrace, 2=fittedKitchen, 4=garage, 6=garden, 8=guestToilet, 9=cellar, 12=petsAllowed, 14=floorHeating, 36=terracedHouse, 64=centralHeating, 66=bathtub, 71=levelShower`. Absence of 9 = no Keller, the only reliable Keller negative (IS24's CHECK list omits negatives).
+  - Property-id map: `1=balconyOrTerrace, 2=fittedKitchen, 4=garage, 6=garden, 8=guestToilet, 9=cellar, 12=petsAllowed, 14=floorHeating, 36=terracedHouse, 64=centralHeating, 66=bathtub, 71=levelShower`. Absence of 9 in a NON-empty list = no Keller, the only reliable Keller negative (IS24's CHECK list omits negatives).
   - `moveInDate` can be stale (2024 on a live 2026 ad): read it as "nach Vereinbarung".
+  - **Grep `housing.metaDescription` first:** it states the structured Suche in prose ("… tauscht gegen min. 2,5 Zi. in Potsdam."), before resolving the devalue array.
+  - **An empty `housing.housingPropertyIds: []` is an untouched list, not a negative** (#971: text names Terrasse, EBK, Badewanne; list empty). Only a NON-empty list makes "absence of 9 = no Keller" reliable.
+  - `search.sizeMin: 10` and `storeyMin 0 / storeyMax 10` are platform defaults (no stated floor/size). `rentMax`/`roomsMin` are user-set, with no fixed relation to the poster's own rent or rooms (#454, #610).
   - Worth the one curl when the link exists: on #335 the NUXT `radius` (10 km) decided side 2.
   - The NUXT `search` dict can contradict the owner's free text (#454: text "2–3 Zi, Kreuzberg" vs dict `roomsMin 4, sizeMin 110`). The free text is the authoritative intent; the dict only corroborates.
-- **Immowelt and Kleinanzeigen have no route.** Their `Referenznummer` / "Anbieter-(Objekt-)ID" is the poster's id, not a housing id.
-  - `tauschwohnung.com/wohnung/{id}` returned HTTP 200 with a soft-404 body ("Seite nicht vorhanden") for months, and a hard 404 since 2026-08-22 (#641, #711). `twg.click/ka-{id}-01` is a hard 404.
-  - The outcome is known in advance: at most one curl, and grep the body, not just the status.
-  - The free text (title + description) is the whole side-2 input. Keller/Baujahr/EA/Kaution stay whatever the portal shows.
+- **Dead routes:** `tauschwohnung.com/wohnung/{id}` (soft-404 for months, hard 404 since 2026-08-22, #641/#711) and `twg.click/ka-{id}-01` (hard 404). Grep the body, not just the status. Only if `/expose/{id}` fails too is the free text (title + description) the whole side-2 input.
 - **IS24 swap-specific traps:**
   - The structured fields can hold the poster's SUCHE instead of their flat (#550: TOP_ATTRIBUTES "5 Zi / 100 m² / Grundstück 100 m² / 1.500 kalt" while the text offered 4 Zi / 84 m²). Tells: Grundstück = Wohnfläche, `houserent` on a "Whg", counts equal to the title's "suche …" half, round 100/1.500.
     - Score from the description.
@@ -151,7 +153,7 @@ Checklist rows: direction · rooms · m² · area · rent · must-haves · objec
 - **Anbieter-ID magnitude ≈ account age.** Low ids (#665 38298, #685 199871, vs 400k–480k for current posters) mean long unmatched: the criteria are firm, not an opening position.
 
 ## §Dedup
-- **Within the Tauschwohnung-GmbH feed, the poster's Anbieter-ID is stable across portals.**
+- **Within the Tauschwohnung-GmbH feed, the Anbieter-ID (= tauschwohnung housing id, §Sources) is stable across portals.**
   - Immowelt shows it twice: the `Referenznummer` and the "(Anbieter-ID: N)" line. Kleinanzeigen shows it as "Anbieter-/Objekt-ID".
   - #641 (Kleinanzeigen) = Immowelt `94b8c035-…`: closed as DUPE.
 - **Grep all three stores in one call:** `grep -rn "{id}" data/listings.md data/pipeline.md reports/`. The tracker's Notes column usually lacks the id; the full report has it (#673). Add a distinctive Suche phrase as a second key.

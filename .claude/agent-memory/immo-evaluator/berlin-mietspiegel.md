@@ -261,6 +261,7 @@ Einstieg `mietspiegel.berlin.de/berliner-mietspiegel/erlaeuterungen-zum-mietspie
 - Nicht auf die exakte Hausnummer filtern, sondern Straße + PLZ ziehen und die Liste lesen. Bei Ein-PLZ-Straßen reicht `strasse LIKE 'Lutterbacher%'` ohne `plz` (#895).
 - **Die Einstufung springt von Haus zu Haus:** Machnower Str. 14165 Nr. 11 = gut, Nachbarn 10 und 12 = mittel (ungerade = gut / gerade = mittel). Bei „bis 1918 / 90–110 m²" 7,65 vs 8,45 Mittelwert ≈ 10 % auf die zulässige Miete (#570: Zeile 138 = 6,60 · **8,45** · 12,99).
 - Layer-Name enthält das Jahr → jeden Januar auf `wohnlagenadr20NN` hochzählen.
+- **Der WFS kann minutenlang HTTP 503 „maintenance" liefern** (HTML-Body, #972: 3 Versuche über ~5 min) → vor `json.load` mit `head -c 100` prüfen. Fallback wie oben: Vermieter-günstigste Wohnlage (gut) annehmen und den mittel-Oberwert als Research-Item mitrechnen. *Why:* der Parser crashte am HTML-Body.
 - Die schlanke **Tabellen-PDF** `…/uploads/2026/05/mietspiegeltabelle2026.pdf` (~140 KB, ~88 Zeilen `pdftotext -layout`) enthält die ganze Tabelle; die drei Wohnlagen stehen dort **nebeneinander in einer Zeile** (Zeilen-Nr. 1–67 einfach, 68–129 mittel, 130–192 gut) — der Baualters-Header steht nur in der ersten Zeile der Gruppe.
 
 ## Vonovia-Berlin aus dem Potsdam-Bucket (Perimeter 30 km: Kladow/Spandau, Zehlendorf, Staaken)

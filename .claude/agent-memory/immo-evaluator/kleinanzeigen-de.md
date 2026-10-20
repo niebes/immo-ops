@@ -173,7 +173,7 @@ Doctrine (visible badges only, `s-bestandsliste` as the liveness test) is in `mo
 - **A Tauschwohnung-GmbH TITLE price can be Kalt + BK** (#926: title "…, 80 m², 1275 €", heading/`ExactPreis` 1.025, prose "1.025 € + 250€ Betriebskosten", gas extra). The scan hint and pipeline line copy the title. Take Kalt from the heading/`ExactPreis`, confirm against the prose, never from the title. *Why:* a Kalt+BK figure nearly went into the tracker's Price (Kalt) column.
 - **GmbH swap ads often ship no NK/Warm/Kaution/Baujahr/EA at all** (#358): write "nicht angegeben", Mietpreisbremse not checkable. Don't hunt for a second list.
 - **The gallery ranges from 0 to 18 real photos** (#355 2, #358 16, #505 4). Count by UUID; never assume image-poor.
-- **No route to the tauschwohnung.com source** from Kleinanzeigen: see [[tauschwohnung]] §Sources.
+- **Route to the tauschwohnung.com source:** the "Anbieter-ID: N" is the housing id → `tauschwohnung.com/expose/{N}` (curl, NUXT Suche). See [[tauschwohnung]] §Sources (corrected 2026-10-20, #965).
 
 ## §Kauf
 - **Haus/Kauf `#viewad-details`:** Wohnfläche, Zimmer, Schlafzimmer, Badezimmer, **Grundstücksfläche**, Haustyp, Etagen, Baujahr, Provision. Checktags Terrasse/Badewanne/Keller/Garage/Garten. The heading = Kaufpreis (#448, all curl).
