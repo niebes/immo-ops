@@ -119,8 +119,11 @@ Do NOT flag a listing as "early"/"late" or penalize it for being "just past the 
 - WBS required when user doesn't have: 1.0 (**hard blocker**)
 - No pets when user has pets: 1.0 (**hard blocker**)
 - Zwischenmiete when user wants permanent: 1.0 (**hard blocker**)
-- Befristet (temporary): 2.0 (unless user accepts)
+- Befristet — any lease that ENDS (Zeitmietvertrag, Höchstmietdauer, "X Jahre mit Option auf Verlängerung"), whatever its length: 1.0 (**hard blocker**). Score the term as written; a missing § 575 reason (which would make it unbefristet in law) goes into the contact questions, it does not lift the cap.
+- Mindestmietdauer / Kündigungsverzicht on an otherwise unbefristet lease ("mindestens 3 Jahre"): NOT a blocker — score normally, but **point it out** in the report Summary and the email detail row, prominently when it is ≥ 3 years.
 - Kaution > 3 Nettokaltmieten: 2.0 (illegal, flag prominently)
+
+*Why:* 2026-10-21. #978 (Golm DHH, "3 Jahre + Verlängerungsoption") scored 4,1 uncapped under the old "Befristet 2.0" rule. Mario: "A 3 year fixed term which ends is not ok … an at least 3 years clause should be pointed out."
 
 ### Block H — Landlord (Default weight: 5%)
 
@@ -137,6 +140,7 @@ These conditions cap the global score at ≤2.0 regardless of other blocks:
 - WBS required without WBS (Block G = 1.0)
 - No pets when user has pets (Block G = 1.0)
 - Zwischenmiete when wanting permanent (Block G = 1.0)
+- Befristung — a lease that ends, any length (Block G = 1.0)
 - Price 40%+ above target (Block A ≤ 1.5)
 
 ### Score Interpretation

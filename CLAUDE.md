@@ -73,7 +73,7 @@ See `DATA_CONTRACT.md`. User-layer files are NEVER auto-updated. System-layer fi
 
 Score interpretation: 4.5+ apply immediately, 4.0–4.4 strong, 3.5–3.9 decent, 3.0–3.4 issues, <3.0 not recommended.
 
-Hard blockers cap score at ≤2.0: excluded area, WBS required without WBS, no pets when user has pets, Zwischenmiete, price 40%+ above target (full list: `modes/_shared.md`).
+Hard blockers cap score at ≤2.0: excluded area, WBS required without WBS, no pets when user has pets, Zwischenmiete, Befristung (any lease that ends — a "mindestens N Jahre" clause on an unbefristet lease is not one, but is pointed out), price 40%+ above target (full list: `modes/_shared.md`).
 
 ## German Real Estate Domain Rules
 
