@@ -31,7 +31,10 @@ export function loadSeenUrls(root) {
   ];
   for (const path of paths) {
     if (!existsSync(path)) continue;
-    for (const m of readFileSync(path, 'utf8').matchAll(/https?:\/\/[^\s|)]+/g)) {
+    // `]` ends a URL too: tracker Notes carry aliases as "[re-list seen DATE: URL]", and a
+    // key with the bracket attached never matches (2026-10-22: #954's alias of Immowelt
+    // 265c98zmg7z8 was ignored and the flat was evaluated a third time as #985).
+    for (const m of readFileSync(path, 'utf8').matchAll(/https?:\/\/[^\s|)\]]+/g)) {
       seen.add(canonicalizeUrl(m[0]));
     }
   }
