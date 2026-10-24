@@ -193,7 +193,7 @@ if (discarded.length) {
 const foldText = groups.filter(g => g.enabled)
   .map(g => `${g.name}: ${folds.get(g.name).dupe} DUPE, ${folds.get(g.name).discarded} discarded`).join(' · ');
 footerBits.push(`Pipeline folds on ${cycleDate} — ${foldText}.`);
-const nums = rows.map(r => r.num).sort();
+const nums = rows.map(r => r.num).sort((a, b) => Number(a) - Number(b));
 if (nums.length) footerBits.push(`Reports: reports/${nums[0]}–${nums[nums.length - 1]}-*.md`);
 
 const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;color:#222;max-width:900px">

@@ -46,7 +46,7 @@ The form labels the headline field "Preis" = Kaltmiete, with NK / Heizkosten / W
 
 Shapes to recognise:
 - **heading == `Warmmiete`:**
-  - NK empty (#356): step 7.
+  - NK empty, no Kaution: the poster actively filled the Warm field, so rank "heading = Warm" first. With a same-quarter NK anchor go to step 6 and keep the Kalt reading as row 2 of the table (#1003); only without any anchor fall back to step 7 (#356). *Why:* the old "step 7" line read as if the Kalt default applied even when an anchor existed.
   - NK filled, no Heiz (#540, #767): steps 1–2.
   - NK + separate `Heizkosten` filled (#522): Warm = Kalt + NK + **Heiz**; forgetting Heizkosten understates warm by a whole line.
 - **Three fields that don't add up** (#520: 1.300 + 450 ≠ 1.717): report the stated and the derived NK, "NK klären".
