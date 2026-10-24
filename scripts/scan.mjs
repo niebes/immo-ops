@@ -609,7 +609,12 @@ function makeInvisibleEvaluator() {
     },
     async close() {
       if (!proc || proc.exitCode !== null) return;
-      await new Promise(res => { pending.push(() => res()); proc.stdin.write(JSON.stringify({ cmd: 'quit' }) + '\n'); setTimeout(res, 8000); });
+      // The driver replies to `quit` BEFORE it leaves `async with InvisiblePlaywright`, whose
+      // __aexit__ closes Firefox and stops Xvfb. Killing on the reply cut that short and
+      // orphaned one Xvfb per scan (2026-10-13 → 10-24), so wait for the process to exit.
+      const exited = new Promise(res => proc.once('exit', res));
+      proc.stdin.write(JSON.stringify({ cmd: 'quit' }) + '\n');
+      await Promise.race([exited, new Promise(res => setTimeout(res, 15000))]);
       try { proc.kill(); } catch { /* already gone */ }
     },
   };

@@ -27,6 +27,8 @@ from pathlib import Path
 
 from invisible_playwright.async_api import InvisiblePlaywright
 
+import invisible_display  # noqa: F401 — Xvfb leak/picker hardening (see module docstring)
+
 HEADLESS = os.environ.get("IP_HEADLESS", "true").lower() == "true"
 LOCALE = os.environ.get("IP_LOCALE", "de-DE")
 TIMEZONE = os.environ.get("IP_TIMEZONE", "Europe/Berlin")

@@ -15,6 +15,8 @@ from typing import Any, Optional
 
 from mcp.server.fastmcp import FastMCP
 
+import invisible_display  # noqa: F401 — Xvfb leak/picker hardening (see module docstring)
+
 # ---------------------------------------------------------------------------
 # Configuration from environment
 # ---------------------------------------------------------------------------

@@ -24,6 +24,7 @@ Only if **both** fail does the scan fall back to **Tier 3**, the CDP debug Chrom
 | `scripts/rebuild-invisible.sh` | rebuild the whole stack from the newest upstream (builds both wheels, fetches the binary, smoke-tests, re-vendors — safe/reversible) |
 | `scripts/invisible-playwright-mcp.py` / `.sh` | the FastMCP server + its launcher (Tier 2) |
 | `scripts/invisible-driver.py` | line-protocol browser driver used by `scan.mjs --invisible` (Tier 1) |
+| `scripts/invisible_display.py` | monkeypatches the library's Linux Xvfb (imported by the driver + MCP server): Xvfb dies with its parent, and the display picker skips busy ports — see below |
 | `scripts/invisible-login.py` | one-time headful login to seed session trust |
 | `.mcp.json` | registers the MCP server (relative paths only) |
 
@@ -93,6 +94,28 @@ node scripts/scan.mjs --invisible --group "<group>" --portal "<portal>"
 ```
 
 Also: never pipe `scan.mjs` into `head` — SIGPIPE kills the scan mid-run. Redirect to a file.
+
+## Xvfb leak + /tmp cleanup (handled — `invisible_display.py`)
+
+Headless on Linux means the library starts its own `Xvfb` (`:99` upward) in a separate session
+and stops it only from `__aexit__`. Any driver death that skipped `__aexit__` left the Xvfb
+running: `scan.mjs` killed the driver right after `quit`, and Claude Code kills the MCP server
+the same way. That was one or two orphans per scan, 17 of them by 2026-10-24. Since the
+Ubuntu 26.04 upgrade (2026-10-13), `/tmp` is a tmpfs that systemd-tmpfiles ages out after
+10 days. That deleted the orphans' lock files, so the library's picker (which only checks
+`/tmp/.X{n}-lock`) kept choosing `:99`, whose port the orphan still held:
+`RuntimeError: Xvfb failed to start after 10 attempts: Xvfb :99 exited immediately`.
+
+Fixed without touching the vendored wheel: `invisible_display.py` starts Xvfb with
+`PR_SET_PDEATHSIG`, so it dies with its parent even on SIGKILL. The picker also treats a
+number as busy when its TCP port 6000+n is bound, and as free when its lock names a dead PID.
+`scan.mjs` now waits for the driver to exit after `quit`. Check for leftovers with
+`pgrep -af '^Xvfb :'`: after a scan there should be none, apart from a running MCP server's
+own Xvfb.
+
+The same upgrade swapped `python3` 3.12 → 3.14 under the venv. `invisible-venv.sh` now notices
+a venv that can't import the stack, moves it aside and rebuilds it. That needs `python3-venv`
+(ensurepip), which 26.04 does not install by default; the script tells you so if it's missing.
 
 ## Firefox CSP / JSON-API gotcha (handled)
 

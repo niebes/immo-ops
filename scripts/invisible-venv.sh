@@ -19,7 +19,23 @@ VENV="$REPO_ROOT/tmp/venv-ip"
 PY="$VENV/bin/python"
 REQ="$SCRIPT_DIR/invisible-playwright-requirements.txt"
 
+# A distro upgrade swaps /usr/bin/python3 (Ubuntu 26.04: 3.12 → 3.14) under the venv: the
+# interpreter symlink still resolves, but its site-packages are for the old version, so
+# every import fails. Detect that and rebuild, keeping the broken venv as a backup.
+if [ -x "$PY" ] && ! "$PY" -c "import invisible_playwright, invisible_core" 2>/dev/null; then
+  OLD_LIB="$(ls -1 "$VENV/lib" 2>/dev/null | head -1)"   # e.g. python3.12 — the version it was built for
+  BAK="$VENV.bak-${OLD_LIB:-broken}-$(date +%Y%m%d%H%M%S)"
+  echo "[invisible-playwright] venv can't import the stack (Python upgraded?) — moving it to ${BAK#$REPO_ROOT/} and rebuilding" >&2
+  mv "$VENV" "$BAK"
+fi
+
 if [ ! -x "$PY" ]; then
+  # Ubuntu ships venv's ensurepip in a separate package; without it `python3 -m venv`
+  # aborts halfway (2026-10-13, after the 26.04 upgrade the venv had to be hand-built).
+  if ! python3 -c "import ensurepip" 2>/dev/null; then
+    echo "[invisible-playwright] ERROR: python3 has no ensurepip — install it: sudo apt install python3-venv" >&2
+    exit 1
+  fi
   echo "[invisible-playwright] first run — building venv at tmp/venv-ip …" >&2
   python3 -m venv "$VENV" >&2
   "$PY" -m pip install --quiet --upgrade pip >&2
