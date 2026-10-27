@@ -39,7 +39,18 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
   price question is often only answerable from the description; in-browser paths all fail
   (contentDocument null; in-page fetch → NetworkError; navigating to ebaydesc host → eval blocked
   by CSP + take_snapshot errors). Don't retry the in-browser routes — go straight to curl.
-- Photo count comes from the gallery buttons "Bild N von M".
+  **No browser needed for the description at all: WebFetch `https://itm.ebaydesc.com/itmdesc/{itemId}`
+  WITHOUT the `t=` token works** (2026-10-27, #1040). Use it when you can't get the src: CiC
+  `javascript_tool` refuses to return any string holding a URL query (`[BLOCKED: Cookie/query string
+  data]`), so `#desc_ifr.src` is unreadable there. Strip `?…` from any URL you return in CiC for the same reason.
+- Photo count comes from the gallery buttons "Bild N von M". Images: `.ux-image-carousel-item img`
+  (`data-zoom-src` → `…/images/g/{key}/s-l1600.webp`) download with plain curl; the bytes are WebP, which
+  Read can't show → `dwebp -quiet N.bin -o N.png`. Plot sellers often post only ALKIS/BORIS screenshots
+  (Flurstück card, BRW card) = 0 real photos, but they give the exact Flurstück and the zone BRW.
+- **Re-lists get a NEW item ID.** The old item then shows "Dieses Angebot endete am … Der Verkäufer hat diesen
+  oder einen ähnlichen Artikel wiedereingestellt." Search title prefixes like "NEUES ANGEBOT" in the scan
+  hint are eBay's badge, not the title. Dedup by title/street against `data/listings.md`, open the old
+  item to confirm it ended, and stage `tracker_notes` (+ `status: Expired`) for the old row (#112 → #1040).
 - Listing type: most plots are an **"Inserat"** (classified, fixed price, "kein Gebot") — contact-seller,
   no portal payment. Private sellers show "Angemeldet als privater Verkäufer" + member-since + feedback %.
   **But some are regular `Sofort-Kaufen` / "oder Preisvorschlag" items** ("Barzahlung bei Abholung",
