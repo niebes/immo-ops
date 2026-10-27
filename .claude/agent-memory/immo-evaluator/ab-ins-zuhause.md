@@ -24,6 +24,7 @@ Detail page: `/angebot/{uuid}`. Listings platform that re-lists from source port
 - Gallery images are `cdnihddipa.cloudimg.io/.../{uuid}.jpg`. Count DISTINCT cloudimg uuids (exclude `/build/images/...` logo/seal; the og:image uuid repeats across several meta tags, so dedupe). Grundriss usually NOT included.
 - **Static fetch DOES still contain the full gallery** (confirmed #258: 4 distinct uuids; #174: 10). Per-listing photo counts just vary — a low count = that listing genuinely has few photos, not a fetch limitation. (#257 the TAG Wohnen unit really had only 1 photo — do not read that as "gallery lazy-loads".) So curl remains sufficient to count real photos.
 - **Why:** briefly mis-diagnosed #257's single photo as JS-hydration; #258's 4 static photos disproved it — the curl HTML is complete, some listings are just photo-poor.
+- **Vonovia twins: the AIZ gallery can be ONLY banners** (#1017: 3 of 3 = "App in dein neues Zuhause", Grünstrom, SYNVIA "Bis zu 1.000 Mbit/s"). Montage/Read before counting photos. 0 real photos → D cap 3,0 with a "recheck the IS24 gallery" note; no scam signal. *Why:* a uuid count of 3 reads as "3 photos" of the flat.
 
 ## Expiry / discard
 - Source is a re-list, so cache can go stale (like other aggregators) — if page shows "nicht gefunden"/sold, mark EXPIRED. Title `<title>` reflects the listing title when live.
