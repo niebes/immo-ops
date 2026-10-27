@@ -26,7 +26,7 @@ import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync, unl
 import { chromium } from 'playwright';
 import yaml from 'js-yaml';
 import { getExtractor } from './portals/index.mjs';
-import { handleCookieConsent, isCaptcha } from './portals/base.mjs';
+import { handleCookieConsent, isBlockedPage } from './portals/base.mjs';
 import { resolveSearchUrl, findProfileSearch } from './lib/search-url.mjs';
 import { toHistoryLine as tsvHistoryLine } from './lib/tsv.mjs';
 import { loadSeenUrls, canonicalizeUrl } from './lib/seen-urls.mjs';
@@ -304,8 +304,7 @@ async function scanPortal(browser, portal, groupName) {
     await handleCookieConsent(page);
     await page.waitForTimeout(1000);
 
-    const bodyText = await page.textContent('body').catch(() => '');
-    if (isCaptcha(bodyText)) {
+    if (await isBlockedPage(page)) {
       const hasCookies = portal.name.toLowerCase().includes('immoscout') && existsSync(IMMOSCOUT_COOKIES_PATH);
       log(`  ✗ CAPTCHA detected, skipping → flagged for CiC fallback`);
       if (portal.name.toLowerCase().includes('immoscout')) {
@@ -479,14 +478,21 @@ function makeCdpEvaluator() {
 
         // Trust model: the persistent logged-in profile usually clears the CAPTCHA
         // after a short wait (a FRESH browser never would — that's why we reuse this one).
-        let blocked = isCaptcha(await page.textContent('body').catch(() => ''));
+        let blocked = await isBlockedPage(page);
         for (let t = 0; blocked && t < 3; t++) {
           console.log(`  … CAPTCHA — waiting 8s (trusted profile usually clears)`);
           await page.waitForTimeout(8000);
           await page.reload({ waitUntil: 'domcontentloaded' }).catch(() => {});
-          blocked = isCaptcha(await page.textContent('body').catch(() => ''));
+          blocked = await isBlockedPage(page);
         }
         if (blocked) return { resultStr: null, blocked: true };
+
+        const parse = (s) => { try { return JSON.parse(s); } catch { return null; } };
+        // Read the empty state BEFORE the scroll nudge: on Regionalimmobilien24 the scroll
+        // collapses the page text (3150 → 233 chars) and the "0 Mietwohnungen" marker the
+        // snippet's empty:true depends on disappears → bogus "selector drift" (2026-10-27).
+        const before = await page.evaluate(snippetSrc).catch(() => null);
+        if (parse(before)?.empty === true) return { resultStr: before, blocked: false };
 
         // Lazy-load nudge (some portals render cards on scroll).
         await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
@@ -494,7 +500,9 @@ function makeCdpEvaluator() {
 
         let resultStr = await page.evaluate(snippetSrc).catch(e => { console.log(`  ⚠ evaluate error: ${e.message}`); return null; });
         // Lazy-load portals can return 0 on the first pass — retry once after a wait.
-        if (resultStr) { try { if ((JSON.parse(resultStr).c || 0) === 0) { await page.waitForTimeout(3000); resultStr = await page.evaluate(snippetSrc).catch(() => resultStr); } } catch { /* keep */ } }
+        if (resultStr && (parse(resultStr)?.c || 0) === 0) { await page.waitForTimeout(3000); resultStr = await page.evaluate(snippetSrc).catch(() => resultStr); }
+        // Never let the scroll lose cards the pre-scroll pass already saw.
+        if ((parse(resultStr)?.c || 0) === 0 && (parse(before)?.c || 0) > 0) resultStr = before;
         return { resultStr, blocked: false };
       } finally {
         await page.close().catch(() => {});

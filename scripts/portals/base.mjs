@@ -33,6 +33,25 @@ export function isCaptcha(text) {
     || text.includes('Are you a robot');
 }
 
+// Walls with no visible text, only an embedded challenge (DataDome's
+// geo.captcha-delivery.com iframe). Mirrors invisible-driver.py BLOCK_HTML_MARKERS.
+const BLOCK_HTML_MARKERS = ['captcha-delivery.com'];
+
+// Page-level bot-wall check, mirroring invisible-driver.py is_blocked(): title, then the
+// VISIBLE body text, then HTML-only markers. Never textContent — it includes <script>
+// source, so a contact form's reCAPTCHA loader (Semmelhaack) or a plugin config like
+// "usecaptcha":"no" (BBG) read as a CAPTCHA on a fully loaded page (2026-10-27).
+export async function isBlockedPage(page) {
+  try {
+    if (isCaptcha((await page.title()) || '')) return true;
+    if (isCaptcha((await page.innerText('body')).slice(0, 4000))) return true;
+    const html = await page.content();
+    return BLOCK_HTML_MARKERS.some(m => html.includes(m));
+  } catch {
+    return false;
+  }
+}
+
 export function parseNumber(str) {
   if (!str) return null;
   const cleaned = String(str).replace(/\./g, '').replace(',', '.').replace(/[^\d.]/g, '');
