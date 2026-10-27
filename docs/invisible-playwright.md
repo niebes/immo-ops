@@ -117,6 +117,22 @@ The same upgrade swapped `python3` 3.12 → 3.14 under the venv. `invisible-venv
 a venv that can't import the stack, moves it aside and rebuilds it. That needs `python3-venv`
 (ensurepip), which 26.04 does not install by default; the script tells you so if it's missing.
 
+## One page at a time — Tier 2 MCP hang (handled)
+
+This Firefox build wedges `context.new_page()` forever while another page is open: the
+third page hangs without `storage_state`, the second with it (reproduced 2026-10-27). An
+open/close cycle runs indefinitely, which is why `invisible-driver.py` (one page per eval,
+closed after) never hit it. The MCP server opened a page at launch and never closed it, so
+its first `new_page` hung, and `list_pages` then hung reading the title of the half-made
+page: Tier 2 was dead on 2026-10-26 and 10-27, every call cut off at the 120 s
+`.mcp.json` timeout. Also, Xvfb inherited the server's stdin (the JSON-RPC pipe).
+
+Fixed in `invisible-playwright-mcp.py`: `new_page` closes every open page first (the server
+holds one page), each tool runs under `IP_TOOL_TIMEOUT_S` (90 s), and a tool that hits it
+restarts the browser and returns an error saying to retry. `invisible_display.py` gives Xvfb
+`stdin=DEVNULL`. After pulling this change, a running session still holds the old server:
+reconnect it with `/mcp`.
+
 ## Firefox CSP / JSON-API gotcha (handled)
 
 On the patched stealth Firefox, `page.evaluate` runs via in-page `eval()`, which a strict

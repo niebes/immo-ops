@@ -188,3 +188,15 @@ test('priceWithin fails open on unknown prices', () => {
   assert.equal(priceWithin({ price: 0 }, { price: 1000 }, 0.02), true);
   assert.equal(priceWithin({ price: 1030 }, { price: 1000 }, 0.02), false);
 });
+
+test('findBestMatch: a shared boilerplate title does not fold a flat of another shape (#952, 2026-10-27)', () => {
+  const folded = foldedTitles(['- [x] DUPE of #952 (x) | https://x | Ab ins Zuhause | g | Schön hier zu wohnen. | 588 EUR']);
+  const id = makeIdentity('/nonexistent', folded);
+  const e952 = { num: '952', status: 'Evaluated', notes: '', report: '', price: 588.38, m2: 67.32, rooms: 4, location: 'am schlaatz potsdam' };
+  // Vonovia's generic title on a 3 Zi / 61 m² flat, 0,5 % off in price: not #952.
+  const other = { title: 'Schön hier zu wohnen.', price: 591.13, m2: 61.13, rooms: 3, location: '14478 potsdam' };
+  assert.equal(findBestMatch(other, [e952], { identity: id }), null);
+  // The same title on #952's own shape still folds as a title match.
+  const same = { title: 'Schön hier zu wohnen.', price: 588, m2: 67, rooms: 4, location: '14478 potsdam' };
+  assert.equal(findBestMatch(same, [e952], { identity: id })?.kind, 'title');
+});

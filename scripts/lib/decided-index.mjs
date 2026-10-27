@@ -140,8 +140,13 @@ export function findBestMatch(candidate, list, opts = {}) {
   for (const entry of list) {
     // Identity evidence (unit code / known title) outranks every numeric signal,
     // and a KNOWN-different unit code vetoes the pair outright — see makeIdentity.
-    const id = identity ? identity(candidate, entry) : null;
+    let id = identity ? identity(candidate, entry) : null;
     if (id === 'unit-conflict') continue;
+    // A title is only identity when the flat's shape agrees. Landlord boilerplate
+    // ("Schön hier zu wohnen." on every Vonovia ad) folded a 3 Zi/61 m² Waldstadt flat
+    // onto #952, 4 Zi/67 m² Schlaatz, at a 0,5 % price gap (2026-10-27). Unit codes
+    // need no such check: they name one flat.
+    if (id === 'title' && !sizeAgrees(candidate, entry)) id = null;
     let kind;
     if (id === 'unit' || id === 'title') {
       if (!priceWithin(candidate, entry, 0.10)) continue; // same object, but a different price regime → not this row
@@ -158,6 +163,16 @@ export function findBestMatch(candidate, list, opts = {}) {
     }
   }
   return best ? { entry: best.entry, kind: best.kind } : null;
+}
+
+/**
+ * Same rooms and m² within the matchesDecided 3 m² band. Each check fails open
+ * when either side is unknown.
+ */
+export function sizeAgrees(a, b) {
+  if (a.rooms > 0 && b.rooms > 0 && a.rooms !== b.rooms) return false;
+  if (a.m2 > 0 && b.m2 > 0 && Math.abs(a.m2 - b.m2) > 3) return false;
+  return true;
 }
 
 /** Relative price gap within `tol` (fails open when either price is unknown). */

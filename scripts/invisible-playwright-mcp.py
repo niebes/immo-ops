@@ -7,6 +7,7 @@ naming. Configured via environment variables (see IP_* below).
 
 import asyncio
 import base64
+import functools
 import json
 import os
 import sys
@@ -38,6 +39,10 @@ STORAGE_STATE_PATH = os.environ.get("IP_STORAGE_STATE", "tmp/browser-state.json"
 # well under the .mcp.json per-server "timeout" so a stall surfaces as a normal Playwright
 # TimeoutError the agent can fall back from, rather than as an aborted MCP tool call.
 DEFAULT_TIMEOUT_MS = int(os.environ.get("IP_TIMEOUT_MS", "30000"))
+# Whole-tool ceiling, also under the 120 s .mcp.json timeout. Some calls take no Playwright
+# timeout at all (new_page, title), so a wedged browser hung them until Claude Code
+# cancelled the call — and every later call hung the same way (2026-10-26/27).
+TOOL_TIMEOUT_S = float(os.environ.get("IP_TOOL_TIMEOUT_S", "90"))
 
 # ---------------------------------------------------------------------------
 # Browser state
@@ -112,10 +117,47 @@ def _page_info(page: Any) -> dict:
 
 async def _page_info_full(page: Any) -> dict:
     try:
-        title = await page.title()
+        title = await asyncio.wait_for(page.title(), 5)
     except Exception:
         title = ""
     return {"url": page.url, "title": title}
+
+
+async def _close_all_pages():
+    """This Firefox build wedges context.new_page() forever while another page is open
+    (two open pages without storage_state, one with it — reproduced 2026-10-27; an
+    open/close cycle runs indefinitely, which is why invisible-driver.py never hangs).
+    So the server keeps ONE page: close everything before opening the next."""
+    for p in list(_context.pages):
+        try:
+            await asyncio.wait_for(p.close(), 10)
+        except Exception:
+            pass
+
+
+async def _reset_browser():
+    """Drop a wedged browser so the next call relaunches a fresh one."""
+    global _browser, _context, _active_page, _pw_instance
+    pw = _pw_instance
+    _browser = _context = _active_page = _pw_instance = None
+    if pw is not None:
+        try:
+            await asyncio.wait_for(pw.__aexit__(None, None, None), 15)
+        except Exception:
+            pass
+
+
+def _bounded(fn):
+    @functools.wraps(fn)
+    async def wrapper(*args, **kwargs):
+        try:
+            return await asyncio.wait_for(fn(*args, **kwargs), TOOL_TIMEOUT_S)
+        except asyncio.TimeoutError:
+            await _reset_browser()
+            raise RuntimeError(
+                f"{fn.__name__} exceeded {TOOL_TIMEOUT_S:.0f}s; the browser was wedged and "
+                "has been restarted (session cookies reload from storage state) — retry the call")
+    return wrapper
 
 
 # ---------------------------------------------------------------------------
@@ -126,6 +168,7 @@ mcp = FastMCP("invisible-playwright")
 
 
 @mcp.tool()
+@_bounded
 async def navigate_page(url: str) -> str:
     """Navigate the active page to a URL. Returns the page title."""
     page = await _get_page()
@@ -136,6 +179,7 @@ async def navigate_page(url: str) -> str:
 
 
 @mcp.tool()
+@_bounded
 async def click(selector: str) -> str:
     """Click an element matching the CSS selector."""
     page = await _get_page()
@@ -144,6 +188,7 @@ async def click(selector: str) -> str:
 
 
 @mcp.tool()
+@_bounded
 async def fill(selector: str, value: str) -> str:
     """Clear and fill a form field identified by CSS selector."""
     page = await _get_page()
@@ -152,6 +197,7 @@ async def fill(selector: str, value: str) -> str:
 
 
 @mcp.tool()
+@_bounded
 async def type_text(selector: str, text: str, delay: int = 50) -> str:
     """Type text into an element character by character with optional delay (ms)."""
     page = await _get_page()
@@ -160,6 +206,7 @@ async def type_text(selector: str, text: str, delay: int = 50) -> str:
 
 
 @mcp.tool()
+@_bounded
 async def press_key(key: str) -> str:
     """Press a keyboard key (e.g. 'Enter', 'Tab', 'ArrowDown')."""
     page = await _get_page()
@@ -168,6 +215,7 @@ async def press_key(key: str) -> str:
 
 
 @mcp.tool()
+@_bounded
 async def hover(selector: str) -> str:
     """Hover over an element matching the CSS selector."""
     page = await _get_page()
@@ -176,6 +224,7 @@ async def hover(selector: str) -> str:
 
 
 @mcp.tool()
+@_bounded
 async def take_screenshot(path: str = "", full_page: bool = False) -> str:
     """Take a screenshot. Returns base64-encoded PNG. Optionally saves to path."""
     page = await _get_page()
@@ -192,6 +241,7 @@ async def take_screenshot(path: str = "", full_page: bool = False) -> str:
 
 
 @mcp.tool()
+@_bounded
 async def take_snapshot(mode: str = "accessibility") -> str:
     """Get page content. mode='accessibility' returns the a11y tree (compact).
     mode='html' returns raw HTML."""
@@ -204,6 +254,7 @@ async def take_snapshot(mode: str = "accessibility") -> str:
 
 
 @mcp.tool()
+@_bounded
 async def evaluate_script(expression: str) -> str:
     """Evaluate a JavaScript expression in the page and return the result."""
     page = await _get_page()
@@ -212,6 +263,7 @@ async def evaluate_script(expression: str) -> str:
 
 
 @mcp.tool()
+@_bounded
 async def list_pages() -> str:
     """List all open pages with their URLs and titles."""
     await _ensure_browser()
@@ -225,10 +277,13 @@ async def list_pages() -> str:
 
 
 @mcp.tool()
+@_bounded
 async def new_page(url: str = "") -> str:
-    """Open a new page, optionally navigating to a URL. Makes it the active page."""
+    """Open a new page, optionally navigating to a URL. Makes it the active page.
+    Closes any open page first: this browser holds one page at a time."""
     global _active_page
     await _ensure_browser()
+    await _close_all_pages()
     _active_page = await _context.new_page()
     if url:
         await _active_page.goto(url, wait_until="domcontentloaded")
@@ -237,6 +292,7 @@ async def new_page(url: str = "") -> str:
 
 
 @mcp.tool()
+@_bounded
 async def close_page() -> str:
     """Close the active page. Switches to the last remaining page if any."""
     global _active_page
@@ -252,6 +308,7 @@ async def close_page() -> str:
 
 
 @mcp.tool()
+@_bounded
 async def select_page(index: int = -1, url: str = "") -> str:
     """Switch the active page by index or URL substring match."""
     global _active_page
@@ -272,6 +329,7 @@ async def select_page(index: int = -1, url: str = "") -> str:
 
 
 @mcp.tool()
+@_bounded
 async def wait_for(selector: str, state: str = "visible", timeout: int = 30000) -> str:
     """Wait for an element matching the selector. state: 'visible', 'hidden', 'attached', 'detached'."""
     page = await _get_page()
@@ -280,6 +338,7 @@ async def wait_for(selector: str, state: str = "visible", timeout: int = 30000) 
 
 
 @mcp.tool()
+@_bounded
 async def fill_form(fields: dict[str, str]) -> str:
     """Fill multiple form fields. fields is a dict of {selector: value}."""
     page = await _get_page()
@@ -291,6 +350,7 @@ async def fill_form(fields: dict[str, str]) -> str:
 
 
 @mcp.tool()
+@_bounded
 async def save_session() -> str:
     """Persist cookies and storage to disk for reuse across restarts."""
     await _save_storage_state()

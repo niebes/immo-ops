@@ -89,6 +89,8 @@ def _spawn(self, display):
             "-listen", "tcp",
             "-ac",
         ],
+        # stdin too: under the MCP server fd 0 is the JSON-RPC pipe, which Xvfb inherited.
+        stdin=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         start_new_session=True,
