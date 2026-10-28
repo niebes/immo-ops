@@ -29,7 +29,10 @@ invisible-playwright works first try — no bot wall, no CAPTCHA.
 ## Read the JSON, not the DOM
 
 Everything is in `#__NEXT_DATA__` at:
-`props.pageProps.dehydratedState.queries[0].state.data.listing`
+`props.pageProps.dehydratedState.queries[i].state.data.listing`. **Loop `queries[]` for the entry
+that has `state.data.listing`; don't hard-code `[0]`.** A pre-fetched CDP dump
+(`tmp/eval/{NNN}/cdp/page.html`) carries the full `__NEXT_DATA__` too, so the same walk works, and
+`meta.json.ld[]` (schema.org Product/RealEstateListing: price + description) is a quick identity check (#1050).
 
 One `evaluate_script` returns the whole record. Useful fields:
 
@@ -40,7 +43,7 @@ One `evaluate_script` returns the whole record. Useful fields:
 | `commissionPercent.min/max` + `commissionType` | Käufercourtage; `COMMISSIONMIXED` = split buyer/seller |
 | `profile.courtagePassus` | full commission legal text |
 | `profile.description` / `profile.locationDescription` | the two description blocks |
-| `statusNormalized` | `ACTIVE` — use for the still-active check |
+| `statusNormalized` | `ACTIVE` — THE still-active check (see the VERKAUFT trap below) |
 | `publishedAt` / `updatedAt` | listing age |
 | `propertyImages[]` / `uploadCareImageIds[]` | photo count |
 | `energyCertAvailable` | often `"unknown"` |
@@ -65,11 +68,21 @@ One `evaluate_script` returns the whole record. Useful fields:
   object**; only use raw-text grep for words that can't be labels (e.g. `ersteiger` to rule out
   a Zwangsversteigerung — that one is genuinely absent from the dictionary).
 
+- **VERKAUFT/reserviert sweep trap:** the "OBJEKTE IN DER NÄHE" carousel embeds other E&V listings
+  with their own status badges, so `page.txt`/innerText can say "VERKAUFT" for a *recommended*
+  object (#1050: a sold neighbouring plot on a live, one-day-old listing). Decide liveness from
+  `listing.statusNormalized` + `listing.profile.title`, never from a page-wide grep.
+  *Why:* the evaluate.md sold-sweep on innerText would have marked a live listing EXPIRED.
+
 - **No exact address, by design:** `displayLat`/`displayLng` are deliberately offset by
   `fuzzyMoveByMeter` (750 m). Only `addressComponents[]` (country/region/locality) are exact.
   Treat "no exact address" as a Low scam signal at most — it is standard E&V practice.
 
 ## Scoring notes
+
+- **"Schallschutz-optimierter Bereich"** in `locationDescription` (Blankenfelde-Mahlow, #1050) =
+  the plot lies in the BER Lärmschutzbereich → flag aircraft noise in Block B. *Why:* the wording
+  reads like a positive.
 
 - E&V is a franchise: `shopName` + `agent.name` identify the actual counterparty, and
   `agent.email` sits on `@engelvoelkers.com` (good verification signal). Check the agent name

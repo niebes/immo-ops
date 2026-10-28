@@ -122,6 +122,10 @@ seen on #306, wrk 1306270007). Score Block C from `numberOfRooms`/the Überblick
 On the detail page these are **German-formatted strings**: `"numberOfRooms":"3,5"`,
 `"space":"91,20 m²"` — a `\d+` regex truncates them to "3"/"91". The **scan hint floors half
 rooms** (pipeline said "3 Zi" where the expose says 3,5 — #515); always re-read the expose.
+**Generated titles/descriptions can also UNDER-count** ("3-Zimmer", "zwei separate Schlafzimmer"
+while `obj_noRooms: 4` and the Grundriss show Wohnen + Schlafen + 2× Kind; #1044, same on its
+KA/Immowelt twins). Field + plan win; the pipeline title is no room evidence. *Why:* a title-based
+"3 Zi" would have put C and the twin match on the wrong count.
 Useful sibling keys: `"availableFrom":"2026-09-05"` (ISO, next to the German "Verfügbar ab" row),
 `securityDeposit`, `constructionYear`, `energyPass*`.
 Object-Id on page is `82-{wrk_id}`; the URL slug ends in the bare `{wrk_id}`.
@@ -200,7 +204,8 @@ read it before adding anything up.
 it also corrupts the Nebenkosten-per-m² benchmark that drives the Block-A deduction; a one-directional
 rule would add the gap on top of a total that is already the higher one.
 
-## Schlaatz estate Falkenhorst 7–17 (Bj. 1982, mod. 2002–04, EEK B): one floor-plan type, several units — check identity per unit
+## Am Schlaatz estate (Falkenhorst, Erlenhof, Otterkiez, Bisamkiez; Bj. 1982–86 Platte): identity and EEK per unit
+Rent anchors for the whole cluster: [[potsdam-mietspiegel-ortsteile]] §14478 "Am Schlaatz".
 Vonovia re-lets the same **84,82-m²** floor-plan type in several houses of Falkenhorst 7–17; rent and m²
 barely tell the units apart (#451 = Falkenhorst 15, 3. OG, "4,5 Zi", 8,03 EUR/m², `82-1446330008`;
 #841 = Falkenhorst 13, 4. OG rechts, 4 Zi, 8,49 EUR/m², `82-1446320010`). Settle identity cheaply by
@@ -208,8 +213,16 @@ barely tell the units apart (#451 = Falkenhorst 15, 3. OG, "4,5 Zi", 8,03 EUR/m�
 address line printed **inside the Grundriss image** ("14478 Potsdam, Falkenhorst 13, 4.OG rechts" —
 fetch it uncropped, see immobilienscout24.md §Photos, "Download").
 **Mietpreisbremse here:** field **1971–1990 · A,B · Spalte D = 5,87 (5,42–6,41)** ⇒ zulässig 6,46
-EUR/m²; the 2026 asks of 8,0–8,5 are +25–45 % over the Mittelwert ⇒ § 556g Abs. 3 Vormiete-Auskunft.
+EUR/m²; the 2026 asks of 8,0–8,7 are +25–45 % over the Mittelwert ⇒ § 556g Abs. 3 Vormiete-Auskunft.
 #451's report verdict "eingehalten, weit unter jedem Cap" was **wrong** — don't inherit it.
+**The EEK row differs per block — read it per unit, don't carry A,B forward:** Falkenhorst/Erlenhof/
+Bisamkiez = EEK B (A,B row); **Otterkiez 29 = Bj 1986, Verbrauchsausweis C 78 kWh → 1971–1990 · C,D,
+Spalte C 5,82 (5,23–6,25)** (#1044, 8,15 EUR/m²). *Why:* the A,B field overstates the allowed rent
+by ~4 %. Objekt-Nr. block codes seen: `144633` Falkenhorst 15 · `144632` Falkenhorst 13 · `144626`
+Erlenhof 43 (#952) · `144641` Otterkiez 29 (#1044) · `144620` Bisamkiez 41 (#1042, `82-1446200001`).
+**Cross-posts:** the same record goes to Kleinanzeigen (gewerblich "Vonovia SE - Kundenservice",
+figures rounded to the euro, e.g. 550/888/1.648) and Immowelt (title = first sentence of the IS24
+description). One WebFetch of the KA ad confirms the twin; no Immowelt driver run needed (#1044).
 **Why:** #841 was routed as a possible DUPE of #451 on identical m² alone; without the Objekt-Nr./
 Grundriss check a different unit would have been dropped along with the wrong Bremse verdict.
 
