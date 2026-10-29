@@ -51,6 +51,10 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
   oder einen ähnlichen Artikel wiedereingestellt." Search title prefixes like "NEUES ANGEBOT" in the scan
   hint are eBay's badge, not the title. Dedup by title/street against `data/listings.md`, open the old
   item to confirm it ended, and stage `tracker_notes` (+ `status: Expired`) for the old row (#112 → #1040).
+  **Under `Parallel: yes` the old `/itm/{oldId}` is 403 to curl AND WebFetch**, so the end can't be verified: stage only a
+  `tracker_notes` append (no `status: Expired`), say the end is unverified; picclick (below) is the fallback (#834 → #1058).
+  A re-list can also switch the listing type (Inserat → Sofort-Kaufen/Preisvorschlag, #834 → #1058): re-read it, never copy it
+  from the old report.
 - Listing type: most plots are an **"Inserat"** (classified, fixed price, "kein Gebot") — contact-seller,
   no portal payment. Private sellers show "Angemeldet als privater Verkäufer" + member-since + feedback %.
   **But some are regular `Sofort-Kaufen` / "oder Preisvorschlag" items** ("Barzahlung bei Abholung",
@@ -97,6 +101,9 @@ Matches: ebay.de item pages (`/itm/{id}`) in the Grundstücke/Immobilien categor
     Pacht. A recently built **Anbau** is the classic unproven-Genehmigung/Rückbau risk (seen #705).
 - `Bebauung: Kein Bauland` + `Empfohlene Nutzung: … keine Bebauung` on a listing that *shows a
   house* = the structure's Baugenehmigung/Bestandsschutz is unproven, not that there is no house.
+- **`Preis pro m² (EUR)` is seller-typed and can be stale/wrong: recompute price ÷ Grundstücksfläche.** #1058 (49.000 / 1.713 m²
+  = 28,61) showed 81,73, which didn't fit the predecessor #834's 59.000 either. *Why:* #834's report took 81,73 at face value
+  as "at the regional Angebotsmittel".
 - `Grundstücksfläche (m²)` on Freizeit listings can be a tiny parcel (110 m² seen) — always read
   it, the word "Grundstück" in the title implies nothing about size.
 
