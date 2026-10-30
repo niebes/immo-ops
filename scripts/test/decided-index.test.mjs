@@ -200,3 +200,11 @@ test('findBestMatch: a shared boilerplate title does not fold a flat of another 
   const same = { title: 'Schön hier zu wohnen.', price: 588, m2: 67, rooms: 4, location: '14478 potsdam' };
   assert.equal(findBestMatch(same, [e952], { identity: id })?.kind, 'title');
 });
+
+test('findBestMatch: a portal that truncates 3,5 Zi to 3 still folds by title (#1016, 2026-10-30)', () => {
+  const folded = foldedTitles(['- [x] DUPE of #1016 (x) | https://x | Süddeutsche | g | Traumhafte 3,5-Zimmer im Altbau im Herzen Potsdams | 1832.93 EUR']);
+  const id = makeIdentity('/nonexistent', folded);
+  const e1016 = { num: '1016', status: 'Evaluated', notes: '', report: '', price: 1832.93, m2: 96.47, rooms: 3.5, location: 'noerdliche innenstadt potsdam' };
+  const aiz = { title: 'Traumhafte 3,5-Zimmer im Altbau im Herzen Potsdams', price: 1833, m2: 96, rooms: 3, location: 'potsdam' };
+  assert.equal(findBestMatch(aiz, [e1016], { identity: id })?.kind, 'title');
+});

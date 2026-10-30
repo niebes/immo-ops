@@ -166,11 +166,12 @@ export function findBestMatch(candidate, list, opts = {}) {
 }
 
 /**
- * Same rooms and m² within the matchesDecided 3 m² band. Each check fails open
- * when either side is unknown.
+ * Rooms within half a room and m² within the matchesDecided 3 m² band. Each check
+ * fails open when either side is unknown. Half a room, not equality: Ab ins Zuhause
+ * truncates 3,5 Zi to 3, which held back a twin of #1016 (2026-10-30).
  */
 export function sizeAgrees(a, b) {
-  if (a.rooms > 0 && b.rooms > 0 && a.rooms !== b.rooms) return false;
+  if (a.rooms > 0 && b.rooms > 0 && Math.abs(a.rooms - b.rooms) > 0.5) return false;
   if (a.m2 > 0 && b.m2 > 0 && Math.abs(a.m2 - b.m2) > 3) return false;
   return true;
 }

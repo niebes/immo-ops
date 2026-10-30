@@ -159,7 +159,7 @@ its status (`lib/decided-index.mjs`):
   row as `DUPE of #N` — and the price is unchanged (Δ ≤ 2 %), the entry is folded as
   `DUPE of #N (… already scored; unit|title match)` instead of being re-evaluated. A different
   unit code is a hard veto, so sibling units of one building never weld onto each other. A title
-  match also needs equal rooms and m² within 3: landlord boilerplate like Vonovia's "Schön hier zu
+  match also needs rooms within half a room (Ab ins Zuhause truncates 3,5 to 3) and m² within 3: landlord boilerplate like Vonovia's "Schön hier zu
   wohnen." is shared by different flats (2026-10-27, a 3 Zi/61 m² flat misfolded onto #952). A price
   move keeps the entry pending (a price cut deserves a fresh score).
 It also appends the candidate URL to the tracker row's Notes as a "re-list seen" alias so URL
