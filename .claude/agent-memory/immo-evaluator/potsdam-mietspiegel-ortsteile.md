@@ -1,6 +1,6 @@
 # Potsdam Mietspiegel — Ortsteil- und Quartiers-Anker (sibling of [[potsdam-mietspiegel]])
 Applies to: every Miete evaluation in Potsdam once the PLZ/Ortsteil is known. Read `potsdam-mietspiegel.md` FIRST (source, Grundmietentabelle 2026, how to apply it, Umland); this file holds the per-PLZ/Quartier datapoints. Split off 2026-10-09 when the combined file reached ~56 KB.
-Sections: 14480 Am Stern/Drewitz/Kirchsteigfeld · 14478 Waldstadt/Am Schlaatz/Brunnen Viertel · 14482 Babelsberg · 14471 Potsdam West · 14473 Speicherstadt/Brauhausberg/Lotte/Jutekiez · 14469 Jägervorstadt/Bornstedter Feld/Eiche/Grube · 14476 Golm/Feldmark/Fahrland.
+Sections: 14480 Am Stern/Drewitz/Kirchsteigfeld · 14478 Waldstadt/Am Schlaatz/Brunnen Viertel · 14482 Babelsberg · 14471 Potsdam West · 14473 Speicherstadt/Brauhausberg/Lotte/Jutekiez · 14469 Jägervorstadt/Bornstedter Feld/Eiche/Grube · 14476 Golm/Feldmark/Fahrland/Krampnitz.
 
 The numbers are data. Keep them, and append new datapoints to the matching Quartier instead of adding a new section. Master rule: **the Ortsteil name never fixes the Baualtersklasse.** Almost every Ortsteil below mixes 2–3 classes; the house number, the Baujahr or a photo decides.
 
@@ -207,7 +207,7 @@ The numbers are data. Keep them, and append new datapoints to the matching Quart
   - Seen on #100, #118, #137, #145, #169, #170, #249, #298/#299/#331, #802.
 - **Grube (14469, `geo_ot` grube, `obj_regio3` Potsdam_Nord):** ~430-inhabitant village between Golm and Bornim; no shops, bus only (605 extended from Golm), Bhf Golm ~3 km ⇒ Block B **4,0** (Golm-adjacent but remote). Mixed village stock, no default Baualtersklasse: bracket all of Spalte E and ask the Baujahr. priceBar 10/2026: similar 6,70–9,30, overall 5,70–11,00. Telekom 1.000 Mbit/s seen (#882).
 
-## 14476 — Golm (+ "In der Feldmark") · Fahrland
+## 14476 — Golm (+ "In der Feldmark") · Fahrland · Krampnitz
 - **Golm** = the profile's top Ortsteil and the site of our swap offer; there is no dominant building type (village core / pre-war, 1990s–2000s around the campus and station, 2020s Neubau).
   - Spalte D: 1991–2008 9,01 (8,27–9,69) · 2013–2020 12,34 (10,90–14,23) · ab 2021 16,73 (14,88–19,64), a factor of 1,9. Compute all plausible fields, ask the Baujahr, narrow it by photo.
   - Block B 4,5–4,8 without an exact address (Bhf Golm RB21/22 ~10 min to the Hbf, Uni/Max-Planck walkable, thin shops).
@@ -231,3 +231,10 @@ The numbers are data. Keep them, and append new datapoints to the matching Quart
   - **Gartenstraße 17** (MFH in the village core, **Bj 1996**, Verbrauchsausweis C / 83 kWh, Fernwärme, 4 storeys with a lift, TG, 94-m² DG flats with Balkon + Keller + G-WC): 1991–2008 A+–C E = 9,91 (8,71–12,70) → zulässig 10,90; priceBar 8,60–12,50 (overall 7,10–15,20). **Block B 3,8** (#495 = #626, the same flat).
   - Photo-dated **2013–2020** stock also exists (#594 before the address was known: a Satteldach MFH, clinker base, perforated-metal balcony railings, level shower, Vorwand-WC, vinyl, integrated roller shutters, young trees). The 1991–2008 reading (9,28) would have faked "+33 %, § 556g".
   - **Price level 2026:** Bestand 11–12,6 kalt; Neubau offers ~16,9 (Seeburger Chaussee 2, 75 m², 3 Zi, 1.265).
+- **Krampnitz (Stadtquartier, `geo_ot` fahrland, 14476) = Vonovia/BUWOG first letting (Erstbezug 11/2026) in converted listed 1930s barracks, Schwedische Allee 7/9/11** (#1061–#1067, IS24 172237009–076, Objekt-Nr. `82-17542500xx`, Immowelt twins with the same text). Ad mechanics (EA contradiction, Grundriss, m², banners): [[vonovia]] §Krampnitz.
+  - **Price regime ~10,5–13,5 EUR/m² kalt.** The city agreed "mietpreisgedämpfte Mietwohnungen" for the Deutsche Wohnen/Vonovia plots, so ~10,50 is a policy price, not bait.
+  - **Mietspiegel: compute both rows.** The field "Baujahr 2026" is the conversion date: ab 2021 Spalte E 15,14 (ask under the Unterwert) next to bis 1948 · C,D,E Spalte E 8,87 (6,90–10,58, zulässig 9,76; kein EA 8,17).
+  - **No Bremse lever: § 556f S. 1 (barracks first used as a Wohnung after 01.10.2014) plus S. 2 (first letting after umfassende Modernisierung).** Name both grounds, not just "Baujahr 2026".
+  - **Warm side high: NK ~2,65 + HK ~2,9 (Fernwärme) ≈ 5,5–5,6 EUR/m²** (#1061: 283,47 + 313,32 on 106,97; #1062: 283,74 + 313,62 on 107,07). Bedarfsausweis E 138 is plausible: the plan legend shows only Innendämmung (Kalziumsilikat/Perlite).
+  - **Block B ~3,3:** bus only (Tram 96 not before ~2032), no shops before the Krampnitzer Tor centre, a construction site for years, `obj_telekomInternetAvailable: false`.
+  - *Why:* there was no anchor; the field Baujahr alone reads 10,50 as a 31 % underprice, the bis-1948 row alone fakes a +7,6 % Bremse breach, and six sibling units arrived together.

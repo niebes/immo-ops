@@ -226,6 +226,12 @@ description). One WebFetch of the KA ad confirms the twin; no Immowelt driver ru
 **Why:** #841 was routed as a possible DUPE of #451 on identical m² alone; without the Objekt-Nr./
 Grundriss check a different unit would have been dropped along with the wrong Bremse verdict.
 
+## Krampnitz ("Lillestad", Schwedische Allee 7/9/11, Objekt-Nr. `82-17542…`, IS24 1722370xx): ad mechanics
+Mietspiegel row, § 556f grounds, price/warm regime and Block B live in [[potsdam-mietspiegel-ortsteile]] §14476 Krampnitz. On the ads themselves:
+- **EA contradiction:** Sonstiges carries the Denkmal boilerplate "Baudenkmal … von der Pflicht zur Erstellung eines Energieausweises befreit. Er liegt nicht vor" while the Bausubstanz fields show a Bedarfsausweis EEK E / 138 kWh. Report both as a Low signal and a contact question; don't pick the "kein EA" Mietspiegel row from the boilerplate alone. *Why:* either reading moves the row.
+- **The unit Grundriss (MEDIA item 1) is the identity key between siblings:** its title block prints address + position ("Schwedische Allee 7 … 1.OG 2. Wohnung von links, 4 Zimmer mit ca. 108 m²") and a room schedule that sums exactly to the headline m². The balcony labels (2,2 / 2,5 m²) are already WoFlV-reduced (~50 % of ~5 m² scaled), so interior = headline − labels (#1062: 104,6 + 2,5 = 107,07); don't reduce them again.
+- **The IS24 gallery counts the two `CAMP-*` banners (Grünstrom, "Mein Vonovia" app) as `type: PICTURE`**, so `obj_picturecount` overstates the evidence by 2 (#1061: 5 slots = 1 render + 1 Grundriss + 1 interior + 2 banners).
+
 ## Landlord / character
 Anbieter = "Vonovia Kundenservice GmbH", direct landlord, **no Provision** (Bestellerprinzip
 fine), low Eigenbedarf risk (corporate). Reputation: commonly cited slow-on-repairs — note in
