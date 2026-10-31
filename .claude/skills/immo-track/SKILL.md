@@ -108,6 +108,9 @@ back-and-forth with a landlord/agent — never auto-overwritten.
   `node scripts/duplicates.mjs {NNN}` (see "Duplicates — ALWAYS surface them").
 - Keep the header **Status** in sync with `data/listings.md` when the conversation
   advances the lifecycle (Contacted → Viewing → Applied …).
+- **Moving a listing to `Applied`?** First make sure the whole ad is saved to
+  `listings/{NNN}/` (photos, attached documents, full text, raw source). The
+  procedure is in `/immo-apply` §"Save the whole ad when applying".
 
 **Requested documents** — when a landlord/agent states which documents they want,
 record it in the log so it's not lost. Use a `**Requested docs:**` line in the
