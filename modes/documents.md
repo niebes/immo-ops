@@ -15,6 +15,9 @@ Tracks which documents have been submitted to which listings, monitors expiry, a
 | Document | German Name | Typical Validity | Required By |
 |----------|-------------|-----------------|-------------|
 | `schufa` | SCHUFA-BonitätsAuskunft | 3 months | Most landlords |
+
+**SCHUFA: always the BonitätsCheck, never the Datenübersicht.** When a landlord asks for the SCHUFA-Datenübersicht (Art. 15 DSGVO, old § 34 BDSG), send the BonitätsCheck anyway. The Datenübersicht lists every account, loan and contract with its lender; the BonitätsCheck only says whether there are negative entries. Don't request a Datenübersicht for an application unless the user asks.
+**Why:** 2026-10-31, #1047. HMD's list asked for the Datenübersicht ("keine Bonitätsauskunft"). Decision (Amanda, confirmed by Mario): "we just send the Bonitätsauskunft".
 | `gehalt` | Gehaltsnachweise (last 3) | Current month | Most landlords |
 | `arbeitsvertrag` | Arbeitsvertrag / Bescheinigung | Until changed | Some landlords |
 | `selbstauskunft` | Mieterselbstauskunft | Per listing | All landlords |
